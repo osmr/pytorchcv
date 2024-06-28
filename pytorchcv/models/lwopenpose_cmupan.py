@@ -518,8 +518,8 @@ class LwOpenPose(nn.Module):
 
 def get_lwopenpose(calc_3d_features,
                    keypoints,
-                   model_name=None,
-                   pretrained=False,
+                   model_name: str | None = None,
+                   pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),
                    **kwargs):
     """

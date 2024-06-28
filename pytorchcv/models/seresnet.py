@@ -148,8 +148,8 @@ class SEResNet(nn.Module):
 def get_seresnet(blocks,
                  bottleneck=None,
                  conv1_stride=True,
-                 model_name=None,
-                 pretrained=False,
+                 model_name: str | None = None,
+                 pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),
                  **kwargs):
     """

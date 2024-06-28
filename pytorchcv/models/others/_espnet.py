@@ -175,8 +175,8 @@ class ESPNet(ESPCNet):
         return z
 
 
-def get_espnet(model_name=None,
-               pretrained=False,
+def get_espnet(model_name: str | None = None,
+               pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
                **kwargs):
     """

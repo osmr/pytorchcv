@@ -417,8 +417,8 @@ class BNInception(nn.Module):
         return x
 
 
-def get_bninception(model_name=None,
-                    pretrained=False,
+def get_bninception(model_name: str | None = None,
+                    pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),
                     **kwargs) -> nn.Module:
     """

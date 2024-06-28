@@ -272,7 +272,7 @@ class InceptionResnetV1(nn.Module):
         return x
 
 
-def oth_inceptionresnetv1(pretrained=False, **kwargs):
+def oth_inceptionresnetv1(pretrained: bool = False, **kwargs):
     return InceptionResnetV1(**kwargs)
 
 

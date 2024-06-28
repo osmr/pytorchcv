@@ -164,8 +164,8 @@ class CIFAR10MSDNet(nn.Module):
 
 
 def get_msdnet_cifar10(blocks,
-                       model_name=None,
-                       pretrained=False,
+                       model_name: str | None = None,
+                       pretrained: bool = False,
                        root: str = os.path.join("~", ".torch", "models"),
                        **kwargs):
     """

@@ -274,8 +274,8 @@ def get_icnet(backbones,
               backbones_out_channels,
               num_classes,
               aux=False,
-              model_name=None,
-              pretrained=False,
+              model_name: str | None = None,
+              pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
               **kwargs):
     """

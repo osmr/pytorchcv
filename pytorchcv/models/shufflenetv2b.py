@@ -221,8 +221,8 @@ class ShuffleNetV2b(nn.Module):
 
 def get_shufflenetv2b(width_scale,
                       shuffle_group_first=True,
-                      model_name=None,
-                      pretrained=False,
+                      model_name: str | None = None,
+                      pretrained: bool = False,
                       root: str = os.path.join("~", ".torch", "models"),
                       **kwargs):
     """

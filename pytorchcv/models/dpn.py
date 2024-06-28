@@ -439,8 +439,8 @@ class DPN(nn.Module):
 def get_dpn(num_layers,
             b_case=False,
             for_training=False,
-            model_name=None,
-            pretrained=False,
+            model_name: str | None = None,
+            pretrained: bool = False,
             root: str = os.path.join("~", ".torch", "models"),
             **kwargs) -> nn.Module:
     """

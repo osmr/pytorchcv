@@ -176,8 +176,8 @@ class VisemeNet(nn.Module):
         return cls, reg, jali
 
 
-def get_visemenet(model_name=None,
-                  pretrained=False,
+def get_visemenet(model_name: str | None = None,
+                  pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
                   **kwargs):
     """

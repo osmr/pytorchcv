@@ -511,8 +511,8 @@ class PNASNet(nn.Module):
         return x
 
 
-def get_pnasnet(model_name=None,
-                pretrained=False,
+def get_pnasnet(model_name: str | None = None,
+                pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
                 **kwargs):
     """

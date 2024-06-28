@@ -308,8 +308,8 @@ class WRN(nn.Module):
 
 def get_wrn(blocks,
             width_factor,
-            model_name=None,
-            pretrained=False,
+            model_name: str | None = None,
+            pretrained: bool = False,
             root: str = os.path.join("~", ".torch", "models"),
             **kwargs):
     """

@@ -151,8 +151,8 @@ class MobileNetV2(nn.Module):
 
 def get_mobilenetv2(width_scale,
                     remove_exp_conv=False,
-                    model_name=None,
-                    pretrained=False,
+                    model_name: str | None = None,
+                    pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),
                     **kwargs):
     """

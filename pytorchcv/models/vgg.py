@@ -145,8 +145,8 @@ class VGG(nn.Module):
 def get_vgg(blocks,
             bias=True,
             use_bn=False,
-            model_name=None,
-            pretrained=False,
+            model_name: str | None = None,
+            pretrained: bool = False,
             root: str = os.path.join("~", ".torch", "models"),
             **kwargs):
     """

@@ -92,8 +92,8 @@ class CIFARSEResNet(nn.Module):
 def get_seresnet_cifar(num_classes,
                        blocks,
                        bottleneck,
-                       model_name=None,
-                       pretrained=False,
+                       model_name: str | None = None,
+                       pretrained: bool = False,
                        root: str = os.path.join("~", ".torch", "models"),
                        **kwargs):
     """

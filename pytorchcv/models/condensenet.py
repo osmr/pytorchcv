@@ -201,13 +201,6 @@ class TransitionBlock(nn.Module):
     """
     CondenseNet's auxiliary block, which can be treated as the initial part of the DenseNet unit, triggered only in the
     first unit of each stage.
-
-    Parameters
-    ----------
-    in_channels : int
-        Number of input channels.
-    out_channels : int
-        Number of output channels.
     """
     def __init__(self):
         super(TransitionBlock, self).__init__()
@@ -378,10 +371,10 @@ class CondenseNet(nn.Module):
         return x
 
 
-def get_condensenet(num_layers,
-                    groups=4,
-                    model_name=None,
-                    pretrained=False,
+def get_condensenet(num_layers: int,
+                    groups: int = 4,
+                    model_name: str | None = None,
+                    pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),
                     **kwargs) -> nn.Module:
     """
@@ -391,7 +384,7 @@ def get_condensenet(num_layers,
     ----------
     num_layers : int
         Number of layers.
-    groups : int
+    groups : int, default 4
         Number of groups in convolution layers.
     model_name : str or None, default None
         Model name for loading pretrained model.
@@ -457,7 +450,11 @@ def condensenet74_c4_g4(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_condensenet(num_layers=74, groups=4, model_name="condensenet74_c4_g4", **kwargs)
+    return get_condensenet(
+        num_layers=74,
+        groups=4,
+        model_name="condensenet74_c4_g4",
+        **kwargs)
 
 
 def condensenet74_c8_g8(**kwargs) -> nn.Module:
@@ -477,7 +474,11 @@ def condensenet74_c8_g8(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_condensenet(num_layers=74, groups=8, model_name="condensenet74_c8_g8", **kwargs)
+    return get_condensenet(
+        num_layers=74,
+        groups=8,
+        model_name="condensenet74_c8_g8",
+        **kwargs)
 
 
 def _test():

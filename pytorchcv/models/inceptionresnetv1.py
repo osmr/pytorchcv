@@ -459,8 +459,8 @@ class InceptionResNetV1(nn.Module):
         return x
 
 
-def get_inceptionresnetv1(model_name=None,
-                          pretrained=False,
+def get_inceptionresnetv1(model_name: str | None = None,
+                          pretrained: bool = False,
                           root: str = os.path.join("~", ".torch", "models"),
                           **kwargs):
     """

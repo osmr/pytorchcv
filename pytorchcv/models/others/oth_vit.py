@@ -197,13 +197,13 @@ class VisionTransformer(nn.Module):
 
 
 def _create_vision_transformer(variant,
-                               pretrained=False,
+                               pretrained: bool = False,
                                **kwargs):
     net = VisionTransformer(**kwargs)
     return net
 
 
-def vit_small_patch16_224(pretrained=False, **kwargs):
+def vit_small_patch16_224(pretrained: bool = False, **kwargs):
     """ My custom 'small' ViT model. Depth=8, heads=8= mlp_ratio=3."""
     model_kwargs = dict(
         embed_dim=768,
@@ -220,7 +220,7 @@ def vit_small_patch16_224(pretrained=False, **kwargs):
     return model
 
 
-def vit_base_patch16_224(pretrained=False, **kwargs):
+def vit_base_patch16_224(pretrained: bool = False, **kwargs):
     """ ViT-Base (ViT-B/16) from original paper (https://arxiv.org/abs/2010.11929).
     ImageNet-1k weights fine-tuned from in21k @ 224x224, source https://github.com/google-research/vision_transformer.
     """
@@ -229,7 +229,7 @@ def vit_base_patch16_224(pretrained=False, **kwargs):
     return model
 
 
-def vit_large_patch16_224(pretrained=False, **kwargs):
+def vit_large_patch16_224(pretrained: bool = False, **kwargs):
     """ ViT-Large model (ViT-L/32) from original paper (https://arxiv.org/abs/2010.11929).
     ImageNet-1k weights fine-tuned from in21k @ 224x224, source https://github.com/google-research/vision_transformer.
     """
@@ -238,7 +238,7 @@ def vit_large_patch16_224(pretrained=False, **kwargs):
     return model
 
 
-def vit_deit_tiny_patch16_224(pretrained=False, **kwargs):
+def vit_deit_tiny_patch16_224(pretrained: bool = False, **kwargs):
     """ DeiT-tiny model @ 224x224 from paper (https://arxiv.org/abs/2012.12877).
     ImageNet-1k weights from https://github.com/facebookresearch/deit.
     """

@@ -299,8 +299,8 @@ def get_scnet(blocks,
               se_init_block=False,
               avg_downsample=False,
               init_block_channels_scale=1,
-              model_name=None,
-              pretrained=False,
+              model_name: str | None = None,
+              pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
               **kwargs):
     """

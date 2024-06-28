@@ -124,7 +124,7 @@ class QuartzNet(nn.Module):
 path_pref = "../imgclsmob_data/nemo/"
 
 
-def oth_quartznet5x5_en_ls(pretrained=False, num_classes=29, **kwargs):
+def oth_quartznet5x5_en_ls(pretrained: bool = False, num_classes=29, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "QuartzNet5x5LS-En_08ecf82a.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)
@@ -133,7 +133,7 @@ def oth_quartznet5x5_en_ls(pretrained=False, num_classes=29, **kwargs):
     return net#, raw_net
 
 
-def oth_quartznet15x5_en(pretrained=False, num_classes=29, **kwargs):
+def oth_quartznet15x5_en(pretrained: bool = False, num_classes=29, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "QuartzNet15x5Base-En_3dbcc2ff.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)
@@ -142,7 +142,7 @@ def oth_quartznet15x5_en(pretrained=False, num_classes=29, **kwargs):
     return net#, raw_net
 
 
-def oth_quartznet15x5_en_nr(pretrained=False, num_classes=29, **kwargs):
+def oth_quartznet15x5_en_nr(pretrained: bool = False, num_classes=29, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "QuartzNet15x5NR-En_b05e34f3.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)
@@ -151,7 +151,7 @@ def oth_quartznet15x5_en_nr(pretrained=False, num_classes=29, **kwargs):
     return net#, raw_net
 
 
-def oth_quartznet15x5_fr(pretrained=False, num_classes=43, **kwargs):
+def oth_quartznet15x5_fr(pretrained: bool = False, num_classes=43, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "stt_fr_quartznet15x5_a3fdb084.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)
@@ -160,7 +160,7 @@ def oth_quartznet15x5_fr(pretrained=False, num_classes=43, **kwargs):
     return net#, raw_net
 
 
-def oth_quartznet15x5_de(pretrained=False, num_classes=32, **kwargs):
+def oth_quartznet15x5_de(pretrained: bool = False, num_classes=32, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "stt_de_quartznet15x5_6ae5d87d.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)
@@ -169,7 +169,7 @@ def oth_quartznet15x5_de(pretrained=False, num_classes=32, **kwargs):
     return net#, raw_net
 
 
-def oth_quartznet15x5_it(pretrained=False, num_classes=39, **kwargs):
+def oth_quartznet15x5_it(pretrained: bool = False, num_classes=39, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "stt_it_quartznet15x5_0f6e4537.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)
@@ -178,7 +178,7 @@ def oth_quartznet15x5_it(pretrained=False, num_classes=39, **kwargs):
     return net#, raw_net
 
 
-def oth_quartznet15x5_es(pretrained=False, num_classes=36, **kwargs):
+def oth_quartznet15x5_es(pretrained: bool = False, num_classes=36, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "stt_es_quartznet15x5_f2083912.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)
@@ -187,7 +187,7 @@ def oth_quartznet15x5_es(pretrained=False, num_classes=36, **kwargs):
     return net#, raw_net
 
 
-def oth_quartznet15x5_ca(pretrained=False, num_classes=39, **kwargs):
+def oth_quartznet15x5_ca(pretrained: bool = False, num_classes=39, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "stt_ca_quartznet15x5_b1a4fa3c.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)
@@ -196,7 +196,7 @@ def oth_quartznet15x5_ca(pretrained=False, num_classes=39, **kwargs):
     return net#, raw_net
 
 
-def oth_quartznet15x5_pl(pretrained=False, num_classes=34, **kwargs):
+def oth_quartznet15x5_pl(pretrained: bool = False, num_classes=34, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "stt_pl_quartznet15x5_9dd685f7.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)
@@ -205,7 +205,7 @@ def oth_quartznet15x5_pl(pretrained=False, num_classes=34, **kwargs):
     return net#, raw_net
 
 
-def oth_quartznet15x5_ru(pretrained=False, num_classes=35, **kwargs):
+def oth_quartznet15x5_ru(pretrained: bool = False, num_classes=35, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "stt_ru_quartznet15x5_88a3e5aa.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)
@@ -214,7 +214,7 @@ def oth_quartznet15x5_ru(pretrained=False, num_classes=35, **kwargs):
     return net#, raw_net
 
 
-def oth_jasperdr10x5_en(pretrained=False, num_classes=29, **kwargs):
+def oth_jasperdr10x5_en(pretrained: bool = False, num_classes=29, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "Jasper10x5Dr-En_2b94c9d1.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)
@@ -223,7 +223,7 @@ def oth_jasperdr10x5_en(pretrained=False, num_classes=29, **kwargs):
     return net#, raw_net
 
 
-def oth_jasperdr10x5_en_nr(pretrained=False, num_classes=29, **kwargs):
+def oth_jasperdr10x5_en_nr(pretrained: bool = False, num_classes=29, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "stt_en_jasper10x5dr_0d5ebc6c.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)
@@ -232,7 +232,7 @@ def oth_jasperdr10x5_en_nr(pretrained=False, num_classes=29, **kwargs):
     return net#, raw_net
 
 
-def oth_quartznet15x5_ru34(pretrained=False, num_classes=34, **kwargs):
+def oth_quartznet15x5_ru34(pretrained: bool = False, num_classes=34, **kwargs):
     from nemo.collections.asr.models import EncDecCTCModel
     quartznet_nemo_path = path_pref + "QuartzNet15x5_golos_1a63a2d8.nemo"
     raw_net = EncDecCTCModel.restore_from(quartznet_nemo_path)

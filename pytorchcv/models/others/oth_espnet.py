@@ -390,11 +390,11 @@ class ESPNet(nn.Module):
         return classifier
 
 
-def oth_espnet_cityscapes(num_classes=19, pretrained=False, **kwargs):
+def oth_espnet_cityscapes(num_classes=19, pretrained: bool = False, **kwargs):
     return ESPNet(num_classes=num_classes, **kwargs)
 
 
-def oth_espnetc_cityscapes(num_classes=19, pretrained=False, **kwargs):
+def oth_espnetc_cityscapes(num_classes=19, pretrained: bool = False, **kwargs):
     return ESPNet_Encoder(num_classes=num_classes, **kwargs)
 
 

@@ -213,8 +213,8 @@ class FBNet(nn.Module):
 
 def get_fbnet(version,
               bn_eps=1e-5,
-              model_name=None,
-              pretrained=False,
+              model_name: str | None = None,
+              pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
               **kwargs):
     """

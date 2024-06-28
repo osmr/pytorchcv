@@ -237,8 +237,8 @@ class SPNASNet(nn.Module):
         return x
 
 
-def get_spnasnet(model_name=None,
-                 pretrained=False,
+def get_spnasnet(model_name: str | None = None,
+                 pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),
                  **kwargs):
     """

@@ -480,7 +480,7 @@ class InceptionResNetV1(nn.Module):
         return x
 
 
-def inceptionresnetv1(pretrained=False, **kwargs):
+def inceptionresnetv1(pretrained: bool = False, **kwargs):
     return InceptionResNetV1(bn_eps=1e-3, **kwargs)
 
 

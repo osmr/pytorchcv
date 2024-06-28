@@ -940,8 +940,8 @@ class SINet(nn.Module):
             return x
 
 
-def get_sinet(model_name=None,
-              pretrained=False,
+def get_sinet(model_name: str | None = None,
+              pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
               **kwargs):
     """

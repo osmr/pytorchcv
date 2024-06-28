@@ -389,8 +389,8 @@ def get_dla(levels: list[int],
             channels: list[int],
             res_body_class: type[nn.Module],
             residual_root=False,
-            model_name=None,
-            pretrained=False,
+            model_name: str | None = None,
+            pretrained: bool = False,
             root: str = os.path.join("~", ".torch", "models"),
             **kwargs) -> nn.Module:
     """

@@ -456,8 +456,8 @@ class DABNet(nn.Module):
         return y
 
 
-def get_dabnet(model_name=None,
-               pretrained=False,
+def get_dabnet(model_name: str | None = None,
+               pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
                **kwargs) -> nn.Module:
     """

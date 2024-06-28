@@ -147,8 +147,8 @@ class IGCV3(nn.Module):
 
 
 def get_igcv3(width_scale,
-              model_name=None,
-              pretrained=False,
+              model_name: str | None = None,
+              pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
               **kwargs):
     """

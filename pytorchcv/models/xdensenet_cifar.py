@@ -146,8 +146,8 @@ def get_xdensenet_cifar(num_classes,
                         growth_rate,
                         bottleneck,
                         expand_ratio=2,
-                        model_name=None,
-                        pretrained=False,
+                        model_name: str | None = None,
+                        pretrained: bool = False,
                         root: str = os.path.join("~", ".torch", "models"),
                         **kwargs) -> nn.Module:
     """
