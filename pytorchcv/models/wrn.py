@@ -311,7 +311,7 @@ def get_wrn(blocks,
             model_name: str | None = None,
             pretrained: bool = False,
             root: str = os.path.join("~", ".torch", "models"),
-            **kwargs):
+            **kwargs) -> nn.Module:
     """
     Create WRN model with specific parameters.
 
@@ -367,7 +367,7 @@ def get_wrn(blocks,
     return net
 
 
-def wrn50_2(**kwargs):
+def wrn50_2(**kwargs) -> nn.Module:
     """
     WRN-50-2 model from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -383,7 +383,11 @@ def wrn50_2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_wrn(blocks=50, width_factor=2.0, model_name="wrn50_2", **kwargs)
+    return get_wrn(
+        blocks=50,
+        width_factor=2.0,
+        model_name="wrn50_2",
+        **kwargs)
 
 
 def _test():

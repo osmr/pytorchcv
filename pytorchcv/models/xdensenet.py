@@ -355,7 +355,7 @@ def get_xdensenet(blocks: int,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create X-DenseNet model with specific parameters.
 
@@ -423,7 +423,7 @@ def get_xdensenet(blocks: int,
     return net
 
 
-def xdensenet121_2(**kwargs):
+def xdensenet121_2(**kwargs) -> nn.Module:
     """
     X-DenseNet-121-2 model from 'Deep Expander Networks: Efficient Deep Networks from Graph Theory,'
     https://arxiv.org/abs/1711.08757.
@@ -446,7 +446,7 @@ def xdensenet121_2(**kwargs):
         **kwargs)
 
 
-def xdensenet161_2(**kwargs):
+def xdensenet161_2(**kwargs) -> nn.Module:
     """
     X-DenseNet-161-2 model from 'Deep Expander Networks: Efficient Deep Networks from Graph Theory,'
     https://arxiv.org/abs/1711.08757.
@@ -469,7 +469,7 @@ def xdensenet161_2(**kwargs):
         **kwargs)
 
 
-def xdensenet169_2(**kwargs):
+def xdensenet169_2(**kwargs) -> nn.Module:
     """
     X-DenseNet-169-2 model from 'Deep Expander Networks: Efficient Deep Networks from Graph Theory,'
     https://arxiv.org/abs/1711.08757.
@@ -492,7 +492,7 @@ def xdensenet169_2(**kwargs):
         **kwargs)
 
 
-def xdensenet201_2(**kwargs):
+def xdensenet201_2(**kwargs) -> nn.Module:
     """
     X-DenseNet-201-2 model from 'Deep Expander Networks: Efficient Deep Networks from Graph Theory,'
     https://arxiv.org/abs/1711.08757.

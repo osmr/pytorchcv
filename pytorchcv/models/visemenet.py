@@ -179,7 +179,7 @@ class VisemeNet(nn.Module):
 def get_visemenet(model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create VisemeNet model with specific parameters.
 
@@ -212,7 +212,7 @@ def get_visemenet(model_name: str | None = None,
     return net
 
 
-def visemenet20(**kwargs):
+def visemenet20(**kwargs) -> nn.Module:
     """
     VisemeNet model for 20 visemes (without co-articulation rules) from 'VisemeNet: Audio-Driven Animator-Centric
     Speech Animation,' https://arxiv.org/abs/1805.09488.
@@ -229,7 +229,9 @@ def visemenet20(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_visemenet(model_name="visemenet20", **kwargs)
+    return get_visemenet(
+        model_name="visemenet20",
+        **kwargs)
 
 
 def _test():

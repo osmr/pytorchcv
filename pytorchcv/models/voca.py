@@ -132,7 +132,7 @@ def get_voca(base_persons,
              model_name: str | None = None,
              pretrained: bool = False,
              root: str = os.path.join("~", ".torch", "models"),
-             **kwargs):
+             **kwargs) -> nn.Module:
     """
     Create VOCA model with specific parameters.
 
@@ -171,7 +171,7 @@ def get_voca(base_persons,
     return net
 
 
-def voca8flame(**kwargs):
+def voca8flame(**kwargs) -> nn.Module:
     """
     VOCA-8-FLAME model for 8 base persons and FLAME topology from 'Capture, Learning, and Synthesis of 3D Speaking
     Styles,' https://arxiv.org/abs/1905.03079.
@@ -188,7 +188,11 @@ def voca8flame(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_voca(base_persons=8, vertices=5023, model_name="voca8flame", **kwargs)
+    return get_voca(
+        base_persons=8,
+        vertices=5023,
+        model_name="voca8flame",
+        **kwargs)
 
 
 def _test():

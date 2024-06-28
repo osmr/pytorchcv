@@ -278,7 +278,8 @@ def get_unet(model_name: str | None = None,
     return net
 
 
-def unet_cityscapes(num_classes: int = 19, **kwargs) -> nn.Module:
+def unet_cityscapes(num_classes: int = 19,
+                    **kwargs) -> nn.Module:
     """
     U-Net model for Cityscapes from 'U-Net: Convolutional Networks for Biomedical Image Segmentation,'
     https://arxiv.org/abs/1505.04597.
@@ -297,7 +298,10 @@ def unet_cityscapes(num_classes: int = 19, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_unet(num_classes=num_classes, model_name="unet_cityscapes", **kwargs)
+    return get_unet(
+        num_classes=num_classes,
+        model_name="unet_cityscapes",
+        **kwargs)
 
 
 def _test():

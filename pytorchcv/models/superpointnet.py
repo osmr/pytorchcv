@@ -258,7 +258,7 @@ class SuperPointNet(nn.Module):
 def get_superpointnet(model_name: str | None = None,
                       pretrained: bool = False,
                       root: str = os.path.join("~", ".torch", "models"),
-                      **kwargs):
+                      **kwargs) -> nn.Module:
     """
     Create SuperPointNet model with specific parameters.
 
@@ -298,7 +298,7 @@ def get_superpointnet(model_name: str | None = None,
     return net
 
 
-def superpointnet(**kwargs):
+def superpointnet(**kwargs) -> nn.Module:
     """
     SuperPointNet model from 'SuperPoint: Self-Supervised Interest Point Detection and Description,'
     https://arxiv.org/abs/1712.07629.
@@ -315,7 +315,9 @@ def superpointnet(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_superpointnet(model_name="superpointnet", **kwargs)
+    return get_superpointnet(
+        model_name="superpointnet",
+        **kwargs)
 
 
 def _test():

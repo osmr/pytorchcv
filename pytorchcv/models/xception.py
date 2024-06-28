@@ -316,7 +316,7 @@ class Xception(nn.Module):
 def get_xception(model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),
-                 **kwargs):
+                 **kwargs) -> nn.Module:
     """
     Create Xception model with specific parameters.
 
@@ -353,7 +353,7 @@ def get_xception(model_name: str | None = None,
     return net
 
 
-def xception(**kwargs):
+def xception(**kwargs) -> nn.Module:
     """
     Xception model from 'Xception: Deep Learning with Depthwise Separable Convolutions,'
     https://arxiv.org/abs/1610.02357.

@@ -190,7 +190,7 @@ def get_vovnet(blocks,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
-               **kwargs):
+               **kwargs) -> nn.Module:
     """
     Create ResNet model with specific parameters.
 
@@ -251,7 +251,7 @@ def get_vovnet(blocks,
     return net
 
 
-def vovnet27s(**kwargs):
+def vovnet27s(**kwargs) -> nn.Module:
     """
     VoVNet-27-slim model from 'An Energy and GPU-Computation Efficient Backbone Network for Real-Time Object Detection,'
     https://arxiv.org/abs/1904.09730.
@@ -268,10 +268,14 @@ def vovnet27s(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vovnet(blocks=27, slim=True, model_name="vovnet27s", **kwargs)
+    return get_vovnet(
+        blocks=27,
+        slim=True,
+        model_name="vovnet27s",
+        **kwargs)
 
 
-def vovnet39(**kwargs):
+def vovnet39(**kwargs) -> nn.Module:
     """
     VoVNet-39 model from 'An Energy and GPU-Computation Efficient Backbone Network for Real-Time Object Detection,'
     https://arxiv.org/abs/1904.09730.
@@ -288,10 +292,13 @@ def vovnet39(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vovnet(blocks=39, model_name="vovnet39", **kwargs)
+    return get_vovnet(
+        blocks=39,
+        model_name="vovnet39",
+        **kwargs)
 
 
-def vovnet57(**kwargs):
+def vovnet57(**kwargs) -> nn.Module:
     """
     VoVNet-57 model from 'An Energy and GPU-Computation Efficient Backbone Network for Real-Time Object Detection,'
     https://arxiv.org/abs/1904.09730.
@@ -308,7 +315,10 @@ def vovnet57(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vovnet(blocks=57, model_name="vovnet57", **kwargs)
+    return get_vovnet(
+        blocks=57,
+        model_name="vovnet57",
+        **kwargs)
 
 
 def _test():

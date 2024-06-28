@@ -589,7 +589,7 @@ def get_wrn1bit_cifar(num_classes,
                       model_name: str | None = None,
                       pretrained: bool = False,
                       root: str = os.path.join("~", ".torch", "models"),
-                      **kwargs):
+                      **kwargs) -> nn.Module:
     """
     Create WRN-1bit model for CIFAR with specific parameters.
 
@@ -643,7 +643,8 @@ def get_wrn1bit_cifar(num_classes,
     return net
 
 
-def wrn20_10_1bit_cifar10(num_classes=10, **kwargs):
+def wrn20_10_1bit_cifar10(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     WRN-20-10-1bit model for CIFAR-10 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -661,11 +662,17 @@ def wrn20_10_1bit_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_wrn1bit_cifar(num_classes=num_classes, blocks=20, width_factor=10, binarized=True,
-                             model_name="wrn20_10_1bit_cifar10", **kwargs)
+    return get_wrn1bit_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        width_factor=10,
+        binarized=True,
+        model_name="wrn20_10_1bit_cifar10",
+        **kwargs)
 
 
-def wrn20_10_1bit_cifar100(num_classes=100, **kwargs):
+def wrn20_10_1bit_cifar100(num_classes=100,
+                           **kwargs) -> nn.Module:
     """
     WRN-20-10-1bit model for CIFAR-100 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -683,11 +690,17 @@ def wrn20_10_1bit_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_wrn1bit_cifar(num_classes=num_classes, blocks=20, width_factor=10, binarized=True,
-                             model_name="wrn20_10_1bit_cifar100", **kwargs)
+    return get_wrn1bit_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        width_factor=10,
+        binarized=True,
+        model_name="wrn20_10_1bit_cifar100",
+        **kwargs)
 
 
-def wrn20_10_1bit_svhn(num_classes=10, **kwargs):
+def wrn20_10_1bit_svhn(num_classes=10,
+                       **kwargs) -> nn.Module:
     """
     WRN-20-10-1bit model for SVHN from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -705,11 +718,17 @@ def wrn20_10_1bit_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_wrn1bit_cifar(num_classes=num_classes, blocks=20, width_factor=10, binarized=True,
-                             model_name="wrn20_10_1bit_svhn", **kwargs)
+    return get_wrn1bit_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        width_factor=10,
+        binarized=True,
+        model_name="wrn20_10_1bit_svhn",
+        **kwargs)
 
 
-def wrn20_10_32bit_cifar10(num_classes=10, **kwargs):
+def wrn20_10_32bit_cifar10(num_classes=10,
+                           **kwargs) -> nn.Module:
     """
     WRN-20-10-32bit model for CIFAR-10 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -727,11 +746,17 @@ def wrn20_10_32bit_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_wrn1bit_cifar(num_classes=num_classes, blocks=20, width_factor=10, binarized=False,
-                             model_name="wrn20_10_32bit_cifar10", **kwargs)
+    return get_wrn1bit_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        width_factor=10,
+        binarized=False,
+        model_name="wrn20_10_32bit_cifar10",
+        **kwargs)
 
 
-def wrn20_10_32bit_cifar100(num_classes=100, **kwargs):
+def wrn20_10_32bit_cifar100(num_classes=100,
+                            **kwargs) -> nn.Module:
     """
     WRN-20-10-32bit model for CIFAR-100 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -749,11 +774,17 @@ def wrn20_10_32bit_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_wrn1bit_cifar(num_classes=num_classes, blocks=20, width_factor=10, binarized=False,
-                             model_name="wrn20_10_32bit_cifar100", **kwargs)
+    return get_wrn1bit_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        width_factor=10,
+        binarized=False,
+        model_name="wrn20_10_32bit_cifar100",
+        **kwargs)
 
 
-def wrn20_10_32bit_svhn(num_classes=10, **kwargs):
+def wrn20_10_32bit_svhn(num_classes=10,
+                        **kwargs) -> nn.Module:
     """
     WRN-20-10-32bit model for SVHN from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -771,8 +802,13 @@ def wrn20_10_32bit_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_wrn1bit_cifar(num_classes=num_classes, blocks=20, width_factor=10, binarized=False,
-                             model_name="wrn20_10_32bit_svhn", **kwargs)
+    return get_wrn1bit_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        width_factor=10,
+        binarized=False,
+        model_name="wrn20_10_32bit_svhn",
+        **kwargs)
 
 
 def _test():

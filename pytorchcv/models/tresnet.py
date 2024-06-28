@@ -379,7 +379,7 @@ def get_tresnet(version,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create TResNet model with specific parameters.
 
@@ -448,7 +448,7 @@ def get_tresnet(version,
     return net
 
 
-def tresnet_m(**kwargs):
+def tresnet_m(**kwargs) -> nn.Module:
     """
     TResNet-M model from 'TResNet: High Performance GPU-Dedicated Architecture,' https://arxiv.org/abs/2003.13630.
 
@@ -464,10 +464,13 @@ def tresnet_m(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_tresnet(version="m", model_name="tresnet_m", **kwargs)
+    return get_tresnet(
+        version="m",
+        model_name="tresnet_m",
+        **kwargs)
 
 
-def tresnet_l(**kwargs):
+def tresnet_l(**kwargs) -> nn.Module:
     """
     TResNet-L model from 'TResNet: High Performance GPU-Dedicated Architecture,' https://arxiv.org/abs/2003.13630.
 
@@ -483,10 +486,13 @@ def tresnet_l(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_tresnet(version="l", model_name="tresnet_l", **kwargs)
+    return get_tresnet(
+        version="l",
+        model_name="tresnet_l",
+        **kwargs)
 
 
-def tresnet_xl(**kwargs):
+def tresnet_xl(**kwargs) -> nn.Module:
     """
     TResNet-XL model from 'TResNet: High Performance GPU-Dedicated Architecture,' https://arxiv.org/abs/2003.13630.
 
@@ -502,7 +508,10 @@ def tresnet_xl(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_tresnet(version="xl", model_name="tresnet_xl", **kwargs)
+    return get_tresnet(
+        version="xl",
+        model_name="tresnet_xl",
+        **kwargs)
 
 
 def _test():

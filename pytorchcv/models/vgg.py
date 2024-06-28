@@ -148,7 +148,7 @@ def get_vgg(blocks,
             model_name: str | None = None,
             pretrained: bool = False,
             root: str = os.path.join("~", ".torch", "models"),
-            **kwargs):
+            **kwargs) -> nn.Module:
     """
     Create VGG model with specific parameters.
 
@@ -204,7 +204,7 @@ def get_vgg(blocks,
     return net
 
 
-def vgg11(**kwargs):
+def vgg11(**kwargs) -> nn.Module:
     """
     VGG-11 model from 'Very Deep Convolutional Networks for Large-Scale Image Recognition,'
     https://arxiv.org/abs/1409.1556.
@@ -221,10 +221,13 @@ def vgg11(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vgg(blocks=11, model_name="vgg11", **kwargs)
+    return get_vgg(
+        blocks=11,
+        model_name="vgg11",
+        **kwargs)
 
 
-def vgg13(**kwargs):
+def vgg13(**kwargs) -> nn.Module:
     """
     VGG-13 model from 'Very Deep Convolutional Networks for Large-Scale Image Recognition,'
     https://arxiv.org/abs/1409.1556.
@@ -241,10 +244,13 @@ def vgg13(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vgg(blocks=13, model_name="vgg13", **kwargs)
+    return get_vgg(
+        blocks=13,
+        model_name="vgg13",
+        **kwargs)
 
 
-def vgg16(**kwargs):
+def vgg16(**kwargs) -> nn.Module:
     """
     VGG-16 model from 'Very Deep Convolutional Networks for Large-Scale Image Recognition,'
     https://arxiv.org/abs/1409.1556.
@@ -261,10 +267,13 @@ def vgg16(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vgg(blocks=16, model_name="vgg16", **kwargs)
+    return get_vgg(
+        blocks=16,
+        model_name="vgg16",
+        **kwargs)
 
 
-def vgg19(**kwargs):
+def vgg19(**kwargs) -> nn.Module:
     """
     VGG-19 model from 'Very Deep Convolutional Networks for Large-Scale Image Recognition,'
     https://arxiv.org/abs/1409.1556.
@@ -281,10 +290,13 @@ def vgg19(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vgg(blocks=19, model_name="vgg19", **kwargs)
+    return get_vgg(
+        blocks=19,
+        model_name="vgg19",
+        **kwargs)
 
 
-def bn_vgg11(**kwargs):
+def bn_vgg11(**kwargs) -> nn.Module:
     """
     VGG-11 model with batch normalization from 'Very Deep Convolutional Networks for Large-Scale Image Recognition,'
     https://arxiv.org/abs/1409.1556.
@@ -301,10 +313,15 @@ def bn_vgg11(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vgg(blocks=11, bias=False, use_bn=True, model_name="bn_vgg11", **kwargs)
+    return get_vgg(
+        blocks=11,
+        bias=False,
+        use_bn=True,
+        model_name="bn_vgg11",
+        **kwargs)
 
 
-def bn_vgg13(**kwargs):
+def bn_vgg13(**kwargs) -> nn.Module:
     """
     VGG-13 model with batch normalization from 'Very Deep Convolutional Networks for Large-Scale Image Recognition,'
     https://arxiv.org/abs/1409.1556.
@@ -321,10 +338,15 @@ def bn_vgg13(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vgg(blocks=13, bias=False, use_bn=True, model_name="bn_vgg13", **kwargs)
+    return get_vgg(
+        blocks=13,
+        bias=False,
+        use_bn=True,
+        model_name="bn_vgg13",
+        **kwargs)
 
 
-def bn_vgg16(**kwargs):
+def bn_vgg16(**kwargs) -> nn.Module:
     """
     VGG-16 model with batch normalization from 'Very Deep Convolutional Networks for Large-Scale Image Recognition,'
     https://arxiv.org/abs/1409.1556.
@@ -341,10 +363,15 @@ def bn_vgg16(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vgg(blocks=16, bias=False, use_bn=True, model_name="bn_vgg16", **kwargs)
+    return get_vgg(
+        blocks=16,
+        bias=False,
+        use_bn=True,
+        model_name="bn_vgg16",
+        **kwargs)
 
 
-def bn_vgg19(**kwargs):
+def bn_vgg19(**kwargs) -> nn.Module:
     """
     VGG-19 model with batch normalization from 'Very Deep Convolutional Networks for Large-Scale Image Recognition,'
     https://arxiv.org/abs/1409.1556.
@@ -361,10 +388,15 @@ def bn_vgg19(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vgg(blocks=19, bias=False, use_bn=True, model_name="bn_vgg19", **kwargs)
+    return get_vgg(
+        blocks=19,
+        bias=False,
+        use_bn=True,
+        model_name="bn_vgg19",
+        **kwargs)
 
 
-def bn_vgg11b(**kwargs):
+def bn_vgg11b(**kwargs) -> nn.Module:
     """
     VGG-11 model with batch normalization and biases in convolution layers from 'Very Deep Convolutional Networks for
     Large-Scale Image Recognition,' https://arxiv.org/abs/1409.1556.
@@ -381,10 +413,15 @@ def bn_vgg11b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vgg(blocks=11, bias=True, use_bn=True, model_name="bn_vgg11b", **kwargs)
+    return get_vgg(
+        blocks=11,
+        bias=True,
+        use_bn=True,
+        model_name="bn_vgg11b",
+        **kwargs)
 
 
-def bn_vgg13b(**kwargs):
+def bn_vgg13b(**kwargs) -> nn.Module:
     """
     VGG-13 model with batch normalization and biases in convolution layers from 'Very Deep Convolutional Networks for
     Large-Scale Image Recognition,' https://arxiv.org/abs/1409.1556.
@@ -401,10 +438,15 @@ def bn_vgg13b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vgg(blocks=13, bias=True, use_bn=True, model_name="bn_vgg13b", **kwargs)
+    return get_vgg(
+        blocks=13,
+        bias=True,
+        use_bn=True,
+        model_name="bn_vgg13b",
+        **kwargs)
 
 
-def bn_vgg16b(**kwargs):
+def bn_vgg16b(**kwargs) -> nn.Module:
     """
     VGG-16 model with batch normalization and biases in convolution layers from 'Very Deep Convolutional Networks for
     Large-Scale Image Recognition,' https://arxiv.org/abs/1409.1556.
@@ -421,10 +463,15 @@ def bn_vgg16b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vgg(blocks=16, bias=True, use_bn=True, model_name="bn_vgg16b", **kwargs)
+    return get_vgg(
+        blocks=16,
+        bias=True,
+        use_bn=True,
+        model_name="bn_vgg16b",
+        **kwargs)
 
 
-def bn_vgg19b(**kwargs):
+def bn_vgg19b(**kwargs) -> nn.Module:
     """
     VGG-19 model with batch normalization and biases in convolution layers from 'Very Deep Convolutional Networks for
     Large-Scale Image Recognition,' https://arxiv.org/abs/1409.1556.
@@ -441,7 +488,12 @@ def bn_vgg19b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_vgg(blocks=19, bias=True, use_bn=True, model_name="bn_vgg19b", **kwargs)
+    return get_vgg(
+        blocks=19,
+        bias=True,
+        use_bn=True,
+        model_name="bn_vgg19b",
+        **kwargs)
 
 
 def _test():
