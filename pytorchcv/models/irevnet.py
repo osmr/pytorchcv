@@ -398,6 +398,11 @@ def get_irevnet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     if blocks == 301:
@@ -441,6 +446,11 @@ def irevnet301(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_irevnet(blocks=301, model_name="irevnet301", **kwargs)
 

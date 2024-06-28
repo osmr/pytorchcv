@@ -270,6 +270,11 @@ def get_superpointnet(model_name: str | None = None,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     channels_per_layers = [64, 64, 128, 128]
     layers = [2, 2, 2, 2]
@@ -304,6 +309,11 @@ def superpointnet(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_superpointnet(model_name="superpointnet", **kwargs)
 

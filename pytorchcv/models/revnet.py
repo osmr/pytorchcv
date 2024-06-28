@@ -408,6 +408,11 @@ def get_revnet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     if blocks == 38:
@@ -458,6 +463,11 @@ def revnet38(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_revnet(blocks=38, model_name="revnet38", **kwargs)
 
@@ -473,6 +483,11 @@ def revnet110(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_revnet(blocks=110, model_name="revnet110", **kwargs)
 
@@ -488,6 +503,11 @@ def revnet164(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_revnet(blocks=164, model_name="revnet164", **kwargs)
 

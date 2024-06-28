@@ -148,6 +148,11 @@ def get_voca(base_persons,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     net = VOCA(
         base_persons=base_persons,
@@ -177,6 +182,11 @@ def voca8flame(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_voca(base_persons=8, vertices=5023, model_name="voca8flame", **kwargs)
 

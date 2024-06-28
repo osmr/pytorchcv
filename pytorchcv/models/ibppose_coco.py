@@ -509,6 +509,11 @@ def get_ibppose(model_name: str | None = None,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     passes = 4
     backbone_out_channels = 256
@@ -549,6 +554,11 @@ def ibppose_coco(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ibppose(model_name="ibppose_coco", **kwargs)
 

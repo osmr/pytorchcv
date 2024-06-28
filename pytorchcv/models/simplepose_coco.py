@@ -112,6 +112,11 @@ def get_simplepose(backbone,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     channels = [256, 256, 256]
 
@@ -134,7 +139,9 @@ def get_simplepose(backbone,
     return net
 
 
-def simplepose_resnet18_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_resnet18_coco(pretrained_backbone=False,
+                             keypoints=17,
+                             **kwargs):
     """
     SimplePose model on the base of ResNet-18 for COCO Keypoint from 'Simple Baselines for Human Pose Estimation and
     Tracking,' https://arxiv.org/abs/1804.06208.
@@ -149,14 +156,25 @@ def simplepose_resnet18_coco(pretrained_backbone=False, keypoints=17, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = resnet18(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simplepose(backbone=backbone, backbone_out_channels=512, keypoints=keypoints,
-                          model_name="simplepose_resnet18_coco", **kwargs)
+    return get_simplepose(
+        backbone=backbone,
+        backbone_out_channels=512,
+        keypoints=keypoints,
+        model_name="simplepose_resnet18_coco",
+        **kwargs)
 
 
-def simplepose_resnet50b_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_resnet50b_coco(pretrained_backbone=False,
+                              keypoints=17,
+                              **kwargs):
     """
     SimplePose model on the base of ResNet-50b for COCO Keypoint from 'Simple Baselines for Human Pose Estimation and
     Tracking,' https://arxiv.org/abs/1804.06208.
@@ -171,14 +189,25 @@ def simplepose_resnet50b_coco(pretrained_backbone=False, keypoints=17, **kwargs)
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = resnet50b(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simplepose(backbone=backbone, backbone_out_channels=2048, keypoints=keypoints,
-                          model_name="simplepose_resnet50b_coco", **kwargs)
+    return get_simplepose(
+        backbone=backbone,
+        backbone_out_channels=2048,
+        keypoints=keypoints,
+        model_name="simplepose_resnet50b_coco",
+        **kwargs)
 
 
-def simplepose_resnet101b_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_resnet101b_coco(pretrained_backbone=False,
+                               keypoints=17,
+                               **kwargs):
     """
     SimplePose model on the base of ResNet-101b for COCO Keypoint from 'Simple Baselines for Human Pose Estimation
     and Tracking,' https://arxiv.org/abs/1804.06208.
@@ -193,14 +222,25 @@ def simplepose_resnet101b_coco(pretrained_backbone=False, keypoints=17, **kwargs
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = resnet101b(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simplepose(backbone=backbone, backbone_out_channels=2048, keypoints=keypoints,
-                          model_name="simplepose_resnet101b_coco", **kwargs)
+    return get_simplepose(
+        backbone=backbone,
+        backbone_out_channels=2048,
+        keypoints=keypoints,
+        model_name="simplepose_resnet101b_coco",
+        **kwargs)
 
 
-def simplepose_resnet152b_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_resnet152b_coco(pretrained_backbone=False,
+                               keypoints=17,
+                               **kwargs):
     """
     SimplePose model on the base of ResNet-152b for COCO Keypoint from 'Simple Baselines for Human Pose Estimation
     and Tracking,' https://arxiv.org/abs/1804.06208.
@@ -215,14 +255,25 @@ def simplepose_resnet152b_coco(pretrained_backbone=False, keypoints=17, **kwargs
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = resnet152b(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simplepose(backbone=backbone, backbone_out_channels=2048, keypoints=keypoints,
-                          model_name="simplepose_resnet152b_coco", **kwargs)
+    return get_simplepose(
+        backbone=backbone,
+        backbone_out_channels=2048,
+        keypoints=keypoints,
+        model_name="simplepose_resnet152b_coco",
+        **kwargs)
 
 
-def simplepose_resneta50b_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_resneta50b_coco(pretrained_backbone=False,
+                               keypoints=17,
+                               **kwargs):
     """
     SimplePose model on the base of ResNet(A)-50b for COCO Keypoint from 'Simple Baselines for Human Pose Estimation
     and Tracking,' https://arxiv.org/abs/1804.06208.
@@ -237,14 +288,25 @@ def simplepose_resneta50b_coco(pretrained_backbone=False, keypoints=17, **kwargs
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = resneta50b(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simplepose(backbone=backbone, backbone_out_channels=2048, keypoints=keypoints,
-                          model_name="simplepose_resneta50b_coco", **kwargs)
+    return get_simplepose(
+        backbone=backbone,
+        backbone_out_channels=2048,
+        keypoints=keypoints,
+        model_name="simplepose_resneta50b_coco",
+        **kwargs)
 
 
-def simplepose_resneta101b_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_resneta101b_coco(pretrained_backbone=False,
+                                keypoints=17,
+                                **kwargs):
     """
     SimplePose model on the base of ResNet(A)-101b for COCO Keypoint from 'Simple Baselines for Human Pose Estimation
     and Tracking,' https://arxiv.org/abs/1804.06208.
@@ -259,14 +321,25 @@ def simplepose_resneta101b_coco(pretrained_backbone=False, keypoints=17, **kwarg
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = resneta101b(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simplepose(backbone=backbone, backbone_out_channels=2048, keypoints=keypoints,
-                          model_name="simplepose_resneta101b_coco", **kwargs)
+    return get_simplepose(
+        backbone=backbone,
+        backbone_out_channels=2048,
+        keypoints=keypoints,
+        model_name="simplepose_resneta101b_coco",
+        **kwargs)
 
 
-def simplepose_resneta152b_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_resneta152b_coco(pretrained_backbone=False,
+                                keypoints=17,
+                                **kwargs):
     """
     SimplePose model on the base of ResNet(A)-152b for COCO Keypoint from 'Simple Baselines for Human Pose Estimation
     and Tracking,' https://arxiv.org/abs/1804.06208.
@@ -281,11 +354,20 @@ def simplepose_resneta152b_coco(pretrained_backbone=False, keypoints=17, **kwarg
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = resneta152b(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simplepose(backbone=backbone, backbone_out_channels=2048, keypoints=keypoints,
-                          model_name="simplepose_resneta152b_coco", **kwargs)
+    return get_simplepose(
+        backbone=backbone,
+        backbone_out_channels=2048,
+        keypoints=keypoints,
+        model_name="simplepose_resneta152b_coco",
+        **kwargs)
 
 
 def _test():

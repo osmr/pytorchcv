@@ -251,8 +251,12 @@ def get_sknet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
-    """
 
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
     if blocks == 50:
         layers = [3, 4, 6, 3]
     elif blocks == 101:
@@ -293,8 +297,16 @@ def sknet50(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sknet(blocks=50, model_name="sknet50", **kwargs)
+    return get_sknet(
+        blocks=50,
+        model_name="sknet50",
+        **kwargs)
 
 
 def sknet101(**kwargs):
@@ -307,8 +319,16 @@ def sknet101(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sknet(blocks=101, model_name="sknet101", **kwargs)
+    return get_sknet(
+        blocks=101,
+        model_name="sknet101",
+        **kwargs)
 
 
 def sknet152(**kwargs):
@@ -321,8 +341,16 @@ def sknet152(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sknet(blocks=152, model_name="sknet152", **kwargs)
+    return get_sknet(
+        blocks=152,
+        model_name="sknet152",
+        **kwargs)
 
 
 def _test():

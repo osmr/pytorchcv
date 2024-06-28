@@ -396,6 +396,11 @@ def get_hrnet(version,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if version == "w18s1":
         init_block_channels = 128
@@ -478,6 +483,11 @@ def hrnet_w18_small_v1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hrnet(version="w18s1", model_name="hrnet_w18_small_v1", **kwargs)
 
@@ -493,6 +503,11 @@ def hrnet_w18_small_v2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hrnet(version="w18s2", model_name="hrnet_w18_small_v2", **kwargs)
 
@@ -508,6 +523,11 @@ def hrnetv2_w18(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hrnet(version="w18", model_name="hrnetv2_w18", **kwargs)
 
@@ -523,6 +543,11 @@ def hrnetv2_w30(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hrnet(version="w30", model_name="hrnetv2_w30", **kwargs)
 
@@ -538,6 +563,11 @@ def hrnetv2_w32(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hrnet(version="w32", model_name="hrnetv2_w32", **kwargs)
 
@@ -553,6 +583,11 @@ def hrnetv2_w40(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hrnet(version="w40", model_name="hrnetv2_w40", **kwargs)
 
@@ -568,6 +603,11 @@ def hrnetv2_w44(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hrnet(version="w44", model_name="hrnetv2_w44", **kwargs)
 
@@ -583,6 +623,11 @@ def hrnetv2_w48(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hrnet(version="w48", model_name="hrnetv2_w48", **kwargs)
 
@@ -598,6 +643,11 @@ def hrnetv2_w64(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hrnet(version="w64", model_name="hrnetv2_w64", **kwargs)
 

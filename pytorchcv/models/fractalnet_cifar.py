@@ -393,6 +393,11 @@ def get_fractalnet_cifar(num_classes,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     dropout_probs = (0.0, 0.1, 0.2, 0.3, 0.4)
@@ -435,6 +440,11 @@ def fractalnet_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_fractalnet_cifar(num_classes=num_classes, model_name="fractalnet_cifar10", **kwargs)
 
@@ -452,6 +462,11 @@ def fractalnet_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_fractalnet_cifar(num_classes=num_classes, model_name="fractalnet_cifar100", **kwargs)
 

@@ -221,6 +221,11 @@ def get_ibnresnext(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     if blocks == 50:
@@ -265,6 +270,11 @@ def ibn_resnext50_32x4d(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ibnresnext(blocks=50, cardinality=32, bottleneck_width=4, model_name="ibn_resnext50_32x4d", **kwargs)
 
@@ -280,6 +290,11 @@ def ibn_resnext101_32x4d(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ibnresnext(blocks=101, cardinality=32, bottleneck_width=4, model_name="ibn_resnext101_32x4d", **kwargs)
 
@@ -295,6 +310,11 @@ def ibn_resnext101_64x4d(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ibnresnext(blocks=101, cardinality=64, bottleneck_width=4, model_name="ibn_resnext101_64x4d", **kwargs)
 

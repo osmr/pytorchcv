@@ -170,6 +170,11 @@ def get_mobilenetv2(width_scale,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     init_block_channels = 32
@@ -220,6 +225,11 @@ def mobilenetv2_w1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenetv2(width_scale=1.0, model_name="mobilenetv2_w1", **kwargs)
 
@@ -235,6 +245,11 @@ def mobilenetv2_w3d4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenetv2(width_scale=0.75, model_name="mobilenetv2_w3d4", **kwargs)
 
@@ -250,6 +265,11 @@ def mobilenetv2_wd2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenetv2(width_scale=0.5, model_name="mobilenetv2_wd2", **kwargs)
 
@@ -265,6 +285,11 @@ def mobilenetv2_wd4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenetv2(width_scale=0.25, model_name="mobilenetv2_wd4", **kwargs)
 
@@ -280,6 +305,11 @@ def mobilenetv2b_w1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenetv2(width_scale=1.0, remove_exp_conv=True, model_name="mobilenetv2b_w1", **kwargs)
 
@@ -295,6 +325,11 @@ def mobilenetv2b_w3d4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenetv2(width_scale=0.75, remove_exp_conv=True, model_name="mobilenetv2b_w3d4", **kwargs)
 
@@ -310,6 +345,11 @@ def mobilenetv2b_wd2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenetv2(width_scale=0.5, remove_exp_conv=True, model_name="mobilenetv2b_wd2", **kwargs)
 
@@ -325,6 +365,11 @@ def mobilenetv2b_wd4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenetv2(width_scale=0.25, remove_exp_conv=True, model_name="mobilenetv2b_wd4", **kwargs)
 

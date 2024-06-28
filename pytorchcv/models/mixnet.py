@@ -462,6 +462,11 @@ def get_mixnet(version,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     if version == "s":
@@ -522,6 +527,11 @@ def mixnet_s(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mixnet(version="s", width_scale=1.0, model_name="mixnet_s", **kwargs)
 
@@ -536,6 +546,11 @@ def mixnet_m(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mixnet(version="m", width_scale=1.0, model_name="mixnet_m", **kwargs)
 
@@ -550,6 +565,11 @@ def mixnet_l(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mixnet(version="m", width_scale=1.3, model_name="mixnet_l", **kwargs)
 

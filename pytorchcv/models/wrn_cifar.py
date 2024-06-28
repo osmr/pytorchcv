@@ -105,6 +105,11 @@ def get_wrn_cifar(num_classes,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     assert ((blocks - 4) % 6 == 0)
@@ -132,7 +137,8 @@ def get_wrn_cifar(num_classes,
     return net
 
 
-def wrn16_10_cifar10(num_classes=10, **kwargs):
+def wrn16_10_cifar10(num_classes=10,
+                     **kwargs):
     """
     WRN-16-10 model for CIFAR-10 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -144,11 +150,22 @@ def wrn16_10_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_wrn_cifar(num_classes=num_classes, blocks=16, width_factor=10, model_name="wrn16_10_cifar10", **kwargs)
+    return get_wrn_cifar(
+        num_classes=num_classes,
+        blocks=16,
+        width_factor=10,
+        model_name="wrn16_10_cifar10",
+        **kwargs)
 
 
-def wrn16_10_cifar100(num_classes=100, **kwargs):
+def wrn16_10_cifar100(num_classes=100,
+                      **kwargs):
     """
     WRN-16-10 model for CIFAR-100 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -160,11 +177,22 @@ def wrn16_10_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_wrn_cifar(num_classes=num_classes, blocks=16, width_factor=10, model_name="wrn16_10_cifar100", **kwargs)
+    return get_wrn_cifar(
+        num_classes=num_classes,
+        blocks=16,
+        width_factor=10,
+        model_name="wrn16_10_cifar100",
+        **kwargs)
 
 
-def wrn16_10_svhn(num_classes=10, **kwargs):
+def wrn16_10_svhn(num_classes=10,
+                  **kwargs):
     """
     WRN-16-10 model for SVHN from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -176,11 +204,22 @@ def wrn16_10_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_wrn_cifar(num_classes=num_classes, blocks=16, width_factor=10, model_name="wrn16_10_svhn", **kwargs)
+    return get_wrn_cifar(
+        num_classes=num_classes,
+        blocks=16,
+        width_factor=10,
+        model_name="wrn16_10_svhn",
+        **kwargs)
 
 
-def wrn28_10_cifar10(num_classes=10, **kwargs):
+def wrn28_10_cifar10(num_classes=10,
+                     **kwargs):
     """
     WRN-28-10 model for CIFAR-10 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -192,11 +231,22 @@ def wrn28_10_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_wrn_cifar(num_classes=num_classes, blocks=28, width_factor=10, model_name="wrn28_10_cifar10", **kwargs)
+    return get_wrn_cifar(
+        num_classes=num_classes,
+        blocks=28,
+        width_factor=10,
+        model_name="wrn28_10_cifar10",
+        **kwargs)
 
 
-def wrn28_10_cifar100(num_classes=100, **kwargs):
+def wrn28_10_cifar100(num_classes=100,
+                      **kwargs):
     """
     WRN-28-10 model for CIFAR-100 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -208,11 +258,22 @@ def wrn28_10_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_wrn_cifar(num_classes=num_classes, blocks=28, width_factor=10, model_name="wrn28_10_cifar100", **kwargs)
+    return get_wrn_cifar(
+        num_classes=num_classes,
+        blocks=28,
+        width_factor=10,
+        model_name="wrn28_10_cifar100",
+        **kwargs)
 
 
-def wrn28_10_svhn(num_classes=10, **kwargs):
+def wrn28_10_svhn(num_classes=10,
+                  **kwargs):
     """
     WRN-28-10 model for SVHN from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -224,11 +285,22 @@ def wrn28_10_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_wrn_cifar(num_classes=num_classes, blocks=28, width_factor=10, model_name="wrn28_10_svhn", **kwargs)
+    return get_wrn_cifar(
+        num_classes=num_classes,
+        blocks=28,
+        width_factor=10,
+        model_name="wrn28_10_svhn",
+        **kwargs)
 
 
-def wrn40_8_cifar10(num_classes=10, **kwargs):
+def wrn40_8_cifar10(num_classes=10,
+                    **kwargs):
     """
     WRN-40-8 model for CIFAR-10 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -240,11 +312,22 @@ def wrn40_8_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_wrn_cifar(num_classes=num_classes, blocks=40, width_factor=8, model_name="wrn40_8_cifar10", **kwargs)
+    return get_wrn_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        width_factor=8,
+        model_name="wrn40_8_cifar10",
+        **kwargs)
 
 
-def wrn40_8_cifar100(num_classes=100, **kwargs):
+def wrn40_8_cifar100(num_classes=100,
+                     **kwargs):
     """
     WRN-40-8 model for CIFAR-100 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -256,11 +339,22 @@ def wrn40_8_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_wrn_cifar(num_classes=num_classes, blocks=40, width_factor=8, model_name="wrn40_8_cifar100", **kwargs)
+    return get_wrn_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        width_factor=8,
+        model_name="wrn40_8_cifar100",
+        **kwargs)
 
 
-def wrn40_8_svhn(num_classes=10, **kwargs):
+def wrn40_8_svhn(num_classes=10,
+                 **kwargs):
     """
     WRN-40-8 model for SVHN from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
 
@@ -272,8 +366,18 @@ def wrn40_8_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_wrn_cifar(num_classes=num_classes, blocks=40, width_factor=8, model_name="wrn40_8_svhn", **kwargs)
+    return get_wrn_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        width_factor=8,
+        model_name="wrn40_8_svhn",
+        **kwargs)
 
 
 def _test():

@@ -229,6 +229,11 @@ def get_shakeshakeresnet_cifar(num_classes,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     assert (num_classes in [10, 100])
 
@@ -281,6 +286,11 @@ def shakeshakeresnet20_2x16d_cifar10(num_classes=10,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_shakeshakeresnet_cifar(
         num_classes=num_classes,
@@ -304,6 +314,11 @@ def shakeshakeresnet20_2x16d_cifar100(num_classes=100,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_shakeshakeresnet_cifar(
         num_classes=num_classes,
@@ -327,6 +342,11 @@ def shakeshakeresnet20_2x16d_svhn(num_classes=10,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_shakeshakeresnet_cifar(
         num_classes=num_classes,
@@ -350,6 +370,11 @@ def shakeshakeresnet26_2x32d_cifar10(num_classes=10,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_shakeshakeresnet_cifar(
         num_classes=num_classes,
@@ -373,6 +398,11 @@ def shakeshakeresnet26_2x32d_cifar100(num_classes=100,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_shakeshakeresnet_cifar(
         num_classes=num_classes,
@@ -395,6 +425,11 @@ def shakeshakeresnet26_2x32d_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_shakeshakeresnet_cifar(
         num_classes=num_classes,

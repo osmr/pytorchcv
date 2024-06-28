@@ -955,6 +955,11 @@ def get_sinet(model_name: str | None = None,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     kernel_sizes_list = [
         [[3, 5], [3, 3], [3, 3]],
@@ -1000,7 +1005,8 @@ def get_sinet(model_name: str | None = None,
     return net
 
 
-def sinet_cityscapes(num_classes=19, **kwargs):
+def sinet_cityscapes(num_classes=19,
+                     **kwargs):
     """
     SINet model for Cityscapes from 'SINet: Extreme Lightweight Portrait Segmentation Networks with Spatial Squeeze
     Modules and Information Blocking Decoder,' https://arxiv.org/abs/1911.09099.
@@ -1013,8 +1019,17 @@ def sinet_cityscapes(num_classes=19, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sinet(num_classes=num_classes, bn_eps=1e-3, model_name="sinet_cityscapes", **kwargs)
+    return get_sinet(
+        num_classes=num_classes,
+        bn_eps=1e-3,
+        model_name="sinet_cityscapes",
+        **kwargs)
 
 
 def _test():

@@ -324,6 +324,11 @@ def get_scnet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if blocks == 14:
         layers = [1, 1, 1, 1]
@@ -389,6 +394,11 @@ def scnet50(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_scnet(blocks=50, model_name="scnet50", **kwargs)
 
@@ -404,6 +414,11 @@ def scnet101(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_scnet(blocks=101, model_name="scnet101", **kwargs)
 
@@ -419,6 +434,11 @@ def scneta50(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_scnet(blocks=50, se_init_block=True, avg_downsample=True, model_name="scneta50", **kwargs)
 
@@ -434,6 +454,11 @@ def scneta101(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_scnet(blocks=101, se_init_block=True, avg_downsample=True, init_block_channels_scale=2,
                      model_name="scneta101", **kwargs)

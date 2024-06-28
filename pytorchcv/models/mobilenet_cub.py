@@ -27,6 +27,11 @@ def mobilenet_w1_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenet(num_classes=num_classes, width_scale=1.0, model_name="mobilenet_w1_cub", **kwargs)
 
@@ -44,6 +49,11 @@ def mobilenet_w3d4_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenet(num_classes=num_classes, width_scale=0.75, model_name="mobilenet_w3d4_cub", **kwargs)
 
@@ -61,6 +71,11 @@ def mobilenet_wd2_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenet(num_classes=num_classes, width_scale=0.5, model_name="mobilenet_wd2_cub", **kwargs)
 
@@ -78,6 +93,11 @@ def mobilenet_wd4_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenet(num_classes=num_classes, width_scale=0.25, model_name="mobilenet_wd4_cub", **kwargs)
 
@@ -95,6 +115,11 @@ def fdmobilenet_w1_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_fdmobilenet(num_classes=num_classes, width_scale=1.0, model_name="fdmobilenet_w1_cub", **kwargs)
 
@@ -112,6 +137,11 @@ def fdmobilenet_w3d4_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_fdmobilenet(num_classes=num_classes, width_scale=0.75, model_name="fdmobilenet_w3d4_cub", **kwargs)
 
@@ -129,6 +159,11 @@ def fdmobilenet_wd2_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_fdmobilenet(num_classes=num_classes, width_scale=0.5, model_name="fdmobilenet_wd2_cub", **kwargs)
 
@@ -146,6 +181,11 @@ def fdmobilenet_wd4_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_fdmobilenet(num_classes=num_classes, width_scale=0.25, model_name="fdmobilenet_wd4_cub", **kwargs)
 

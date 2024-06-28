@@ -998,6 +998,11 @@ def get_jasper(version,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     import numpy as np
 
@@ -1056,6 +1061,11 @@ def jasper5x3(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_jasper(version=("jasper", "5x3"), model_name="jasper5x3", **kwargs)
 
@@ -1071,6 +1081,11 @@ def jasper10x4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_jasper(version=("jasper", "10x4"), model_name="jasper10x4", **kwargs)
 
@@ -1086,6 +1101,11 @@ def jasper10x5(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_jasper(version=("jasper", "10x5"), model_name="jasper10x5", **kwargs)
 

@@ -11,7 +11,7 @@ from .alexnet import AlexNet
 from .common import calc_net_weights
 
 
-def get_zfnet(version="a",
+def get_zfnet(version: str = "a",
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
@@ -86,7 +86,9 @@ def zfnet(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_zfnet(model_name="zfnet", **kwargs)
+    return get_zfnet(
+        model_name="zfnet",
+        **kwargs)
 
 
 def zfnetb(**kwargs) -> nn.Module:
@@ -105,7 +107,10 @@ def zfnetb(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_zfnet(version="b", model_name="zfnetb", **kwargs)
+    return get_zfnet(
+        version="b",
+        model_name="zfnetb",
+        **kwargs)
 
 
 def _test():

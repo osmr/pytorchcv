@@ -264,6 +264,11 @@ def get_isqrtcovresnet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     if blocks == 18:
@@ -324,6 +329,11 @@ def isqrtcovresnet18(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_isqrtcovresnet(blocks=18, model_name="isqrtcovresnet18", **kwargs)
 
@@ -339,6 +349,11 @@ def isqrtcovresnet34(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_isqrtcovresnet(blocks=34, model_name="isqrtcovresnet34", **kwargs)
 
@@ -354,6 +369,11 @@ def isqrtcovresnet50(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_isqrtcovresnet(blocks=50, model_name="isqrtcovresnet50", **kwargs)
 
@@ -370,6 +390,11 @@ def isqrtcovresnet50b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_isqrtcovresnet(blocks=50, conv1_stride=False, model_name="isqrtcovresnet50b", **kwargs)
 
@@ -385,6 +410,11 @@ def isqrtcovresnet101(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_isqrtcovresnet(blocks=101, model_name="isqrtcovresnet101", **kwargs)
 
@@ -401,6 +431,11 @@ def isqrtcovresnet101b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_isqrtcovresnet(blocks=101, conv1_stride=False, model_name="isqrtcovresnet101b", **kwargs)
 

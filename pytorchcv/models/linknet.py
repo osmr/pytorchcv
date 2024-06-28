@@ -224,6 +224,11 @@ def get_linknet(backbone,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     channels = [256, 128, 64, 64]
     strides = [2, 2, 2, 1]
@@ -264,6 +269,11 @@ def linknet_cityscapes(pretrained_backbone=False, num_classes=19, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = resnet18(pretrained=pretrained_backbone).features
     del backbone[-1]

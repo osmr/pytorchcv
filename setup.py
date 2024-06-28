@@ -29,7 +29,7 @@ setup(
              'proxylessnas dianet efficientnet mixnet image-segmentation voc ade20k cityscapes coco pspnet deeplabv3 '
              'fcn',
     packages=find_packages(exclude=['datasets', 'metrics', 'others', '*.others', 'others.*', '*.others.*']),
-    install_requires=['numpy', 'requests'],
+    install_requires=['numpy', 'requests', 'torch'],
     python_requires='>=3.10',
     include_package_data=True,
 )

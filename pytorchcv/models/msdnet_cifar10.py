@@ -181,6 +181,11 @@ def get_msdnet_cifar10(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     assert (blocks == 22)
@@ -277,6 +282,11 @@ def msdnet22_cifar10(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_msdnet_cifar10(blocks=22, model_name="msdnet22_cifar10", **kwargs)
 

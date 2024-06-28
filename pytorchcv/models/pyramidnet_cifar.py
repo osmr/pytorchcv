@@ -117,6 +117,11 @@ def get_pyramidnet_cifar(num_classes,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     assert (num_classes in [10, 100])
 
@@ -170,6 +175,11 @@ def pyramidnet110_a48_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -192,6 +202,11 @@ def pyramidnet110_a48_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -214,6 +229,11 @@ def pyramidnet110_a48_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -236,6 +256,11 @@ def pyramidnet110_a84_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -258,6 +283,11 @@ def pyramidnet110_a84_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -280,6 +310,11 @@ def pyramidnet110_a84_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -302,6 +337,11 @@ def pyramidnet110_a270_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -325,6 +365,11 @@ def pyramidnet110_a270_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -347,6 +392,11 @@ def pyramidnet110_a270_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -370,6 +420,11 @@ def pyramidnet164_a270_bn_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -393,6 +448,11 @@ def pyramidnet164_a270_bn_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -416,6 +476,11 @@ def pyramidnet164_a270_bn_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -439,6 +504,11 @@ def pyramidnet200_a240_bn_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -462,6 +532,11 @@ def pyramidnet200_a240_bn_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -485,6 +560,11 @@ def pyramidnet200_a240_bn_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -508,6 +588,11 @@ def pyramidnet236_a220_bn_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -531,6 +616,11 @@ def pyramidnet236_a220_bn_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -554,6 +644,11 @@ def pyramidnet236_a220_bn_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -577,6 +672,11 @@ def pyramidnet272_a200_bn_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -600,6 +700,11 @@ def pyramidnet272_a200_bn_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,
@@ -623,6 +728,11 @@ def pyramidnet272_a200_bn_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_pyramidnet_cifar(
         num_classes=num_classes,

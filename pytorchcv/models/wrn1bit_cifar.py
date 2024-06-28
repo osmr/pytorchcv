@@ -609,6 +609,11 @@ def get_wrn1bit_cifar(num_classes,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     assert ((blocks - 2) % 6 == 0)
@@ -650,6 +655,11 @@ def wrn20_10_1bit_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_wrn1bit_cifar(num_classes=num_classes, blocks=20, width_factor=10, binarized=True,
                              model_name="wrn20_10_1bit_cifar10", **kwargs)
@@ -667,6 +677,11 @@ def wrn20_10_1bit_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_wrn1bit_cifar(num_classes=num_classes, blocks=20, width_factor=10, binarized=True,
                              model_name="wrn20_10_1bit_cifar100", **kwargs)
@@ -684,6 +699,11 @@ def wrn20_10_1bit_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_wrn1bit_cifar(num_classes=num_classes, blocks=20, width_factor=10, binarized=True,
                              model_name="wrn20_10_1bit_svhn", **kwargs)
@@ -701,6 +721,11 @@ def wrn20_10_32bit_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_wrn1bit_cifar(num_classes=num_classes, blocks=20, width_factor=10, binarized=False,
                              model_name="wrn20_10_32bit_cifar10", **kwargs)
@@ -718,6 +743,11 @@ def wrn20_10_32bit_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_wrn1bit_cifar(num_classes=num_classes, blocks=20, width_factor=10, binarized=False,
                              model_name="wrn20_10_32bit_cifar100", **kwargs)
@@ -735,6 +765,11 @@ def wrn20_10_32bit_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_wrn1bit_cifar(num_classes=num_classes, blocks=20, width_factor=10, binarized=False,
                              model_name="wrn20_10_32bit_svhn", **kwargs)

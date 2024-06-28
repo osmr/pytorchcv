@@ -164,6 +164,11 @@ def get_igcv3(width_scale,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     init_block_channels = 32
@@ -215,6 +220,11 @@ def igcv3_w1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_igcv3(width_scale=1.0, model_name="igcv3_w1", **kwargs)
 
@@ -230,6 +240,11 @@ def igcv3_w3d4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_igcv3(width_scale=0.75, model_name="igcv3_w3d4", **kwargs)
 
@@ -245,6 +260,11 @@ def igcv3_wd2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_igcv3(width_scale=0.5, model_name="igcv3_wd2", **kwargs)
 
@@ -260,6 +280,11 @@ def igcv3_wd4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_igcv3(width_scale=0.25, model_name="igcv3_wd4", **kwargs)
 

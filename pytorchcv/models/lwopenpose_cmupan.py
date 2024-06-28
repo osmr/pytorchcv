@@ -537,6 +537,11 @@ def get_lwopenpose(calc_3d_features,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     encoder_channels = [[64], [128, 128], [256, 256, 512, 512, 512, 512, 512, 512]]
     encoder_paddings = [[1], [1, 1], [1, 1, 1, 2, 1, 1, 1, 1]]
@@ -579,6 +584,11 @@ def lwopenpose2d_mobilenet_cmupan_coco(keypoints=19, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_lwopenpose(calc_3d_features=False, keypoints=keypoints, model_name="lwopenpose2d_mobilenet_cmupan_coco",
                           **kwargs)
@@ -597,6 +607,11 @@ def lwopenpose3d_mobilenet_cmupan_coco(keypoints=19, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_lwopenpose(calc_3d_features=True, keypoints=keypoints, model_name="lwopenpose3d_mobilenet_cmupan_coco",
                           **kwargs)

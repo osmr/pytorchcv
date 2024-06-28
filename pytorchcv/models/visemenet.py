@@ -191,6 +191,11 @@ def get_visemenet(model_name: str | None = None,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     net = VisemeNet(
         **kwargs)
@@ -218,6 +223,11 @@ def visemenet20(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_visemenet(model_name="visemenet20", **kwargs)
 

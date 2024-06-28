@@ -208,6 +208,11 @@ def get_selecsls(version,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if version in ("42", "42b"):
         channels = [[64, 128], [144, 288], [304, 480]]
@@ -268,6 +273,11 @@ def selecsls42(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_selecsls(version="42", model_name="selecsls42", **kwargs)
 
@@ -283,6 +293,11 @@ def selecsls42b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_selecsls(version="42b", model_name="selecsls42b", **kwargs)
 
@@ -298,6 +313,11 @@ def selecsls60(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_selecsls(version="60", model_name="selecsls60", **kwargs)
 
@@ -313,6 +333,11 @@ def selecsls60b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_selecsls(version="60b", model_name="selecsls60b", **kwargs)
 
@@ -328,6 +353,11 @@ def selecsls84(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_selecsls(version="84", model_name="selecsls84", **kwargs)
 

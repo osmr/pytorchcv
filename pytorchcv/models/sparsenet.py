@@ -211,6 +211,11 @@ def get_sparsenet(num_layers,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     if num_layers == 121:
@@ -273,8 +278,16 @@ def sparsenet121(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sparsenet(num_layers=121, model_name="sparsenet121", **kwargs)
+    return get_sparsenet(
+        num_layers=121,
+        model_name="sparsenet121",
+        **kwargs)
 
 
 def sparsenet161(**kwargs):
@@ -287,8 +300,16 @@ def sparsenet161(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sparsenet(num_layers=161, model_name="sparsenet161", **kwargs)
+    return get_sparsenet(
+        num_layers=161,
+        model_name="sparsenet161",
+        **kwargs)
 
 
 def sparsenet169(**kwargs):
@@ -301,8 +322,16 @@ def sparsenet169(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sparsenet(num_layers=169, model_name="sparsenet169", **kwargs)
+    return get_sparsenet(
+        num_layers=169,
+        model_name="sparsenet169",
+        **kwargs)
 
 
 def sparsenet201(**kwargs):
@@ -315,8 +344,16 @@ def sparsenet201(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sparsenet(num_layers=201, model_name="sparsenet201", **kwargs)
+    return get_sparsenet(
+        num_layers=201,
+        model_name="sparsenet201",
+        **kwargs)
 
 
 def sparsenet264(**kwargs):
@@ -329,8 +366,16 @@ def sparsenet264(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sparsenet(num_layers=264, model_name="sparsenet264", **kwargs)
+    return get_sparsenet(
+        num_layers=264,
+        model_name="sparsenet264",
+        **kwargs)
 
 
 def _test():

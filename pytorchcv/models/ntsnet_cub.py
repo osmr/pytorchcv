@@ -335,6 +335,11 @@ def get_ntsnet(backbone,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     net = NTSNet(
         backbone=backbone,
@@ -367,6 +372,11 @@ def ntsnet_cub(pretrained_backbone=False, aux=True, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = resnet50b(pretrained=pretrained_backbone).features
     del backbone[-1]

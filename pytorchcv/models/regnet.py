@@ -229,6 +229,11 @@ def get_regnet(channels_init,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     divisor = 8
     assert (channels_slope >= 0) and (channels_init > 0) and (channels_mult > 1) and (channels_init % divisor == 0)
@@ -281,6 +286,11 @@ def regnetx002(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=24, channels_slope=36.44, channels_mult=2.49, depth=13, groups=8,
                       model_name="regnetx002", **kwargs)
@@ -296,6 +306,11 @@ def regnetx004(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=24, channels_slope=24.48, channels_mult=2.54, depth=22, groups=16,
                       model_name="regnetx004", **kwargs)
@@ -311,6 +326,11 @@ def regnetx006(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=48, channels_slope=36.97, channels_mult=2.24, depth=16, groups=24,
                       model_name="regnetx006", **kwargs)
@@ -326,6 +346,11 @@ def regnetx008(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=56, channels_slope=35.73, channels_mult=2.28, depth=16, groups=16,
                       model_name="regnetx008", **kwargs)
@@ -341,6 +366,11 @@ def regnetx016(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=80, channels_slope=34.01, channels_mult=2.25, depth=18, groups=24,
                       model_name="regnetx016", **kwargs)
@@ -356,6 +386,11 @@ def regnetx032(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=88, channels_slope=26.31, channels_mult=2.25, depth=25, groups=48,
                       model_name="regnetx032", **kwargs)
@@ -371,6 +406,11 @@ def regnetx040(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=96, channels_slope=38.65, channels_mult=2.43, depth=23, groups=40,
                       model_name="regnetx040", **kwargs)
@@ -386,6 +426,11 @@ def regnetx064(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=184, channels_slope=60.83, channels_mult=2.07, depth=17, groups=56,
                       model_name="regnetx064", **kwargs)
@@ -401,6 +446,11 @@ def regnetx080(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=80, channels_slope=49.56, channels_mult=2.88, depth=23, groups=120,
                       model_name="regnetx080", **kwargs)
@@ -416,6 +466,11 @@ def regnetx120(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=168, channels_slope=73.36, channels_mult=2.37, depth=19, groups=112,
                       model_name="regnetx120", **kwargs)
@@ -431,6 +486,11 @@ def regnetx160(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=216, channels_slope=55.59, channels_mult=2.1, depth=22, groups=128,
                       model_name="regnetx160", **kwargs)
@@ -446,6 +506,11 @@ def regnetx320(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=320, channels_slope=69.86, channels_mult=2.0, depth=23, groups=168,
                       model_name="regnetx320", **kwargs)
@@ -461,6 +526,11 @@ def regnety002(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=24, channels_slope=36.44, channels_mult=2.49, depth=13, groups=8, use_se=True,
                       model_name="regnety002", **kwargs)
@@ -476,6 +546,11 @@ def regnety004(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=48, channels_slope=27.89, channels_mult=2.09, depth=16, groups=8, use_se=True,
                       model_name="regnety004", **kwargs)
@@ -491,6 +566,11 @@ def regnety006(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=48, channels_slope=32.54, channels_mult=2.32, depth=15, groups=16, use_se=True,
                       model_name="regnety006", **kwargs)
@@ -506,6 +586,11 @@ def regnety008(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=56, channels_slope=38.84, channels_mult=2.4, depth=14, groups=16, use_se=True,
                       model_name="regnety008", **kwargs)
@@ -521,6 +606,11 @@ def regnety016(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=48, channels_slope=20.71, channels_mult=2.65, depth=27, groups=24, use_se=True,
                       model_name="regnety016", **kwargs)
@@ -536,6 +626,11 @@ def regnety032(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=80, channels_slope=42.63, channels_mult=2.66, depth=21, groups=24, use_se=True,
                       model_name="regnety032", **kwargs)
@@ -551,6 +646,11 @@ def regnety040(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=96, channels_slope=31.41, channels_mult=2.24, depth=22, groups=64, use_se=True,
                       model_name="regnety040", **kwargs)
@@ -566,6 +666,11 @@ def regnety064(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=112, channels_slope=33.22, channels_mult=2.27, depth=25, groups=72, use_se=True,
                       model_name="regnety064", **kwargs)
@@ -581,6 +686,11 @@ def regnety080(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=192, channels_slope=76.82, channels_mult=2.19, depth=17, groups=56, use_se=True,
                       model_name="regnety080", **kwargs)
@@ -596,6 +706,11 @@ def regnety120(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=168, channels_slope=73.36, channels_mult=2.37, depth=19, groups=112, use_se=True,
                       model_name="regnety120", **kwargs)
@@ -611,6 +726,11 @@ def regnety160(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=200, channels_slope=106.23, channels_mult=2.48, depth=18, groups=112, use_se=True,
                       model_name="regnety160", **kwargs)
@@ -626,6 +746,11 @@ def regnety320(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_regnet(channels_init=232, channels_slope=115.89, channels_mult=2.53, depth=20, groups=232, use_se=True,
                       model_name="regnety320", **kwargs)

@@ -119,6 +119,11 @@ def get_simpleposemobile(backbone,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     channels = [128, 64, 32]
     decoder_init_block_channels = 256
@@ -143,7 +148,9 @@ def get_simpleposemobile(backbone,
     return net
 
 
-def simplepose_mobile_resnet18_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_mobile_resnet18_coco(pretrained_backbone=False,
+                                    keypoints=17,
+                                    **kwargs):
     """
     SimplePose(Mobile) model on the base of ResNet-18 for COCO Keypoint from 'Simple Baselines for Human Pose Estimation
     and Tracking,' https://arxiv.org/abs/1804.06208.
@@ -158,14 +165,25 @@ def simplepose_mobile_resnet18_coco(pretrained_backbone=False, keypoints=17, **k
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = resnet18(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simpleposemobile(backbone=backbone, backbone_out_channels=512, keypoints=keypoints,
-                                model_name="simplepose_mobile_resnet18_coco", **kwargs)
+    return get_simpleposemobile(
+        backbone=backbone,
+        backbone_out_channels=512,
+        keypoints=keypoints,
+        model_name="simplepose_mobile_resnet18_coco",
+        **kwargs)
 
 
-def simplepose_mobile_resnet50b_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_mobile_resnet50b_coco(pretrained_backbone=False,
+                                     keypoints=17,
+                                     **kwargs):
     """
     SimplePose(Mobile) model on the base of ResNet-50b for COCO Keypoint from 'Simple Baselines for Human Pose
     Estimation and Tracking,' https://arxiv.org/abs/1804.06208.
@@ -180,14 +198,25 @@ def simplepose_mobile_resnet50b_coco(pretrained_backbone=False, keypoints=17, **
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = resnet50b(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simpleposemobile(backbone=backbone, backbone_out_channels=2048, keypoints=keypoints,
-                                model_name="simplepose_mobile_resnet50b_coco", **kwargs)
+    return get_simpleposemobile(
+        backbone=backbone,
+        backbone_out_channels=2048,
+        keypoints=keypoints,
+        model_name="simplepose_mobile_resnet50b_coco",
+        **kwargs)
 
 
-def simplepose_mobile_mobilenet_w1_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_mobile_mobilenet_w1_coco(pretrained_backbone=False,
+                                        keypoints=17,
+                                        **kwargs):
     """
     SimplePose(Mobile) model on the base of 1.0 MobileNet-224 for COCO Keypoint from 'Simple Baselines for Human Pose
     Estimation and Tracking,' https://arxiv.org/abs/1804.06208.
@@ -202,14 +231,25 @@ def simplepose_mobile_mobilenet_w1_coco(pretrained_backbone=False, keypoints=17,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = mobilenet_w1(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simpleposemobile(backbone=backbone, backbone_out_channels=1024, keypoints=keypoints,
-                                model_name="simplepose_mobile_mobilenet_w1_coco", **kwargs)
+    return get_simpleposemobile(
+        backbone=backbone,
+        backbone_out_channels=1024,
+        keypoints=keypoints,
+        model_name="simplepose_mobile_mobilenet_w1_coco",
+        **kwargs)
 
 
-def simplepose_mobile_mobilenetv2b_w1_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_mobile_mobilenetv2b_w1_coco(pretrained_backbone=False,
+                                           keypoints=17,
+                                           **kwargs):
     """
     SimplePose(Mobile) model on the base of 1.0 MobileNetV2b-224 for COCO Keypoint from 'Simple Baselines for Human Pose
     Estimation and Tracking,' https://arxiv.org/abs/1804.06208.
@@ -224,14 +264,25 @@ def simplepose_mobile_mobilenetv2b_w1_coco(pretrained_backbone=False, keypoints=
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = mobilenetv2b_w1(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simpleposemobile(backbone=backbone, backbone_out_channels=1280, keypoints=keypoints,
-                                model_name="simplepose_mobile_mobilenetv2b_w1_coco", **kwargs)
+    return get_simpleposemobile(
+        backbone=backbone,
+        backbone_out_channels=1280,
+        keypoints=keypoints,
+        model_name="simplepose_mobile_mobilenetv2b_w1_coco",
+        **kwargs)
 
 
-def simplepose_mobile_mobilenetv3_small_w1_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_mobile_mobilenetv3_small_w1_coco(pretrained_backbone=False,
+                                                keypoints=17,
+                                                **kwargs):
     """
     SimplePose(Mobile) model on the base of MobileNetV3 Small 224/1.0 for COCO Keypoint from 'Simple Baselines for Human
     Pose Estimation and Tracking,' https://arxiv.org/abs/1804.06208.
@@ -246,14 +297,25 @@ def simplepose_mobile_mobilenetv3_small_w1_coco(pretrained_backbone=False, keypo
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = mobilenetv3_small_w1(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simpleposemobile(backbone=backbone, backbone_out_channels=576, keypoints=keypoints,
-                                model_name="simplepose_mobile_mobilenetv3_small_w1_coco", **kwargs)
+    return get_simpleposemobile(
+        backbone=backbone,
+        backbone_out_channels=576,
+        keypoints=keypoints,
+        model_name="simplepose_mobile_mobilenetv3_small_w1_coco",
+        **kwargs)
 
 
-def simplepose_mobile_mobilenetv3_large_w1_coco(pretrained_backbone=False, keypoints=17, **kwargs):
+def simplepose_mobile_mobilenetv3_large_w1_coco(pretrained_backbone=False,
+                                                keypoints=17,
+                                                **kwargs):
     """
     SimplePose(Mobile) model on the base of MobileNetV3 Large 224/1.0 for COCO Keypoint from 'Simple Baselines for Human
     Pose Estimation and Tracking,' https://arxiv.org/abs/1804.06208.
@@ -268,11 +330,20 @@ def simplepose_mobile_mobilenetv3_large_w1_coco(pretrained_backbone=False, keypo
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone = mobilenetv3_large_w1(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_simpleposemobile(backbone=backbone, backbone_out_channels=960, keypoints=keypoints,
-                                model_name="simplepose_mobile_mobilenetv3_large_w1_coco", **kwargs)
+    return get_simpleposemobile(
+        backbone=backbone,
+        backbone_out_channels=960,
+        keypoints=keypoints,
+        model_name="simplepose_mobile_mobilenetv3_large_w1_coco",
+        **kwargs)
 
 
 def _test():

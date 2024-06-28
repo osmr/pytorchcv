@@ -480,6 +480,11 @@ def get_resattnet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if blocks == 56:
         att_layers = [1, 1, 1]
@@ -540,6 +545,11 @@ def resattnet56(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resattnet(blocks=56, model_name="resattnet56", **kwargs)
 
@@ -554,6 +564,11 @@ def resattnet92(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resattnet(blocks=92, model_name="resattnet92", **kwargs)
 
@@ -568,6 +583,11 @@ def resattnet128(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resattnet(blocks=128, model_name="resattnet128", **kwargs)
 
@@ -582,6 +602,11 @@ def resattnet164(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resattnet(blocks=164, model_name="resattnet164", **kwargs)
 
@@ -596,6 +621,11 @@ def resattnet200(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resattnet(blocks=200, model_name="resattnet200", **kwargs)
 
@@ -610,6 +640,11 @@ def resattnet236(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resattnet(blocks=236, model_name="resattnet236", **kwargs)
 
@@ -624,6 +659,11 @@ def resattnet452(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resattnet(blocks=452, model_name="resattnet452", **kwargs)
 

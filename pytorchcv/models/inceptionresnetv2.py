@@ -231,6 +231,11 @@ def get_inceptionresnetv2(model_name: str | None = None,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     net = InceptionResNetV2(**kwargs)
 
@@ -257,6 +262,11 @@ def inceptionresnetv2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_inceptionresnetv2(model_name="inceptionresnetv2", bn_eps=1e-3, **kwargs)
 

@@ -259,6 +259,11 @@ def get_senet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     if blocks == 16:
@@ -317,6 +322,11 @@ def senet16(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_senet(blocks=16, model_name="senet16", **kwargs)
 
@@ -331,6 +341,11 @@ def senet28(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_senet(blocks=28, model_name="senet28", **kwargs)
 
@@ -345,6 +360,11 @@ def senet40(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_senet(blocks=40, model_name="senet40", **kwargs)
 
@@ -359,6 +379,11 @@ def senet52(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_senet(blocks=52, model_name="senet52", **kwargs)
 
@@ -373,6 +398,11 @@ def senet103(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_senet(blocks=103, model_name="senet103", **kwargs)
 
@@ -387,6 +417,11 @@ def senet154(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_senet(blocks=154, model_name="senet154", **kwargs)
 

@@ -512,6 +512,11 @@ def get_fishnet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     if blocks == 99:
@@ -562,6 +567,11 @@ def fishnet99(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_fishnet(blocks=99, model_name="fishnet99", **kwargs)
 
@@ -577,6 +587,11 @@ def fishnet150(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_fishnet(blocks=150, model_name="fishnet150", **kwargs)
 

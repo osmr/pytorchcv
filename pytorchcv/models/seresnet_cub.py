@@ -25,6 +25,11 @@ def seresnet10_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=10, model_name="seresnet10_cub", **kwargs)
 
@@ -42,6 +47,11 @@ def seresnet12_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=12, model_name="seresnet12_cub", **kwargs)
 
@@ -59,6 +69,11 @@ def seresnet14_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=14, model_name="seresnet14_cub", **kwargs)
 
@@ -76,6 +91,11 @@ def seresnetbc14b_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=14, bottleneck=True, conv1_stride=False,
                         model_name="seresnetbc14b_cub", **kwargs)
@@ -94,6 +114,11 @@ def seresnet16_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=16, model_name="seresnet16_cub", **kwargs)
 
@@ -110,6 +135,11 @@ def seresnet18_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=18, model_name="seresnet18_cub", **kwargs)
 
@@ -127,6 +157,11 @@ def seresnet26_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=26, bottleneck=False, model_name="seresnet26_cub", **kwargs)
 
@@ -144,6 +179,11 @@ def seresnetbc26b_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=26, bottleneck=True, conv1_stride=False,
                         model_name="seresnetbc26b_cub", **kwargs)
@@ -161,6 +201,11 @@ def seresnet34_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=34, model_name="seresnet34_cub", **kwargs)
 
@@ -178,6 +223,11 @@ def seresnetbc38b_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=38, bottleneck=True, conv1_stride=False,
                         model_name="seresnetbc38b_cub", **kwargs)
@@ -195,6 +245,11 @@ def seresnet50_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=50, model_name="seresnet50_cub", **kwargs)
 
@@ -212,6 +267,11 @@ def seresnet50b_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=50, conv1_stride=False, model_name="seresnet50b_cub", **kwargs)
 
@@ -228,6 +288,11 @@ def seresnet101_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=101, model_name="seresnet101_cub", **kwargs)
 
@@ -245,6 +310,11 @@ def seresnet101b_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=101, conv1_stride=False, model_name="seresnet101b_cub",
                         **kwargs)
@@ -262,6 +332,11 @@ def seresnet152_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=152, model_name="seresnet152_cub", **kwargs)
 
@@ -279,6 +354,11 @@ def seresnet152b_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=152, conv1_stride=False, model_name="seresnet152b_cub",
                         **kwargs)
@@ -297,6 +377,11 @@ def seresnet200_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=200, model_name="seresnet200_cub", **kwargs)
 
@@ -314,6 +399,11 @@ def seresnet200b_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_seresnet(num_classes=num_classes, blocks=200, conv1_stride=False, model_name="seresnet200b_cub",
                         **kwargs)

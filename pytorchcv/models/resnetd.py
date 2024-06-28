@@ -130,6 +130,11 @@ def get_resnetd(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if blocks == 10:
         layers = [1, 1, 1, 1]
@@ -200,6 +205,11 @@ def resnetd50b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnetd(blocks=50, conv1_stride=False, model_name="resnetd50b", **kwargs)
 
@@ -215,6 +225,11 @@ def resnetd101b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnetd(blocks=101, conv1_stride=False, model_name="resnetd101b", **kwargs)
 
@@ -230,6 +245,11 @@ def resnetd152b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnetd(blocks=152, conv1_stride=False, model_name="resnetd152b", **kwargs)
 

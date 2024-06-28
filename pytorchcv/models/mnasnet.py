@@ -278,6 +278,11 @@ def get_mnasnet(version,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if version == "b1":
         init_block_channels = [32, 16]
@@ -347,6 +352,11 @@ def mnasnet_b1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mnasnet(version="b1", width_scale=1.0, model_name="mnasnet_b1", **kwargs)
 
@@ -362,6 +372,11 @@ def mnasnet_a1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mnasnet(version="a1", width_scale=1.0, model_name="mnasnet_a1", **kwargs)
 
@@ -377,6 +392,11 @@ def mnasnet_small(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mnasnet(version="small", width_scale=1.0, model_name="mnasnet_small", **kwargs)
 

@@ -27,7 +27,7 @@ class ShuffleUnit(nn.Module):
     groups : int
         Number of groups in convolution layers.
     downsample : bool
-        Whether do downsample.
+        Whether to do downsample.
     ignore_group : bool
         Whether ignore group value in the first convolution layer.
     """
@@ -213,6 +213,11 @@ def get_shufflenet(groups,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     init_block_channels = 24
@@ -266,8 +271,17 @@ def shufflenet_g1_w1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenet(groups=1, width_scale=1.0, model_name="shufflenet_g1_w1", **kwargs)
+    return get_shufflenet(
+        groups=1,
+        width_scale=1.0,
+        model_name="shufflenet_g1_w1",
+        **kwargs)
 
 
 def shufflenet_g2_w1(**kwargs):
@@ -281,8 +295,17 @@ def shufflenet_g2_w1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenet(groups=2, width_scale=1.0, model_name="shufflenet_g2_w1", **kwargs)
+    return get_shufflenet(
+        groups=2,
+        width_scale=1.0,
+        model_name="shufflenet_g2_w1",
+        **kwargs)
 
 
 def shufflenet_g3_w1(**kwargs):
@@ -296,8 +319,17 @@ def shufflenet_g3_w1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenet(groups=3, width_scale=1.0, model_name="shufflenet_g3_w1", **kwargs)
+    return get_shufflenet(
+        groups=3,
+        width_scale=1.0,
+        model_name="shufflenet_g3_w1",
+        **kwargs)
 
 
 def shufflenet_g4_w1(**kwargs):
@@ -311,8 +343,17 @@ def shufflenet_g4_w1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenet(groups=4, width_scale=1.0, model_name="shufflenet_g4_w1", **kwargs)
+    return get_shufflenet(
+        groups=4,
+        width_scale=1.0,
+        model_name="shufflenet_g4_w1",
+        **kwargs)
 
 
 def shufflenet_g8_w1(**kwargs):
@@ -326,8 +367,17 @@ def shufflenet_g8_w1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenet(groups=8, width_scale=1.0, model_name="shufflenet_g8_w1", **kwargs)
+    return get_shufflenet(
+        groups=8,
+        width_scale=1.0,
+        model_name="shufflenet_g8_w1",
+        **kwargs)
 
 
 def shufflenet_g1_w3d4(**kwargs):
@@ -341,8 +391,17 @@ def shufflenet_g1_w3d4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenet(groups=1, width_scale=0.75, model_name="shufflenet_g1_w3d4", **kwargs)
+    return get_shufflenet(
+        groups=1,
+        width_scale=0.75,
+        model_name="shufflenet_g1_w3d4",
+        **kwargs)
 
 
 def shufflenet_g3_w3d4(**kwargs):
@@ -356,8 +415,17 @@ def shufflenet_g3_w3d4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenet(groups=3, width_scale=0.75, model_name="shufflenet_g3_w3d4", **kwargs)
+    return get_shufflenet(
+        groups=3,
+        width_scale=0.75,
+        model_name="shufflenet_g3_w3d4",
+        **kwargs)
 
 
 def shufflenet_g1_wd2(**kwargs):
@@ -371,8 +439,17 @@ def shufflenet_g1_wd2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenet(groups=1, width_scale=0.5, model_name="shufflenet_g1_wd2", **kwargs)
+    return get_shufflenet(
+        groups=1,
+        width_scale=0.5,
+        model_name="shufflenet_g1_wd2",
+        **kwargs)
 
 
 def shufflenet_g3_wd2(**kwargs):
@@ -386,8 +463,17 @@ def shufflenet_g3_wd2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenet(groups=3, width_scale=0.5, model_name="shufflenet_g3_wd2", **kwargs)
+    return get_shufflenet(
+        groups=3,
+        width_scale=0.5,
+        model_name="shufflenet_g3_wd2",
+        **kwargs)
 
 
 def shufflenet_g1_wd4(**kwargs):
@@ -401,8 +487,17 @@ def shufflenet_g1_wd4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenet(groups=1, width_scale=0.25, model_name="shufflenet_g1_wd4", **kwargs)
+    return get_shufflenet(
+        groups=1,
+        width_scale=0.25,
+        model_name="shufflenet_g1_wd4",
+        **kwargs)
 
 
 def shufflenet_g3_wd4(**kwargs):
@@ -416,8 +511,17 @@ def shufflenet_g3_wd4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenet(groups=3, width_scale=0.25, model_name="shufflenet_g3_wd4", **kwargs)
+    return get_shufflenet(
+        groups=3,
+        width_scale=0.25,
+        model_name="shufflenet_g3_wd4",
+        **kwargs)
 
 
 def _test():

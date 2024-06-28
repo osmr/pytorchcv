@@ -1185,6 +1185,11 @@ def get_nasnet(repeat,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     stem_blocks_channels = [1, 2]
     reduct_channels = [[], [8], [16]]
@@ -1229,6 +1234,11 @@ def nasnet_4a1056(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_nasnet(
         repeat=4,
@@ -1253,6 +1263,11 @@ def nasnet_6a4032(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_nasnet(
         repeat=6,

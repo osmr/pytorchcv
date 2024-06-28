@@ -296,6 +296,11 @@ def get_resnesta(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if bottleneck is None:
         bottleneck = (blocks >= 50)
@@ -384,6 +389,11 @@ def resnestabc14(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnesta(blocks=14, bottleneck=True, model_name="resnestabc14", **kwargs)
 
@@ -399,6 +409,11 @@ def resnesta18(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnesta(blocks=18, model_name="resnesta18", **kwargs)
 
@@ -414,6 +429,11 @@ def resnestabc26(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnesta(blocks=26, bottleneck=True, model_name="resnestabc26", **kwargs)
 
@@ -429,6 +449,11 @@ def resnesta50(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnesta(blocks=50, model_name="resnesta50", **kwargs)
 
@@ -444,6 +469,11 @@ def resnesta101(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnesta(blocks=101, model_name="resnesta101", **kwargs)
 
@@ -459,6 +489,11 @@ def resnesta152(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnesta(blocks=152, model_name="resnesta152", **kwargs)
 
@@ -476,6 +511,11 @@ def resnesta200(in_size=(256, 256), **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnesta(blocks=200, in_size=in_size, dropout_rate=0.2, model_name="resnesta200", **kwargs)
 
@@ -493,6 +533,11 @@ def resnesta269(in_size=(320, 320), **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnesta(blocks=269, in_size=in_size, dropout_rate=0.2, model_name="resnesta269", **kwargs)
 

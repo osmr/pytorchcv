@@ -366,6 +366,11 @@ def get_lednet(model_name: str | None = None,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     channels = [32, 64, 128]
     dilations = [[0, 1, 1, 1], [0, 1, 1], [0, 1, 2, 5, 9, 2, 5, 9, 17]]
@@ -404,6 +409,11 @@ def lednet_cityscapes(num_classes=19, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_lednet(num_classes=num_classes, model_name="lednet_cityscapes", **kwargs)
 

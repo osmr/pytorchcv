@@ -297,6 +297,11 @@ def get_icnet(backbones,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     channels = (64, 256, 256)
 
@@ -340,6 +345,11 @@ def icnet_resnetd50b_cityscapes(pretrained_backbone=False, num_classes=19, aux=T
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     backbone1 = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=None).features
     for i in range(len(backbone1) - 3):

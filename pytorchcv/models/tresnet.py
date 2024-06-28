@@ -399,6 +399,11 @@ def get_tresnet(version,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if version == "m":
         layers = [3, 4, 11, 3]
@@ -453,6 +458,11 @@ def tresnet_m(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_tresnet(version="m", model_name="tresnet_m", **kwargs)
 
@@ -467,6 +477,11 @@ def tresnet_l(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_tresnet(version="l", model_name="tresnet_l", **kwargs)
 
@@ -481,6 +496,11 @@ def tresnet_xl(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_tresnet(version="xl", model_name="tresnet_xl", **kwargs)
 

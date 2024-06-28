@@ -206,6 +206,11 @@ def get_vovnet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if blocks == 27:
         layers = [1, 1, 1, 1]
@@ -257,6 +262,11 @@ def vovnet27s(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_vovnet(blocks=27, slim=True, model_name="vovnet27s", **kwargs)
 
@@ -272,6 +282,11 @@ def vovnet39(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_vovnet(blocks=39, model_name="vovnet39", **kwargs)
 
@@ -287,6 +302,11 @@ def vovnet57(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_vovnet(blocks=57, model_name="vovnet57", **kwargs)
 

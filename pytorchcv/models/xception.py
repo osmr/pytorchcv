@@ -328,6 +328,11 @@ def get_xception(model_name: str | None = None,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     channels = [[128], [256], [728] * 9, [1024]]
@@ -359,8 +364,15 @@ def xception(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_xception(model_name="xception", **kwargs)
+    return get_xception(
+        model_name="xception",
+        **kwargs)
 
 
 def _test():

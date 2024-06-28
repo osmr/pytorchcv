@@ -278,6 +278,11 @@ def get_ror_cifar(num_classes,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     assert (num_classes in [10, 100])
 
@@ -320,6 +325,11 @@ def ror3_56_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ror_cifar(num_classes=num_classes, blocks=56, model_name="ror3_56_cifar10", **kwargs)
 
@@ -337,6 +347,11 @@ def ror3_56_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ror_cifar(num_classes=num_classes, blocks=56, model_name="ror3_56_cifar100", **kwargs)
 
@@ -354,6 +369,11 @@ def ror3_56_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ror_cifar(num_classes=num_classes, blocks=56, model_name="ror3_56_svhn", **kwargs)
 
@@ -371,6 +391,11 @@ def ror3_110_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ror_cifar(num_classes=num_classes, blocks=110, model_name="ror3_110_cifar10", **kwargs)
 
@@ -388,6 +413,11 @@ def ror3_110_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ror_cifar(num_classes=num_classes, blocks=110, model_name="ror3_110_cifar100", **kwargs)
 
@@ -405,6 +435,11 @@ def ror3_110_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ror_cifar(num_classes=num_classes, blocks=110, model_name="ror3_110_svhn", **kwargs)
 
@@ -422,6 +457,11 @@ def ror3_164_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ror_cifar(num_classes=num_classes, blocks=164, model_name="ror3_164_cifar10", **kwargs)
 
@@ -439,6 +479,11 @@ def ror3_164_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ror_cifar(num_classes=num_classes, blocks=164, model_name="ror3_164_cifar100", **kwargs)
 
@@ -456,6 +501,11 @@ def ror3_164_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ror_cifar(num_classes=num_classes, blocks=164, model_name="ror3_164_svhn", **kwargs)
 

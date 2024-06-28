@@ -321,6 +321,11 @@ def get_preresnet(blocks: int,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if bottleneck is None:
         bottleneck = (blocks >= 50)
@@ -407,6 +412,11 @@ def preresnet10(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=10, model_name="preresnet10", **kwargs)
 
@@ -422,6 +432,11 @@ def preresnet12(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=12, model_name="preresnet12", **kwargs)
 
@@ -437,6 +452,11 @@ def preresnet14(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=14, model_name="preresnet14", **kwargs)
 
@@ -452,6 +472,11 @@ def preresnetbc14b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=14, bottleneck=True, conv1_stride=False, model_name="preresnetbc14b", **kwargs)
 
@@ -467,6 +492,11 @@ def preresnet16(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=16, model_name="preresnet16", **kwargs)
 
@@ -482,6 +512,11 @@ def preresnet18_wd4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=18, width_scale=0.25, model_name="preresnet18_wd4", **kwargs)
 
@@ -497,6 +532,11 @@ def preresnet18_wd2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=18, width_scale=0.5, model_name="preresnet18_wd2", **kwargs)
 
@@ -512,6 +552,11 @@ def preresnet18_w3d4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=18, width_scale=0.75, model_name="preresnet18_w3d4", **kwargs)
 
@@ -526,6 +571,11 @@ def preresnet18(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=18, model_name="preresnet18", **kwargs)
 
@@ -541,6 +591,11 @@ def preresnet26(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=26, bottleneck=False, model_name="preresnet26", **kwargs)
 
@@ -556,6 +611,11 @@ def preresnetbc26b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=26, bottleneck=True, conv1_stride=False, model_name="preresnetbc26b", **kwargs)
 
@@ -570,6 +630,11 @@ def preresnet34(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=34, model_name="preresnet34", **kwargs)
 
@@ -585,6 +650,11 @@ def preresnetbc38b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=38, bottleneck=True, conv1_stride=False, model_name="preresnetbc38b", **kwargs)
 
@@ -599,6 +669,11 @@ def preresnet50(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=50, model_name="preresnet50", **kwargs)
 
@@ -614,6 +689,11 @@ def preresnet50b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=50, conv1_stride=False, model_name="preresnet50b", **kwargs)
 
@@ -628,6 +708,11 @@ def preresnet101(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=101, model_name="preresnet101", **kwargs)
 
@@ -643,6 +728,11 @@ def preresnet101b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=101, conv1_stride=False, model_name="preresnet101b", **kwargs)
 
@@ -657,6 +747,11 @@ def preresnet152(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=152, model_name="preresnet152", **kwargs)
 
@@ -672,6 +767,11 @@ def preresnet152b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=152, conv1_stride=False, model_name="preresnet152b", **kwargs)
 
@@ -686,6 +786,11 @@ def preresnet200(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=200, model_name="preresnet200", **kwargs)
 
@@ -701,6 +806,11 @@ def preresnet200b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=200, conv1_stride=False, model_name="preresnet200b", **kwargs)
 
@@ -716,6 +826,11 @@ def preresnet269b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_preresnet(blocks=269, conv1_stride=False, model_name="preresnet269b", **kwargs)
 

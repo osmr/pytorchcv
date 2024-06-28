@@ -252,6 +252,11 @@ def get_spnasnet(model_name: str | None = None,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     init_block_channels = [32, 16]
     final_block_channels = [320, 1280]
@@ -290,8 +295,15 @@ def spnasnet(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_spnasnet(model_name="spnasnet", **kwargs)
+    return get_spnasnet(
+        model_name="spnasnet",
+        **kwargs)
 
 
 def _test():

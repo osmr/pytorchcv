@@ -34,11 +34,11 @@ class XConv2d(nn.Conv2d):
         Ratio of expansion.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 groups=1,
-                 expand_ratio=2,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 groups: int = 1,
+                 expand_ratio: int = 2,
                  **kwargs):
         super(XConv2d, self).__init__(
             in_channels=in_channels,
@@ -103,16 +103,16 @@ class PreXConvBlock(nn.Module):
         Ratio of expansion.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 bias=False,
-                 return_preact=False,
-                 activate=True,
-                 expand_ratio=2):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 dilation: int | tuple[int, int] = 1,
+                 bias: bool = False,
+                 return_preact: bool = False,
+                 activate: bool = True,
+                 expand_ratio: int = 2):
         super(PreXConvBlock, self).__init__()
         self.return_preact = return_preact
         self.activate = activate
@@ -143,13 +143,13 @@ class PreXConvBlock(nn.Module):
             return x
 
 
-def pre_xconv1x1_block(in_channels,
-                       out_channels,
-                       stride=1,
-                       bias=False,
-                       return_preact=False,
-                       activate=True,
-                       expand_ratio=2):
+def pre_xconv1x1_block(in_channels: int,
+                       out_channels: int,
+                       stride: int | tuple[int, int] = 1,
+                       bias: bool = False,
+                       return_preact: bool = False,
+                       activate: bool = True,
+                       expand_ratio: int = 2):
     """
     1x1 version of the pre-activated x-convolution block.
 
@@ -182,14 +182,14 @@ def pre_xconv1x1_block(in_channels,
         expand_ratio=expand_ratio)
 
 
-def pre_xconv3x3_block(in_channels,
-                       out_channels,
-                       stride=1,
-                       padding=1,
-                       dilation=1,
-                       return_preact=False,
-                       activate=True,
-                       expand_ratio=2):
+def pre_xconv3x3_block(in_channels: int,
+                       out_channels: int,
+                       stride: int | tuple[int, int] = 1,
+                       padding: int | tuple[int, int] = 1,
+                       dilation: int | tuple[int, int] = 1,
+                       return_preact: bool = False,
+                       activate: bool = True,
+                       expand_ratio: int = 2):
     """
     3x3 version of the pre-activated x-convolution block.
 
@@ -240,10 +240,10 @@ class XDenseUnit(nn.Module):
         Ratio of expansion.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 dropout_rate,
-                 expand_ratio):
+                 in_channels: int,
+                 out_channels: int,
+                 dropout_rate: float,
+                 expand_ratio: int):
         super(XDenseUnit, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
         bn_size = 4
@@ -294,10 +294,10 @@ class XDenseNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
-                 dropout_rate=0.0,
-                 expand_ratio=2,
+                 channels: list[list[int]],
+                 init_block_channels: int,
+                 dropout_rate: float = 0.0,
+                 expand_ratio: int = 2,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -350,8 +350,8 @@ class XDenseNet(nn.Module):
         return x
 
 
-def get_xdensenet(blocks,
-                  expand_ratio=2,
+def get_xdensenet(blocks: int,
+                  expand_ratio: int = 2,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
@@ -371,8 +371,12 @@ def get_xdensenet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
-    """
 
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
     if blocks == 121:
         init_block_channels = 64
         growth_rate = 32
@@ -430,8 +434,16 @@ def xdensenet121_2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_xdensenet(blocks=121, model_name="xdensenet121_2", **kwargs)
+    return get_xdensenet(
+        blocks=121,
+        model_name="xdensenet121_2",
+        **kwargs)
 
 
 def xdensenet161_2(**kwargs):
@@ -445,8 +457,16 @@ def xdensenet161_2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_xdensenet(blocks=161, model_name="xdensenet161_2", **kwargs)
+    return get_xdensenet(
+        blocks=161,
+        model_name="xdensenet161_2",
+        **kwargs)
 
 
 def xdensenet169_2(**kwargs):
@@ -460,8 +480,16 @@ def xdensenet169_2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_xdensenet(blocks=169, model_name="xdensenet169_2", **kwargs)
+    return get_xdensenet(
+        blocks=169,
+        model_name="xdensenet169_2",
+        **kwargs)
 
 
 def xdensenet201_2(**kwargs):
@@ -475,8 +503,16 @@ def xdensenet201_2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_xdensenet(blocks=201, model_name="xdensenet201_2", **kwargs)
+    return get_xdensenet(
+        blocks=201,
+        model_name="xdensenet201_2",
+        **kwargs)
 
 
 def _test():

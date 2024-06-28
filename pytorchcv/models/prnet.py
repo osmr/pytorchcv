@@ -367,6 +367,11 @@ def get_prnet(model_name: str | None = None,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     init_block_channels = 16
     enc_channels = [[32, 32], [64, 64], [128, 128], [256, 256], [512, 512]]
@@ -401,6 +406,11 @@ def prnet(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_prnet(model_name="prnet", bn_eps=1e-3, **kwargs)
 

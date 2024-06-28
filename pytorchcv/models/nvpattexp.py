@@ -190,6 +190,11 @@ def get_nvpattexp(base_persons,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     net = NvpAttExp(
         base_persons=base_persons,
@@ -219,6 +224,11 @@ def nvpattexp116bazel76(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_nvpattexp(base_persons=116, blendshapes=76, model_name="nvpattexp116bazel76", **kwargs)
 

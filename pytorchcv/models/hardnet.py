@@ -389,6 +389,11 @@ def get_hardnet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if blocks == 39:
         init_block_channels = 48
@@ -533,6 +538,11 @@ def hardnet39ds(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hardnet(blocks=39, use_deptwise=True, model_name="hardnet39ds", **kwargs)
 
@@ -548,6 +558,11 @@ def hardnet68ds(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hardnet(blocks=68, use_deptwise=True, model_name="hardnet68ds", **kwargs)
 
@@ -562,6 +577,11 @@ def hardnet68(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hardnet(blocks=68, use_deptwise=False, model_name="hardnet68", **kwargs)
 
@@ -576,6 +596,11 @@ def hardnet85(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_hardnet(blocks=85, use_deptwise=False, model_name="hardnet85", **kwargs)
 

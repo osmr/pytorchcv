@@ -23,6 +23,11 @@ def proxylessnas_cpu_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_proxylessnas(num_classes=num_classes, version="cpu", model_name="proxylessnas_cpu_cub", **kwargs)
 
@@ -40,6 +45,11 @@ def proxylessnas_gpu_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_proxylessnas(num_classes=num_classes, version="gpu", model_name="proxylessnas_gpu_cub", **kwargs)
 
@@ -57,6 +67,11 @@ def proxylessnas_mobile_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_proxylessnas(num_classes=num_classes, version="mobile", model_name="proxylessnas_mobile_cub", **kwargs)
 
@@ -74,6 +89,11 @@ def proxylessnas_mobile14_cub(num_classes=200, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_proxylessnas(num_classes=num_classes, version="mobile14", model_name="proxylessnas_mobile14_cub",
                             **kwargs)

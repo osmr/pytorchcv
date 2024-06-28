@@ -428,6 +428,11 @@ def get_fastscnn(model_name: str | None = None,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     net = FastSCNN(
         **kwargs)
@@ -461,6 +466,11 @@ def fastscnn_cityscapes(num_classes=19, aux=True, **kwargs):
         The context in which to load the pretrained weights.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_fastscnn(num_classes=num_classes, aux=aux, model_name="fastscnn_cityscapes", **kwargs)
 

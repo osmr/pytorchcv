@@ -167,6 +167,11 @@ def get_sepreresnet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if bottleneck is None:
         bottleneck = (blocks >= 50)
@@ -247,6 +252,11 @@ def sepreresnet10(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=10, model_name="sepreresnet10", **kwargs)
 
@@ -261,6 +271,11 @@ def sepreresnet12(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=12, model_name="sepreresnet12", **kwargs)
 
@@ -275,6 +290,11 @@ def sepreresnet14(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=14, model_name="sepreresnet14", **kwargs)
 
@@ -289,6 +309,11 @@ def sepreresnet16(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=16, model_name="sepreresnet16", **kwargs)
 
@@ -303,6 +328,11 @@ def sepreresnet18(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=18, model_name="sepreresnet18", **kwargs)
 
@@ -317,6 +347,11 @@ def sepreresnet26(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=26, bottleneck=False, model_name="sepreresnet26", **kwargs)
 
@@ -331,6 +366,11 @@ def sepreresnetbc26b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=26, bottleneck=True, conv1_stride=False, model_name="sepreresnetbc26b", **kwargs)
 
@@ -345,6 +385,11 @@ def sepreresnet34(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=34, model_name="sepreresnet34", **kwargs)
 
@@ -359,6 +404,11 @@ def sepreresnetbc38b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=38, bottleneck=True, conv1_stride=False, model_name="sepreresnetbc38b", **kwargs)
 
@@ -373,6 +423,11 @@ def sepreresnet50(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=50, model_name="sepreresnet50", **kwargs)
 
@@ -388,6 +443,11 @@ def sepreresnet50b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=50, conv1_stride=False, model_name="sepreresnet50b", **kwargs)
 
@@ -402,6 +462,11 @@ def sepreresnet101(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=101, model_name="sepreresnet101", **kwargs)
 
@@ -417,6 +482,11 @@ def sepreresnet101b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=101, conv1_stride=False, model_name="sepreresnet101b", **kwargs)
 
@@ -431,6 +501,11 @@ def sepreresnet152(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=152, model_name="sepreresnet152", **kwargs)
 
@@ -446,6 +521,11 @@ def sepreresnet152b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=152, conv1_stride=False, model_name="sepreresnet152b", **kwargs)
 
@@ -461,6 +541,11 @@ def sepreresnet200(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=200, model_name="sepreresnet200", **kwargs)
 
@@ -476,6 +561,11 @@ def sepreresnet200b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_sepreresnet(blocks=200, conv1_stride=False, model_name="sepreresnet200b", **kwargs)
 

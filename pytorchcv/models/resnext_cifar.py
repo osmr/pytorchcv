@@ -119,6 +119,11 @@ def get_resnext_cifar(num_classes,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     assert (blocks - 2) % 9 == 0
@@ -161,6 +166,11 @@ def resnext20_16x4d_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=16, bottleneck_width=4,
                              model_name="resnext20_16x4d_cifar10", **kwargs)
@@ -179,6 +189,11 @@ def resnext20_16x4d_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=16, bottleneck_width=4,
                              model_name="resnext20_16x4d_cifar100", **kwargs)
@@ -197,6 +212,11 @@ def resnext20_16x4d_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=16, bottleneck_width=4,
                              model_name="resnext20_16x4d_svhn", **kwargs)
@@ -215,6 +235,11 @@ def resnext20_32x2d_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=32, bottleneck_width=2,
                              model_name="resnext20_32x2d_cifar10", **kwargs)
@@ -233,6 +258,11 @@ def resnext20_32x2d_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=32, bottleneck_width=2,
                              model_name="resnext20_32x2d_cifar100", **kwargs)
@@ -251,6 +281,11 @@ def resnext20_32x2d_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=32, bottleneck_width=2,
                              model_name="resnext20_32x2d_svhn", **kwargs)
@@ -269,6 +304,11 @@ def resnext20_32x4d_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=32, bottleneck_width=4,
                              model_name="resnext20_32x4d_cifar10", **kwargs)
@@ -287,6 +327,11 @@ def resnext20_32x4d_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=32, bottleneck_width=4,
                              model_name="resnext20_32x4d_cifar100", **kwargs)
@@ -305,6 +350,11 @@ def resnext20_32x4d_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=32, bottleneck_width=4,
                              model_name="resnext20_32x4d_svhn", **kwargs)
@@ -323,6 +373,11 @@ def resnext29_32x4d_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=29, cardinality=32, bottleneck_width=4,
                              model_name="resnext29_32x4d_cifar10", **kwargs)
@@ -341,6 +396,11 @@ def resnext29_32x4d_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=29, cardinality=32, bottleneck_width=4,
                              model_name="resnext29_32x4d_cifar100", **kwargs)
@@ -359,6 +419,11 @@ def resnext29_32x4d_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=29, cardinality=32, bottleneck_width=4,
                              model_name="resnext29_32x4d_svhn", **kwargs)
@@ -377,6 +442,11 @@ def resnext29_16x64d_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=29, cardinality=16, bottleneck_width=64,
                              model_name="resnext29_16x64d_cifar10", **kwargs)
@@ -395,6 +465,11 @@ def resnext29_16x64d_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=29, cardinality=16, bottleneck_width=64,
                              model_name="resnext29_16x64d_cifar100", **kwargs)
@@ -413,6 +488,11 @@ def resnext29_16x64d_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=29, cardinality=16, bottleneck_width=64,
                              model_name="resnext29_16x64d_svhn", **kwargs)
@@ -431,6 +511,11 @@ def resnext272_1x64d_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=272, cardinality=1, bottleneck_width=64,
                              model_name="resnext272_1x64d_cifar10", **kwargs)
@@ -449,6 +534,11 @@ def resnext272_1x64d_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=272, cardinality=1, bottleneck_width=64,
                              model_name="resnext272_1x64d_cifar100", **kwargs)
@@ -467,6 +557,11 @@ def resnext272_1x64d_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=272, cardinality=1, bottleneck_width=64,
                              model_name="resnext272_1x64d_svhn", **kwargs)
@@ -485,6 +580,11 @@ def resnext272_2x32d_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=272, cardinality=2, bottleneck_width=32,
                              model_name="resnext272_2x32d_cifar10", **kwargs)
@@ -503,6 +603,11 @@ def resnext272_2x32d_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=272, cardinality=2, bottleneck_width=32,
                              model_name="resnext272_2x32d_cifar100", **kwargs)
@@ -521,6 +626,11 @@ def resnext272_2x32d_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_resnext_cifar(num_classes=num_classes, blocks=272, cardinality=2, bottleneck_width=32,
                              model_name="resnext272_2x32d_svhn", **kwargs)

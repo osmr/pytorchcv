@@ -229,8 +229,12 @@ def get_shufflenetv2(width_scale,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
-    """
 
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
     init_block_channels = 24
     final_block_channels = 1024
     layers = [4, 8, 4]
@@ -272,8 +276,16 @@ def shufflenetv2_wd2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenetv2(width_scale=(12.0 / 29.0), model_name="shufflenetv2_wd2", **kwargs)
+    return get_shufflenetv2(
+        width_scale=(12.0 / 29.0),
+        model_name="shufflenetv2_wd2",
+        **kwargs)
 
 
 def shufflenetv2_w1(**kwargs):
@@ -287,8 +299,16 @@ def shufflenetv2_w1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenetv2(width_scale=1.0, model_name="shufflenetv2_w1", **kwargs)
+    return get_shufflenetv2(
+        width_scale=1.0,
+        model_name="shufflenetv2_w1",
+        **kwargs)
 
 
 def shufflenetv2_w3d2(**kwargs):
@@ -302,8 +322,16 @@ def shufflenetv2_w3d2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenetv2(width_scale=(44.0 / 29.0), model_name="shufflenetv2_w3d2", **kwargs)
+    return get_shufflenetv2(
+        width_scale=(44.0 / 29.0),
+        model_name="shufflenetv2_w3d2",
+        **kwargs)
 
 
 def shufflenetv2_w2(**kwargs):
@@ -317,8 +345,16 @@ def shufflenetv2_w2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_shufflenetv2(width_scale=(61.0 / 29.0), model_name="shufflenetv2_w2", **kwargs)
+    return get_shufflenetv2(
+        width_scale=(61.0 / 29.0),
+        model_name="shufflenetv2_w2",
+        **kwargs)
 
 
 def _test():

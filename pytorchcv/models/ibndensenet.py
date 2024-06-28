@@ -250,6 +250,11 @@ def get_ibndensenet(num_layers,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     if num_layers == 121:
@@ -308,6 +313,11 @@ def ibn_densenet121(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ibndensenet(num_layers=121, model_name="ibn_densenet121", **kwargs)
 
@@ -323,6 +333,11 @@ def ibn_densenet161(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ibndensenet(num_layers=161, model_name="ibn_densenet161", **kwargs)
 
@@ -338,6 +353,11 @@ def ibn_densenet169(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ibndensenet(num_layers=169, model_name="ibn_densenet169", **kwargs)
 
@@ -353,6 +373,11 @@ def ibn_densenet201(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ibndensenet(num_layers=201, model_name="ibn_densenet201", **kwargs)
 

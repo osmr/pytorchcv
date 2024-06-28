@@ -298,6 +298,11 @@ def get_ibnresnet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     if blocks == 50:
@@ -341,6 +346,11 @@ def ibn_resnet50(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ibnresnet(blocks=50, model_name="ibn_resnet50", **kwargs)
 
@@ -356,6 +366,11 @@ def ibn_resnet101(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ibnresnet(blocks=101, model_name="ibn_resnet101", **kwargs)
 
@@ -371,6 +386,11 @@ def ibn_resnet152(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_ibnresnet(blocks=152, model_name="ibn_resnet152", **kwargs)
 

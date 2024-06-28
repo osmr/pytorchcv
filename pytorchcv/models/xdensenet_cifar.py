@@ -34,10 +34,10 @@ class XDenseSimpleUnit(nn.Module):
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 dropout_rate,
-                 expand_ratio):
+                 in_channels: int,
+                 out_channels: int,
+                 dropout_rate: float,
+                 expand_ratio: int):
         super(XDenseSimpleUnit, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
         inc_channels = out_channels - in_channels
@@ -83,14 +83,14 @@ class CIFARXDenseNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
-                 bottleneck,
-                 dropout_rate=0.0,
-                 expand_ratio=2,
-                 in_channels=3,
-                 in_size=(32, 32),
-                 num_classes=10):
+                 channels: list[list[int]],
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 dropout_rate: float = 0.0,
+                 expand_ratio: int = 2,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (32, 32),
+                 num_classes: int = 10):
         super(CIFARXDenseNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
@@ -141,11 +141,11 @@ class CIFARXDenseNet(nn.Module):
         return x
 
 
-def get_xdensenet_cifar(num_classes,
-                        blocks,
-                        growth_rate,
-                        bottleneck,
-                        expand_ratio=2,
+def get_xdensenet_cifar(num_classes: int,
+                        blocks: int,
+                        growth_rate: int,
+                        bottleneck: bool,
+                        expand_ratio: int = 2,
                         model_name: str | None = None,
                         pretrained: bool = False,
                         root: str = os.path.join("~", ".torch", "models"),
@@ -216,7 +216,8 @@ def get_xdensenet_cifar(num_classes,
     return net
 
 
-def xdensenet40_2_k24_bc_cifar10(num_classes=10, **kwargs) -> nn.Module:
+def xdensenet40_2_k24_bc_cifar10(num_classes=10,
+                                 **kwargs) -> nn.Module:
     """
     X-DenseNet-BC-40-2 (k=24) model for CIFAR-10 from 'Deep Expander Networks: Efficient Deep Networks from Graph
     Theory,' https://arxiv.org/abs/1711.08757.
@@ -235,11 +236,17 @@ def xdensenet40_2_k24_bc_cifar10(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_xdensenet_cifar(num_classes=num_classes, blocks=40, growth_rate=24, bottleneck=True,
-                               model_name="xdensenet40_2_k24_bc_cifar10", **kwargs)
+    return get_xdensenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=24,
+        bottleneck=True,
+        model_name="xdensenet40_2_k24_bc_cifar10",
+        **kwargs)
 
 
-def xdensenet40_2_k24_bc_cifar100(num_classes=100, **kwargs) -> nn.Module:
+def xdensenet40_2_k24_bc_cifar100(num_classes=100,
+                                  **kwargs) -> nn.Module:
     """
     X-DenseNet-BC-40-2 (k=24) model for CIFAR-100 from 'Deep Expander Networks: Efficient Deep Networks from Graph
     Theory,' https://arxiv.org/abs/1711.08757.
@@ -258,11 +265,17 @@ def xdensenet40_2_k24_bc_cifar100(num_classes=100, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_xdensenet_cifar(num_classes=num_classes, blocks=40, growth_rate=24, bottleneck=True,
-                               model_name="xdensenet40_2_k24_bc_cifar100", **kwargs)
+    return get_xdensenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=24,
+        bottleneck=True,
+        model_name="xdensenet40_2_k24_bc_cifar100",
+        **kwargs)
 
 
-def xdensenet40_2_k24_bc_svhn(num_classes=10, **kwargs) -> nn.Module:
+def xdensenet40_2_k24_bc_svhn(num_classes=10,
+                              **kwargs) -> nn.Module:
     """
     X-DenseNet-BC-40-2 (k=24) model for SVHN from 'Deep Expander Networks: Efficient Deep Networks from Graph
     Theory,' https://arxiv.org/abs/1711.08757.
@@ -281,11 +294,17 @@ def xdensenet40_2_k24_bc_svhn(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_xdensenet_cifar(num_classes=num_classes, blocks=40, growth_rate=24, bottleneck=True,
-                               model_name="xdensenet40_2_k24_bc_svhn", **kwargs)
+    return get_xdensenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=24,
+        bottleneck=True,
+        model_name="xdensenet40_2_k24_bc_svhn",
+        **kwargs)
 
 
-def xdensenet40_2_k36_bc_cifar10(num_classes=10, **kwargs) -> nn.Module:
+def xdensenet40_2_k36_bc_cifar10(num_classes=10,
+                                 **kwargs) -> nn.Module:
     """
     X-DenseNet-BC-40-2 (k=36) model for CIFAR-10 from 'Deep Expander Networks: Efficient Deep Networks from Graph
     Theory,' https://arxiv.org/abs/1711.08757.
@@ -304,11 +323,17 @@ def xdensenet40_2_k36_bc_cifar10(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_xdensenet_cifar(num_classes=num_classes, blocks=40, growth_rate=36, bottleneck=True,
-                               model_name="xdensenet40_2_k36_bc_cifar10", **kwargs)
+    return get_xdensenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=36,
+        bottleneck=True,
+        model_name="xdensenet40_2_k36_bc_cifar10",
+        **kwargs)
 
 
-def xdensenet40_2_k36_bc_cifar100(num_classes=100, **kwargs) -> nn.Module:
+def xdensenet40_2_k36_bc_cifar100(num_classes=100,
+                                  **kwargs) -> nn.Module:
     """
     X-DenseNet-BC-40-2 (k=36) model for CIFAR-100 from 'Deep Expander Networks: Efficient Deep Networks from Graph
     Theory,' https://arxiv.org/abs/1711.08757.
@@ -327,11 +352,17 @@ def xdensenet40_2_k36_bc_cifar100(num_classes=100, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_xdensenet_cifar(num_classes=num_classes, blocks=40, growth_rate=36, bottleneck=True,
-                               model_name="xdensenet40_2_k36_bc_cifar100", **kwargs)
+    return get_xdensenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=36,
+        bottleneck=True,
+        model_name="xdensenet40_2_k36_bc_cifar100",
+        **kwargs)
 
 
-def xdensenet40_2_k36_bc_svhn(num_classes=10, **kwargs) -> nn.Module:
+def xdensenet40_2_k36_bc_svhn(num_classes=10,
+                              **kwargs) -> nn.Module:
     """
     X-DenseNet-BC-40-2 (k=36) model for SVHN from 'Deep Expander Networks: Efficient Deep Networks from Graph
     Theory,' https://arxiv.org/abs/1711.08757.
@@ -350,8 +381,13 @@ def xdensenet40_2_k36_bc_svhn(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_xdensenet_cifar(num_classes=num_classes, blocks=40, growth_rate=36, bottleneck=True,
-                               model_name="xdensenet40_2_k36_bc_svhn", **kwargs)
+    return get_xdensenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=36,
+        bottleneck=True,
+        model_name="xdensenet40_2_k36_bc_svhn",
+        **kwargs)
 
 
 def _test():

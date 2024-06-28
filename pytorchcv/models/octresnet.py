@@ -685,6 +685,11 @@ def get_octresnet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     if bottleneck is None:
         bottleneck = (blocks >= 50)
@@ -770,6 +775,11 @@ def octresnet10_ad2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_octresnet(blocks=10, oct_alpha=0.5, model_name="octresnet10_ad2", **kwargs)
 
@@ -785,6 +795,11 @@ def octresnet50b_ad2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_octresnet(blocks=50, conv1_stride=False, oct_alpha=0.5, model_name="octresnet50b_ad2", **kwargs)
 

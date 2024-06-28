@@ -21,6 +21,11 @@ def mobilenetb_w1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenet(width_scale=1.0, dws_simplified=True, model_name="mobilenetb_w1", **kwargs)
 
@@ -36,6 +41,11 @@ def mobilenetb_w3d4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenet(width_scale=0.75, dws_simplified=True, model_name="mobilenetb_w3d4", **kwargs)
 
@@ -51,6 +61,11 @@ def mobilenetb_wd2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenet(width_scale=0.5, dws_simplified=True, model_name="mobilenetb_wd2", **kwargs)
 
@@ -66,6 +81,11 @@ def mobilenetb_wd4(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_mobilenet(width_scale=0.25, dws_simplified=True, model_name="mobilenetb_wd4", **kwargs)
 

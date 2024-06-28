@@ -146,6 +146,11 @@ def get_nin_cifar(num_classes,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     channels = [[192, 160, 96], [192, 192, 192], [192, 192]]
@@ -181,6 +186,11 @@ def nin_cifar10(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_nin_cifar(num_classes=num_classes, model_name="nin_cifar10", **kwargs)
 
@@ -197,6 +207,11 @@ def nin_cifar100(num_classes=100, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_nin_cifar(num_classes=num_classes, model_name="nin_cifar100", **kwargs)
 
@@ -213,6 +228,11 @@ def nin_svhn(num_classes=10, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_nin_cifar(num_classes=num_classes, model_name="nin_svhn", **kwargs)
 

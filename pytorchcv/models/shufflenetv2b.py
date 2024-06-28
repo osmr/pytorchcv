@@ -240,6 +240,11 @@ def get_shufflenetv2b(width_scale,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     init_block_channels = 24
@@ -284,6 +289,11 @@ def shufflenetv2b_wd2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_shufflenetv2b(
         width_scale=(12.0 / 29.0),
@@ -303,6 +313,11 @@ def shufflenetv2b_w1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_shufflenetv2b(
         width_scale=1.0,
@@ -322,6 +337,11 @@ def shufflenetv2b_w3d2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_shufflenetv2b(
         width_scale=(44.0 / 29.0),
@@ -341,6 +361,11 @@ def shufflenetv2b_w2(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_shufflenetv2b(
         width_scale=(61.0 / 29.0),

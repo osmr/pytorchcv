@@ -373,8 +373,8 @@ class ShaResNet(nn.Module):
         return x
 
 
-def get_sharesnet(blocks,
-                  conv1_stride=True,
+def get_sharesnet(blocks: int,
+                  conv1_stride: bool = True,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
@@ -394,8 +394,12 @@ def get_sharesnet(blocks,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
-    """
 
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
     if blocks == 18:
         layers = [2, 2, 2, 2]
     elif blocks == 34:
@@ -452,8 +456,16 @@ def sharesnet18(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sharesnet(blocks=18, model_name="sharesnet18", **kwargs)
+    return get_sharesnet(
+        blocks=18,
+        model_name="sharesnet18",
+        **kwargs)
 
 
 def sharesnet34(**kwargs):
@@ -467,8 +479,16 @@ def sharesnet34(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sharesnet(blocks=34, model_name="sharesnet34", **kwargs)
+    return get_sharesnet(
+        blocks=34,
+        model_name="sharesnet34",
+        **kwargs)
 
 
 def sharesnet50(**kwargs):
@@ -482,8 +502,16 @@ def sharesnet50(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sharesnet(blocks=50, model_name="sharesnet50", **kwargs)
+    return get_sharesnet(
+        blocks=50,
+        model_name="sharesnet50",
+        **kwargs)
 
 
 def sharesnet50b(**kwargs):
@@ -497,8 +525,17 @@ def sharesnet50b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sharesnet(blocks=50, conv1_stride=False, model_name="sharesnet50b", **kwargs)
+    return get_sharesnet(
+        blocks=50,
+        conv1_stride=False,
+        model_name="sharesnet50b",
+        **kwargs)
 
 
 def sharesnet101(**kwargs):
@@ -512,8 +549,16 @@ def sharesnet101(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sharesnet(blocks=101, model_name="sharesnet101", **kwargs)
+    return get_sharesnet(
+        blocks=101,
+        model_name="sharesnet101",
+        **kwargs)
 
 
 def sharesnet101b(**kwargs):
@@ -527,8 +572,17 @@ def sharesnet101b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sharesnet(blocks=101, conv1_stride=False, model_name="sharesnet101b", **kwargs)
+    return get_sharesnet(
+        blocks=101,
+        conv1_stride=False,
+        model_name="sharesnet101b",
+        **kwargs)
 
 
 def sharesnet152(**kwargs):
@@ -542,8 +596,16 @@ def sharesnet152(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sharesnet(blocks=152, model_name="sharesnet152", **kwargs)
+    return get_sharesnet(
+        blocks=152,
+        model_name="sharesnet152",
+        **kwargs)
 
 
 def sharesnet152b(**kwargs):
@@ -557,8 +619,17 @@ def sharesnet152b(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
-    return get_sharesnet(blocks=152, conv1_stride=False, model_name="sharesnet152b", **kwargs)
+    return get_sharesnet(
+        blocks=152,
+        conv1_stride=False,
+        model_name="sharesnet152b",
+        **kwargs)
 
 
 def _test():

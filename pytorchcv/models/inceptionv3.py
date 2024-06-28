@@ -618,6 +618,11 @@ def get_inceptionv3(model_name: str | None = None,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     init_block_channels = 192
     channels = [[256, 288, 288],
@@ -654,6 +659,11 @@ def inceptionv3(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_inceptionv3(model_name="inceptionv3", bn_eps=1e-3, **kwargs)
 

@@ -190,6 +190,11 @@ def get_espnet(model_name: str | None = None,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     init_block_channels = 16
     layers = [0, 3, 4]
@@ -230,6 +235,11 @@ def espnet_cityscapes(num_classes=19, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_espnet(num_classes=num_classes, model_name="espnet_cityscapes", **kwargs)
 

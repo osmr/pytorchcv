@@ -240,6 +240,11 @@ def get_squeezenet(version,
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
 
     if version == '1.0':
@@ -288,6 +293,11 @@ def squeezenet_v1_0(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_squeezenet(version="1.0", residual=False, model_name="squeezenet_v1_0", **kwargs)
 
@@ -303,6 +313,11 @@ def squeezenet_v1_1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_squeezenet(version="1.1", residual=False, model_name="squeezenet_v1_1", **kwargs)
 
@@ -318,6 +333,11 @@ def squeezeresnet_v1_0(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_squeezenet(version="1.0", residual=True, model_name="squeezeresnet_v1_0", **kwargs)
 
@@ -333,6 +353,11 @@ def squeezeresnet_v1_1(**kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_squeezenet(version="1.1", residual=True, model_name="squeezeresnet_v1_1", **kwargs)
 

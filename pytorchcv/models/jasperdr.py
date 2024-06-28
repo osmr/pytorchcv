@@ -22,6 +22,11 @@ def jasperdr10x5_en(num_classes=29, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_jasper(num_classes=num_classes, version=("jasper", "10x5"), use_dr=True, model_name="jasperdr10x5_en",
                       **kwargs)
@@ -40,6 +45,11 @@ def jasperdr10x5_en_nr(num_classes=29, **kwargs):
         Whether to load the pretrained weights for model.
     root : str, default '~/.torch/models'
         Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
     """
     return get_jasper(num_classes=num_classes, version=("jasper", "10x5"), use_dr=True, model_name="jasperdr10x5_en_nr",
                       **kwargs)
