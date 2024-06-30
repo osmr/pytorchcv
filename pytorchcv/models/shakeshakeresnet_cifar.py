@@ -209,7 +209,7 @@ def get_shakeshakeresnet_cifar(num_classes,
                                model_name: str | None = None,
                                pretrained: bool = False,
                                root: str = os.path.join("~", ".torch", "models"),
-                               **kwargs):
+                               **kwargs) -> nn.Module:
     """
     Create Shake-Shake-ResNet model for CIFAR with specific parameters.
 
@@ -274,7 +274,7 @@ def get_shakeshakeresnet_cifar(num_classes,
 
 
 def shakeshakeresnet20_2x16d_cifar10(num_classes=10,
-                                     **kwargs):
+                                     **kwargs) -> nn.Module:
     """
     Shake-Shake-ResNet-20-2x16d model for CIFAR-10 from 'Shake-Shake regularization,' https://arxiv.org/abs/1705.07485.
 
@@ -302,7 +302,7 @@ def shakeshakeresnet20_2x16d_cifar10(num_classes=10,
 
 
 def shakeshakeresnet20_2x16d_cifar100(num_classes=100,
-                                      **kwargs):
+                                      **kwargs) -> nn.Module:
     """
     Shake-Shake-ResNet-20-2x16d model for CIFAR-100 from 'Shake-Shake regularization,' https://arxiv.org/abs/1705.07485.
 
@@ -330,7 +330,7 @@ def shakeshakeresnet20_2x16d_cifar100(num_classes=100,
 
 
 def shakeshakeresnet20_2x16d_svhn(num_classes=10,
-                                  **kwargs):
+                                  **kwargs) -> nn.Module:
     """
     Shake-Shake-ResNet-20-2x16d model for SVHN from 'Shake-Shake regularization,' https://arxiv.org/abs/1705.07485.
 
@@ -358,7 +358,7 @@ def shakeshakeresnet20_2x16d_svhn(num_classes=10,
 
 
 def shakeshakeresnet26_2x32d_cifar10(num_classes=10,
-                                     **kwargs):
+                                     **kwargs) -> nn.Module:
     """
     Shake-Shake-ResNet-26-2x32d model for CIFAR-10 from 'Shake-Shake regularization,' https://arxiv.org/abs/1705.07485.
 
@@ -386,7 +386,7 @@ def shakeshakeresnet26_2x32d_cifar10(num_classes=10,
 
 
 def shakeshakeresnet26_2x32d_cifar100(num_classes=100,
-                                      **kwargs):
+                                      **kwargs) -> nn.Module:
     """
     Shake-Shake-ResNet-26-2x32d model for CIFAR-100 from 'Shake-Shake regularization,' https://arxiv.org/abs/1705.07485.
 
@@ -413,7 +413,8 @@ def shakeshakeresnet26_2x32d_cifar100(num_classes=100,
         **kwargs)
 
 
-def shakeshakeresnet26_2x32d_svhn(num_classes=10, **kwargs):
+def shakeshakeresnet26_2x32d_svhn(num_classes=10,
+                                  **kwargs) -> nn.Module:
     """
     Shake-Shake-ResNet-26-2x32d model for SVHN from 'Shake-Shake regularization,' https://arxiv.org/abs/1705.07485.
 

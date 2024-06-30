@@ -240,7 +240,7 @@ class SPNASNet(nn.Module):
 def get_spnasnet(model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),
-                 **kwargs):
+                 **kwargs) -> nn.Module:
     """
     Create Single-Path NASNet model with specific parameters.
 
@@ -284,7 +284,7 @@ def get_spnasnet(model_name: str | None = None,
     return net
 
 
-def spnasnet(**kwargs):
+def spnasnet(**kwargs) -> nn.Module:
     """
     Single-Path NASNet model from 'Single-Path NAS: Designing Hardware-Efficient ConvNets in less than 4 Hours,'
     https://arxiv.org/abs/1904.02877.

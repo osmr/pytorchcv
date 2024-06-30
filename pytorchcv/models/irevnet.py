@@ -384,7 +384,7 @@ def get_irevnet(blocks,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create i-RevNet model with specific parameters.
 
@@ -404,7 +404,6 @@ def get_irevnet(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 301:
         layers = [6, 16, 72, 6]
     else:
@@ -436,7 +435,7 @@ def get_irevnet(blocks,
     return net
 
 
-def irevnet301(**kwargs):
+def irevnet301(**kwargs) -> nn.Module:
     """
     i-RevNet-301 model from 'i-RevNet: Deep Invertible Networks,' https://arxiv.org/abs/1802.07088.
 
@@ -452,7 +451,10 @@ def irevnet301(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_irevnet(blocks=301, model_name="irevnet301", **kwargs)
+    return get_irevnet(
+        blocks=301,
+        model_name="irevnet301",
+        **kwargs)
 
 
 def _test():

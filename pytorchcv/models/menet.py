@@ -239,7 +239,7 @@ def get_menet(first_stage_channels,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
-              **kwargs):
+              **kwargs) -> nn.Module:
     """
     Create MENet model with specific parameters.
 
@@ -263,7 +263,6 @@ def get_menet(first_stage_channels,
     nn.Module
         Desired module.
     """
-
     layers = [4, 8, 4]
 
     if first_stage_channels == 108:
@@ -314,7 +313,7 @@ def get_menet(first_stage_channels,
     return net
 
 
-def menet108_8x1_g3(**kwargs):
+def menet108_8x1_g3(**kwargs) -> nn.Module:
     """
     108-MENet-8x1 (g=3) model from 'Merging and Evolution: Improving Convolutional Neural Networks for Mobile
     Applications,' https://arxiv.org/abs/1803.09127.
@@ -331,10 +330,15 @@ def menet108_8x1_g3(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_menet(first_stage_channels=108, side_channels=8, groups=3, model_name="menet108_8x1_g3", **kwargs)
+    return get_menet(
+        first_stage_channels=108,
+        side_channels=8,
+        groups=3,
+        model_name="menet108_8x1_g3",
+        **kwargs)
 
 
-def menet128_8x1_g4(**kwargs):
+def menet128_8x1_g4(**kwargs) -> nn.Module:
     """
     128-MENet-8x1 (g=4) model from 'Merging and Evolution: Improving Convolutional Neural Networks for Mobile
     Applications,' https://arxiv.org/abs/1803.09127.
@@ -351,10 +355,15 @@ def menet128_8x1_g4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_menet(first_stage_channels=128, side_channels=8, groups=4, model_name="menet128_8x1_g4", **kwargs)
+    return get_menet(
+        first_stage_channels=128,
+        side_channels=8,
+        groups=4,
+        model_name="menet128_8x1_g4",
+        **kwargs)
 
 
-def menet160_8x1_g8(**kwargs):
+def menet160_8x1_g8(**kwargs) -> nn.Module:
     """
     160-MENet-8x1 (g=8) model from 'Merging and Evolution: Improving Convolutional Neural Networks for Mobile
     Applications,' https://arxiv.org/abs/1803.09127.
@@ -371,10 +380,15 @@ def menet160_8x1_g8(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_menet(first_stage_channels=160, side_channels=8, groups=8, model_name="menet160_8x1_g8", **kwargs)
+    return get_menet(
+        first_stage_channels=160,
+        side_channels=8,
+        groups=8,
+        model_name="menet160_8x1_g8",
+        **kwargs)
 
 
-def menet228_12x1_g3(**kwargs):
+def menet228_12x1_g3(**kwargs) -> nn.Module:
     """
     228-MENet-12x1 (g=3) model from 'Merging and Evolution: Improving Convolutional Neural Networks for Mobile
     Applications,' https://arxiv.org/abs/1803.09127.
@@ -391,10 +405,15 @@ def menet228_12x1_g3(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_menet(first_stage_channels=228, side_channels=12, groups=3, model_name="menet228_12x1_g3", **kwargs)
+    return get_menet(
+        first_stage_channels=228,
+        side_channels=12,
+        groups=3,
+        model_name="menet228_12x1_g3",
+        **kwargs)
 
 
-def menet256_12x1_g4(**kwargs):
+def menet256_12x1_g4(**kwargs) -> nn.Module:
     """
     256-MENet-12x1 (g=4) model from 'Merging and Evolution: Improving Convolutional Neural Networks for Mobile
     Applications,' https://arxiv.org/abs/1803.09127.
@@ -411,10 +430,15 @@ def menet256_12x1_g4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_menet(first_stage_channels=256, side_channels=12, groups=4, model_name="menet256_12x1_g4", **kwargs)
+    return get_menet(
+        first_stage_channels=256,
+        side_channels=12,
+        groups=4,
+        model_name="menet256_12x1_g4",
+        **kwargs)
 
 
-def menet348_12x1_g3(**kwargs):
+def menet348_12x1_g3(**kwargs) -> nn.Module:
     """
     348-MENet-12x1 (g=3) model from 'Merging and Evolution: Improving Convolutional Neural Networks for Mobile
     Applications,' https://arxiv.org/abs/1803.09127.
@@ -431,10 +455,15 @@ def menet348_12x1_g3(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_menet(first_stage_channels=348, side_channels=12, groups=3, model_name="menet348_12x1_g3", **kwargs)
+    return get_menet(
+        first_stage_channels=348,
+        side_channels=12,
+        groups=3,
+        model_name="menet348_12x1_g3",
+        **kwargs)
 
 
-def menet352_12x1_g8(**kwargs):
+def menet352_12x1_g8(**kwargs) -> nn.Module:
     """
     352-MENet-12x1 (g=8) model from 'Merging and Evolution: Improving Convolutional Neural Networks for Mobile
     Applications,' https://arxiv.org/abs/1803.09127.
@@ -451,10 +480,15 @@ def menet352_12x1_g8(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_menet(first_stage_channels=352, side_channels=12, groups=8, model_name="menet352_12x1_g8", **kwargs)
+    return get_menet(
+        first_stage_channels=352,
+        side_channels=12,
+        groups=8,
+        model_name="menet352_12x1_g8",
+        **kwargs)
 
 
-def menet456_24x1_g3(**kwargs):
+def menet456_24x1_g3(**kwargs) -> nn.Module:
     """
     456-MENet-24x1 (g=3) model from 'Merging and Evolution: Improving Convolutional Neural Networks for Mobile
     Applications,' https://arxiv.org/abs/1803.09127.
@@ -471,7 +505,12 @@ def menet456_24x1_g3(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_menet(first_stage_channels=456, side_channels=24, groups=3, model_name="menet456_24x1_g3", **kwargs)
+    return get_menet(
+        first_stage_channels=456,
+        side_channels=24,
+        groups=3,
+        model_name="menet456_24x1_g3",
+        **kwargs)
 
 
 def _test():

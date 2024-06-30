@@ -126,7 +126,7 @@ def get_fcn8sd(backbone,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
-               **kwargs):
+               **kwargs) -> nn.Module:
     """
     Create FCN-8s(d) model with specific parameters.
 
@@ -169,7 +169,10 @@ def get_fcn8sd(backbone,
     return net
 
 
-def fcn8sd_resnetd50b_voc(pretrained_backbone=False, num_classes=21, aux=True, **kwargs):
+def fcn8sd_resnetd50b_voc(pretrained_backbone=False,
+                          num_classes=21,
+                          aux=True,
+                          **kwargs) -> nn.Module:
     """
     FCN-8s(d) model on the base of ResNet(D)-50b for Pascal VOC from 'Fully Convolutional Networks for Semantic
     Segmentation,' https://arxiv.org/abs/1411.4038.
@@ -192,12 +195,23 @@ def fcn8sd_resnetd50b_voc(pretrained_backbone=False, num_classes=21, aux=True, *
     nn.Module
         Desired module.
     """
-    backbone = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd50b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_fcn8sd(backbone=backbone, num_classes=num_classes, aux=aux, model_name="fcn8sd_resnetd50b_voc", **kwargs)
+    return get_fcn8sd(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="fcn8sd_resnetd50b_voc",
+        **kwargs)
 
 
-def fcn8sd_resnetd101b_voc(pretrained_backbone=False, num_classes=21, aux=True, **kwargs):
+def fcn8sd_resnetd101b_voc(pretrained_backbone=False,
+                           num_classes=21,
+                           aux=True,
+                           **kwargs) -> nn.Module:
     """
     FCN-8s(d) model on the base of ResNet(D)-101b for Pascal VOC from 'Fully Convolutional Networks for Semantic
     Segmentation,' https://arxiv.org/abs/1411.4038.
@@ -220,13 +234,23 @@ def fcn8sd_resnetd101b_voc(pretrained_backbone=False, num_classes=21, aux=True, 
     nn.Module
         Desired module.
     """
-    backbone = resnetd101b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd101b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_fcn8sd(backbone=backbone, num_classes=num_classes, aux=aux, model_name="fcn8sd_resnetd101b_voc",
-                      **kwargs)
+    return get_fcn8sd(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="fcn8sd_resnetd101b_voc",
+        **kwargs)
 
 
-def fcn8sd_resnetd50b_coco(pretrained_backbone=False, num_classes=21, aux=True, **kwargs):
+def fcn8sd_resnetd50b_coco(pretrained_backbone=False,
+                           num_classes=21,
+                           aux=True,
+                           **kwargs) -> nn.Module:
     """
     FCN-8s(d) model on the base of ResNet(D)-50b for COCO from 'Fully Convolutional Networks for Semantic
     Segmentation,' https://arxiv.org/abs/1411.4038.
@@ -249,13 +273,23 @@ def fcn8sd_resnetd50b_coco(pretrained_backbone=False, num_classes=21, aux=True, 
     nn.Module
         Desired module.
     """
-    backbone = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd50b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_fcn8sd(backbone=backbone, num_classes=num_classes, aux=aux, model_name="fcn8sd_resnetd50b_coco",
-                      **kwargs)
+    return get_fcn8sd(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="fcn8sd_resnetd50b_coco",
+        **kwargs)
 
 
-def fcn8sd_resnetd101b_coco(pretrained_backbone=False, num_classes=21, aux=True, **kwargs):
+def fcn8sd_resnetd101b_coco(pretrained_backbone=False,
+                            num_classes=21,
+                            aux=True,
+                            **kwargs) -> nn.Module:
     """
     FCN-8s(d) model on the base of ResNet(D)-101b for COCO from 'Fully Convolutional Networks for Semantic
     Segmentation,' https://arxiv.org/abs/1411.4038.
@@ -278,13 +312,23 @@ def fcn8sd_resnetd101b_coco(pretrained_backbone=False, num_classes=21, aux=True,
     nn.Module
         Desired module.
     """
-    backbone = resnetd101b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd101b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_fcn8sd(backbone=backbone, num_classes=num_classes, aux=aux, model_name="fcn8sd_resnetd101b_coco",
-                      **kwargs)
+    return get_fcn8sd(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="fcn8sd_resnetd101b_coco",
+        **kwargs)
 
 
-def fcn8sd_resnetd50b_ade20k(pretrained_backbone=False, num_classes=150, aux=True, **kwargs):
+def fcn8sd_resnetd50b_ade20k(pretrained_backbone=False,
+                             num_classes=150,
+                             aux=True,
+                             **kwargs) -> nn.Module:
     """
     FCN-8s(d) model on the base of ResNet(D)-50b for ADE20K from 'Fully Convolutional Networks for Semantic
     Segmentation,' https://arxiv.org/abs/1411.4038.
@@ -307,13 +351,23 @@ def fcn8sd_resnetd50b_ade20k(pretrained_backbone=False, num_classes=150, aux=Tru
     nn.Module
         Desired module.
     """
-    backbone = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd50b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_fcn8sd(backbone=backbone, num_classes=num_classes, aux=aux, model_name="fcn8sd_resnetd50b_ade20k",
-                      **kwargs)
+    return get_fcn8sd(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="fcn8sd_resnetd50b_ade20k",
+        **kwargs)
 
 
-def fcn8sd_resnetd101b_ade20k(pretrained_backbone=False, num_classes=150, aux=True, **kwargs):
+def fcn8sd_resnetd101b_ade20k(pretrained_backbone=False,
+                              num_classes=150,
+                              aux=True,
+                              **kwargs) -> nn.Module:
     """
     FCN-8s(d) model on the base of ResNet(D)-101b for ADE20K from 'Fully Convolutional Networks for Semantic
     Segmentation,' https://arxiv.org/abs/1411.4038.
@@ -336,13 +390,23 @@ def fcn8sd_resnetd101b_ade20k(pretrained_backbone=False, num_classes=150, aux=Tr
     nn.Module
         Desired module.
     """
-    backbone = resnetd101b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd101b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_fcn8sd(backbone=backbone, num_classes=num_classes, aux=aux, model_name="fcn8sd_resnetd101b_ade20k",
-                      **kwargs)
+    return get_fcn8sd(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="fcn8sd_resnetd101b_ade20k",
+        **kwargs)
 
 
-def fcn8sd_resnetd50b_cityscapes(pretrained_backbone=False, num_classes=19, aux=True, **kwargs):
+def fcn8sd_resnetd50b_cityscapes(pretrained_backbone=False,
+                                 num_classes=19,
+                                 aux=True,
+                                 **kwargs) -> nn.Module:
     """
     FCN-8s(d) model on the base of ResNet(D)-50b for Cityscapes from 'Fully Convolutional Networks for Semantic
     Segmentation,' https://arxiv.org/abs/1411.4038.
@@ -365,13 +429,23 @@ def fcn8sd_resnetd50b_cityscapes(pretrained_backbone=False, num_classes=19, aux=
     nn.Module
         Desired module.
     """
-    backbone = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd50b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_fcn8sd(backbone=backbone, num_classes=num_classes, aux=aux, model_name="fcn8sd_resnetd50b_cityscapes",
-                      **kwargs)
+    return get_fcn8sd(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="fcn8sd_resnetd50b_cityscapes",
+        **kwargs)
 
 
-def fcn8sd_resnetd101b_cityscapes(pretrained_backbone=False, num_classes=19, aux=True, **kwargs):
+def fcn8sd_resnetd101b_cityscapes(pretrained_backbone=False,
+                                  num_classes=19,
+                                  aux=True,
+                                  **kwargs) -> nn.Module:
     """
     FCN-8s(d) model on the base of ResNet(D)-101b for Cityscapes from 'Fully Convolutional Networks for Semantic
     Segmentation,' https://arxiv.org/abs/1411.4038.
@@ -394,10 +468,17 @@ def fcn8sd_resnetd101b_cityscapes(pretrained_backbone=False, num_classes=19, aux
     nn.Module
         Desired module.
     """
-    backbone = resnetd101b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd101b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_fcn8sd(backbone=backbone, num_classes=num_classes, aux=aux, model_name="fcn8sd_resnetd101b_cityscapes",
-                      **kwargs)
+    return get_fcn8sd(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="fcn8sd_resnetd101b_cityscapes",
+        **kwargs)
 
 
 def _test():

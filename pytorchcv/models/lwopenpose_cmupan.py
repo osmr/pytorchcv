@@ -521,7 +521,7 @@ def get_lwopenpose(calc_3d_features,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),
-                   **kwargs):
+                   **kwargs) -> nn.Module:
     """
     Create Lightweight OpenPose 2D/3D model with specific parameters.
 
@@ -571,7 +571,8 @@ def get_lwopenpose(calc_3d_features,
     return net
 
 
-def lwopenpose2d_mobilenet_cmupan_coco(keypoints=19, **kwargs):
+def lwopenpose2d_mobilenet_cmupan_coco(keypoints=19,
+                                       **kwargs) -> nn.Module:
     """
     Lightweight OpenPose 2D model on the base of MobileNet for CMU Panoptic from 'Real-time 2D Multi-Person Pose
     Estimation on CPU: Lightweight OpenPose,' https://arxiv.org/abs/1811.12004.
@@ -590,11 +591,15 @@ def lwopenpose2d_mobilenet_cmupan_coco(keypoints=19, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_lwopenpose(calc_3d_features=False, keypoints=keypoints, model_name="lwopenpose2d_mobilenet_cmupan_coco",
-                          **kwargs)
+    return get_lwopenpose(
+        calc_3d_features=False,
+        keypoints=keypoints,
+        model_name="lwopenpose2d_mobilenet_cmupan_coco",
+        **kwargs)
 
 
-def lwopenpose3d_mobilenet_cmupan_coco(keypoints=19, **kwargs):
+def lwopenpose3d_mobilenet_cmupan_coco(keypoints=19,
+                                       **kwargs) -> nn.Module:
     """
     Lightweight OpenPose 3D model on the base of MobileNet for CMU Panoptic from 'Real-time 2D Multi-Person Pose
     Estimation on CPU: Lightweight OpenPose,' https://arxiv.org/abs/1811.12004.
@@ -613,8 +618,11 @@ def lwopenpose3d_mobilenet_cmupan_coco(keypoints=19, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_lwopenpose(calc_3d_features=True, keypoints=keypoints, model_name="lwopenpose3d_mobilenet_cmupan_coco",
-                          **kwargs)
+    return get_lwopenpose(
+        calc_3d_features=True,
+        keypoints=keypoints,
+        model_name="lwopenpose3d_mobilenet_cmupan_coco",
+        **kwargs)
 
 
 def _test():

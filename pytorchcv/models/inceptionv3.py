@@ -606,7 +606,7 @@ class InceptionV3(nn.Module):
 def get_inceptionv3(model_name: str | None = None,
                     pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),
-                    **kwargs):
+                    **kwargs) -> nn.Module:
     """
     Create InceptionV3 model with specific parameters.
 
@@ -648,7 +648,7 @@ def get_inceptionv3(model_name: str | None = None,
     return net
 
 
-def inceptionv3(**kwargs):
+def inceptionv3(**kwargs) -> nn.Module:
     """
     InceptionV3 model from 'Rethinking the Inception Architecture for Computer Vision,'
     https://arxiv.org/abs/1512.00567.
@@ -665,7 +665,10 @@ def inceptionv3(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_inceptionv3(model_name="inceptionv3", bn_eps=1e-3, **kwargs)
+    return get_inceptionv3(
+        model_name="inceptionv3",
+        bn_eps=1e-3,
+        **kwargs)
 
 
 def _test():

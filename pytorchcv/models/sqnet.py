@@ -289,7 +289,7 @@ class SQNet(nn.Module):
 def get_sqnet(model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
-              **kwargs):
+              **kwargs) -> nn.Module:
     """
     Create SQNet model with specific parameters.
 
@@ -329,7 +329,8 @@ def get_sqnet(model_name: str | None = None,
     return net
 
 
-def sqnet_cityscapes(num_classes=19, **kwargs):
+def sqnet_cityscapes(num_classes=19,
+                     **kwargs) -> nn.Module:
     """
     SQNet model for Cityscapes from 'Speeding up Semantic Segmentation for Autonomous Driving,'
     https://openreview.net/pdf?id=S1uHiFyyg.
@@ -348,7 +349,10 @@ def sqnet_cityscapes(num_classes=19, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sqnet(num_classes=num_classes, model_name="sqnet_cityscapes", **kwargs)
+    return get_sqnet(
+        num_classes=num_classes,
+        model_name="sqnet_cityscapes",
+        **kwargs)
 
 
 def _test():

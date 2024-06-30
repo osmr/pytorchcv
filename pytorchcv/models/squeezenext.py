@@ -200,7 +200,7 @@ def get_squeezenext(version,
                     model_name: str | None = None,
                     pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),
-                    **kwargs):
+                    **kwargs) -> nn.Module:
     """
     Create SqueezeNext model with specific parameters.
 
@@ -222,14 +222,13 @@ def get_squeezenext(version,
     nn.Module
         Desired module.
     """
-
     init_block_channels = 64
     final_block_channels = 128
     channels_per_layers = [32, 64, 128, 256]
 
-    if version == '23':
+    if version == "23":
         layers = [6, 6, 8, 1]
-    elif version == '23v5':
+    elif version == "23v5":
         layers = [2, 4, 14, 1]
     else:
         raise ValueError("Unsupported SqueezeNet version {}".format(version))
@@ -259,7 +258,7 @@ def get_squeezenext(version,
     return net
 
 
-def sqnxt23_w1(**kwargs):
+def sqnxt23_w1(**kwargs) -> nn.Module:
     """
     1.0-SqNxt-23 model from 'SqueezeNext: Hardware-Aware Neural Network Design,' https://arxiv.org/abs/1803.10615.
 
@@ -275,10 +274,14 @@ def sqnxt23_w1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_squeezenext(version="23", width_scale=1.0, model_name="sqnxt23_w1", **kwargs)
+    return get_squeezenext(
+        version="23",
+        width_scale=1.0,
+        model_name="sqnxt23_w1",
+        **kwargs)
 
 
-def sqnxt23_w3d2(**kwargs):
+def sqnxt23_w3d2(**kwargs) -> nn.Module:
     """
     1.5-SqNxt-23 model from 'SqueezeNext: Hardware-Aware Neural Network Design,' https://arxiv.org/abs/1803.10615.
 
@@ -294,10 +297,14 @@ def sqnxt23_w3d2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_squeezenext(version="23", width_scale=1.5, model_name="sqnxt23_w3d2", **kwargs)
+    return get_squeezenext(
+        version="23",
+        width_scale=1.5,
+        model_name="sqnxt23_w3d2",
+        **kwargs)
 
 
-def sqnxt23_w2(**kwargs):
+def sqnxt23_w2(**kwargs) -> nn.Module:
     """
     2.0-SqNxt-23 model from 'SqueezeNext: Hardware-Aware Neural Network Design,' https://arxiv.org/abs/1803.10615.
 
@@ -313,10 +320,14 @@ def sqnxt23_w2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_squeezenext(version="23", width_scale=2.0, model_name="sqnxt23_w2", **kwargs)
+    return get_squeezenext(
+        version="23",
+        width_scale=2.0,
+        model_name="sqnxt23_w2",
+        **kwargs)
 
 
-def sqnxt23v5_w1(**kwargs):
+def sqnxt23v5_w1(**kwargs) -> nn.Module:
     """
     1.0-SqNxt-23v5 model from 'SqueezeNext: Hardware-Aware Neural Network Design,' https://arxiv.org/abs/1803.10615.
 
@@ -332,10 +343,14 @@ def sqnxt23v5_w1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_squeezenext(version="23v5", width_scale=1.0, model_name="sqnxt23v5_w1", **kwargs)
+    return get_squeezenext(
+        version="23v5",
+        width_scale=1.0,
+        model_name="sqnxt23v5_w1",
+        **kwargs)
 
 
-def sqnxt23v5_w3d2(**kwargs):
+def sqnxt23v5_w3d2(**kwargs) -> nn.Module:
     """
     1.5-SqNxt-23v5 model from 'SqueezeNext: Hardware-Aware Neural Network Design,' https://arxiv.org/abs/1803.10615.
 
@@ -351,10 +366,14 @@ def sqnxt23v5_w3d2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_squeezenext(version="23v5", width_scale=1.5, model_name="sqnxt23v5_w3d2", **kwargs)
+    return get_squeezenext(
+        version="23v5",
+        width_scale=1.5,
+        model_name="sqnxt23v5_w3d2",
+        **kwargs)
 
 
-def sqnxt23v5_w2(**kwargs):
+def sqnxt23v5_w2(**kwargs) -> nn.Module:
     """
     2.0-SqNxt-23v5 model from 'SqueezeNext: Hardware-Aware Neural Network Design,' https://arxiv.org/abs/1803.10615.
 
@@ -370,7 +389,11 @@ def sqnxt23v5_w2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_squeezenext(version="23v5", width_scale=2.0, model_name="sqnxt23v5_w2", **kwargs)
+    return get_squeezenext(
+        version="23v5",
+        width_scale=2.0,
+        model_name="sqnxt23v5_w2",
+        **kwargs)
 
 
 def _test():

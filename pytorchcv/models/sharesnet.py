@@ -378,7 +378,7 @@ def get_sharesnet(blocks: int,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create ShaResNet model with specific parameters.
 
@@ -445,7 +445,7 @@ def get_sharesnet(blocks: int,
     return net
 
 
-def sharesnet18(**kwargs):
+def sharesnet18(**kwargs) -> nn.Module:
     """
     ShaResNet-18 model from 'ShaResNet: reducing residual network parameter number by sharing weights,'
     https://arxiv.org/abs/1702.08782.
@@ -468,7 +468,7 @@ def sharesnet18(**kwargs):
         **kwargs)
 
 
-def sharesnet34(**kwargs):
+def sharesnet34(**kwargs) -> nn.Module:
     """
     ShaResNet-34 model from 'ShaResNet: reducing residual network parameter number by sharing weights,'
     https://arxiv.org/abs/1702.08782.
@@ -491,7 +491,7 @@ def sharesnet34(**kwargs):
         **kwargs)
 
 
-def sharesnet50(**kwargs):
+def sharesnet50(**kwargs) -> nn.Module:
     """
     ShaResNet-50 model from 'ShaResNet: reducing residual network parameter number by sharing weights,'
     https://arxiv.org/abs/1702.08782.
@@ -514,7 +514,7 @@ def sharesnet50(**kwargs):
         **kwargs)
 
 
-def sharesnet50b(**kwargs):
+def sharesnet50b(**kwargs) -> nn.Module:
     """
     ShaResNet-50b model with stride at the second convolution in bottleneck block from 'ShaResNet: reducing residual
     network parameter number by sharing weights,' https://arxiv.org/abs/1702.08782.
@@ -538,7 +538,7 @@ def sharesnet50b(**kwargs):
         **kwargs)
 
 
-def sharesnet101(**kwargs):
+def sharesnet101(**kwargs) -> nn.Module:
     """
     ShaResNet-101 model from 'ShaResNet: reducing residual network parameter number by sharing weights,'
     https://arxiv.org/abs/1702.08782.
@@ -561,7 +561,7 @@ def sharesnet101(**kwargs):
         **kwargs)
 
 
-def sharesnet101b(**kwargs):
+def sharesnet101b(**kwargs) -> nn.Module:
     """
     ShaResNet-101b model with stride at the second convolution in bottleneck block from 'ShaResNet: reducing residual
     network parameter number by sharing weights,' https://arxiv.org/abs/1702.08782.
@@ -585,7 +585,7 @@ def sharesnet101b(**kwargs):
         **kwargs)
 
 
-def sharesnet152(**kwargs):
+def sharesnet152(**kwargs) -> nn.Module:
     """
     ShaResNet-152 model from 'ShaResNet: reducing residual network parameter number by sharing weights,'
     https://arxiv.org/abs/1702.08782.
@@ -608,7 +608,7 @@ def sharesnet152(**kwargs):
         **kwargs)
 
 
-def sharesnet152b(**kwargs):
+def sharesnet152b(**kwargs) -> nn.Module:
     """
     ShaResNet-152b model with stride at the second convolution in bottleneck block from 'ShaResNet: reducing residual
     network parameter number by sharing weights,' https://arxiv.org/abs/1702.08782.

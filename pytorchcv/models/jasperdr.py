@@ -5,11 +5,13 @@
 
 __all__ = ['jasperdr10x5_en', 'jasperdr10x5_en_nr']
 
+import torch.nn as nn
 from .jasper import get_jasper
 from .common import calc_net_weights
 
 
-def jasperdr10x5_en(num_classes=29, **kwargs):
+def jasperdr10x5_en(num_classes=29,
+                    **kwargs) -> nn.Module:
     """
     Jasper DR 10x5 model for English language from 'Jasper: An End-to-End Convolutional Neural Acoustic Model,'
     https://arxiv.org/abs/1904.03288.
@@ -28,11 +30,16 @@ def jasperdr10x5_en(num_classes=29, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_jasper(num_classes=num_classes, version=("jasper", "10x5"), use_dr=True, model_name="jasperdr10x5_en",
-                      **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("jasper", "10x5"),
+        use_dr=True,
+        model_name="jasperdr10x5_en",
+        **kwargs)
 
 
-def jasperdr10x5_en_nr(num_classes=29, **kwargs):
+def jasperdr10x5_en_nr(num_classes=29,
+                       **kwargs) -> nn.Module:
     """
     Jasper DR 10x5 model for English language (with presence of noise) from 'Jasper: An End-to-End Convolutional Neural
     Acoustic Model,' https://arxiv.org/abs/1904.03288.
@@ -51,8 +58,12 @@ def jasperdr10x5_en_nr(num_classes=29, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_jasper(num_classes=num_classes, version=("jasper", "10x5"), use_dr=True, model_name="jasperdr10x5_en_nr",
-                      **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("jasper", "10x5"),
+        use_dr=True,
+        model_name="jasperdr10x5_en_nr",
+        **kwargs)
 
 
 def _test():

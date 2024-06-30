@@ -197,7 +197,7 @@ def get_shufflenet(groups,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),
-                   **kwargs):
+                   **kwargs) -> nn.Module:
     """
     Create ShuffleNet model with specific parameters.
 
@@ -219,7 +219,6 @@ def get_shufflenet(groups,
     nn.Module
         Desired module.
     """
-
     init_block_channels = 24
     layers = [4, 8, 4]
 
@@ -260,7 +259,7 @@ def get_shufflenet(groups,
     return net
 
 
-def shufflenet_g1_w1(**kwargs):
+def shufflenet_g1_w1(**kwargs) -> nn.Module:
     """
     ShuffleNet 1x (g=1) model from 'ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile Devices,'
     https://arxiv.org/abs/1707.01083.
@@ -284,7 +283,7 @@ def shufflenet_g1_w1(**kwargs):
         **kwargs)
 
 
-def shufflenet_g2_w1(**kwargs):
+def shufflenet_g2_w1(**kwargs) -> nn.Module:
     """
     ShuffleNet 1x (g=2) model from 'ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile Devices,'
     https://arxiv.org/abs/1707.01083.
@@ -308,7 +307,7 @@ def shufflenet_g2_w1(**kwargs):
         **kwargs)
 
 
-def shufflenet_g3_w1(**kwargs):
+def shufflenet_g3_w1(**kwargs) -> nn.Module:
     """
     ShuffleNet 1x (g=3) model from 'ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile Devices,'
     https://arxiv.org/abs/1707.01083.
@@ -332,7 +331,7 @@ def shufflenet_g3_w1(**kwargs):
         **kwargs)
 
 
-def shufflenet_g4_w1(**kwargs):
+def shufflenet_g4_w1(**kwargs) -> nn.Module:
     """
     ShuffleNet 1x (g=4) model from 'ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile Devices,'
     https://arxiv.org/abs/1707.01083.
@@ -356,7 +355,7 @@ def shufflenet_g4_w1(**kwargs):
         **kwargs)
 
 
-def shufflenet_g8_w1(**kwargs):
+def shufflenet_g8_w1(**kwargs) -> nn.Module:
     """
     ShuffleNet 1x (g=8) model from 'ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile Devices,'
     https://arxiv.org/abs/1707.01083.
@@ -380,7 +379,7 @@ def shufflenet_g8_w1(**kwargs):
         **kwargs)
 
 
-def shufflenet_g1_w3d4(**kwargs):
+def shufflenet_g1_w3d4(**kwargs) -> nn.Module:
     """
     ShuffleNet 0.75x (g=1) model from 'ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile
     Devices,' https://arxiv.org/abs/1707.01083.
@@ -404,7 +403,7 @@ def shufflenet_g1_w3d4(**kwargs):
         **kwargs)
 
 
-def shufflenet_g3_w3d4(**kwargs):
+def shufflenet_g3_w3d4(**kwargs) -> nn.Module:
     """
     ShuffleNet 0.75x (g=3) model from 'ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile
     Devices,' https://arxiv.org/abs/1707.01083.
@@ -428,7 +427,7 @@ def shufflenet_g3_w3d4(**kwargs):
         **kwargs)
 
 
-def shufflenet_g1_wd2(**kwargs):
+def shufflenet_g1_wd2(**kwargs) -> nn.Module:
     """
     ShuffleNet 0.5x (g=1) model from 'ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile
     Devices,' https://arxiv.org/abs/1707.01083.
@@ -452,7 +451,7 @@ def shufflenet_g1_wd2(**kwargs):
         **kwargs)
 
 
-def shufflenet_g3_wd2(**kwargs):
+def shufflenet_g3_wd2(**kwargs) -> nn.Module:
     """
     ShuffleNet 0.5x (g=3) model from 'ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile
     Devices,' https://arxiv.org/abs/1707.01083.
@@ -476,7 +475,7 @@ def shufflenet_g3_wd2(**kwargs):
         **kwargs)
 
 
-def shufflenet_g1_wd4(**kwargs):
+def shufflenet_g1_wd4(**kwargs) -> nn.Module:
     """
     ShuffleNet 0.25x (g=1) model from 'ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile
     Devices,' https://arxiv.org/abs/1707.01083.
@@ -500,7 +499,7 @@ def shufflenet_g1_wd4(**kwargs):
         **kwargs)
 
 
-def shufflenet_g3_wd4(**kwargs):
+def shufflenet_g3_wd4(**kwargs) -> nn.Module:
     """
     ShuffleNet 0.25x (g=3) model from 'ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile
     Devices,' https://arxiv.org/abs/1707.01083.

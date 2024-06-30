@@ -354,7 +354,7 @@ class LEDNet(nn.Module):
 def get_lednet(model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
-               **kwargs):
+               **kwargs) -> nn.Module:
     """
     Create LEDNet model with specific parameters.
 
@@ -396,7 +396,8 @@ def get_lednet(model_name: str | None = None,
     return net
 
 
-def lednet_cityscapes(num_classes=19, **kwargs):
+def lednet_cityscapes(num_classes=19,
+                      **kwargs) -> nn.Module:
     """
     LEDNet model for Cityscapes from 'LEDNet: A Lightweight Encoder-Decoder Network for Real-Time Semantic
     Segmentation,' https://arxiv.org/abs/1905.02423.
@@ -415,7 +416,10 @@ def lednet_cityscapes(num_classes=19, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_lednet(num_classes=num_classes, model_name="lednet_cityscapes", **kwargs)
+    return get_lednet(
+        num_classes=num_classes,
+        model_name="lednet_cityscapes",
+        **kwargs)
 
 
 def _test():

@@ -171,7 +171,7 @@ def get_shakedropresnet_cifar(num_classes,
                               model_name: str | None = None,
                               pretrained: bool = False,
                               root: str = os.path.join("~", ".torch", "models"),
-                              **kwargs):
+                              **kwargs) -> nn.Module:
     """
     Create ShakeDrop-ResNet model for CIFAR with specific parameters.
 
@@ -237,7 +237,7 @@ def get_shakedropresnet_cifar(num_classes,
 
 
 def shakedropresnet20_cifar10(num_classes=10,
-                              **kwargs):
+                              **kwargs) -> nn.Module:
     """
     ShakeDrop-ResNet-20 model for CIFAR-10 from 'ShakeDrop Regularization for Deep Residual Learning,'
     https://arxiv.org/abs/1802.02375.
@@ -265,7 +265,7 @@ def shakedropresnet20_cifar10(num_classes=10,
 
 
 def shakedropresnet20_cifar100(num_classes=100,
-                               **kwargs):
+                               **kwargs) -> nn.Module:
     """
     ShakeDrop-ResNet-20 model for CIFAR-100 from 'ShakeDrop Regularization for Deep Residual Learning,'
     https://arxiv.org/abs/1802.02375.
@@ -293,7 +293,7 @@ def shakedropresnet20_cifar100(num_classes=100,
 
 
 def shakedropresnet20_svhn(num_classes=10,
-                           **kwargs):
+                           **kwargs) -> nn.Module:
     """
     ShakeDrop-ResNet-20 model for SVHN from 'ShakeDrop Regularization for Deep Residual Learning,'
     https://arxiv.org/abs/1802.02375.

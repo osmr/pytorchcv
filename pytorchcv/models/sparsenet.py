@@ -197,7 +197,7 @@ def get_sparsenet(num_layers,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create SparseNet model with specific parameters.
 
@@ -217,7 +217,6 @@ def get_sparsenet(num_layers,
     nn.Module
         Desired module.
     """
-
     if num_layers == 121:
         init_block_channels = 64
         growth_rate = 32
@@ -268,7 +267,7 @@ def get_sparsenet(num_layers,
     return net
 
 
-def sparsenet121(**kwargs):
+def sparsenet121(**kwargs) -> nn.Module:
     """
     SparseNet-121 model from 'Sparsely Aggregated Convolutional Networks,' https://arxiv.org/abs/1801.05895.
 
@@ -290,7 +289,7 @@ def sparsenet121(**kwargs):
         **kwargs)
 
 
-def sparsenet161(**kwargs):
+def sparsenet161(**kwargs) -> nn.Module:
     """
     SparseNet-161 model from 'Sparsely Aggregated Convolutional Networks,' https://arxiv.org/abs/1801.05895.
 
@@ -312,7 +311,7 @@ def sparsenet161(**kwargs):
         **kwargs)
 
 
-def sparsenet169(**kwargs):
+def sparsenet169(**kwargs) -> nn.Module:
     """
     SparseNet-169 model from 'Sparsely Aggregated Convolutional Networks,' https://arxiv.org/abs/1801.05895.
 
@@ -334,7 +333,7 @@ def sparsenet169(**kwargs):
         **kwargs)
 
 
-def sparsenet201(**kwargs):
+def sparsenet201(**kwargs) -> nn.Module:
     """
     SparseNet-201 model from 'Sparsely Aggregated Convolutional Networks,' https://arxiv.org/abs/1801.05895.
 
@@ -356,7 +355,7 @@ def sparsenet201(**kwargs):
         **kwargs)
 
 
-def sparsenet264(**kwargs):
+def sparsenet264(**kwargs) -> nn.Module:
     """
     SparseNet-264 model from 'Sparsely Aggregated Convolutional Networks,' https://arxiv.org/abs/1801.05895.
 

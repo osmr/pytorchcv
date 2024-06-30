@@ -208,7 +208,7 @@ def get_linknet(backbone,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create LinkNet model with specific parameters.
 
@@ -254,7 +254,9 @@ def get_linknet(backbone,
     return net
 
 
-def linknet_cityscapes(pretrained_backbone=False, num_classes=19, **kwargs):
+def linknet_cityscapes(pretrained_backbone=False,
+                       num_classes=19,
+                       **kwargs) -> nn.Module:
     """
     LinkNet model for Cityscapes from 'LinkNet: Exploiting Encoder Representations for Efficient Semantic Segmentation,'
     https://arxiv.org/abs/1707.03718.
@@ -278,8 +280,12 @@ def linknet_cityscapes(pretrained_backbone=False, num_classes=19, **kwargs):
     backbone = resnet18(pretrained=pretrained_backbone).features
     del backbone[-1]
     backbone_out_channels = 512
-    return get_linknet(backbone=backbone, backbone_out_channels=backbone_out_channels, num_classes=num_classes,
-                       model_name="linknet_cityscapes", **kwargs)
+    return get_linknet(
+        backbone=backbone,
+        backbone_out_channels=backbone_out_channels,
+        num_classes=num_classes,
+        model_name="linknet_cityscapes",
+        **kwargs)
 
 
 def _test():

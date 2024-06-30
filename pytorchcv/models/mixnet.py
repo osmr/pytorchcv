@@ -446,7 +446,7 @@ def get_mixnet(version,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
-               **kwargs):
+               **kwargs) -> nn.Module:
     """
     Create MixNet model with specific parameters.
 
@@ -468,7 +468,6 @@ def get_mixnet(version,
     nn.Module
         Desired module.
     """
-
     if version == "s":
         init_block_channels = 16
         channels = [[24, 24], [40, 40, 40, 40], [80, 80, 80], [120, 120, 120, 200, 200, 200]]
@@ -517,7 +516,7 @@ def get_mixnet(version,
     return net
 
 
-def mixnet_s(**kwargs):
+def mixnet_s(**kwargs) -> nn.Module:
     """
     MixNet-S model from 'MixConv: Mixed Depthwise Convolutional Kernels,' https://arxiv.org/abs/1907.09595.
 
@@ -533,10 +532,14 @@ def mixnet_s(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mixnet(version="s", width_scale=1.0, model_name="mixnet_s", **kwargs)
+    return get_mixnet(
+        version="s",
+        width_scale=1.0,
+        model_name="mixnet_s",
+        **kwargs)
 
 
-def mixnet_m(**kwargs):
+def mixnet_m(**kwargs) -> nn.Module:
     """
     MixNet-M model from 'MixConv: Mixed Depthwise Convolutional Kernels,' https://arxiv.org/abs/1907.09595.
 
@@ -552,10 +555,14 @@ def mixnet_m(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mixnet(version="m", width_scale=1.0, model_name="mixnet_m", **kwargs)
+    return get_mixnet(
+        version="m",
+        width_scale=1.0,
+        model_name="mixnet_m",
+        **kwargs)
 
 
-def mixnet_l(**kwargs):
+def mixnet_l(**kwargs) -> nn.Module:
     """
     MixNet-L model from 'MixConv: Mixed Depthwise Convolutional Kernels,' https://arxiv.org/abs/1907.09595.
 
@@ -571,7 +578,11 @@ def mixnet_l(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mixnet(version="m", width_scale=1.3, model_name="mixnet_l", **kwargs)
+    return get_mixnet(
+        version="m",
+        width_scale=1.3,
+        model_name="mixnet_l",
+        **kwargs)
 
 
 def _test():

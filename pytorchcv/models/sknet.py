@@ -237,7 +237,7 @@ def get_sknet(blocks,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
-              **kwargs):
+              **kwargs) -> nn.Module:
     """
     Create SKNet model with specific parameters.
 
@@ -287,7 +287,7 @@ def get_sknet(blocks,
     return net
 
 
-def sknet50(**kwargs):
+def sknet50(**kwargs) -> nn.Module:
     """
     SKNet-50 model from 'Selective Kernel Networks,' https://arxiv.org/abs/1903.06586.
 
@@ -309,7 +309,7 @@ def sknet50(**kwargs):
         **kwargs)
 
 
-def sknet101(**kwargs):
+def sknet101(**kwargs) -> nn.Module:
     """
     SKNet-101 model from 'Selective Kernel Networks,' https://arxiv.org/abs/1903.06586.
 
@@ -331,7 +331,7 @@ def sknet101(**kwargs):
         **kwargs)
 
 
-def sknet152(**kwargs):
+def sknet152(**kwargs) -> nn.Module:
     """
     SKNet-152 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 

@@ -145,7 +145,7 @@ def get_seresnext(blocks,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create SE-ResNeXt model with specific parameters.
 
@@ -169,7 +169,6 @@ def get_seresnext(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 50:
         layers = [3, 4, 6, 3]
     elif blocks == 101:
@@ -201,7 +200,7 @@ def get_seresnext(blocks,
     return net
 
 
-def seresnext50_32x4d(**kwargs):
+def seresnext50_32x4d(**kwargs) -> nn.Module:
     """
     SE-ResNeXt-50 (32x4d) model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -217,10 +216,15 @@ def seresnext50_32x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnext(blocks=50, cardinality=32, bottleneck_width=4, model_name="seresnext50_32x4d", **kwargs)
+    return get_seresnext(
+        blocks=50,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="seresnext50_32x4d",
+        **kwargs)
 
 
-def seresnext101_32x4d(**kwargs):
+def seresnext101_32x4d(**kwargs) -> nn.Module:
     """
     SE-ResNeXt-101 (32x4d) model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -236,10 +240,15 @@ def seresnext101_32x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnext(blocks=101, cardinality=32, bottleneck_width=4, model_name="seresnext101_32x4d", **kwargs)
+    return get_seresnext(
+        blocks=101,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="seresnext101_32x4d",
+        **kwargs)
 
 
-def seresnext101_64x4d(**kwargs):
+def seresnext101_64x4d(**kwargs) -> nn.Module:
     """
     SE-ResNeXt-101 (64x4d) model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -255,7 +264,12 @@ def seresnext101_64x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnext(blocks=101, cardinality=64, bottleneck_width=4, model_name="seresnext101_64x4d", **kwargs)
+    return get_seresnext(
+        blocks=101,
+        cardinality=64,
+        bottleneck_width=4,
+        model_name="seresnext101_64x4d",
+        **kwargs)
 
 
 def _test():

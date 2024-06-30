@@ -95,7 +95,7 @@ def get_sepreresnet_cifar(num_classes,
                           model_name: str | None = None,
                           pretrained: bool = False,
                           root: str = os.path.join("~", ".torch", "models"),
-                          **kwargs):
+                          **kwargs) -> nn.Module:
     """
     Create SE-PreResNet model for CIFAR with specific parameters.
 
@@ -155,7 +155,8 @@ def get_sepreresnet_cifar(num_classes,
     return net
 
 
-def sepreresnet20_cifar10(num_classes=10, **kwargs):
+def sepreresnet20_cifar10(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     SE-PreResNet-20 model for CIFAR-10 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -173,11 +174,16 @@ def sepreresnet20_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=20, bottleneck=False,
-                                 model_name="sepreresnet20_cifar10", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        bottleneck=False,
+        model_name="sepreresnet20_cifar10",
+        **kwargs)
 
 
-def sepreresnet20_cifar100(num_classes=100, **kwargs):
+def sepreresnet20_cifar100(num_classes=100,
+                           **kwargs) -> nn.Module:
     """
     SE-PreResNet-20 model for CIFAR-100 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -195,11 +201,16 @@ def sepreresnet20_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=20, bottleneck=False,
-                                 model_name="sepreresnet20_cifar100", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        bottleneck=False,
+        model_name="sepreresnet20_cifar100",
+        **kwargs)
 
 
-def sepreresnet20_svhn(num_classes=10, **kwargs):
+def sepreresnet20_svhn(num_classes=10,
+                       **kwargs) -> nn.Module:
     """
     SE-PreResNet-20 model for SVHN from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -217,11 +228,16 @@ def sepreresnet20_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=20, bottleneck=False, model_name="sepreresnet20_svhn",
-                                 **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        bottleneck=False,
+        model_name="sepreresnet20_svhn",
+        **kwargs)
 
 
-def sepreresnet56_cifar10(num_classes=10, **kwargs):
+def sepreresnet56_cifar10(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     SE-PreResNet-56 model for CIFAR-10 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -239,11 +255,16 @@ def sepreresnet56_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=56, bottleneck=False,
-                                 model_name="sepreresnet56_cifar10", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=56,
+        bottleneck=False,
+        model_name="sepreresnet56_cifar10",
+        **kwargs)
 
 
-def sepreresnet56_cifar100(num_classes=100, **kwargs):
+def sepreresnet56_cifar100(num_classes=100,
+                           **kwargs) -> nn.Module:
     """
     SE-PreResNet-56 model for CIFAR-100 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -261,11 +282,16 @@ def sepreresnet56_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=56, bottleneck=False,
-                                 model_name="sepreresnet56_cifar100", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=56,
+        bottleneck=False,
+        model_name="sepreresnet56_cifar100",
+        **kwargs)
 
 
-def sepreresnet56_svhn(num_classes=10, **kwargs):
+def sepreresnet56_svhn(num_classes=10,
+                       **kwargs) -> nn.Module:
     """
     SE-PreResNet-56 model for SVHN from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -283,11 +309,16 @@ def sepreresnet56_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=56, bottleneck=False, model_name="sepreresnet56_svhn",
-                                 **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=56,
+        bottleneck=False,
+        model_name="sepreresnet56_svhn",
+        **kwargs)
 
 
-def sepreresnet110_cifar10(num_classes=10, **kwargs):
+def sepreresnet110_cifar10(num_classes=10,
+                           **kwargs) -> nn.Module:
     """
     SE-PreResNet-110 model for CIFAR-10 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -305,11 +336,16 @@ def sepreresnet110_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=110, bottleneck=False,
-                                 model_name="sepreresnet110_cifar10", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=110,
+        bottleneck=False,
+        model_name="sepreresnet110_cifar10",
+        **kwargs)
 
 
-def sepreresnet110_cifar100(num_classes=100, **kwargs):
+def sepreresnet110_cifar100(num_classes=100,
+                            **kwargs) -> nn.Module:
     """
     SE-PreResNet-110 model for CIFAR-100 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -327,11 +363,16 @@ def sepreresnet110_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=110, bottleneck=False,
-                                 model_name="sepreresnet110_cifar100", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=110,
+        bottleneck=False,
+        model_name="sepreresnet110_cifar100",
+        **kwargs)
 
 
-def sepreresnet110_svhn(num_classes=10, **kwargs):
+def sepreresnet110_svhn(num_classes=10,
+                        **kwargs) -> nn.Module:
     """
     SE-PreResNet-110 model for SVHN from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -349,11 +390,16 @@ def sepreresnet110_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=110, bottleneck=False,
-                                 model_name="sepreresnet110_svhn", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=110,
+        bottleneck=False,
+        model_name="sepreresnet110_svhn",
+        **kwargs)
 
 
-def sepreresnet164bn_cifar10(num_classes=10, **kwargs):
+def sepreresnet164bn_cifar10(num_classes=10,
+                             **kwargs) -> nn.Module:
     """
     SE-PreResNet-164(BN) model for CIFAR-10 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -371,11 +417,16 @@ def sepreresnet164bn_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=164, bottleneck=True,
-                                 model_name="sepreresnet164bn_cifar10", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=164,
+        bottleneck=True,
+        model_name="sepreresnet164bn_cifar10",
+        **kwargs)
 
 
-def sepreresnet164bn_cifar100(num_classes=100, **kwargs):
+def sepreresnet164bn_cifar100(num_classes=100,
+                              **kwargs) -> nn.Module:
     """
     SE-PreResNet-164(BN) model for CIFAR-100 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -393,11 +444,16 @@ def sepreresnet164bn_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=164, bottleneck=True,
-                                 model_name="sepreresnet164bn_cifar100", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=164,
+        bottleneck=True,
+        model_name="sepreresnet164bn_cifar100",
+        **kwargs)
 
 
-def sepreresnet164bn_svhn(num_classes=10, **kwargs):
+def sepreresnet164bn_svhn(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     SE-PreResNet-164(BN) model for SVHN from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -415,11 +471,16 @@ def sepreresnet164bn_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=164, bottleneck=True,
-                                 model_name="sepreresnet164bn_svhn", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=164,
+        bottleneck=True,
+        model_name="sepreresnet164bn_svhn",
+        **kwargs)
 
 
-def sepreresnet272bn_cifar10(num_classes=10, **kwargs):
+def sepreresnet272bn_cifar10(num_classes=10,
+                             **kwargs) -> nn.Module:
     """
     SE-PreResNet-272(BN) model for CIFAR-10 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -437,11 +498,16 @@ def sepreresnet272bn_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=272, bottleneck=True,
-                                 model_name="sepreresnet272bn_cifar10", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=272,
+        bottleneck=True,
+        model_name="sepreresnet272bn_cifar10",
+        **kwargs)
 
 
-def sepreresnet272bn_cifar100(num_classes=100, **kwargs):
+def sepreresnet272bn_cifar100(num_classes=100,
+                              **kwargs) -> nn.Module:
     """
     SE-PreResNet-272(BN) model for CIFAR-100 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -459,11 +525,16 @@ def sepreresnet272bn_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=272, bottleneck=True,
-                                 model_name="sepreresnet272bn_cifar100", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=272,
+        bottleneck=True,
+        model_name="sepreresnet272bn_cifar100",
+        **kwargs)
 
 
-def sepreresnet272bn_svhn(num_classes=10, **kwargs):
+def sepreresnet272bn_svhn(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     SE-PreResNet-272(BN) model for SVHN from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -481,11 +552,16 @@ def sepreresnet272bn_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=272, bottleneck=True,
-                                 model_name="sepreresnet272bn_svhn", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=272,
+        bottleneck=True,
+        model_name="sepreresnet272bn_svhn",
+        **kwargs)
 
 
-def sepreresnet542bn_cifar10(num_classes=10, **kwargs):
+def sepreresnet542bn_cifar10(num_classes=10,
+                             **kwargs) -> nn.Module:
     """
     SE-PreResNet-542(BN) model for CIFAR-10 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -503,11 +579,16 @@ def sepreresnet542bn_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=542, bottleneck=True,
-                                 model_name="sepreresnet542bn_cifar10", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=542,
+        bottleneck=True,
+        model_name="sepreresnet542bn_cifar10",
+        **kwargs)
 
 
-def sepreresnet542bn_cifar100(num_classes=100, **kwargs):
+def sepreresnet542bn_cifar100(num_classes=100,
+                              **kwargs) -> nn.Module:
     """
     SE-PreResNet-542(BN) model for CIFAR-100 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -525,11 +606,16 @@ def sepreresnet542bn_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=542, bottleneck=True,
-                                 model_name="sepreresnet542bn_cifar100", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=542,
+        bottleneck=True,
+        model_name="sepreresnet542bn_cifar100",
+        **kwargs)
 
 
-def sepreresnet542bn_svhn(num_classes=10, **kwargs):
+def sepreresnet542bn_svhn(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     SE-PreResNet-542(BN) model for SVHN from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -547,11 +633,16 @@ def sepreresnet542bn_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=542, bottleneck=True,
-                                 model_name="sepreresnet542bn_svhn", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=542,
+        bottleneck=True,
+        model_name="sepreresnet542bn_svhn",
+        **kwargs)
 
 
-def sepreresnet1001_cifar10(num_classes=10, **kwargs):
+def sepreresnet1001_cifar10(num_classes=10,
+                            **kwargs) -> nn.Module:
     """
     SE-PreResNet-1001 model for CIFAR-10 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -569,11 +660,16 @@ def sepreresnet1001_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=1001, bottleneck=True,
-                                 model_name="sepreresnet1001_cifar10", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=1001,
+        bottleneck=True,
+        model_name="sepreresnet1001_cifar10",
+        **kwargs)
 
 
-def sepreresnet1001_cifar100(num_classes=100, **kwargs):
+def sepreresnet1001_cifar100(num_classes=100,
+                             **kwargs) -> nn.Module:
     """
     SE-PreResNet-1001 model for CIFAR-100 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -591,11 +687,16 @@ def sepreresnet1001_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=1001, bottleneck=True,
-                                 model_name="sepreresnet1001_cifar100", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=1001,
+        bottleneck=True,
+        model_name="sepreresnet1001_cifar100",
+        **kwargs)
 
 
-def sepreresnet1001_svhn(num_classes=10, **kwargs):
+def sepreresnet1001_svhn(num_classes=10,
+                         **kwargs) -> nn.Module:
     """
     SE-PreResNet-1001 model for SVHN from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -613,11 +714,16 @@ def sepreresnet1001_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=1001, bottleneck=True,
-                                 model_name="sepreresnet1001_svhn", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=1001,
+        bottleneck=True,
+        model_name="sepreresnet1001_svhn",
+        **kwargs)
 
 
-def sepreresnet1202_cifar10(num_classes=10, **kwargs):
+def sepreresnet1202_cifar10(num_classes=10,
+                            **kwargs) -> nn.Module:
     """
     SE-PreResNet-1202 model for CIFAR-10 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -635,11 +741,16 @@ def sepreresnet1202_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=1202, bottleneck=False,
-                                 model_name="sepreresnet1202_cifar10", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=1202,
+        bottleneck=False,
+        model_name="sepreresnet1202_cifar10",
+        **kwargs)
 
 
-def sepreresnet1202_cifar100(num_classes=100, **kwargs):
+def sepreresnet1202_cifar100(num_classes=100,
+                             **kwargs) -> nn.Module:
     """
     SE-PreResNet-1202 model for CIFAR-100 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -657,11 +768,16 @@ def sepreresnet1202_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=1202, bottleneck=False,
-                                 model_name="sepreresnet1202_cifar100", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=1202,
+        bottleneck=False,
+        model_name="sepreresnet1202_cifar100",
+        **kwargs)
 
 
-def sepreresnet1202_svhn(num_classes=10, **kwargs):
+def sepreresnet1202_svhn(num_classes=10,
+                         **kwargs) -> nn.Module:
     """
     SE-PreResNet-1202 model for SVHN from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -679,8 +795,12 @@ def sepreresnet1202_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet_cifar(num_classes=num_classes, blocks=1202, bottleneck=False,
-                                 model_name="sepreresnet1202_svhn", **kwargs)
+    return get_sepreresnet_cifar(
+        num_classes=num_classes,
+        blocks=1202,
+        bottleneck=False,
+        model_name="sepreresnet1202_svhn",
+        **kwargs)
 
 
 def _test():

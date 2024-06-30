@@ -976,7 +976,7 @@ def get_jasper(version,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
-               **kwargs):
+               **kwargs) -> nn.Module:
     """
     Create Jasper/DR/QuartzNet model with specific parameters.
 
@@ -1050,7 +1050,7 @@ def get_jasper(version,
     return net
 
 
-def jasper5x3(**kwargs):
+def jasper5x3(**kwargs) -> nn.Module:
     """
     Jasper 5x3 model from 'Jasper: An End-to-End Convolutional Neural Acoustic Model,'
     https://arxiv.org/abs/1904.03288.
@@ -1067,10 +1067,13 @@ def jasper5x3(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_jasper(version=("jasper", "5x3"), model_name="jasper5x3", **kwargs)
+    return get_jasper(
+        version=("jasper", "5x3"),
+        model_name="jasper5x3",
+        **kwargs)
 
 
-def jasper10x4(**kwargs):
+def jasper10x4(**kwargs) -> nn.Module:
     """
     Jasper 10x4 model from 'Jasper: An End-to-End Convolutional Neural Acoustic Model,'
     https://arxiv.org/abs/1904.03288.
@@ -1087,10 +1090,13 @@ def jasper10x4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_jasper(version=("jasper", "10x4"), model_name="jasper10x4", **kwargs)
+    return get_jasper(
+        version=("jasper", "10x4"),
+        model_name="jasper10x4",
+        **kwargs)
 
 
-def jasper10x5(**kwargs):
+def jasper10x5(**kwargs) -> nn.Module:
     """
     Jasper 10x5 model from 'Jasper: An End-to-End Convolutional Neural Acoustic Model,'
     https://arxiv.org/abs/1904.03288.
@@ -1107,7 +1113,10 @@ def jasper10x5(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_jasper(version=("jasper", "10x5"), model_name="jasper10x5", **kwargs)
+    return get_jasper(
+        version=("jasper", "10x5"),
+        model_name="jasper10x5",
+        **kwargs)
 
 
 def _test():

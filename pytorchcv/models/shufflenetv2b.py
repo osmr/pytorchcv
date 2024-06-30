@@ -224,7 +224,7 @@ def get_shufflenetv2b(width_scale,
                       model_name: str | None = None,
                       pretrained: bool = False,
                       root: str = os.path.join("~", ".torch", "models"),
-                      **kwargs):
+                      **kwargs) -> nn.Module:
     """
     Create ShuffleNetV2(b) model with specific parameters.
 
@@ -246,7 +246,6 @@ def get_shufflenetv2b(width_scale,
     nn.Module
         Desired module.
     """
-
     init_block_channels = 24
     final_block_channels = 1024
     layers = [4, 8, 4]
@@ -278,7 +277,7 @@ def get_shufflenetv2b(width_scale,
     return net
 
 
-def shufflenetv2b_wd2(**kwargs):
+def shufflenetv2b_wd2(**kwargs) -> nn.Module:
     """
     ShuffleNetV2(b) 0.5x model from 'ShuffleNet V2: Practical Guidelines for Efficient CNN Architecture Design,'
     https://arxiv.org/abs/1807.11164.
@@ -302,7 +301,7 @@ def shufflenetv2b_wd2(**kwargs):
         **kwargs)
 
 
-def shufflenetv2b_w1(**kwargs):
+def shufflenetv2b_w1(**kwargs) -> nn.Module:
     """
     ShuffleNetV2(b) 1x model from 'ShuffleNet V2: Practical Guidelines for Efficient CNN Architecture Design,'
     https://arxiv.org/abs/1807.11164.
@@ -326,7 +325,7 @@ def shufflenetv2b_w1(**kwargs):
         **kwargs)
 
 
-def shufflenetv2b_w3d2(**kwargs):
+def shufflenetv2b_w3d2(**kwargs) -> nn.Module:
     """
     ShuffleNetV2(b) 1.5x model from 'ShuffleNet V2: Practical Guidelines for Efficient CNN Architecture Design,'
     https://arxiv.org/abs/1807.11164.
@@ -350,7 +349,7 @@ def shufflenetv2b_w3d2(**kwargs):
         **kwargs)
 
 
-def shufflenetv2b_w2(**kwargs):
+def shufflenetv2b_w2(**kwargs) -> nn.Module:
     """
     ShuffleNetV2(b) 2x model from 'ShuffleNet V2: Practical Guidelines for Efficient CNN Architecture Design,'
     https://arxiv.org/abs/1807.11164.

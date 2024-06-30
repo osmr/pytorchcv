@@ -943,7 +943,7 @@ class SINet(nn.Module):
 def get_sinet(model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
-              **kwargs):
+              **kwargs) -> nn.Module:
     """
     Create SINet model with specific parameters.
 
@@ -1006,7 +1006,7 @@ def get_sinet(model_name: str | None = None,
 
 
 def sinet_cityscapes(num_classes=19,
-                     **kwargs):
+                     **kwargs) -> nn.Module:
     """
     SINet model for Cityscapes from 'SINet: Extreme Lightweight Portrait Segmentation Networks with Spatial Squeeze
     Modules and Information Blocking Decoder,' https://arxiv.org/abs/1911.09099.

@@ -211,7 +211,7 @@ def get_lffd(blocks,
              model_name: str | None = None,
              pretrained: bool = False,
              root: str = os.path.join("~", ".torch", "models"),
-             **kwargs):
+             **kwargs) -> nn.Module:
     """
     Create LFFD model with specific parameters.
 
@@ -268,7 +268,7 @@ def get_lffd(blocks,
     return net
 
 
-def lffd20x5s320v2_widerface(**kwargs):
+def lffd20x5s320v2_widerface(**kwargs) -> nn.Module:
     """
     LFFD-320-20L-5S-V2 model for WIDER FACE from 'LFFD: A Light and Fast Face Detector for Edge Devices,'
     https://arxiv.org/abs/1904.10633.
@@ -285,10 +285,14 @@ def lffd20x5s320v2_widerface(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_lffd(blocks=20, use_preresnet=True, model_name="lffd20x5s320v2_widerface", **kwargs)
+    return get_lffd(
+        blocks=20,
+        use_preresnet=True,
+        model_name="lffd20x5s320v2_widerface",
+        **kwargs)
 
 
-def lffd25x8s560v1_widerface(**kwargs):
+def lffd25x8s560v1_widerface(**kwargs) -> nn.Module:
     """
     LFFD-560-25L-8S-V1 model for WIDER FACE from 'LFFD: A Light and Fast Face Detector for Edge Devices,'
     https://arxiv.org/abs/1904.10633.
@@ -305,7 +309,11 @@ def lffd25x8s560v1_widerface(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_lffd(blocks=25, use_preresnet=False, model_name="lffd25x8s560v1_widerface", **kwargs)
+    return get_lffd(
+        blocks=25,
+        use_preresnet=False,
+        model_name="lffd25x8s560v1_widerface",
+        **kwargs)
 
 
 def _test():

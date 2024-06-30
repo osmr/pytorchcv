@@ -248,7 +248,7 @@ def get_isqrtcovresnet(blocks,
                        model_name: str | None = None,
                        pretrained: bool = False,
                        root: str = os.path.join("~", ".torch", "models"),
-                       **kwargs):
+                       **kwargs) -> nn.Module:
     """
     Create iSQRT-COV-ResNet model with specific parameters.
 
@@ -270,7 +270,6 @@ def get_isqrtcovresnet(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 18:
         layers = [2, 2, 2, 2]
     elif blocks == 34:
@@ -318,7 +317,7 @@ def get_isqrtcovresnet(blocks,
     return net
 
 
-def isqrtcovresnet18(**kwargs):
+def isqrtcovresnet18(**kwargs) -> nn.Module:
     """
     iSQRT-COV-ResNet-18 model from 'Towards Faster Training of Global Covariance Pooling Networks by Iterative Matrix
     Square Root Normalization,' https://arxiv.org/abs/1712.01034.
@@ -335,10 +334,13 @@ def isqrtcovresnet18(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_isqrtcovresnet(blocks=18, model_name="isqrtcovresnet18", **kwargs)
+    return get_isqrtcovresnet(
+        blocks=18,
+        model_name="isqrtcovresnet18",
+        **kwargs)
 
 
-def isqrtcovresnet34(**kwargs):
+def isqrtcovresnet34(**kwargs) -> nn.Module:
     """
     iSQRT-COV-ResNet-34 model from 'Towards Faster Training of Global Covariance Pooling Networks by Iterative Matrix
     Square Root Normalization,' https://arxiv.org/abs/1712.01034.
@@ -355,10 +357,13 @@ def isqrtcovresnet34(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_isqrtcovresnet(blocks=34, model_name="isqrtcovresnet34", **kwargs)
+    return get_isqrtcovresnet(
+        blocks=34,
+        model_name="isqrtcovresnet34",
+        **kwargs)
 
 
-def isqrtcovresnet50(**kwargs):
+def isqrtcovresnet50(**kwargs) -> nn.Module:
     """
     iSQRT-COV-ResNet-50 model from 'Towards Faster Training of Global Covariance Pooling Networks by Iterative Matrix
     Square Root Normalization,' https://arxiv.org/abs/1712.01034.
@@ -375,10 +380,13 @@ def isqrtcovresnet50(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_isqrtcovresnet(blocks=50, model_name="isqrtcovresnet50", **kwargs)
+    return get_isqrtcovresnet(
+        blocks=50,
+        model_name="isqrtcovresnet50",
+        **kwargs)
 
 
-def isqrtcovresnet50b(**kwargs):
+def isqrtcovresnet50b(**kwargs) -> nn.Module:
     """
     iSQRT-COV-ResNet-50 model with stride at the second convolution in bottleneck block from 'Towards Faster Training
     of Global Covariance Pooling Networks by Iterative Matrix Square Root Normalization,'
@@ -396,10 +404,14 @@ def isqrtcovresnet50b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_isqrtcovresnet(blocks=50, conv1_stride=False, model_name="isqrtcovresnet50b", **kwargs)
+    return get_isqrtcovresnet(
+        blocks=50,
+        conv1_stride=False,
+        model_name="isqrtcovresnet50b",
+        **kwargs)
 
 
-def isqrtcovresnet101(**kwargs):
+def isqrtcovresnet101(**kwargs) -> nn.Module:
     """
     iSQRT-COV-ResNet-101 model from 'Towards Faster Training of Global Covariance Pooling Networks by Iterative Matrix
     Square Root Normalization,' https://arxiv.org/abs/1712.01034.
@@ -416,10 +428,13 @@ def isqrtcovresnet101(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_isqrtcovresnet(blocks=101, model_name="isqrtcovresnet101", **kwargs)
+    return get_isqrtcovresnet(
+        blocks=101,
+        model_name="isqrtcovresnet101",
+        **kwargs)
 
 
-def isqrtcovresnet101b(**kwargs):
+def isqrtcovresnet101b(**kwargs) -> nn.Module:
     """
     iSQRT-COV-ResNet-101 model with stride at the second convolution in bottleneck block from 'Towards Faster Training
     of Global Covariance Pooling Networks by Iterative Matrix Square Root Normalization,'
@@ -437,7 +452,11 @@ def isqrtcovresnet101b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_isqrtcovresnet(blocks=101, conv1_stride=False, model_name="isqrtcovresnet101b", **kwargs)
+    return get_isqrtcovresnet(
+        blocks=101,
+        conv1_stride=False,
+        model_name="isqrtcovresnet101b",
+        **kwargs)
 
 
 def _test():

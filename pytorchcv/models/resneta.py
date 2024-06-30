@@ -203,7 +203,7 @@ def get_resneta(blocks,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create ResNet(A) with average downsampling model with specific parameters.
 
@@ -301,7 +301,7 @@ def get_resneta(blocks,
     return net
 
 
-def resneta10(**kwargs):
+def resneta10(**kwargs) -> nn.Module:
     """
     ResNet(A)-10 with average downsampling model from 'Deep Residual Learning for Image Recognition,'
     https://arxiv.org/abs/1512.03385.
@@ -318,10 +318,13 @@ def resneta10(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resneta(blocks=10, model_name="resneta10", **kwargs)
+    return get_resneta(
+        blocks=10,
+        model_name="resneta10",
+        **kwargs)
 
 
-def resnetabc14b(**kwargs):
+def resnetabc14b(**kwargs) -> nn.Module:
     """
     ResNet(A)-BC-14b with average downsampling model from 'Deep Residual Learning for Image Recognition,'
     https://arxiv.org/abs/1512.03385. It's an experimental model (bottleneck compressed).
@@ -338,10 +341,15 @@ def resnetabc14b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resneta(blocks=14, bottleneck=True, conv1_stride=False, model_name="resnetabc14b", **kwargs)
+    return get_resneta(
+        blocks=14,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="resnetabc14b",
+        **kwargs)
 
 
-def resneta18(**kwargs):
+def resneta18(**kwargs) -> nn.Module:
     """
     ResNet(A)-18 with average downsampling model from 'Deep Residual Learning for Image Recognition,'
     https://arxiv.org/abs/1512.03385.
@@ -358,10 +366,13 @@ def resneta18(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resneta(blocks=18, model_name="resneta18", **kwargs)
+    return get_resneta(
+        blocks=18,
+        model_name="resneta18",
+        **kwargs)
 
 
-def resneta50b(**kwargs):
+def resneta50b(**kwargs) -> nn.Module:
     """
     ResNet(A)-50 with average downsampling model with stride at the second convolution in bottleneck block
     from 'Deep Residual Learning for Image Recognition,' https://arxiv.org/abs/1512.03385.
@@ -378,10 +389,14 @@ def resneta50b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resneta(blocks=50, conv1_stride=False, model_name="resneta50b", **kwargs)
+    return get_resneta(
+        blocks=50,
+        conv1_stride=False,
+        model_name="resneta50b",
+        **kwargs)
 
 
-def resneta101b(**kwargs):
+def resneta101b(**kwargs) -> nn.Module:
     """
     ResNet(A)-101 with average downsampling model with stride at the second convolution in bottleneck
     block from 'Deep Residual Learning for Image Recognition,' https://arxiv.org/abs/1512.03385.
@@ -398,10 +413,14 @@ def resneta101b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resneta(blocks=101, conv1_stride=False, model_name="resneta101b", **kwargs)
+    return get_resneta(
+        blocks=101,
+        conv1_stride=False,
+        model_name="resneta101b",
+        **kwargs)
 
 
-def resneta152b(**kwargs):
+def resneta152b(**kwargs) -> nn.Module:
     """
     ResNet(A)-152 with average downsampling model with stride at the second convolution in bottleneck
     block from 'Deep Residual Learning for Image Recognition,' https://arxiv.org/abs/1512.03385.
@@ -418,7 +437,11 @@ def resneta152b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resneta(blocks=152, conv1_stride=False, model_name="resneta152b", **kwargs)
+    return get_resneta(
+        blocks=152,
+        conv1_stride=False,
+        model_name="resneta152b",
+        **kwargs)
 
 
 def _test():

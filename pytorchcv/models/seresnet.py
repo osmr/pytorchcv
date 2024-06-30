@@ -151,7 +151,7 @@ def get_seresnet(blocks,
                  model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),
-                 **kwargs):
+                 **kwargs) -> nn.Module:
     """
     Create SE-ResNet model with specific parameters.
 
@@ -242,7 +242,7 @@ def get_seresnet(blocks,
     return net
 
 
-def seresnet10(**kwargs):
+def seresnet10(**kwargs) -> nn.Module:
     """
     SE-ResNet-10 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
     It's an experimental model.
@@ -259,10 +259,13 @@ def seresnet10(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=10, model_name="seresnet10", **kwargs)
+    return get_seresnet(
+        blocks=10,
+        model_name="seresnet10",
+        **kwargs)
 
 
-def seresnet12(**kwargs):
+def seresnet12(**kwargs) -> nn.Module:
     """
     SE-ResNet-12 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
     It's an experimental model.
@@ -279,10 +282,13 @@ def seresnet12(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=12, model_name="seresnet12", **kwargs)
+    return get_seresnet(
+        blocks=12,
+        model_name="seresnet12",
+        **kwargs)
 
 
-def seresnet14(**kwargs):
+def seresnet14(**kwargs) -> nn.Module:
     """
     SE-ResNet-14 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
     It's an experimental model.
@@ -299,10 +305,13 @@ def seresnet14(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=14, model_name="seresnet14", **kwargs)
+    return get_seresnet(
+        blocks=14,
+        model_name="seresnet14",
+        **kwargs)
 
 
-def seresnet16(**kwargs):
+def seresnet16(**kwargs) -> nn.Module:
     """
     SE-ResNet-16 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
     It's an experimental model.
@@ -319,10 +328,13 @@ def seresnet16(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=16, model_name="seresnet16", **kwargs)
+    return get_seresnet(
+        blocks=16,
+        model_name="seresnet16",
+        **kwargs)
 
 
-def seresnet18(**kwargs):
+def seresnet18(**kwargs) -> nn.Module:
     """
     SE-ResNet-18 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -338,10 +350,13 @@ def seresnet18(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=18, model_name="seresnet18", **kwargs)
+    return get_seresnet(
+        blocks=18,
+        model_name="seresnet18",
+        **kwargs)
 
 
-def seresnet26(**kwargs):
+def seresnet26(**kwargs) -> nn.Module:
     """
     SE-ResNet-26 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
     It's an experimental model.
@@ -358,10 +373,14 @@ def seresnet26(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=26, bottleneck=False, model_name="seresnet26", **kwargs)
+    return get_seresnet(
+        blocks=26,
+        bottleneck=False,
+        model_name="seresnet26",
+        **kwargs)
 
 
-def seresnetbc26b(**kwargs):
+def seresnetbc26b(**kwargs) -> nn.Module:
     """
     SE-ResNet-BC-26b model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
     It's an experimental model (bottleneck compressed).
@@ -378,10 +397,15 @@ def seresnetbc26b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=26, bottleneck=True, conv1_stride=False, model_name="seresnetbc26b", **kwargs)
+    return get_seresnet(
+        blocks=26,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="seresnetbc26b",
+        **kwargs)
 
 
-def seresnet34(**kwargs):
+def seresnet34(**kwargs) -> nn.Module:
     """
     SE-ResNet-34 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -397,10 +421,13 @@ def seresnet34(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=34, model_name="seresnet34", **kwargs)
+    return get_seresnet(
+        blocks=34,
+        model_name="seresnet34",
+        **kwargs)
 
 
-def seresnetbc38b(**kwargs):
+def seresnetbc38b(**kwargs) -> nn.Module:
     """
     SE-ResNet-BC-38b model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
     It's an experimental model (bottleneck compressed).
@@ -417,10 +444,15 @@ def seresnetbc38b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=38, bottleneck=True, conv1_stride=False, model_name="seresnetbc38b", **kwargs)
+    return get_seresnet(
+        blocks=38,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="seresnetbc38b",
+        **kwargs)
 
 
-def seresnet50(**kwargs):
+def seresnet50(**kwargs) -> nn.Module:
     """
     SE-ResNet-50 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -436,10 +468,13 @@ def seresnet50(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=50, model_name="seresnet50", **kwargs)
+    return get_seresnet(
+        blocks=50,
+        model_name="seresnet50",
+        **kwargs)
 
 
-def seresnet50b(**kwargs):
+def seresnet50b(**kwargs) -> nn.Module:
     """
     SE-ResNet-50 model with stride at the second convolution in bottleneck block from 'Squeeze-and-Excitation
     Networks,' https://arxiv.org/abs/1709.01507.
@@ -456,10 +491,14 @@ def seresnet50b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=50, conv1_stride=False, model_name="seresnet50b", **kwargs)
+    return get_seresnet(
+        blocks=50,
+        conv1_stride=False,
+        model_name="seresnet50b",
+        **kwargs)
 
 
-def seresnet101(**kwargs):
+def seresnet101(**kwargs) -> nn.Module:
     """
     SE-ResNet-101 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -475,10 +514,13 @@ def seresnet101(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=101, model_name="seresnet101", **kwargs)
+    return get_seresnet(
+        blocks=101,
+        model_name="seresnet101",
+        **kwargs)
 
 
-def seresnet101b(**kwargs):
+def seresnet101b(**kwargs) -> nn.Module:
     """
     SE-ResNet-101 model with stride at the second convolution in bottleneck block from 'Squeeze-and-Excitation
     Networks,' https://arxiv.org/abs/1709.01507.
@@ -495,10 +537,14 @@ def seresnet101b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=101, conv1_stride=False, model_name="seresnet101b", **kwargs)
+    return get_seresnet(
+        blocks=101,
+        conv1_stride=False,
+        model_name="seresnet101b",
+        **kwargs)
 
 
-def seresnet152(**kwargs):
+def seresnet152(**kwargs) -> nn.Module:
     """
     SE-ResNet-152 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -514,10 +560,13 @@ def seresnet152(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=152, model_name="seresnet152", **kwargs)
+    return get_seresnet(
+        blocks=152,
+        model_name="seresnet152",
+        **kwargs)
 
 
-def seresnet152b(**kwargs):
+def seresnet152b(**kwargs) -> nn.Module:
     """
     SE-ResNet-152 model with stride at the second convolution in bottleneck block from 'Squeeze-and-Excitation
     Networks,' https://arxiv.org/abs/1709.01507.
@@ -534,10 +583,14 @@ def seresnet152b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=152, conv1_stride=False, model_name="seresnet152b", **kwargs)
+    return get_seresnet(
+        blocks=152,
+        conv1_stride=False,
+        model_name="seresnet152b",
+        **kwargs)
 
 
-def seresnet200(**kwargs):
+def seresnet200(**kwargs) -> nn.Module:
     """
     SE-ResNet-200 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
     It's an experimental model.
@@ -554,10 +607,13 @@ def seresnet200(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=200, model_name="seresnet200", **kwargs)
+    return get_seresnet(
+        blocks=200,
+        model_name="seresnet200",
+        **kwargs)
 
 
-def seresnet200b(**kwargs):
+def seresnet200b(**kwargs) -> nn.Module:
     """
     SE-ResNet-200 model with stride at the second convolution in bottleneck block from 'Squeeze-and-Excitation
     Networks,' https://arxiv.org/abs/1709.01507. It's an experimental model.
@@ -574,7 +630,11 @@ def seresnet200b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_seresnet(blocks=200, conv1_stride=False, model_name="seresnet200b", **kwargs)
+    return get_seresnet(
+        blocks=200,
+        conv1_stride=False,
+        model_name="seresnet200b",
+        **kwargs)
 
 
 def _test():

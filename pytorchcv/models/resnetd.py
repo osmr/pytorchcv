@@ -112,7 +112,7 @@ def get_resnetd(blocks,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create ResNet(D) with dilation model with specific parameters.
 
@@ -194,7 +194,7 @@ def get_resnetd(blocks,
     return net
 
 
-def resnetd50b(**kwargs):
+def resnetd50b(**kwargs) -> nn.Module:
     """
     ResNet(D)-50 with dilation model with stride at the second convolution in bottleneck block from 'Deep Residual
     Learning for Image Recognition,' https://arxiv.org/abs/1512.03385.
@@ -211,10 +211,14 @@ def resnetd50b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnetd(blocks=50, conv1_stride=False, model_name="resnetd50b", **kwargs)
+    return get_resnetd(
+        blocks=50,
+        conv1_stride=False,
+        model_name="resnetd50b",
+        **kwargs)
 
 
-def resnetd101b(**kwargs):
+def resnetd101b(**kwargs) -> nn.Module:
     """
     ResNet(D)-101 with dilation model with stride at the second convolution in bottleneck block from 'Deep Residual
     Learning for Image Recognition,' https://arxiv.org/abs/1512.03385.
@@ -231,10 +235,14 @@ def resnetd101b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnetd(blocks=101, conv1_stride=False, model_name="resnetd101b", **kwargs)
+    return get_resnetd(
+        blocks=101,
+        conv1_stride=False,
+        model_name="resnetd101b",
+        **kwargs)
 
 
-def resnetd152b(**kwargs):
+def resnetd152b(**kwargs) -> nn.Module:
     """
     ResNet(D)-152 with dilation model with stride at the second convolution in bottleneck block from 'Deep Residual
     Learning for Image Recognition,' https://arxiv.org/abs/1512.03385.
@@ -251,7 +259,11 @@ def resnetd152b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnetd(blocks=152, conv1_stride=False, model_name="resnetd152b", **kwargs)
+    return get_resnetd(
+        blocks=152,
+        conv1_stride=False,
+        model_name="resnetd152b",
+        **kwargs)
 
 
 def _test():

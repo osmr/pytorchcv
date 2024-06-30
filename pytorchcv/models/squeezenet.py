@@ -140,7 +140,7 @@ class SqueezeNet(nn.Module):
     ----------
     channels : list(list(int))
         Number of output channels for each unit.
-    residuals : bool
+    residuals : list(list(int)) or None
         Whether to use residual units.
     init_block_kernel_size : int or tuple(int, int)
         The dimensions of the convolution window for the initial unit.
@@ -224,7 +224,7 @@ def get_squeezenet(version,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),
-                   **kwargs):
+                   **kwargs) -> nn.Module:
     """
     Create SqueezeNet model with specific parameters.
 
@@ -246,13 +246,12 @@ def get_squeezenet(version,
     nn.Module
         Desired module.
     """
-
-    if version == '1.0':
+    if version == "1.0":
         channels = [[128, 128, 256], [256, 384, 384, 512], [512]]
         residuals = [[0, 1, 0], [1, 0, 1, 0], [1]]
         init_block_kernel_size = 7
         init_block_channels = 96
-    elif version == '1.1':
+    elif version == "1.1":
         channels = [[128, 128], [256, 256], [384, 384, 512, 512]]
         residuals = [[0, 1], [0, 1], [0, 1, 0, 1]]
         init_block_kernel_size = 3
@@ -282,7 +281,7 @@ def get_squeezenet(version,
     return net
 
 
-def squeezenet_v1_0(**kwargs):
+def squeezenet_v1_0(**kwargs) -> nn.Module:
     """
     SqueezeNet 'vanilla' model from 'SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and <0.5MB model
     size,' https://arxiv.org/abs/1602.07360.
@@ -299,10 +298,14 @@ def squeezenet_v1_0(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_squeezenet(version="1.0", residual=False, model_name="squeezenet_v1_0", **kwargs)
+    return get_squeezenet(
+        version="1.0",
+        residual=False,
+        model_name="squeezenet_v1_0",
+        **kwargs)
 
 
-def squeezenet_v1_1(**kwargs):
+def squeezenet_v1_1(**kwargs) -> nn.Module:
     """
     SqueezeNet v1.1 model from 'SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and <0.5MB model
     size,' https://arxiv.org/abs/1602.07360.
@@ -319,10 +322,14 @@ def squeezenet_v1_1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_squeezenet(version="1.1", residual=False, model_name="squeezenet_v1_1", **kwargs)
+    return get_squeezenet(
+        version="1.1",
+        residual=False,
+        model_name="squeezenet_v1_1",
+        **kwargs)
 
 
-def squeezeresnet_v1_0(**kwargs):
+def squeezeresnet_v1_0(**kwargs) -> nn.Module:
     """
     SqueezeNet model with residual connections from 'SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and
     <0.5MB model size,' https://arxiv.org/abs/1602.07360.
@@ -339,10 +346,14 @@ def squeezeresnet_v1_0(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_squeezenet(version="1.0", residual=True, model_name="squeezeresnet_v1_0", **kwargs)
+    return get_squeezenet(
+        version="1.0",
+        residual=True,
+        model_name="squeezeresnet_v1_0",
+        **kwargs)
 
 
-def squeezeresnet_v1_1(**kwargs):
+def squeezeresnet_v1_1(**kwargs) -> nn.Module:
     """
     SqueezeNet v1.1 model with residual connections from 'SqueezeNet: AlexNet-level accuracy with 50x fewer parameters
     and <0.5MB model size,' https://arxiv.org/abs/1602.07360.
@@ -359,7 +370,11 @@ def squeezeresnet_v1_1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_squeezenet(version="1.1", residual=True, model_name="squeezeresnet_v1_1", **kwargs)
+    return get_squeezenet(
+        version="1.1",
+        residual=True,
+        model_name="squeezeresnet_v1_1",
+        **kwargs)
 
 
 def _test():
