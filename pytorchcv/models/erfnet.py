@@ -237,7 +237,8 @@ def get_erfnet(model_name: str | None = None,
     return net
 
 
-def erfnet_cityscapes(num_classes=19, **kwargs) -> nn.Module:
+def erfnet_cityscapes(num_classes=19,
+                      **kwargs) -> nn.Module:
     """
     ERFNet model for Cityscapes from 'ERFNet: Efficient Residual Factorized ConvNet for Real-time Semantic
     Segmentation,' http://www.robesafe.uah.es/personal/eduardo.romera/pdfs/Romera17tits.pdf.
@@ -256,7 +257,10 @@ def erfnet_cityscapes(num_classes=19, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_erfnet(num_classes=num_classes, model_name="erfnet_cityscapes", **kwargs)
+    return get_erfnet(
+        num_classes=num_classes,
+        model_name="erfnet_cityscapes",
+        **kwargs)
 
 
 def _test():

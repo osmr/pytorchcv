@@ -149,7 +149,7 @@ def get_sepreresnet(blocks,
                     model_name: str | None = None,
                     pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),
-                    **kwargs):
+                    **kwargs) -> nn.Module:
     """
     Create SE-PreResNet model with specific parameters.
 
@@ -242,7 +242,7 @@ def get_sepreresnet(blocks,
     return net
 
 
-def sepreresnet10(**kwargs):
+def sepreresnet10(**kwargs) -> nn.Module:
     """
     SE-PreResNet-10 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -258,10 +258,13 @@ def sepreresnet10(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=10, model_name="sepreresnet10", **kwargs)
+    return get_sepreresnet(
+        blocks=10,
+        model_name="sepreresnet10",
+        **kwargs)
 
 
-def sepreresnet12(**kwargs):
+def sepreresnet12(**kwargs) -> nn.Module:
     """
     SE-PreResNet-12 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -277,10 +280,13 @@ def sepreresnet12(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=12, model_name="sepreresnet12", **kwargs)
+    return get_sepreresnet(
+        blocks=12,
+        model_name="sepreresnet12",
+        **kwargs)
 
 
-def sepreresnet14(**kwargs):
+def sepreresnet14(**kwargs) -> nn.Module:
     """
     SE-PreResNet-14 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -296,10 +302,13 @@ def sepreresnet14(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=14, model_name="sepreresnet14", **kwargs)
+    return get_sepreresnet(
+        blocks=14,
+        model_name="sepreresnet14",
+        **kwargs)
 
 
-def sepreresnet16(**kwargs):
+def sepreresnet16(**kwargs) -> nn.Module:
     """
     SE-PreResNet-16 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -315,10 +324,13 @@ def sepreresnet16(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=16, model_name="sepreresnet16", **kwargs)
+    return get_sepreresnet(
+        blocks=16,
+        model_name="sepreresnet16",
+        **kwargs)
 
 
-def sepreresnet18(**kwargs):
+def sepreresnet18(**kwargs) -> nn.Module:
     """
     SE-PreResNet-18 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -334,10 +346,13 @@ def sepreresnet18(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=18, model_name="sepreresnet18", **kwargs)
+    return get_sepreresnet(
+        blocks=18,
+        model_name="sepreresnet18",
+        **kwargs)
 
 
-def sepreresnet26(**kwargs):
+def sepreresnet26(**kwargs) -> nn.Module:
     """
     SE-PreResNet-26 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -353,10 +368,14 @@ def sepreresnet26(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=26, bottleneck=False, model_name="sepreresnet26", **kwargs)
+    return get_sepreresnet(
+        blocks=26,
+        bottleneck=False,
+        model_name="sepreresnet26",
+        **kwargs)
 
 
-def sepreresnetbc26b(**kwargs):
+def sepreresnetbc26b(**kwargs) -> nn.Module:
     """
     SE-PreResNet-BC-26b model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -372,10 +391,15 @@ def sepreresnetbc26b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=26, bottleneck=True, conv1_stride=False, model_name="sepreresnetbc26b", **kwargs)
+    return get_sepreresnet(
+        blocks=26,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="sepreresnetbc26b",
+        **kwargs)
 
 
-def sepreresnet34(**kwargs):
+def sepreresnet34(**kwargs) -> nn.Module:
     """
     SE-PreResNet-34 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -391,10 +415,13 @@ def sepreresnet34(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=34, model_name="sepreresnet34", **kwargs)
+    return get_sepreresnet(
+        blocks=34,
+        model_name="sepreresnet34",
+        **kwargs)
 
 
-def sepreresnetbc38b(**kwargs):
+def sepreresnetbc38b(**kwargs) -> nn.Module:
     """
     SE-PreResNet-BC-38b model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -410,10 +437,15 @@ def sepreresnetbc38b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=38, bottleneck=True, conv1_stride=False, model_name="sepreresnetbc38b", **kwargs)
+    return get_sepreresnet(
+        blocks=38,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="sepreresnetbc38b",
+        **kwargs)
 
 
-def sepreresnet50(**kwargs):
+def sepreresnet50(**kwargs) -> nn.Module:
     """
     SE-PreResNet-50 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -429,10 +461,13 @@ def sepreresnet50(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=50, model_name="sepreresnet50", **kwargs)
+    return get_sepreresnet(
+        blocks=50,
+        model_name="sepreresnet50",
+        **kwargs)
 
 
-def sepreresnet50b(**kwargs):
+def sepreresnet50b(**kwargs) -> nn.Module:
     """
     SE-PreResNet-50 model with stride at the second convolution in bottleneck block from 'Squeeze-and-Excitation
     Networks,' https://arxiv.org/abs/1709.01507.
@@ -449,10 +484,14 @@ def sepreresnet50b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=50, conv1_stride=False, model_name="sepreresnet50b", **kwargs)
+    return get_sepreresnet(
+        blocks=50,
+        conv1_stride=False,
+        model_name="sepreresnet50b",
+        **kwargs)
 
 
-def sepreresnet101(**kwargs):
+def sepreresnet101(**kwargs) -> nn.Module:
     """
     SE-PreResNet-101 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -468,10 +507,13 @@ def sepreresnet101(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=101, model_name="sepreresnet101", **kwargs)
+    return get_sepreresnet(
+        blocks=101,
+        model_name="sepreresnet101",
+        **kwargs)
 
 
-def sepreresnet101b(**kwargs):
+def sepreresnet101b(**kwargs) -> nn.Module:
     """
     SE-PreResNet-101 model with stride at the second convolution in bottleneck block from 'Squeeze-and-Excitation
     Networks,' https://arxiv.org/abs/1709.01507.
@@ -488,10 +530,14 @@ def sepreresnet101b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=101, conv1_stride=False, model_name="sepreresnet101b", **kwargs)
+    return get_sepreresnet(
+        blocks=101,
+        conv1_stride=False,
+        model_name="sepreresnet101b",
+        **kwargs)
 
 
-def sepreresnet152(**kwargs):
+def sepreresnet152(**kwargs) -> nn.Module:
     """
     SE-PreResNet-152 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -507,10 +553,13 @@ def sepreresnet152(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=152, model_name="sepreresnet152", **kwargs)
+    return get_sepreresnet(
+        blocks=152,
+        model_name="sepreresnet152",
+        **kwargs)
 
 
-def sepreresnet152b(**kwargs):
+def sepreresnet152b(**kwargs) -> nn.Module:
     """
     SE-PreResNet-152 model with stride at the second convolution in bottleneck block from 'Squeeze-and-Excitation
     Networks,' https://arxiv.org/abs/1709.01507.
@@ -527,10 +576,14 @@ def sepreresnet152b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=152, conv1_stride=False, model_name="sepreresnet152b", **kwargs)
+    return get_sepreresnet(
+        blocks=152,
+        conv1_stride=False,
+        model_name="sepreresnet152b",
+        **kwargs)
 
 
-def sepreresnet200(**kwargs):
+def sepreresnet200(**kwargs) -> nn.Module:
     """
     SE-PreResNet-200 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507. It's an
     experimental model.
@@ -547,10 +600,13 @@ def sepreresnet200(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=200, model_name="sepreresnet200", **kwargs)
+    return get_sepreresnet(
+        blocks=200,
+        model_name="sepreresnet200",
+        **kwargs)
 
 
-def sepreresnet200b(**kwargs):
+def sepreresnet200b(**kwargs) -> nn.Module:
     """
     SE-PreResNet-200 model with stride at the second convolution in bottleneck block from 'Squeeze-and-Excitation
     Networks,' https://arxiv.org/abs/1709.01507. It's an experimental model.
@@ -567,7 +623,11 @@ def sepreresnet200b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_sepreresnet(blocks=200, conv1_stride=False, model_name="sepreresnet200b", **kwargs)
+    return get_sepreresnet(
+        blocks=200,
+        conv1_stride=False,
+        model_name="sepreresnet200b",
+        **kwargs)
 
 
 def _test():

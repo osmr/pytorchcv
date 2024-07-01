@@ -373,7 +373,7 @@ def get_hardnet(blocks,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create HarDNet model with specific parameters.
 
@@ -527,7 +527,7 @@ def get_hardnet(blocks,
     return net
 
 
-def hardnet39ds(**kwargs):
+def hardnet39ds(**kwargs) -> nn.Module:
     """
     HarDNet-39DS (Depthwise Separable) model from 'HarDNet: A Low Memory Traffic Network,'
     https://arxiv.org/abs/1909.00948.
@@ -544,10 +544,14 @@ def hardnet39ds(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hardnet(blocks=39, use_deptwise=True, model_name="hardnet39ds", **kwargs)
+    return get_hardnet(
+        blocks=39,
+        use_deptwise=True,
+        model_name="hardnet39ds",
+        **kwargs)
 
 
-def hardnet68ds(**kwargs):
+def hardnet68ds(**kwargs) -> nn.Module:
     """
     HarDNet-68DS (Depthwise Separable) model from 'HarDNet: A Low Memory Traffic Network,'
     https://arxiv.org/abs/1909.00948.
@@ -564,10 +568,14 @@ def hardnet68ds(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hardnet(blocks=68, use_deptwise=True, model_name="hardnet68ds", **kwargs)
+    return get_hardnet(
+        blocks=68,
+        use_deptwise=True,
+        model_name="hardnet68ds",
+        **kwargs)
 
 
-def hardnet68(**kwargs):
+def hardnet68(**kwargs) -> nn.Module:
     """
     HarDNet-68 model from 'HarDNet: A Low Memory Traffic Network,' https://arxiv.org/abs/1909.00948.
 
@@ -583,10 +591,14 @@ def hardnet68(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hardnet(blocks=68, use_deptwise=False, model_name="hardnet68", **kwargs)
+    return get_hardnet(
+        blocks=68,
+        use_deptwise=False,
+        model_name="hardnet68",
+        **kwargs)
 
 
-def hardnet85(**kwargs):
+def hardnet85(**kwargs) -> nn.Module:
     """
     HarDNet-85 model from 'HarDNet: A Low Memory Traffic Network,' https://arxiv.org/abs/1909.00948.
 
@@ -602,7 +614,11 @@ def hardnet85(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hardnet(blocks=85, use_deptwise=False, model_name="hardnet85", **kwargs)
+    return get_hardnet(
+        blocks=85,
+        use_deptwise=False,
+        model_name="hardnet85",
+        **kwargs)
 
 
 def _test():

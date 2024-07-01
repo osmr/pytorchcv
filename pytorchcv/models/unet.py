@@ -316,7 +316,10 @@ def _test():
 
     for model in models:
 
-        net = model(pretrained=pretrained, in_size=in_size, fixed_size=fixed_size)
+        net = model(
+            pretrained=pretrained,
+            in_size=in_size,
+            fixed_size=fixed_size)
 
         # net.train()
         net.eval()

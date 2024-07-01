@@ -311,7 +311,8 @@ def get_efficientnet_edge(version,
     return net
 
 
-def efficientnet_edge_small_b(in_size=(224, 224), **kwargs) -> nn.Module:
+def efficientnet_edge_small_b(in_size=(224, 224),
+                              **kwargs) -> nn.Module:
     """
     EfficientNet-Edge-Small-b model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
     https://arxiv.org/abs/1905.11946.
@@ -330,11 +331,17 @@ def efficientnet_edge_small_b(in_size=(224, 224), **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_efficientnet_edge(version="small", in_size=in_size, tf_mode=True, bn_eps=1e-3,
-                                 model_name="efficientnet_edge_small_b", **kwargs)
+    return get_efficientnet_edge(
+        version="small",
+        in_size=in_size,
+        tf_mode=True,
+        bn_eps=1e-3,
+        model_name="efficientnet_edge_small_b",
+        **kwargs)
 
 
-def efficientnet_edge_medium_b(in_size=(240, 240), **kwargs) -> nn.Module:
+def efficientnet_edge_medium_b(in_size=(240, 240),
+                               **kwargs) -> nn.Module:
     """
     EfficientNet-Edge-Medium-b model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
     https://arxiv.org/abs/1905.11946.
@@ -353,11 +360,17 @@ def efficientnet_edge_medium_b(in_size=(240, 240), **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_efficientnet_edge(version="medium", in_size=in_size, tf_mode=True, bn_eps=1e-3,
-                                 model_name="efficientnet_edge_medium_b", **kwargs)
+    return get_efficientnet_edge(
+        version="medium",
+        in_size=in_size,
+        tf_mode=True,
+        bn_eps=1e-3,
+        model_name="efficientnet_edge_medium_b",
+        **kwargs)
 
 
-def efficientnet_edge_large_b(in_size=(300, 300), **kwargs) -> nn.Module:
+def efficientnet_edge_large_b(in_size=(300, 300),
+                              **kwargs) -> nn.Module:
     """
     EfficientNet-Edge-Large-b model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
     https://arxiv.org/abs/1905.11946.
@@ -376,8 +389,13 @@ def efficientnet_edge_large_b(in_size=(300, 300), **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_efficientnet_edge(version="large", in_size=in_size, tf_mode=True, bn_eps=1e-3,
-                                 model_name="efficientnet_edge_large_b", **kwargs)
+    return get_efficientnet_edge(
+        version="large",
+        in_size=in_size,
+        tf_mode=True,
+        bn_eps=1e-3,
+        model_name="efficientnet_edge_large_b",
+        **kwargs)
 
 
 def _test():

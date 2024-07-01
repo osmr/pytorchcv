@@ -9,12 +9,14 @@
 __all__ = ['mobilenet_w1_cub', 'mobilenet_w3d4_cub', 'mobilenet_wd2_cub', 'mobilenet_wd4_cub', 'fdmobilenet_w1_cub',
            'fdmobilenet_w3d4_cub', 'fdmobilenet_wd2_cub', 'fdmobilenet_wd4_cub']
 
+import torch.nn as nn
 from .mobilenet import get_mobilenet
 from .fdmobilenet import get_fdmobilenet
 from .common import calc_net_weights
 
 
-def mobilenet_w1_cub(num_classes=200, **kwargs):
+def mobilenet_w1_cub(num_classes=200,
+                     **kwargs) -> nn.Module:
     """
     1.0 MobileNet-224 model for CUB-200-2011 from 'MobileNets: Efficient Convolutional Neural Networks for Mobile
     Vision Applications,' https://arxiv.org/abs/1704.04861.
@@ -33,10 +35,15 @@ def mobilenet_w1_cub(num_classes=200, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenet(num_classes=num_classes, width_scale=1.0, model_name="mobilenet_w1_cub", **kwargs)
+    return get_mobilenet(
+        num_classes=num_classes,
+        width_scale=1.0,
+        model_name="mobilenet_w1_cub",
+        **kwargs)
 
 
-def mobilenet_w3d4_cub(num_classes=200, **kwargs):
+def mobilenet_w3d4_cub(num_classes=200,
+                       **kwargs) -> nn.Module:
     """
     0.75 MobileNet-224 model for CUB-200-2011 from 'MobileNets: Efficient Convolutional Neural Networks for Mobile
     Vision Applications,' https://arxiv.org/abs/1704.04861.
@@ -55,10 +62,15 @@ def mobilenet_w3d4_cub(num_classes=200, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenet(num_classes=num_classes, width_scale=0.75, model_name="mobilenet_w3d4_cub", **kwargs)
+    return get_mobilenet(
+        num_classes=num_classes,
+        width_scale=0.75,
+        model_name="mobilenet_w3d4_cub",
+        **kwargs)
 
 
-def mobilenet_wd2_cub(num_classes=200, **kwargs):
+def mobilenet_wd2_cub(num_classes=200,
+                      **kwargs) -> nn.Module:
     """
     0.5 MobileNet-224 model for CUB-200-2011 from 'MobileNets: Efficient Convolutional Neural Networks for Mobile
     Vision Applications,' https://arxiv.org/abs/1704.04861.
@@ -77,10 +89,15 @@ def mobilenet_wd2_cub(num_classes=200, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenet(num_classes=num_classes, width_scale=0.5, model_name="mobilenet_wd2_cub", **kwargs)
+    return get_mobilenet(
+        num_classes=num_classes,
+        width_scale=0.5,
+        model_name="mobilenet_wd2_cub",
+        **kwargs)
 
 
-def mobilenet_wd4_cub(num_classes=200, **kwargs):
+def mobilenet_wd4_cub(num_classes=200,
+                      **kwargs) -> nn.Module:
     """
     0.25 MobileNet-224 model for CUB-200-2011 from 'MobileNets: Efficient Convolutional Neural Networks for Mobile
     Vision Applications,' https://arxiv.org/abs/1704.04861.
@@ -99,10 +116,15 @@ def mobilenet_wd4_cub(num_classes=200, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenet(num_classes=num_classes, width_scale=0.25, model_name="mobilenet_wd4_cub", **kwargs)
+    return get_mobilenet(
+        num_classes=num_classes,
+        width_scale=0.25,
+        model_name="mobilenet_wd4_cub",
+        **kwargs)
 
 
-def fdmobilenet_w1_cub(num_classes=200, **kwargs):
+def fdmobilenet_w1_cub(num_classes=200,
+                       **kwargs) -> nn.Module:
     """
     FD-MobileNet 1.0x model for CUB-200-2011 from 'FD-MobileNet: Improved MobileNet with A Fast Downsampling Strategy,'
     https://arxiv.org/abs/1802.03750.
@@ -121,10 +143,15 @@ def fdmobilenet_w1_cub(num_classes=200, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_fdmobilenet(num_classes=num_classes, width_scale=1.0, model_name="fdmobilenet_w1_cub", **kwargs)
+    return get_fdmobilenet(
+        num_classes=num_classes,
+        width_scale=1.0,
+        model_name="fdmobilenet_w1_cub",
+        **kwargs)
 
 
-def fdmobilenet_w3d4_cub(num_classes=200, **kwargs):
+def fdmobilenet_w3d4_cub(num_classes=200,
+                         **kwargs) -> nn.Module:
     """
     FD-MobileNet 0.75x model for CUB-200-2011 from 'FD-MobileNet: Improved MobileNet with A Fast Downsampling Strategy,'
     https://arxiv.org/abs/1802.03750.
@@ -143,10 +170,15 @@ def fdmobilenet_w3d4_cub(num_classes=200, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_fdmobilenet(num_classes=num_classes, width_scale=0.75, model_name="fdmobilenet_w3d4_cub", **kwargs)
+    return get_fdmobilenet(
+        num_classes=num_classes,
+        width_scale=0.75,
+        model_name="fdmobilenet_w3d4_cub",
+        **kwargs)
 
 
-def fdmobilenet_wd2_cub(num_classes=200, **kwargs):
+def fdmobilenet_wd2_cub(num_classes=200,
+                        **kwargs) -> nn.Module:
     """
     FD-MobileNet 0.5x model for CUB-200-2011 from 'FD-MobileNet: Improved MobileNet with A Fast Downsampling Strategy,'
     https://arxiv.org/abs/1802.03750.
@@ -165,10 +197,15 @@ def fdmobilenet_wd2_cub(num_classes=200, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_fdmobilenet(num_classes=num_classes, width_scale=0.5, model_name="fdmobilenet_wd2_cub", **kwargs)
+    return get_fdmobilenet(
+        num_classes=num_classes,
+        width_scale=0.5,
+        model_name="fdmobilenet_wd2_cub",
+        **kwargs)
 
 
-def fdmobilenet_wd4_cub(num_classes=200, **kwargs):
+def fdmobilenet_wd4_cub(num_classes=200,
+                        **kwargs) -> nn.Module:
     """
     FD-MobileNet 0.25x model for CUB-200-2011 from 'FD-MobileNet: Improved MobileNet with A Fast Downsampling Strategy,'
     https://arxiv.org/abs/1802.03750.
@@ -187,7 +224,11 @@ def fdmobilenet_wd4_cub(num_classes=200, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_fdmobilenet(num_classes=num_classes, width_scale=0.25, model_name="fdmobilenet_wd4_cub", **kwargs)
+    return get_fdmobilenet(
+        num_classes=num_classes,
+        width_scale=0.25,
+        model_name="fdmobilenet_wd4_cub",
+        **kwargs)
 
 
 def _test():

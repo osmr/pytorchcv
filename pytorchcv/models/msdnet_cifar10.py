@@ -167,7 +167,7 @@ def get_msdnet_cifar10(blocks,
                        model_name: str | None = None,
                        pretrained: bool = False,
                        root: str = os.path.join("~", ".torch", "models"),
-                       **kwargs):
+                       **kwargs) -> nn.Module:
     """
     Create MSDNet model for CIFAR-10 with specific parameters.
 
@@ -187,7 +187,6 @@ def get_msdnet_cifar10(blocks,
     nn.Module
         Desired module.
     """
-
     assert (blocks == 22)
 
     num_scales = 3
@@ -271,7 +270,7 @@ def get_msdnet_cifar10(blocks,
     return net
 
 
-def msdnet22_cifar10(**kwargs):
+def msdnet22_cifar10(**kwargs) -> nn.Module:
     """
     MSDNet-22 model for CIFAR-10 from 'Multi-Scale Dense Networks for Resource Efficient Image Classification,'
     https://arxiv.org/abs/1703.09844.
@@ -288,7 +287,10 @@ def msdnet22_cifar10(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_msdnet_cifar10(blocks=22, model_name="msdnet22_cifar10", **kwargs)
+    return get_msdnet_cifar10(
+        blocks=22,
+        model_name="msdnet22_cifar10",
+        **kwargs)
 
 
 def _test():

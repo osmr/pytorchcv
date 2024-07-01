@@ -466,7 +466,6 @@ def get_dpn(num_layers,
     nn.Module
         Desired module.
     """
-
     if num_layers == 68:
         init_block_channels = 10
         init_block_kernel_size = 3
@@ -563,7 +562,11 @@ def dpn68(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dpn(num_layers=68, b_case=False, model_name="dpn68", **kwargs)
+    return get_dpn(
+        num_layers=68,
+        b_case=False,
+        model_name="dpn68",
+        **kwargs)
 
 
 def dpn68b(**kwargs) -> nn.Module:
@@ -582,7 +585,11 @@ def dpn68b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dpn(num_layers=68, b_case=True, model_name="dpn68b", **kwargs)
+    return get_dpn(
+        num_layers=68,
+        b_case=True,
+        model_name="dpn68b",
+        **kwargs)
 
 
 def dpn98(**kwargs) -> nn.Module:
@@ -601,7 +608,11 @@ def dpn98(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dpn(num_layers=98, b_case=False, model_name="dpn98", **kwargs)
+    return get_dpn(
+        num_layers=98,
+        b_case=False,
+        model_name="dpn98",
+        **kwargs)
 
 
 def dpn107(**kwargs) -> nn.Module:
@@ -620,7 +631,11 @@ def dpn107(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dpn(num_layers=107, b_case=False, model_name="dpn107", **kwargs)
+    return get_dpn(
+        num_layers=107,
+        b_case=False,
+        model_name="dpn107",
+        **kwargs)
 
 
 def dpn131(**kwargs) -> nn.Module:
@@ -639,7 +654,11 @@ def dpn131(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dpn(num_layers=131, b_case=False, model_name="dpn131", **kwargs)
+    return get_dpn(
+        num_layers=131,
+        b_case=False,
+        model_name="dpn131",
+        **kwargs)
 
 
 def _test():

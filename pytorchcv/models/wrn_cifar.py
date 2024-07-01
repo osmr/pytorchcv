@@ -111,7 +111,6 @@ def get_wrn_cifar(num_classes,
     nn.Module
         Desired module.
     """
-
     assert ((blocks - 4) % 6 == 0)
     layers = [(blocks - 4) // 6] * 3
     channels_per_layers = [16, 32, 64]

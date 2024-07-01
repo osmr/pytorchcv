@@ -302,7 +302,7 @@ def get_scnet(blocks,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
-              **kwargs):
+              **kwargs) -> nn.Module:
     """
     Create SCNet model with specific parameters.
 
@@ -383,7 +383,7 @@ def get_scnet(blocks,
     return net
 
 
-def scnet50(**kwargs):
+def scnet50(**kwargs) -> nn.Module:
     """
     SCNet-50 model from 'Improving Convolutional Networks with Self-Calibrated Convolutions,'
      http://mftp.mmcheng.net/Papers/20cvprSCNet.pdf.
@@ -400,10 +400,13 @@ def scnet50(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_scnet(blocks=50, model_name="scnet50", **kwargs)
+    return get_scnet(
+        blocks=50,
+        model_name="scnet50",
+        **kwargs)
 
 
-def scnet101(**kwargs):
+def scnet101(**kwargs) -> nn.Module:
     """
     SCNet-101 model from 'Improving Convolutional Networks with Self-Calibrated Convolutions,'
     http://mftp.mmcheng.net/Papers/20cvprSCNet.pdf.
@@ -420,10 +423,13 @@ def scnet101(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_scnet(blocks=101, model_name="scnet101", **kwargs)
+    return get_scnet(
+        blocks=101,
+        model_name="scnet101",
+        **kwargs)
 
 
-def scneta50(**kwargs):
+def scneta50(**kwargs) -> nn.Module:
     """
     SCNet(A)-50 with average downsampling model from 'Improving Convolutional Networks with Self-Calibrated
     Convolutions,' http://mftp.mmcheng.net/Papers/20cvprSCNet.pdf.
@@ -440,10 +446,15 @@ def scneta50(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_scnet(blocks=50, se_init_block=True, avg_downsample=True, model_name="scneta50", **kwargs)
+    return get_scnet(
+        blocks=50,
+        se_init_block=True,
+        avg_downsample=True,
+        model_name="scneta50",
+        **kwargs)
 
 
-def scneta101(**kwargs):
+def scneta101(**kwargs) -> nn.Module:
     """
     SCNet(A)-101 with average downsampling model from 'Improving Convolutional Networks with Self-Calibrated
     Convolutions,' http://mftp.mmcheng.net/Papers/20cvprSCNet.pdf.
@@ -460,8 +471,13 @@ def scneta101(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_scnet(blocks=101, se_init_block=True, avg_downsample=True, init_block_channels_scale=2,
-                     model_name="scneta101", **kwargs)
+    return get_scnet(
+        blocks=101,
+        se_init_block=True,
+        avg_downsample=True,
+        init_block_channels_scale=2,
+        model_name="scneta101",
+        **kwargs)
 
 
 def _test():

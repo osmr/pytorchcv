@@ -245,7 +245,7 @@ def get_senet(blocks,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
-              **kwargs):
+              **kwargs) -> nn.Module:
     """
     Create SENet model with specific parameters.
 
@@ -265,7 +265,6 @@ def get_senet(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 16:
         layers = [1, 1, 1, 1]
         cardinality = 32
@@ -312,7 +311,7 @@ def get_senet(blocks,
     return net
 
 
-def senet16(**kwargs):
+def senet16(**kwargs) -> nn.Module:
     """
     SENet-16 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -328,10 +327,13 @@ def senet16(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_senet(blocks=16, model_name="senet16", **kwargs)
+    return get_senet(
+        blocks=16,
+        model_name="senet16",
+        **kwargs)
 
 
-def senet28(**kwargs):
+def senet28(**kwargs) -> nn.Module:
     """
     SENet-28 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -347,10 +349,13 @@ def senet28(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_senet(blocks=28, model_name="senet28", **kwargs)
+    return get_senet(
+        blocks=28,
+        model_name="senet28",
+        **kwargs)
 
 
-def senet40(**kwargs):
+def senet40(**kwargs) -> nn.Module:
     """
     SENet-40 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -366,10 +371,13 @@ def senet40(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_senet(blocks=40, model_name="senet40", **kwargs)
+    return get_senet(
+        blocks=40,
+        model_name="senet40",
+        **kwargs)
 
 
-def senet52(**kwargs):
+def senet52(**kwargs) -> nn.Module:
     """
     SENet-52 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -385,10 +393,13 @@ def senet52(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_senet(blocks=52, model_name="senet52", **kwargs)
+    return get_senet(
+        blocks=52,
+        model_name="senet52",
+        **kwargs)
 
 
-def senet103(**kwargs):
+def senet103(**kwargs) -> nn.Module:
     """
     SENet-103 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -404,10 +415,13 @@ def senet103(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_senet(blocks=103, model_name="senet103", **kwargs)
+    return get_senet(
+        blocks=103,
+        model_name="senet103",
+        **kwargs)
 
 
-def senet154(**kwargs):
+def senet154(**kwargs) -> nn.Module:
     """
     SENet-154 model from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
 
@@ -423,7 +437,10 @@ def senet154(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_senet(blocks=154, model_name="senet154", **kwargs)
+    return get_senet(
+        blocks=154,
+        model_name="senet154",
+        **kwargs)
 
 
 def _test():

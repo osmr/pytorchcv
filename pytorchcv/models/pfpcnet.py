@@ -84,7 +84,7 @@ class PFPCNet(nn.Module):
 def get_pfpcnet(model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create PFPCNet model with specific parameters.
 
@@ -125,7 +125,7 @@ def get_pfpcnet(model_name: str | None = None,
     return net
 
 
-def pfpcnet(**kwargs):
+def pfpcnet(**kwargs) -> nn.Module:
     """
     PFPCNet model from 'Production-Level Facial Performance Capture Using Deep Convolutional Neural Networks,'
     https://arxiv.org/abs/1609.06536.
@@ -142,7 +142,9 @@ def pfpcnet(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_pfpcnet(model_name="pfpcnet", **kwargs)
+    return get_pfpcnet(
+        model_name="pfpcnet",
+        **kwargs)
 
 
 def _test():

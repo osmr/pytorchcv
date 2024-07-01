@@ -415,7 +415,6 @@ def get_drn(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 22:
         assert simplified
         layers = [1, 1, 2, 2, 2, 2, 1, 1]
@@ -506,7 +505,10 @@ def drnc26(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_drn(blocks=26, model_name="drnc26", **kwargs)
+    return get_drn(
+        blocks=26,
+        model_name="drnc26",
+        **kwargs)
 
 
 def drnc42(**kwargs) -> nn.Module:
@@ -525,7 +527,10 @@ def drnc42(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_drn(blocks=42, model_name="drnc42", **kwargs)
+    return get_drn(
+        blocks=42,
+        model_name="drnc42",
+        **kwargs)
 
 
 def drnc58(**kwargs) -> nn.Module:
@@ -544,7 +549,10 @@ def drnc58(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_drn(blocks=58, model_name="drnc58", **kwargs)
+    return get_drn(
+        blocks=58,
+        model_name="drnc58",
+        **kwargs)
 
 
 def drnd22(**kwargs) -> nn.Module:
@@ -563,7 +571,11 @@ def drnd22(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_drn(blocks=22, simplified=True, model_name="drnd22", **kwargs)
+    return get_drn(
+        blocks=22,
+        simplified=True,
+        model_name="drnd22",
+        **kwargs)
 
 
 def drnd38(**kwargs) -> nn.Module:
@@ -582,7 +594,11 @@ def drnd38(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_drn(blocks=38, simplified=True, model_name="drnd38", **kwargs)
+    return get_drn(
+        blocks=38,
+        simplified=True,
+        model_name="drnd38",
+        **kwargs)
 
 
 def drnd54(**kwargs) -> nn.Module:
@@ -601,7 +617,11 @@ def drnd54(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_drn(blocks=54, simplified=True, model_name="drnd54", **kwargs)
+    return get_drn(
+        blocks=54,
+        simplified=True,
+        model_name="drnd54",
+        **kwargs)
 
 
 def drnd105(**kwargs) -> nn.Module:
@@ -620,7 +640,11 @@ def drnd105(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_drn(blocks=105, simplified=True, model_name="drnd105", **kwargs)
+    return get_drn(
+        blocks=105,
+        simplified=True,
+        model_name="drnd105",
+        **kwargs)
 
 
 def _test():

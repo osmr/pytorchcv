@@ -190,7 +190,9 @@ def darknet53(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_darknet53(model_name="darknet53", **kwargs)
+    return get_darknet53(
+        model_name="darknet53",
+        **kwargs)
 
 
 def _test():

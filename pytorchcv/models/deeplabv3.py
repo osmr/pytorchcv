@@ -237,7 +237,6 @@ def get_deeplabv3(backbone,
     nn.Module
         Desired module.
     """
-
     net = DeepLabv3(
         backbone=backbone,
         num_classes=num_classes,
@@ -256,7 +255,10 @@ def get_deeplabv3(backbone,
     return net
 
 
-def deeplabv3_resnetd50b_voc(pretrained_backbone=False, num_classes=21, aux=True, **kwargs) -> nn.Module:
+def deeplabv3_resnetd50b_voc(pretrained_backbone=False,
+                             num_classes=21,
+                             aux=True,
+                             **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-50b for Pascal VOC from 'Rethinking Atrous Convolution for Semantic Image
     Segmentation,' https://arxiv.org/abs/1706.05587.
@@ -279,13 +281,23 @@ def deeplabv3_resnetd50b_voc(pretrained_backbone=False, num_classes=21, aux=True
     nn.Module
         Desired module.
     """
-    backbone = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd50b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_deeplabv3(backbone=backbone, num_classes=num_classes, aux=aux, model_name="deeplabv3_resnetd50b_voc",
-                         **kwargs)
+    return get_deeplabv3(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="deeplabv3_resnetd50b_voc",
+        **kwargs)
 
 
-def deeplabv3_resnetd101b_voc(pretrained_backbone=False, num_classes=21, aux=True, **kwargs) -> nn.Module:
+def deeplabv3_resnetd101b_voc(pretrained_backbone=False,
+                              num_classes=21,
+                              aux=True,
+                              **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-101b for Pascal VOC from 'Rethinking Atrous Convolution for Semantic Image
     Segmentation,' https://arxiv.org/abs/1706.05587.
@@ -308,13 +320,23 @@ def deeplabv3_resnetd101b_voc(pretrained_backbone=False, num_classes=21, aux=Tru
     nn.Module
         Desired module.
     """
-    backbone = resnetd101b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd101b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_deeplabv3(backbone=backbone, num_classes=num_classes, aux=aux, model_name="deeplabv3_resnetd101b_voc",
-                         **kwargs)
+    return get_deeplabv3(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="deeplabv3_resnetd101b_voc",
+        **kwargs)
 
 
-def deeplabv3_resnetd152b_voc(pretrained_backbone=False, num_classes=21, aux=True, **kwargs) -> nn.Module:
+def deeplabv3_resnetd152b_voc(pretrained_backbone=False,
+                              num_classes=21,
+                              aux=True,
+                              **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-152b for Pascal VOC from 'Rethinking Atrous Convolution for Semantic Image
     Segmentation,' https://arxiv.org/abs/1706.05587.
@@ -337,13 +359,23 @@ def deeplabv3_resnetd152b_voc(pretrained_backbone=False, num_classes=21, aux=Tru
     nn.Module
         Desired module.
     """
-    backbone = resnetd152b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd152b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_deeplabv3(backbone=backbone, num_classes=num_classes, aux=aux, model_name="deeplabv3_resnetd152b_voc",
-                         **kwargs)
+    return get_deeplabv3(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="deeplabv3_resnetd152b_voc",
+        **kwargs)
 
 
-def deeplabv3_resnetd50b_coco(pretrained_backbone=False, num_classes=21, aux=True, **kwargs) -> nn.Module:
+def deeplabv3_resnetd50b_coco(pretrained_backbone=False,
+                              num_classes=21,
+                              aux=True,
+                              **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-50b for COCO from 'Rethinking Atrous Convolution for Semantic Image
     Segmentation,' https://arxiv.org/abs/1706.05587.
@@ -366,13 +398,22 @@ def deeplabv3_resnetd50b_coco(pretrained_backbone=False, num_classes=21, aux=Tru
     nn.Module
         Desired module.
     """
-    backbone = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd50b(pretrained=pretrained_backbone,
+                          ordinary_init=False,
+                          bends=(3,)).features
     del backbone[-1]
-    return get_deeplabv3(backbone=backbone, num_classes=num_classes, aux=aux, model_name="deeplabv3_resnetd50b_coco",
-                         **kwargs)
+    return get_deeplabv3(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="deeplabv3_resnetd50b_coco",
+        **kwargs)
 
 
-def deeplabv3_resnetd101b_coco(pretrained_backbone=False, num_classes=21, aux=True, **kwargs) -> nn.Module:
+def deeplabv3_resnetd101b_coco(pretrained_backbone=False,
+                               num_classes=21,
+                               aux=True,
+                               **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-101b for COCO from 'Rethinking Atrous Convolution for Semantic Image
     Segmentation,' https://arxiv.org/abs/1706.05587.
@@ -395,13 +436,23 @@ def deeplabv3_resnetd101b_coco(pretrained_backbone=False, num_classes=21, aux=Tr
     nn.Module
         Desired module.
     """
-    backbone = resnetd101b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd101b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_deeplabv3(backbone=backbone, num_classes=num_classes, aux=aux, model_name="deeplabv3_resnetd101b_coco",
-                         **kwargs)
+    return get_deeplabv3(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="deeplabv3_resnetd101b_coco",
+        **kwargs)
 
 
-def deeplabv3_resnetd152b_coco(pretrained_backbone=False, num_classes=21, aux=True, **kwargs) -> nn.Module:
+def deeplabv3_resnetd152b_coco(pretrained_backbone=False,
+                               num_classes=21,
+                               aux=True,
+                               **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-152b for COCO from 'Rethinking Atrous Convolution for Semantic Image
     Segmentation,' https://arxiv.org/abs/1706.05587.
@@ -424,13 +475,23 @@ def deeplabv3_resnetd152b_coco(pretrained_backbone=False, num_classes=21, aux=Tr
     nn.Module
         Desired module.
     """
-    backbone = resnetd152b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd152b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_deeplabv3(backbone=backbone, num_classes=num_classes, aux=aux, model_name="deeplabv3_resnetd152b_coco",
-                         **kwargs)
+    return get_deeplabv3(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="deeplabv3_resnetd152b_coco",
+        **kwargs)
 
 
-def deeplabv3_resnetd50b_ade20k(pretrained_backbone=False, num_classes=150, aux=True, **kwargs) -> nn.Module:
+def deeplabv3_resnetd50b_ade20k(pretrained_backbone=False,
+                                num_classes=150,
+                                aux=True,
+                                **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-50b for ADE20K from 'Rethinking Atrous Convolution for Semantic Image
     Segmentation,' https://arxiv.org/abs/1706.05587.
@@ -453,13 +514,23 @@ def deeplabv3_resnetd50b_ade20k(pretrained_backbone=False, num_classes=150, aux=
     nn.Module
         Desired module.
     """
-    backbone = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd50b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_deeplabv3(backbone=backbone, num_classes=num_classes, aux=aux, model_name="deeplabv3_resnetd50b_ade20k",
-                         **kwargs)
+    return get_deeplabv3(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="deeplabv3_resnetd50b_ade20k",
+        **kwargs)
 
 
-def deeplabv3_resnetd101b_ade20k(pretrained_backbone=False, num_classes=150, aux=True, **kwargs) -> nn.Module:
+def deeplabv3_resnetd101b_ade20k(pretrained_backbone=False,
+                                 num_classes=150,
+                                 aux=True,
+                                 **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-101b for ADE20K from 'Rethinking Atrous Convolution for Semantic Image
     Segmentation,' https://arxiv.org/abs/1706.05587.
@@ -482,13 +553,23 @@ def deeplabv3_resnetd101b_ade20k(pretrained_backbone=False, num_classes=150, aux
     nn.Module
         Desired module.
     """
-    backbone = resnetd101b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd101b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_deeplabv3(backbone=backbone, num_classes=num_classes, aux=aux, model_name="deeplabv3_resnetd101b_ade20k",
-                         **kwargs)
+    return get_deeplabv3(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="deeplabv3_resnetd101b_ade20k",
+        **kwargs)
 
 
-def deeplabv3_resnetd50b_cityscapes(pretrained_backbone=False, num_classes=19, aux=True, **kwargs) -> nn.Module:
+def deeplabv3_resnetd50b_cityscapes(pretrained_backbone=False,
+                                    num_classes=19,
+                                    aux=True,
+                                    **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-50b for Cityscapes from 'Rethinking Atrous Convolution for Semantic Image
     Segmentation,' https://arxiv.org/abs/1706.05587.
@@ -511,13 +592,23 @@ def deeplabv3_resnetd50b_cityscapes(pretrained_backbone=False, num_classes=19, a
     nn.Module
         Desired module.
     """
-    backbone = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd50b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_deeplabv3(backbone=backbone, num_classes=num_classes, aux=aux,
-                         model_name="deeplabv3_resnetd50b_cityscapes", **kwargs)
+    return get_deeplabv3(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="deeplabv3_resnetd50b_cityscapes",
+        **kwargs)
 
 
-def deeplabv3_resnetd101b_cityscapes(pretrained_backbone=False, num_classes=19, aux=True, **kwargs) -> nn.Module:
+def deeplabv3_resnetd101b_cityscapes(pretrained_backbone=False,
+                                     num_classes=19,
+                                     aux=True,
+                                     **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-101b for Cityscapes from 'Rethinking Atrous Convolution for Semantic Image
     Segmentation,' https://arxiv.org/abs/1706.05587.
@@ -540,10 +631,17 @@ def deeplabv3_resnetd101b_cityscapes(pretrained_backbone=False, num_classes=19, 
     nn.Module
         Desired module.
     """
-    backbone = resnetd101b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd101b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_deeplabv3(backbone=backbone, num_classes=num_classes, aux=aux,
-                         model_name="deeplabv3_resnetd101b_cityscapes", **kwargs)
+    return get_deeplabv3(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="deeplabv3_resnetd101b_cityscapes",
+        **kwargs)
 
 
 def _test():

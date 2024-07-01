@@ -286,7 +286,8 @@ def get_esnet(model_name: str | None = None,
     return net
 
 
-def esnet_cityscapes(num_classes=19, **kwargs) -> nn.Module:
+def esnet_cityscapes(num_classes=19,
+                     **kwargs) -> nn.Module:
     """
     ESNet model for Cityscapes from 'ESNet: An Efficient Symmetric Network for Real-time Semantic Segmentation,'
     https://arxiv.org/abs/1906.09826.
@@ -305,7 +306,10 @@ def esnet_cityscapes(num_classes=19, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_esnet(num_classes=num_classes, model_name="esnet_cityscapes", **kwargs)
+    return get_esnet(
+        num_classes=num_classes,
+        model_name="esnet_cityscapes",
+        **kwargs)
 
 
 def _test():
@@ -321,8 +325,11 @@ def _test():
 
     for model in models:
 
-        net = model(pretrained=pretrained, in_size=in_size, fixed_size=fixed_size,
-                    correct_size_mismatch=correct_size_mismatch)
+        net = model(
+            pretrained=pretrained,
+            in_size=in_size,
+            fixed_size=fixed_size,
+            correct_size_mismatch=correct_size_mismatch)
 
         # net.train()
         net.eval()

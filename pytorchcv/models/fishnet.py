@@ -498,7 +498,7 @@ def get_fishnet(blocks,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create FishNet model with specific parameters.
 
@@ -518,7 +518,6 @@ def get_fishnet(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 99:
         direct_layers = [[2, 2, 6], [1, 1, 1], [1, 2, 2]]
         skip_layers = [[1, 1, 1, 2], [4, 1, 1, 0]]
@@ -556,7 +555,7 @@ def get_fishnet(blocks,
     return net
 
 
-def fishnet99(**kwargs):
+def fishnet99(**kwargs) -> nn.Module:
     """
     FishNet-99 model from 'FishNet: A Versatile Backbone for Image, Region, and Pixel Level Prediction,'
     http://papers.nips.cc/paper/7356-fishnet-a-versatile-backbone-for-image-region-and-pixel-level-prediction.pdf.
@@ -573,10 +572,13 @@ def fishnet99(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_fishnet(blocks=99, model_name="fishnet99", **kwargs)
+    return get_fishnet(
+        blocks=99,
+        model_name="fishnet99",
+        **kwargs)
 
 
-def fishnet150(**kwargs):
+def fishnet150(**kwargs) -> nn.Module:
     """
     FishNet-150 model from 'FishNet: A Versatile Backbone for Image, Region, and Pixel Level Prediction,'
     http://papers.nips.cc/paper/7356-fishnet-a-versatile-backbone-for-image-region-and-pixel-level-prediction.pdf.
@@ -593,7 +595,10 @@ def fishnet150(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_fishnet(blocks=150, model_name="fishnet150", **kwargs)
+    return get_fishnet(
+        blocks=150,
+        model_name="fishnet150",
+        **kwargs)
 
 
 def _test():

@@ -275,7 +275,10 @@ def diapreresnet10(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=10, model_name="diapreresnet10", **kwargs)
+    return get_diapreresnet(
+        blocks=10,
+        model_name="diapreresnet10",
+        **kwargs)
 
 
 def diapreresnet12(**kwargs) -> nn.Module:
@@ -295,7 +298,10 @@ def diapreresnet12(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=12, model_name="diapreresnet12", **kwargs)
+    return get_diapreresnet(
+        blocks=12,
+        model_name="diapreresnet12",
+        **kwargs)
 
 
 def diapreresnet14(**kwargs) -> nn.Module:
@@ -315,7 +321,10 @@ def diapreresnet14(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=14, model_name="diapreresnet14", **kwargs)
+    return get_diapreresnet(
+        blocks=14,
+        model_name="diapreresnet14",
+        **kwargs)
 
 
 def diapreresnetbc14b(**kwargs) -> nn.Module:
@@ -335,7 +344,12 @@ def diapreresnetbc14b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=14, bottleneck=True, conv1_stride=False, model_name="diapreresnetbc14b", **kwargs)
+    return get_diapreresnet(
+        blocks=14,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="diapreresnetbc14b",
+        **kwargs)
 
 
 def diapreresnet16(**kwargs) -> nn.Module:
@@ -355,7 +369,10 @@ def diapreresnet16(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=16, model_name="diapreresnet16", **kwargs)
+    return get_diapreresnet(
+        blocks=16,
+        model_name="diapreresnet16",
+        **kwargs)
 
 
 def diapreresnet18(**kwargs) -> nn.Module:
@@ -374,7 +391,10 @@ def diapreresnet18(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=18, model_name="diapreresnet18", **kwargs)
+    return get_diapreresnet(
+        blocks=18,
+        model_name="diapreresnet18",
+        **kwargs)
 
 
 def diapreresnet26(**kwargs) -> nn.Module:
@@ -394,7 +414,11 @@ def diapreresnet26(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=26, bottleneck=False, model_name="diapreresnet26", **kwargs)
+    return get_diapreresnet(
+        blocks=26,
+        bottleneck=False,
+        model_name="diapreresnet26",
+        **kwargs)
 
 
 def diapreresnetbc26b(**kwargs) -> nn.Module:
@@ -414,7 +438,12 @@ def diapreresnetbc26b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=26, bottleneck=True, conv1_stride=False, model_name="diapreresnetbc26b", **kwargs)
+    return get_diapreresnet(
+        blocks=26,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="diapreresnetbc26b",
+        **kwargs)
 
 
 def diapreresnet34(**kwargs) -> nn.Module:
@@ -433,7 +462,10 @@ def diapreresnet34(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=34, model_name="diapreresnet34", **kwargs)
+    return get_diapreresnet(
+        blocks=34,
+        model_name="diapreresnet34",
+        **kwargs)
 
 
 def diapreresnetbc38b(**kwargs) -> nn.Module:
@@ -453,7 +485,12 @@ def diapreresnetbc38b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=38, bottleneck=True, conv1_stride=False, model_name="diapreresnetbc38b", **kwargs)
+    return get_diapreresnet(
+        blocks=38,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="diapreresnetbc38b",
+        **kwargs)
 
 
 def diapreresnet50(**kwargs) -> nn.Module:
@@ -472,7 +509,10 @@ def diapreresnet50(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=50, model_name="diapreresnet50", **kwargs)
+    return get_diapreresnet(
+        blocks=50,
+        model_name="diapreresnet50",
+        **kwargs)
 
 
 def diapreresnet50b(**kwargs) -> nn.Module:
@@ -492,7 +532,11 @@ def diapreresnet50b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=50, conv1_stride=False, model_name="diapreresnet50b", **kwargs)
+    return get_diapreresnet(
+        blocks=50,
+        conv1_stride=False,
+        model_name="diapreresnet50b",
+        **kwargs)
 
 
 def diapreresnet101(**kwargs) -> nn.Module:
@@ -511,7 +555,10 @@ def diapreresnet101(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=101, model_name="diapreresnet101", **kwargs)
+    return get_diapreresnet(
+        blocks=101,
+        model_name="diapreresnet101",
+        **kwargs)
 
 
 def diapreresnet101b(**kwargs) -> nn.Module:
@@ -531,7 +578,11 @@ def diapreresnet101b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=101, conv1_stride=False, model_name="diapreresnet101b", **kwargs)
+    return get_diapreresnet(
+        blocks=101,
+        conv1_stride=False,
+        model_name="diapreresnet101b",
+        **kwargs)
 
 
 def diapreresnet152(**kwargs) -> nn.Module:
@@ -550,7 +601,10 @@ def diapreresnet152(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=152, model_name="diapreresnet152", **kwargs)
+    return get_diapreresnet(
+        blocks=152,
+        model_name="diapreresnet152",
+        **kwargs)
 
 
 def diapreresnet152b(**kwargs) -> nn.Module:
@@ -570,7 +624,11 @@ def diapreresnet152b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=152, conv1_stride=False, model_name="diapreresnet152b", **kwargs)
+    return get_diapreresnet(
+        blocks=152,
+        conv1_stride=False,
+        model_name="diapreresnet152b",
+        **kwargs)
 
 
 def diapreresnet200(**kwargs) -> nn.Module:
@@ -589,7 +647,10 @@ def diapreresnet200(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=200, model_name="diapreresnet200", **kwargs)
+    return get_diapreresnet(
+        blocks=200,
+        model_name="diapreresnet200",
+        **kwargs)
 
 
 def diapreresnet200b(**kwargs) -> nn.Module:
@@ -609,7 +670,11 @@ def diapreresnet200b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=200, conv1_stride=False, model_name="diapreresnet200b", **kwargs)
+    return get_diapreresnet(
+        blocks=200,
+        conv1_stride=False,
+        model_name="diapreresnet200b",
+        **kwargs)
 
 
 def diapreresnet269b(**kwargs) -> nn.Module:
@@ -629,7 +694,11 @@ def diapreresnet269b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet(blocks=269, conv1_stride=False, model_name="diapreresnet269b", **kwargs)
+    return get_diapreresnet(
+        blocks=269,
+        conv1_stride=False,
+        model_name="diapreresnet269b",
+        **kwargs)
 
 
 def _test():

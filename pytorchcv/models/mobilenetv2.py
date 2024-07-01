@@ -154,7 +154,7 @@ def get_mobilenetv2(width_scale,
                     model_name: str | None = None,
                     pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),
-                    **kwargs):
+                    **kwargs) -> nn.Module:
     """
     Create MobileNetV2 model with specific parameters.
 
@@ -176,7 +176,6 @@ def get_mobilenetv2(width_scale,
     nn.Module
         Desired module.
     """
-
     init_block_channels = 32
     final_block_channels = 1280
     layers = [1, 2, 3, 4, 3, 3, 1]
@@ -214,7 +213,7 @@ def get_mobilenetv2(width_scale,
     return net
 
 
-def mobilenetv2_w1(**kwargs):
+def mobilenetv2_w1(**kwargs) -> nn.Module:
     """
     1.0 MobileNetV2-224 model from 'MobileNetV2: Inverted Residuals and Linear Bottlenecks,'
     https://arxiv.org/abs/1801.04381.
@@ -231,10 +230,13 @@ def mobilenetv2_w1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv2(width_scale=1.0, model_name="mobilenetv2_w1", **kwargs)
+    return get_mobilenetv2(
+        width_scale=1.0,
+        model_name="mobilenetv2_w1",
+        **kwargs)
 
 
-def mobilenetv2_w3d4(**kwargs):
+def mobilenetv2_w3d4(**kwargs) -> nn.Module:
     """
     0.75 MobileNetV2-224 model from 'MobileNetV2: Inverted Residuals and Linear Bottlenecks,'
     https://arxiv.org/abs/1801.04381.
@@ -251,10 +253,13 @@ def mobilenetv2_w3d4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv2(width_scale=0.75, model_name="mobilenetv2_w3d4", **kwargs)
+    return get_mobilenetv2(
+        width_scale=0.75,
+        model_name="mobilenetv2_w3d4",
+        **kwargs)
 
 
-def mobilenetv2_wd2(**kwargs):
+def mobilenetv2_wd2(**kwargs) -> nn.Module:
     """
     0.5 MobileNetV2-224 model from 'MobileNetV2: Inverted Residuals and Linear Bottlenecks,'
     https://arxiv.org/abs/1801.04381.
@@ -271,10 +276,13 @@ def mobilenetv2_wd2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv2(width_scale=0.5, model_name="mobilenetv2_wd2", **kwargs)
+    return get_mobilenetv2(
+        width_scale=0.5,
+        model_name="mobilenetv2_wd2",
+        **kwargs)
 
 
-def mobilenetv2_wd4(**kwargs):
+def mobilenetv2_wd4(**kwargs) -> nn.Module:
     """
     0.25 MobileNetV2-224 model from 'MobileNetV2: Inverted Residuals and Linear Bottlenecks,'
     https://arxiv.org/abs/1801.04381.
@@ -291,10 +299,13 @@ def mobilenetv2_wd4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv2(width_scale=0.25, model_name="mobilenetv2_wd4", **kwargs)
+    return get_mobilenetv2(
+        width_scale=0.25,
+        model_name="mobilenetv2_wd4",
+        **kwargs)
 
 
-def mobilenetv2b_w1(**kwargs):
+def mobilenetv2b_w1(**kwargs) -> nn.Module:
     """
     1.0 MobileNetV2b-224 model from 'MobileNetV2: Inverted Residuals and Linear Bottlenecks,'
     https://arxiv.org/abs/1801.04381.
@@ -311,10 +322,14 @@ def mobilenetv2b_w1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv2(width_scale=1.0, remove_exp_conv=True, model_name="mobilenetv2b_w1", **kwargs)
+    return get_mobilenetv2(
+        width_scale=1.0,
+        remove_exp_conv=True,
+        model_name="mobilenetv2b_w1",
+        **kwargs)
 
 
-def mobilenetv2b_w3d4(**kwargs):
+def mobilenetv2b_w3d4(**kwargs) -> nn.Module:
     """
     0.75 MobileNetV2b-224 model from 'MobileNetV2: Inverted Residuals and Linear Bottlenecks,'
     https://arxiv.org/abs/1801.04381.
@@ -331,10 +346,14 @@ def mobilenetv2b_w3d4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv2(width_scale=0.75, remove_exp_conv=True, model_name="mobilenetv2b_w3d4", **kwargs)
+    return get_mobilenetv2(
+        width_scale=0.75,
+        remove_exp_conv=True,
+        model_name="mobilenetv2b_w3d4",
+        **kwargs)
 
 
-def mobilenetv2b_wd2(**kwargs):
+def mobilenetv2b_wd2(**kwargs) -> nn.Module:
     """
     0.5 MobileNetV2b-224 model from 'MobileNetV2: Inverted Residuals and Linear Bottlenecks,'
     https://arxiv.org/abs/1801.04381.
@@ -351,10 +370,14 @@ def mobilenetv2b_wd2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv2(width_scale=0.5, remove_exp_conv=True, model_name="mobilenetv2b_wd2", **kwargs)
+    return get_mobilenetv2(
+        width_scale=0.5,
+        remove_exp_conv=True,
+        model_name="mobilenetv2b_wd2",
+        **kwargs)
 
 
-def mobilenetv2b_wd4(**kwargs):
+def mobilenetv2b_wd4(**kwargs) -> nn.Module:
     """
     0.25 MobileNetV2b-224 model from 'MobileNetV2: Inverted Residuals and Linear Bottlenecks,'
     https://arxiv.org/abs/1801.04381.
@@ -371,7 +394,11 @@ def mobilenetv2b_wd4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv2(width_scale=0.25, remove_exp_conv=True, model_name="mobilenetv2b_wd4", **kwargs)
+    return get_mobilenetv2(
+        width_scale=0.25,
+        remove_exp_conv=True,
+        model_name="mobilenetv2b_wd4",
+        **kwargs)
 
 
 def _test():

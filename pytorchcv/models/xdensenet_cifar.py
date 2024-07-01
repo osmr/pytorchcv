@@ -32,7 +32,6 @@ class XDenseSimpleUnit(nn.Module):
     expand_ratio : int
         Ratio of expansion.
     """
-
     def __init__(self,
                  in_channels: int,
                  out_channels: int,

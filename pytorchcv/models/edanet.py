@@ -291,7 +291,8 @@ def get_edanet(model_name: str | None = None,
     return net
 
 
-def edanet_cityscapes(num_classes=19, **kwargs) -> nn.Module:
+def edanet_cityscapes(num_classes=19,
+                      **kwargs) -> nn.Module:
     """
     EDANet model for Cityscapes from 'Efficient Dense Modules of Asymmetric Convolution for Real-Time Semantic
     Segmentation,' https://arxiv.org/abs/1809.06323.
@@ -310,7 +311,10 @@ def edanet_cityscapes(num_classes=19, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_edanet(num_classes=num_classes, model_name="edanet_cityscapes", **kwargs)
+    return get_edanet(
+        num_classes=num_classes,
+        model_name="edanet_cityscapes",
+        **kwargs)
 
 
 def _test():

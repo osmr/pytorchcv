@@ -196,7 +196,7 @@ def get_resnext(blocks,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create ResNeXt model with specific parameters.
 
@@ -220,7 +220,6 @@ def get_resnext(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 14:
         layers = [1, 1, 1, 1]
     elif blocks == 26:
@@ -260,7 +259,7 @@ def get_resnext(blocks,
     return net
 
 
-def resnext14_16x4d(**kwargs):
+def resnext14_16x4d(**kwargs) -> nn.Module:
     """
     ResNeXt-14 (16x4d) model from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -277,10 +276,15 @@ def resnext14_16x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext(blocks=14, cardinality=16, bottleneck_width=4, model_name="resnext14_16x4d", **kwargs)
+    return get_resnext(
+        blocks=14,
+        cardinality=16,
+        bottleneck_width=4,
+        model_name="resnext14_16x4d",
+        **kwargs)
 
 
-def resnext14_32x2d(**kwargs):
+def resnext14_32x2d(**kwargs) -> nn.Module:
     """
     ResNeXt-14 (32x2d) model from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -297,10 +301,15 @@ def resnext14_32x2d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext(blocks=14, cardinality=32, bottleneck_width=2, model_name="resnext14_32x2d", **kwargs)
+    return get_resnext(
+        blocks=14,
+        cardinality=32,
+        bottleneck_width=2,
+        model_name="resnext14_32x2d",
+        **kwargs)
 
 
-def resnext14_32x4d(**kwargs):
+def resnext14_32x4d(**kwargs) -> nn.Module:
     """
     ResNeXt-14 (32x4d) model from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -317,10 +326,15 @@ def resnext14_32x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext(blocks=14, cardinality=32, bottleneck_width=4, model_name="resnext14_32x4d", **kwargs)
+    return get_resnext(
+        blocks=14,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="resnext14_32x4d",
+        **kwargs)
 
 
-def resnext26_16x4d(**kwargs):
+def resnext26_16x4d(**kwargs) -> nn.Module:
     """
     ResNeXt-26 (16x4d) model from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -337,10 +351,15 @@ def resnext26_16x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext(blocks=26, cardinality=16, bottleneck_width=4, model_name="resnext26_16x4d", **kwargs)
+    return get_resnext(
+        blocks=26,
+        cardinality=16,
+        bottleneck_width=4,
+        model_name="resnext26_16x4d",
+        **kwargs)
 
 
-def resnext26_32x2d(**kwargs):
+def resnext26_32x2d(**kwargs) -> nn.Module:
     """
     ResNeXt-26 (32x2d) model from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -357,10 +376,15 @@ def resnext26_32x2d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext(blocks=26, cardinality=32, bottleneck_width=2, model_name="resnext26_32x2d", **kwargs)
+    return get_resnext(
+        blocks=26,
+        cardinality=32,
+        bottleneck_width=2,
+        model_name="resnext26_32x2d",
+        **kwargs)
 
 
-def resnext26_32x4d(**kwargs):
+def resnext26_32x4d(**kwargs) -> nn.Module:
     """
     ResNeXt-26 (32x4d) model from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -377,10 +401,15 @@ def resnext26_32x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext(blocks=26, cardinality=32, bottleneck_width=4, model_name="resnext26_32x4d", **kwargs)
+    return get_resnext(
+        blocks=26,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="resnext26_32x4d",
+        **kwargs)
 
 
-def resnext38_32x4d(**kwargs):
+def resnext38_32x4d(**kwargs) -> nn.Module:
     """
     ResNeXt-38 (32x4d) model from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -397,10 +426,15 @@ def resnext38_32x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext(blocks=38, cardinality=32, bottleneck_width=4, model_name="resnext38_32x4d", **kwargs)
+    return get_resnext(
+        blocks=38,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="resnext38_32x4d",
+        **kwargs)
 
 
-def resnext50_32x4d(**kwargs):
+def resnext50_32x4d(**kwargs) -> nn.Module:
     """
     ResNeXt-50 (32x4d) model from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -417,10 +451,15 @@ def resnext50_32x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext(blocks=50, cardinality=32, bottleneck_width=4, model_name="resnext50_32x4d", **kwargs)
+    return get_resnext(
+        blocks=50,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="resnext50_32x4d",
+        **kwargs)
 
 
-def resnext101_32x4d(**kwargs):
+def resnext101_32x4d(**kwargs) -> nn.Module:
     """
     ResNeXt-101 (32x4d) model from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -437,10 +476,15 @@ def resnext101_32x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext(blocks=101, cardinality=32, bottleneck_width=4, model_name="resnext101_32x4d", **kwargs)
+    return get_resnext(
+        blocks=101,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="resnext101_32x4d",
+        **kwargs)
 
 
-def resnext101_64x4d(**kwargs):
+def resnext101_64x4d(**kwargs) -> nn.Module:
     """
     ResNeXt-101 (64x4d) model from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -457,7 +501,12 @@ def resnext101_64x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext(blocks=101, cardinality=64, bottleneck_width=4, model_name="resnext101_64x4d", **kwargs)
+    return get_resnext(
+        blocks=101,
+        cardinality=64,
+        bottleneck_width=4,
+        model_name="resnext101_64x4d",
+        **kwargs)
 
 
 def _test():

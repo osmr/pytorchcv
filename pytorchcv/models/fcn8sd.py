@@ -150,7 +150,6 @@ def get_fcn8sd(backbone,
     nn.Module
         Desired module.
     """
-
     net = FCN8sd(
         backbone=backbone,
         num_classes=num_classes,

@@ -245,7 +245,10 @@ def diracnet18v2(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diracnetv2(blocks=18, model_name="diracnet18v2", **kwargs)
+    return get_diracnetv2(
+        blocks=18,
+        model_name="diracnet18v2",
+        **kwargs)
 
 
 def diracnet34v2(**kwargs) -> nn.Module:
@@ -265,7 +268,10 @@ def diracnet34v2(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diracnetv2(blocks=34, model_name="diracnet34v2", **kwargs)
+    return get_diracnetv2(
+        blocks=34,
+        model_name="diracnet34v2",
+        **kwargs)
 
 
 def _test():

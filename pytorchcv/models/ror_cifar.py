@@ -262,7 +262,7 @@ def get_ror_cifar(num_classes,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create RoR-3 model for CIFAR with specific parameters.
 
@@ -312,7 +312,8 @@ def get_ror_cifar(num_classes,
     return net
 
 
-def ror3_56_cifar10(num_classes=10, **kwargs):
+def ror3_56_cifar10(num_classes=10,
+                    **kwargs) -> nn.Module:
     """
     RoR-3-56 model for CIFAR-10 from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
     https://arxiv.org/abs/1608.02908.
@@ -331,10 +332,15 @@ def ror3_56_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_ror_cifar(num_classes=num_classes, blocks=56, model_name="ror3_56_cifar10", **kwargs)
+    return get_ror_cifar(
+        num_classes=num_classes,
+        blocks=56,
+        model_name="ror3_56_cifar10",
+        **kwargs)
 
 
-def ror3_56_cifar100(num_classes=100, **kwargs):
+def ror3_56_cifar100(num_classes=100,
+                     **kwargs) -> nn.Module:
     """
     RoR-3-56 model for CIFAR-100 from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
     https://arxiv.org/abs/1608.02908.
@@ -353,10 +359,15 @@ def ror3_56_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_ror_cifar(num_classes=num_classes, blocks=56, model_name="ror3_56_cifar100", **kwargs)
+    return get_ror_cifar(
+        num_classes=num_classes,
+        blocks=56,
+        model_name="ror3_56_cifar100",
+        **kwargs)
 
 
-def ror3_56_svhn(num_classes=10, **kwargs):
+def ror3_56_svhn(num_classes=10,
+                 **kwargs) -> nn.Module:
     """
     RoR-3-56 model for SVHN from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
     https://arxiv.org/abs/1608.02908.
@@ -375,10 +386,15 @@ def ror3_56_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_ror_cifar(num_classes=num_classes, blocks=56, model_name="ror3_56_svhn", **kwargs)
+    return get_ror_cifar(
+        num_classes=num_classes,
+        blocks=56,
+        model_name="ror3_56_svhn",
+        **kwargs)
 
 
-def ror3_110_cifar10(num_classes=10, **kwargs):
+def ror3_110_cifar10(num_classes=10,
+                     **kwargs) -> nn.Module:
     """
     RoR-3-110 model for CIFAR-10 from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
     https://arxiv.org/abs/1608.02908.
@@ -397,10 +413,15 @@ def ror3_110_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_ror_cifar(num_classes=num_classes, blocks=110, model_name="ror3_110_cifar10", **kwargs)
+    return get_ror_cifar(
+        num_classes=num_classes,
+        blocks=110,
+        model_name="ror3_110_cifar10",
+        **kwargs)
 
 
-def ror3_110_cifar100(num_classes=100, **kwargs):
+def ror3_110_cifar100(num_classes=100,
+                      **kwargs) -> nn.Module:
     """
     RoR-3-110 model for CIFAR-100 from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
     https://arxiv.org/abs/1608.02908.
@@ -419,10 +440,15 @@ def ror3_110_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_ror_cifar(num_classes=num_classes, blocks=110, model_name="ror3_110_cifar100", **kwargs)
+    return get_ror_cifar(
+        num_classes=num_classes,
+        blocks=110,
+        model_name="ror3_110_cifar100",
+        **kwargs)
 
 
-def ror3_110_svhn(num_classes=10, **kwargs):
+def ror3_110_svhn(num_classes=10,
+                  **kwargs) -> nn.Module:
     """
     RoR-3-110 model for SVHN from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
     https://arxiv.org/abs/1608.02908.
@@ -441,10 +467,15 @@ def ror3_110_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_ror_cifar(num_classes=num_classes, blocks=110, model_name="ror3_110_svhn", **kwargs)
+    return get_ror_cifar(
+        num_classes=num_classes,
+        blocks=110,
+        model_name="ror3_110_svhn",
+        **kwargs)
 
 
-def ror3_164_cifar10(num_classes=10, **kwargs):
+def ror3_164_cifar10(num_classes=10,
+                     **kwargs) -> nn.Module:
     """
     RoR-3-164 model for CIFAR-10 from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
     https://arxiv.org/abs/1608.02908.
@@ -463,10 +494,15 @@ def ror3_164_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_ror_cifar(num_classes=num_classes, blocks=164, model_name="ror3_164_cifar10", **kwargs)
+    return get_ror_cifar(
+        num_classes=num_classes,
+        blocks=164,
+        model_name="ror3_164_cifar10",
+        **kwargs)
 
 
-def ror3_164_cifar100(num_classes=100, **kwargs):
+def ror3_164_cifar100(num_classes=100,
+                      **kwargs) -> nn.Module:
     """
     RoR-3-164 model for CIFAR-100 from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
     https://arxiv.org/abs/1608.02908.
@@ -485,10 +521,15 @@ def ror3_164_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_ror_cifar(num_classes=num_classes, blocks=164, model_name="ror3_164_cifar100", **kwargs)
+    return get_ror_cifar(
+        num_classes=num_classes,
+        blocks=164,
+        model_name="ror3_164_cifar100",
+        **kwargs)
 
 
-def ror3_164_svhn(num_classes=10, **kwargs):
+def ror3_164_svhn(num_classes=10,
+                  **kwargs) -> nn.Module:
     """
     RoR-3-164 model for SVHN from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
     https://arxiv.org/abs/1608.02908.
@@ -507,7 +548,11 @@ def ror3_164_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_ror_cifar(num_classes=num_classes, blocks=164, model_name="ror3_164_svhn", **kwargs)
+    return get_ror_cifar(
+        num_classes=num_classes,
+        blocks=164,
+        model_name="ror3_164_svhn",
+        **kwargs)
 
 
 def _test():

@@ -216,7 +216,7 @@ def get_fbnet(version,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
-              **kwargs):
+              **kwargs) -> nn.Module:
     """
     Create FBNet model with specific parameters.
 
@@ -268,7 +268,7 @@ def get_fbnet(version,
     return net
 
 
-def fbnet_cb(**kwargs):
+def fbnet_cb(**kwargs) -> nn.Module:
     """
     FBNet-Cb model (bn_eps=1e-3) from 'FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural
     Architecture Search,' https://arxiv.org/abs/1812.03443.
@@ -285,7 +285,11 @@ def fbnet_cb(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_fbnet(version="c", bn_eps=1e-3, model_name="fbnet_cb", **kwargs)
+    return get_fbnet(
+        version="c",
+        bn_eps=1e-3,
+        model_name="fbnet_cb",
+        **kwargs)
 
 
 def _test():

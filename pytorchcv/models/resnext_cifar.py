@@ -99,7 +99,7 @@ def get_resnext_cifar(num_classes,
                       model_name: str | None = None,
                       pretrained: bool = False,
                       root: str = os.path.join("~", ".torch", "models"),
-                      **kwargs):
+                      **kwargs) -> nn.Module:
     """
     ResNeXt model for CIFAR with specific parameters.
 
@@ -125,7 +125,6 @@ def get_resnext_cifar(num_classes,
     nn.Module
         Desired module.
     """
-
     assert (blocks - 2) % 9 == 0
     layers = [(blocks - 2) // 9] * 3
     channels_per_layers = [256, 512, 1024]
@@ -153,7 +152,8 @@ def get_resnext_cifar(num_classes,
     return net
 
 
-def resnext20_16x4d_cifar10(num_classes=10, **kwargs):
+def resnext20_16x4d_cifar10(num_classes=10,
+                            **kwargs) -> nn.Module:
     """
     ResNeXt-20 (16x4d) model for CIFAR-10 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -172,11 +172,17 @@ def resnext20_16x4d_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=16, bottleneck_width=4,
-                             model_name="resnext20_16x4d_cifar10", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        cardinality=16,
+        bottleneck_width=4,
+        model_name="resnext20_16x4d_cifar10",
+        **kwargs)
 
 
-def resnext20_16x4d_cifar100(num_classes=100, **kwargs):
+def resnext20_16x4d_cifar100(num_classes=100,
+                             **kwargs) -> nn.Module:
     """
     ResNeXt-20 (16x4d) model for CIFAR-100 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -195,11 +201,17 @@ def resnext20_16x4d_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=16, bottleneck_width=4,
-                             model_name="resnext20_16x4d_cifar100", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        cardinality=16,
+        bottleneck_width=4,
+        model_name="resnext20_16x4d_cifar100",
+        **kwargs)
 
 
-def resnext20_16x4d_svhn(num_classes=10, **kwargs):
+def resnext20_16x4d_svhn(num_classes=10,
+                         **kwargs) -> nn.Module:
     """
     ResNeXt-20 (16x4d) model for SVHN from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -218,11 +230,17 @@ def resnext20_16x4d_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=16, bottleneck_width=4,
-                             model_name="resnext20_16x4d_svhn", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        cardinality=16,
+        bottleneck_width=4,
+        model_name="resnext20_16x4d_svhn",
+        **kwargs)
 
 
-def resnext20_32x2d_cifar10(num_classes=10, **kwargs):
+def resnext20_32x2d_cifar10(num_classes=10,
+                            **kwargs) -> nn.Module:
     """
     ResNeXt-20 (32x2d) model for CIFAR-10 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -241,11 +259,17 @@ def resnext20_32x2d_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=32, bottleneck_width=2,
-                             model_name="resnext20_32x2d_cifar10", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        cardinality=32,
+        bottleneck_width=2,
+        model_name="resnext20_32x2d_cifar10",
+        **kwargs)
 
 
-def resnext20_32x2d_cifar100(num_classes=100, **kwargs):
+def resnext20_32x2d_cifar100(num_classes=100,
+                             **kwargs) -> nn.Module:
     """
     ResNeXt-20 (32x2d) model for CIFAR-100 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -264,11 +288,17 @@ def resnext20_32x2d_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=32, bottleneck_width=2,
-                             model_name="resnext20_32x2d_cifar100", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        cardinality=32,
+        bottleneck_width=2,
+        model_name="resnext20_32x2d_cifar100",
+        **kwargs)
 
 
-def resnext20_32x2d_svhn(num_classes=10, **kwargs):
+def resnext20_32x2d_svhn(num_classes=10,
+                         **kwargs) -> nn.Module:
     """
     ResNeXt-20 (32x2d) model for SVHN from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -287,11 +317,17 @@ def resnext20_32x2d_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=32, bottleneck_width=2,
-                             model_name="resnext20_32x2d_svhn", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        cardinality=32,
+        bottleneck_width=2,
+        model_name="resnext20_32x2d_svhn",
+        **kwargs)
 
 
-def resnext20_32x4d_cifar10(num_classes=10, **kwargs):
+def resnext20_32x4d_cifar10(num_classes=10,
+                            **kwargs) -> nn.Module:
     """
     ResNeXt-20 (32x4d) model for CIFAR-10 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -310,11 +346,17 @@ def resnext20_32x4d_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=32, bottleneck_width=4,
-                             model_name="resnext20_32x4d_cifar10", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="resnext20_32x4d_cifar10",
+        **kwargs)
 
 
-def resnext20_32x4d_cifar100(num_classes=100, **kwargs):
+def resnext20_32x4d_cifar100(num_classes=100,
+                             **kwargs) -> nn.Module:
     """
     ResNeXt-20 (32x4d) model for CIFAR-100 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -333,11 +375,17 @@ def resnext20_32x4d_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=32, bottleneck_width=4,
-                             model_name="resnext20_32x4d_cifar100", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="resnext20_32x4d_cifar100",
+        **kwargs)
 
 
-def resnext20_32x4d_svhn(num_classes=10, **kwargs):
+def resnext20_32x4d_svhn(num_classes=10,
+                         **kwargs) -> nn.Module:
     """
     ResNeXt-20 (32x4d) model for SVHN from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -356,11 +404,17 @@ def resnext20_32x4d_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=20, cardinality=32, bottleneck_width=4,
-                             model_name="resnext20_32x4d_svhn", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="resnext20_32x4d_svhn",
+        **kwargs)
 
 
-def resnext29_32x4d_cifar10(num_classes=10, **kwargs):
+def resnext29_32x4d_cifar10(num_classes=10,
+                            **kwargs) -> nn.Module:
     """
     ResNeXt-29 (32x4d) model for CIFAR-10 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -379,11 +433,17 @@ def resnext29_32x4d_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=29, cardinality=32, bottleneck_width=4,
-                             model_name="resnext29_32x4d_cifar10", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=29,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="resnext29_32x4d_cifar10",
+        **kwargs)
 
 
-def resnext29_32x4d_cifar100(num_classes=100, **kwargs):
+def resnext29_32x4d_cifar100(num_classes=100,
+                             **kwargs) -> nn.Module:
     """
     ResNeXt-29 (32x4d) model for CIFAR-100 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -402,11 +462,17 @@ def resnext29_32x4d_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=29, cardinality=32, bottleneck_width=4,
-                             model_name="resnext29_32x4d_cifar100", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=29,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="resnext29_32x4d_cifar100",
+        **kwargs)
 
 
-def resnext29_32x4d_svhn(num_classes=10, **kwargs):
+def resnext29_32x4d_svhn(num_classes=10,
+                         **kwargs) -> nn.Module:
     """
     ResNeXt-29 (32x4d) model for SVHN from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -425,11 +491,17 @@ def resnext29_32x4d_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=29, cardinality=32, bottleneck_width=4,
-                             model_name="resnext29_32x4d_svhn", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=29,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="resnext29_32x4d_svhn",
+        **kwargs)
 
 
-def resnext29_16x64d_cifar10(num_classes=10, **kwargs):
+def resnext29_16x64d_cifar10(num_classes=10,
+                             **kwargs) -> nn.Module:
     """
     ResNeXt-29 (16x64d) model for CIFAR-10 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -448,11 +520,17 @@ def resnext29_16x64d_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=29, cardinality=16, bottleneck_width=64,
-                             model_name="resnext29_16x64d_cifar10", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=29,
+        cardinality=16,
+        bottleneck_width=64,
+        model_name="resnext29_16x64d_cifar10",
+        **kwargs)
 
 
-def resnext29_16x64d_cifar100(num_classes=100, **kwargs):
+def resnext29_16x64d_cifar100(num_classes=100,
+                              **kwargs) -> nn.Module:
     """
     ResNeXt-29 (16x64d) model for CIFAR-100 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -471,11 +549,17 @@ def resnext29_16x64d_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=29, cardinality=16, bottleneck_width=64,
-                             model_name="resnext29_16x64d_cifar100", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=29,
+        cardinality=16,
+        bottleneck_width=64,
+        model_name="resnext29_16x64d_cifar100",
+        **kwargs)
 
 
-def resnext29_16x64d_svhn(num_classes=10, **kwargs):
+def resnext29_16x64d_svhn(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     ResNeXt-29 (16x64d) model for SVHN from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -494,11 +578,17 @@ def resnext29_16x64d_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=29, cardinality=16, bottleneck_width=64,
-                             model_name="resnext29_16x64d_svhn", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=29,
+        cardinality=16,
+        bottleneck_width=64,
+        model_name="resnext29_16x64d_svhn",
+        **kwargs)
 
 
-def resnext272_1x64d_cifar10(num_classes=10, **kwargs):
+def resnext272_1x64d_cifar10(num_classes=10,
+                             **kwargs) -> nn.Module:
     """
     ResNeXt-272 (1x64d) model for CIFAR-10 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -517,11 +607,17 @@ def resnext272_1x64d_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=272, cardinality=1, bottleneck_width=64,
-                             model_name="resnext272_1x64d_cifar10", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=272,
+        cardinality=1,
+        bottleneck_width=64,
+        model_name="resnext272_1x64d_cifar10",
+        **kwargs)
 
 
-def resnext272_1x64d_cifar100(num_classes=100, **kwargs):
+def resnext272_1x64d_cifar100(num_classes=100,
+                              **kwargs) -> nn.Module:
     """
     ResNeXt-272 (1x64d) model for CIFAR-100 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -540,11 +636,17 @@ def resnext272_1x64d_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=272, cardinality=1, bottleneck_width=64,
-                             model_name="resnext272_1x64d_cifar100", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=272,
+        cardinality=1,
+        bottleneck_width=64,
+        model_name="resnext272_1x64d_cifar100",
+        **kwargs)
 
 
-def resnext272_1x64d_svhn(num_classes=10, **kwargs):
+def resnext272_1x64d_svhn(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     ResNeXt-272 (1x64d) model for SVHN from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -563,11 +665,17 @@ def resnext272_1x64d_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=272, cardinality=1, bottleneck_width=64,
-                             model_name="resnext272_1x64d_svhn", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=272,
+        cardinality=1,
+        bottleneck_width=64,
+        model_name="resnext272_1x64d_svhn",
+        **kwargs)
 
 
-def resnext272_2x32d_cifar10(num_classes=10, **kwargs):
+def resnext272_2x32d_cifar10(num_classes=10,
+                             **kwargs) -> nn.Module:
     """
     ResNeXt-272 (2x32d) model for CIFAR-10 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -586,11 +694,17 @@ def resnext272_2x32d_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=272, cardinality=2, bottleneck_width=32,
-                             model_name="resnext272_2x32d_cifar10", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=272,
+        cardinality=2,
+        bottleneck_width=32,
+        model_name="resnext272_2x32d_cifar10",
+        **kwargs)
 
 
-def resnext272_2x32d_cifar100(num_classes=100, **kwargs):
+def resnext272_2x32d_cifar100(num_classes=100,
+                              **kwargs) -> nn.Module:
     """
     ResNeXt-272 (2x32d) model for CIFAR-100 from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -609,11 +723,17 @@ def resnext272_2x32d_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=272, cardinality=2, bottleneck_width=32,
-                             model_name="resnext272_2x32d_cifar100", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=272,
+        cardinality=2,
+        bottleneck_width=32,
+        model_name="resnext272_2x32d_cifar100",
+        **kwargs)
 
 
-def resnext272_2x32d_svhn(num_classes=10, **kwargs):
+def resnext272_2x32d_svhn(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     ResNeXt-272 (2x32d) model for SVHN from 'Aggregated Residual Transformations for Deep Neural Networks,'
     http://arxiv.org/abs/1611.05431.
@@ -632,8 +752,13 @@ def resnext272_2x32d_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnext_cifar(num_classes=num_classes, blocks=272, cardinality=2, bottleneck_width=32,
-                             model_name="resnext272_2x32d_svhn", **kwargs)
+    return get_resnext_cifar(
+        num_classes=num_classes,
+        blocks=272,
+        cardinality=2,
+        bottleneck_width=32,
+        model_name="resnext272_2x32d_svhn",
+        **kwargs)
 
 
 def _test():

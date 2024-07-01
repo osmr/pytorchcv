@@ -615,7 +615,6 @@ def get_wrn1bit_cifar(num_classes,
     nn.Module
         Desired module.
     """
-
     assert ((blocks - 2) % 6 == 0)
     layers = [(blocks - 2) // 6] * 3
     channels_per_layers = [16, 32, 64]

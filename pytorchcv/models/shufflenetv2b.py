@@ -24,7 +24,7 @@ class ShuffleUnit(nn.Module):
     out_channels : int
         Number of output channels.
     downsample : bool
-        Whether do downsample.
+        Whether to do downsample.
     use_se : bool
         Whether to use SE block.
     use_residual : bool

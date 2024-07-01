@@ -514,7 +514,7 @@ class PNASNet(nn.Module):
 def get_pnasnet(model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create PNASNet model with specific parameters.
 
@@ -558,7 +558,7 @@ def get_pnasnet(model_name: str | None = None,
     return net
 
 
-def pnasnet5large(**kwargs):
+def pnasnet5large(**kwargs) -> nn.Module:
     """
     PNASNet-5-Large model from 'Progressive Neural Architecture Search,' https://arxiv.org/abs/1712.00559.
 
@@ -574,7 +574,9 @@ def pnasnet5large(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_pnasnet(model_name="pnasnet5large", **kwargs)
+    return get_pnasnet(
+        model_name="pnasnet5large",
+        **kwargs)
 
 
 def _test():

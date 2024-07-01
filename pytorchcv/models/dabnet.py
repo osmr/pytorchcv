@@ -520,7 +520,10 @@ def dabnet_cityscapes(num_classes=19, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dabnet(num_classes=num_classes, model_name="dabnet_cityscapes", **kwargs)
+    return get_dabnet(
+        num_classes=num_classes,
+        model_name="dabnet_cityscapes",
+        **kwargs)
 
 
 def _test():

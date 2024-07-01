@@ -8,11 +8,13 @@ __all__ = ['quartznet5x5_en_ls', 'quartznet15x5_en', 'quartznet15x5_en_nr', 'qua
            'quartznet15x5_it', 'quartznet15x5_es', 'quartznet15x5_ca', 'quartznet15x5_pl', 'quartznet15x5_ru',
            'quartznet15x5_ru34']
 
+import torch.nn as nn
 from .jasper import get_jasper
 from .common import calc_net_weights
 
 
-def quartznet5x5_en_ls(num_classes=29, **kwargs):
+def quartznet5x5_en_ls(num_classes=29,
+                       **kwargs) -> nn.Module:
     """
     QuartzNet 5x5 model for English language (trained on LibriSpeech dataset) from 'QuartzNet: Deep Automatic Speech
     Recognition with 1D Time-Channel Separable Convolutions,' https://arxiv.org/abs/1910.10261.
@@ -33,11 +35,17 @@ def quartznet5x5_en_ls(num_classes=29, **kwargs):
     """
     vocabulary = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
                   't', 'u', 'v', 'w', 'x', 'y', 'z', "'"]
-    return get_jasper(num_classes=num_classes, version=("quartznet", "5x5"), use_dw=True, vocabulary=vocabulary,
-                      model_name="quartznet5x5_en_ls", **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("quartznet", "5x5"),
+        use_dw=True,
+        vocabulary=vocabulary,
+        model_name="quartznet5x5_en_ls",
+        **kwargs)
 
 
-def quartznet15x5_en(num_classes=29, **kwargs):
+def quartznet15x5_en(num_classes=29,
+                     **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for English language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
     Separable Convolutions,' https://arxiv.org/abs/1910.10261.
@@ -58,11 +66,17 @@ def quartznet15x5_en(num_classes=29, **kwargs):
     """
     vocabulary = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
                   't', 'u', 'v', 'w', 'x', 'y', 'z', "'"]
-    return get_jasper(num_classes=num_classes, version=("quartznet", "15x5"), use_dw=True, vocabulary=vocabulary,
-                      model_name="quartznet15x5_en", **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("quartznet", "15x5"),
+        use_dw=True,
+        vocabulary=vocabulary,
+        model_name="quartznet15x5_en",
+        **kwargs)
 
 
-def quartznet15x5_en_nr(num_classes=29, **kwargs):
+def quartznet15x5_en_nr(num_classes=29,
+                        **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for English language (with presence of noise) from 'QuartzNet: Deep Automatic Speech
     Recognition with 1D Time-Channel Separable Convolutions,' https://arxiv.org/abs/1910.10261.
@@ -83,11 +97,17 @@ def quartznet15x5_en_nr(num_classes=29, **kwargs):
     """
     vocabulary = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
                   't', 'u', 'v', 'w', 'x', 'y', 'z', "'"]
-    return get_jasper(num_classes=num_classes, version=("quartznet", "15x5"), use_dw=True, vocabulary=vocabulary,
-                      model_name="quartznet15x5_en_nr", **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("quartznet", "15x5"),
+        use_dw=True,
+        vocabulary=vocabulary,
+        model_name="quartznet15x5_en_nr",
+        **kwargs)
 
 
-def quartznet15x5_fr(num_classes=43, **kwargs):
+def quartznet15x5_fr(num_classes=43,
+                     **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for French language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
     Separable Convolutions,' https://arxiv.org/abs/1910.10261.
@@ -109,11 +129,17 @@ def quartznet15x5_fr(num_classes=43, **kwargs):
     vocabulary = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
                   't', 'u', 'v', 'w', 'x', 'y', 'z', "'", 'ç', 'é', 'â', 'ê', 'î', 'ô', 'û', 'à', 'è', 'ù', 'ë', 'ï',
                   'ü', 'ÿ']
-    return get_jasper(num_classes=num_classes, version=("quartznet", "15x5"), use_dw=True, vocabulary=vocabulary,
-                      model_name="quartznet15x5_fr", **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("quartznet", "15x5"),
+        use_dw=True,
+        vocabulary=vocabulary,
+        model_name="quartznet15x5_fr",
+        **kwargs)
 
 
-def quartznet15x5_de(num_classes=32, **kwargs):
+def quartznet15x5_de(num_classes=32,
+                     **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for German language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
     Separable Convolutions,' https://arxiv.org/abs/1910.10261.
@@ -134,11 +160,17 @@ def quartznet15x5_de(num_classes=32, **kwargs):
     """
     vocabulary = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
                   't', 'u', 'v', 'w', 'x', 'y', 'z', 'ä', 'ö', 'ü', 'ß']
-    return get_jasper(num_classes=num_classes, version=("quartznet", "15x5"), use_dw=True, vocabulary=vocabulary,
-                      model_name="quartznet15x5_de", **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("quartznet", "15x5"),
+        use_dw=True,
+        vocabulary=vocabulary,
+        model_name="quartznet15x5_de",
+        **kwargs)
 
 
-def quartznet15x5_it(num_classes=39, **kwargs):
+def quartznet15x5_it(num_classes=39,
+                     **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for Italian language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
     Separable Convolutions,' https://arxiv.org/abs/1910.10261.
@@ -159,11 +191,17 @@ def quartznet15x5_it(num_classes=39, **kwargs):
     """
     vocabulary = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
                   't', 'u', 'v', 'w', 'x', 'y', 'z', "'", 'à', 'é', 'è', 'í', 'ì', 'î', 'ó', 'ò', 'ú', 'ù']
-    return get_jasper(num_classes=num_classes, version=("quartznet", "15x5"), use_dw=True, vocabulary=vocabulary,
-                      model_name="quartznet15x5_it", **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("quartznet", "15x5"),
+        use_dw=True,
+        vocabulary=vocabulary,
+        model_name="quartznet15x5_it",
+        **kwargs)
 
 
-def quartznet15x5_es(num_classes=36, **kwargs):
+def quartznet15x5_es(num_classes=36,
+                     **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for Spanish language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
     Separable Convolutions,' https://arxiv.org/abs/1910.10261.
@@ -184,11 +222,17 @@ def quartznet15x5_es(num_classes=36, **kwargs):
     """
     vocabulary = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
                   't', 'u', 'v', 'w', 'x', 'y', 'z', "'", 'á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü']
-    return get_jasper(num_classes=num_classes, version=("quartznet", "15x5"), use_dw=True, vocabulary=vocabulary,
-                      model_name="quartznet15x5_es", **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("quartznet", "15x5"),
+        use_dw=True,
+        vocabulary=vocabulary,
+        model_name="quartznet15x5_es",
+        **kwargs)
 
 
-def quartznet15x5_ca(num_classes=39, **kwargs):
+def quartznet15x5_ca(num_classes=39,
+                     **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for Spanish language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
     Separable Convolutions,' https://arxiv.org/abs/1910.10261.
@@ -209,11 +253,17 @@ def quartznet15x5_ca(num_classes=39, **kwargs):
     """
     vocabulary = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
                   't', 'u', 'v', 'w', 'x', 'y', 'z', "'", 'à', 'é', 'è', 'í', 'ï', 'ó', 'ò', 'ú', 'ü', 'ŀ']
-    return get_jasper(num_classes=num_classes, version=("quartznet", "15x5"), use_dw=True, vocabulary=vocabulary,
-                      model_name="quartznet15x5_ca", **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("quartznet", "15x5"),
+        use_dw=True,
+        vocabulary=vocabulary,
+        model_name="quartznet15x5_ca",
+        **kwargs)
 
 
-def quartznet15x5_pl(num_classes=34, **kwargs):
+def quartznet15x5_pl(num_classes=34,
+                     **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for Spanish language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
     Separable Convolutions,' https://arxiv.org/abs/1910.10261.
@@ -234,11 +284,17 @@ def quartznet15x5_pl(num_classes=34, **kwargs):
     """
     vocabulary = [' ', 'a', 'ą', 'b', 'c', 'ć', 'd', 'e', 'ę', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'ł', 'm', 'n', 'ń',
                   'o', 'ó', 'p', 'r', 's', 'ś', 't', 'u', 'w', 'y', 'z', 'ź', 'ż']
-    return get_jasper(num_classes=num_classes, version=("quartznet", "15x5"), use_dw=True, vocabulary=vocabulary,
-                      model_name="quartznet15x5_pl", **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("quartznet", "15x5"),
+        use_dw=True,
+        vocabulary=vocabulary,
+        model_name="quartznet15x5_pl",
+        **kwargs)
 
 
-def quartznet15x5_ru(num_classes=35, **kwargs):
+def quartznet15x5_ru(num_classes=35,
+                     **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for Russian language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
     Separable Convolutions,' https://arxiv.org/abs/1910.10261.
@@ -259,11 +315,17 @@ def quartznet15x5_ru(num_classes=35, **kwargs):
     """
     vocabulary = [' ', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с',
                   'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я']
-    return get_jasper(num_classes=num_classes, version=("quartznet", "15x5"), use_dw=True, vocabulary=vocabulary,
-                      model_name="quartznet15x5_ru", **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("quartznet", "15x5"),
+        use_dw=True,
+        vocabulary=vocabulary,
+        model_name="quartznet15x5_ru",
+        **kwargs)
 
 
-def quartznet15x5_ru34(num_classes=34, **kwargs):
+def quartznet15x5_ru34(num_classes=34,
+                       **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for Russian language (32 graphemes) from 'QuartzNet: Deep Automatic Speech Recognition with 1D
     Time-Channel Separable Convolutions,' https://arxiv.org/abs/1910.10261.
@@ -284,8 +346,13 @@ def quartznet15x5_ru34(num_classes=34, **kwargs):
     """
     vocabulary = [' ', 'а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т',
                   'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я']
-    return get_jasper(num_classes=num_classes, version=("quartznet", "15x5"), use_dw=True, vocabulary=vocabulary,
-                      model_name="quartznet15x5_ru34", **kwargs)
+    return get_jasper(
+        num_classes=num_classes,
+        version=("quartznet", "15x5"),
+        use_dw=True,
+        vocabulary=vocabulary,
+        model_name="quartznet15x5_ru34",
+        **kwargs)
 
 
 def _test():

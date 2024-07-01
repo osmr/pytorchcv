@@ -304,7 +304,7 @@ def get_ghostnet(width_scale=1.0,
                  model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),
-                 **kwargs):
+                 **kwargs) -> nn.Module:
     """
     Create GhostNet model with specific parameters.
 
@@ -362,7 +362,7 @@ def get_ghostnet(width_scale=1.0,
     return net
 
 
-def ghostnet(**kwargs):
+def ghostnet(**kwargs) -> nn.Module:
     """
     GhostNet model from 'GhostNet: More Features from Cheap Operations,' https://arxiv.org/abs/1911.11907.
 
@@ -378,7 +378,9 @@ def ghostnet(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ghostnet(model_name="ghostnet", **kwargs)
+    return get_ghostnet(
+        model_name="ghostnet",
+        **kwargs)
 
 
 def _test():

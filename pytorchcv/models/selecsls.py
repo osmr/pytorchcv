@@ -194,7 +194,7 @@ def get_selecsls(version,
                  model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),
-                 **kwargs):
+                 **kwargs) -> nn.Module:
     """
     Create SelecSLS model with specific parameters.
 
@@ -262,7 +262,7 @@ def get_selecsls(version,
     return net
 
 
-def selecsls42(**kwargs):
+def selecsls42(**kwargs) -> nn.Module:
     """
     SelecSLS-42 model from 'XNect: Real-time Multi-person 3D Human Pose Estimation with a Single RGB Camera,'
     https://arxiv.org/abs/1907.00837.
@@ -279,10 +279,13 @@ def selecsls42(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_selecsls(version="42", model_name="selecsls42", **kwargs)
+    return get_selecsls(
+        version="42",
+        model_name="selecsls42",
+        **kwargs)
 
 
-def selecsls42b(**kwargs):
+def selecsls42b(**kwargs) -> nn.Module:
     """
     SelecSLS-42b model from 'XNect: Real-time Multi-person 3D Human Pose Estimation with a Single RGB Camera,'
     https://arxiv.org/abs/1907.00837.
@@ -299,10 +302,13 @@ def selecsls42b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_selecsls(version="42b", model_name="selecsls42b", **kwargs)
+    return get_selecsls(
+        version="42b",
+        model_name="selecsls42b",
+        **kwargs)
 
 
-def selecsls60(**kwargs):
+def selecsls60(**kwargs) -> nn.Module:
     """
     SelecSLS-60 model from 'XNect: Real-time Multi-person 3D Human Pose Estimation with a Single RGB Camera,'
     https://arxiv.org/abs/1907.00837.
@@ -319,10 +325,13 @@ def selecsls60(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_selecsls(version="60", model_name="selecsls60", **kwargs)
+    return get_selecsls(
+        version="60",
+        model_name="selecsls60",
+        **kwargs)
 
 
-def selecsls60b(**kwargs):
+def selecsls60b(**kwargs) -> nn.Module:
     """
     SelecSLS-60b model from 'XNect: Real-time Multi-person 3D Human Pose Estimation with a Single RGB Camera,'
     https://arxiv.org/abs/1907.00837.
@@ -339,10 +348,13 @@ def selecsls60b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_selecsls(version="60b", model_name="selecsls60b", **kwargs)
+    return get_selecsls(
+        version="60b",
+        model_name="selecsls60b",
+        **kwargs)
 
 
-def selecsls84(**kwargs):
+def selecsls84(**kwargs) -> nn.Module:
     """
     SelecSLS-84 model from 'XNect: Real-time Multi-person 3D Human Pose Estimation with a Single RGB Camera,'
     https://arxiv.org/abs/1907.00837.
@@ -359,7 +371,10 @@ def selecsls84(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_selecsls(version="84", model_name="selecsls84", **kwargs)
+    return get_selecsls(
+        version="84",
+        model_name="selecsls84",
+        **kwargs)
 
 
 def _test():

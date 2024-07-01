@@ -413,7 +413,10 @@ def diaresnet10(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=10, model_name="diaresnet10", **kwargs)
+    return get_diaresnet(
+        blocks=10,
+        model_name="diaresnet10",
+        **kwargs)
 
 
 def diaresnet12(**kwargs) -> nn.Module:
@@ -433,7 +436,10 @@ def diaresnet12(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=12, model_name="diaresnet12", **kwargs)
+    return get_diaresnet(
+        blocks=12,
+        model_name="diaresnet12",
+        **kwargs)
 
 
 def diaresnet14(**kwargs) -> nn.Module:
@@ -453,7 +459,10 @@ def diaresnet14(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=14, model_name="diaresnet14", **kwargs)
+    return get_diaresnet(
+        blocks=14,
+        model_name="diaresnet14",
+        **kwargs)
 
 
 def diaresnetbc14b(**kwargs) -> nn.Module:
@@ -473,7 +482,12 @@ def diaresnetbc14b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=14, bottleneck=True, conv1_stride=False, model_name="diaresnetbc14b", **kwargs)
+    return get_diaresnet(
+        blocks=14,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="diaresnetbc14b",
+        **kwargs)
 
 
 def diaresnet16(**kwargs) -> nn.Module:
@@ -493,7 +507,10 @@ def diaresnet16(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=16, model_name="diaresnet16", **kwargs)
+    return get_diaresnet(
+        blocks=16,
+        model_name="diaresnet16",
+        **kwargs)
 
 
 def diaresnet18(**kwargs) -> nn.Module:
@@ -512,7 +529,10 @@ def diaresnet18(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=18, model_name="diaresnet18", **kwargs)
+    return get_diaresnet(
+        blocks=18,
+        model_name="diaresnet18",
+        **kwargs)
 
 
 def diaresnet26(**kwargs) -> nn.Module:
@@ -532,7 +552,11 @@ def diaresnet26(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=26, bottleneck=False, model_name="diaresnet26", **kwargs)
+    return get_diaresnet(
+        blocks=26,
+        bottleneck=False,
+        model_name="diaresnet26",
+        **kwargs)
 
 
 def diaresnetbc26b(**kwargs) -> nn.Module:
@@ -552,7 +576,12 @@ def diaresnetbc26b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=26, bottleneck=True, conv1_stride=False, model_name="diaresnetbc26b", **kwargs)
+    return get_diaresnet(
+        blocks=26,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="diaresnetbc26b",
+        **kwargs)
 
 
 def diaresnet34(**kwargs) -> nn.Module:
@@ -571,7 +600,10 @@ def diaresnet34(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=34, model_name="diaresnet34", **kwargs)
+    return get_diaresnet(
+        blocks=34,
+        model_name="diaresnet34",
+        **kwargs)
 
 
 def diaresnetbc38b(**kwargs) -> nn.Module:
@@ -591,7 +623,12 @@ def diaresnetbc38b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=38, bottleneck=True, conv1_stride=False, model_name="diaresnetbc38b", **kwargs)
+    return get_diaresnet(
+        blocks=38,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="diaresnetbc38b",
+        **kwargs)
 
 
 def diaresnet50(**kwargs) -> nn.Module:
@@ -610,7 +647,10 @@ def diaresnet50(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=50, model_name="diaresnet50", **kwargs)
+    return get_diaresnet(
+        blocks=50,
+        model_name="diaresnet50",
+        **kwargs)
 
 
 def diaresnet50b(**kwargs) -> nn.Module:
@@ -630,7 +670,11 @@ def diaresnet50b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=50, conv1_stride=False, model_name="diaresnet50b", **kwargs)
+    return get_diaresnet(
+        blocks=50,
+        conv1_stride=False,
+        model_name="diaresnet50b",
+        **kwargs)
 
 
 def diaresnet101(**kwargs) -> nn.Module:
@@ -649,7 +693,10 @@ def diaresnet101(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=101, model_name="diaresnet101", **kwargs)
+    return get_diaresnet(
+        blocks=101,
+        model_name="diaresnet101",
+        **kwargs)
 
 
 def diaresnet101b(**kwargs) -> nn.Module:
@@ -669,7 +716,11 @@ def diaresnet101b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=101, conv1_stride=False, model_name="diaresnet101b", **kwargs)
+    return get_diaresnet(
+        blocks=101,
+        conv1_stride=False,
+        model_name="diaresnet101b",
+        **kwargs)
 
 
 def diaresnet152(**kwargs) -> nn.Module:
@@ -688,7 +739,10 @@ def diaresnet152(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=152, model_name="diaresnet152", **kwargs)
+    return get_diaresnet(
+        blocks=152,
+        model_name="diaresnet152",
+        **kwargs)
 
 
 def diaresnet152b(**kwargs) -> nn.Module:
@@ -708,7 +762,11 @@ def diaresnet152b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=152, conv1_stride=False, model_name="diaresnet152b", **kwargs)
+    return get_diaresnet(
+        blocks=152,
+        conv1_stride=False,
+        model_name="diaresnet152b",
+        **kwargs)
 
 
 def diaresnet200(**kwargs) -> nn.Module:
@@ -728,7 +786,10 @@ def diaresnet200(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=200, model_name="diaresnet200", **kwargs)
+    return get_diaresnet(
+        blocks=200,
+        model_name="diaresnet200",
+        **kwargs)
 
 
 def diaresnet200b(**kwargs) -> nn.Module:
@@ -748,7 +809,11 @@ def diaresnet200b(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diaresnet(blocks=200, conv1_stride=False, model_name="diaresnet200b", **kwargs)
+    return get_diaresnet(
+        blocks=200,
+        conv1_stride=False,
+        model_name="diaresnet200b",
+        **kwargs)
 
 
 def _test():

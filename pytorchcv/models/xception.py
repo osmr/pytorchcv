@@ -334,7 +334,6 @@ def get_xception(model_name: str | None = None,
     nn.Module
         Desired module.
     """
-
     channels = [[128], [256], [728] * 9, [1024]]
 
     net = Xception(

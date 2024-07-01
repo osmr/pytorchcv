@@ -355,7 +355,7 @@ class PRNet(nn.Module):
 def get_prnet(model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
-              **kwargs):
+              **kwargs) -> nn.Module:
     """
     Create PRNet model with specific parameters.
 
@@ -395,7 +395,7 @@ def get_prnet(model_name: str | None = None,
     return net
 
 
-def prnet(**kwargs):
+def prnet(**kwargs) -> nn.Module:
     """
     PRNet model for AFLW2000-3D from 'Joint 3D Face Reconstruction and Dense Alignment with Position Map Regression
     Network,' https://arxiv.org/abs/1803.07835.
@@ -412,7 +412,10 @@ def prnet(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_prnet(model_name="prnet", bn_eps=1e-3, **kwargs)
+    return get_prnet(
+        model_name="prnet",
+        bn_eps=1e-3,
+        **kwargs)
 
 
 def _test():

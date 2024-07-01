@@ -383,7 +383,8 @@ def get_ctxnet(model_name: str | None = None,
     return net
 
 
-def ctxnet_cityscapes(num_classes=19, **kwargs) -> nn.Module:
+def ctxnet_cityscapes(num_classes=19,
+                      **kwargs) -> nn.Module:
     """
     ContextNet model for Cityscapes from 'ContextNet: Exploring Context and Detail for Semantic Segmentation in
     Real-time,' https://arxiv.org/abs/1805.04554.
@@ -402,7 +403,10 @@ def ctxnet_cityscapes(num_classes=19, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_ctxnet(num_classes=num_classes, model_name="ctxnet_cityscapes", **kwargs)
+    return get_ctxnet(
+        num_classes=num_classes,
+        model_name="ctxnet_cityscapes",
+        **kwargs)
 
 
 def _test():

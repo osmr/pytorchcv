@@ -466,7 +466,7 @@ def get_resattnet(blocks,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create ResAttNet model with specific parameters.
 
@@ -535,7 +535,7 @@ def get_resattnet(blocks,
     return net
 
 
-def resattnet56(**kwargs):
+def resattnet56(**kwargs) -> nn.Module:
     """
     ResAttNet-56 model from 'Residual Attention Network for Image Classification,' https://arxiv.org/abs/1704.06904.
 
@@ -551,10 +551,13 @@ def resattnet56(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resattnet(blocks=56, model_name="resattnet56", **kwargs)
+    return get_resattnet(
+        blocks=56,
+        model_name="resattnet56",
+        **kwargs)
 
 
-def resattnet92(**kwargs):
+def resattnet92(**kwargs) -> nn.Module:
     """
     ResAttNet-92 model from 'Residual Attention Network for Image Classification,' https://arxiv.org/abs/1704.06904.
 
@@ -570,10 +573,13 @@ def resattnet92(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resattnet(blocks=92, model_name="resattnet92", **kwargs)
+    return get_resattnet(
+        blocks=92,
+        model_name="resattnet92",
+        **kwargs)
 
 
-def resattnet128(**kwargs):
+def resattnet128(**kwargs) -> nn.Module:
     """
     ResAttNet-128 model from 'Residual Attention Network for Image Classification,' https://arxiv.org/abs/1704.06904.
 
@@ -589,10 +595,13 @@ def resattnet128(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resattnet(blocks=128, model_name="resattnet128", **kwargs)
+    return get_resattnet(
+        blocks=128,
+        model_name="resattnet128",
+        **kwargs)
 
 
-def resattnet164(**kwargs):
+def resattnet164(**kwargs) -> nn.Module:
     """
     ResAttNet-164 model from 'Residual Attention Network for Image Classification,' https://arxiv.org/abs/1704.06904.
 
@@ -608,10 +617,13 @@ def resattnet164(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resattnet(blocks=164, model_name="resattnet164", **kwargs)
+    return get_resattnet(
+        blocks=164,
+        model_name="resattnet164",
+        **kwargs)
 
 
-def resattnet200(**kwargs):
+def resattnet200(**kwargs) -> nn.Module:
     """
     ResAttNet-200 model from 'Residual Attention Network for Image Classification,' https://arxiv.org/abs/1704.06904.
 
@@ -627,10 +639,13 @@ def resattnet200(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resattnet(blocks=200, model_name="resattnet200", **kwargs)
+    return get_resattnet(
+        blocks=200,
+        model_name="resattnet200",
+        **kwargs)
 
 
-def resattnet236(**kwargs):
+def resattnet236(**kwargs) -> nn.Module:
     """
     ResAttNet-236 model from 'Residual Attention Network for Image Classification,' https://arxiv.org/abs/1704.06904.
 
@@ -646,10 +661,13 @@ def resattnet236(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resattnet(blocks=236, model_name="resattnet236", **kwargs)
+    return get_resattnet(
+        blocks=236,
+        model_name="resattnet236",
+        **kwargs)
 
 
-def resattnet452(**kwargs):
+def resattnet452(**kwargs) -> nn.Module:
     """
     ResAttNet-452 model from 'Residual Attention Network for Image Classification,' https://arxiv.org/abs/1704.06904.
 
@@ -665,7 +683,10 @@ def resattnet452(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resattnet(blocks=452, model_name="resattnet452", **kwargs)
+    return get_resattnet(
+        blocks=452,
+        model_name="resattnet452",
+        **kwargs)
 
 
 def _test():

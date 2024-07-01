@@ -203,7 +203,7 @@ def get_pspnet(backbone,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
-               **kwargs):
+               **kwargs) -> nn.Module:
     """
     Create PSPNet model with specific parameters.
 
@@ -245,7 +245,10 @@ def get_pspnet(backbone,
     return net
 
 
-def pspnet_resnetd50b_voc(pretrained_backbone=False, num_classes=21, aux=True, **kwargs):
+def pspnet_resnetd50b_voc(pretrained_backbone=False,
+                          num_classes=21,
+                          aux=True,
+                          **kwargs) -> nn.Module:
     """
     PSPNet model on the base of ResNet(D)-50b for Pascal VOC from 'Pyramid Scene Parsing Network,'
     https://arxiv.org/abs/1612.01105.
@@ -268,12 +271,23 @@ def pspnet_resnetd50b_voc(pretrained_backbone=False, num_classes=21, aux=True, *
     nn.Module
         Desired module.
     """
-    backbone = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd50b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_pspnet(backbone=backbone, num_classes=num_classes, aux=aux, model_name="pspnet_resnetd50b_voc", **kwargs)
+    return get_pspnet(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="pspnet_resnetd50b_voc",
+        **kwargs)
 
 
-def pspnet_resnetd101b_voc(pretrained_backbone=False, num_classes=21, aux=True, **kwargs):
+def pspnet_resnetd101b_voc(pretrained_backbone=False,
+                           num_classes=21,
+                           aux=True,
+                           **kwargs) -> nn.Module:
     """
     PSPNet model on the base of ResNet(D)-101b for Pascal VOC from 'Pyramid Scene Parsing Network,'
     https://arxiv.org/abs/1612.01105.
@@ -296,13 +310,23 @@ def pspnet_resnetd101b_voc(pretrained_backbone=False, num_classes=21, aux=True, 
     nn.Module
         Desired module.
     """
-    backbone = resnetd101b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd101b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_pspnet(backbone=backbone, num_classes=num_classes, aux=aux, model_name="pspnet_resnetd101b_voc",
-                      **kwargs)
+    return get_pspnet(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="pspnet_resnetd101b_voc",
+        **kwargs)
 
 
-def pspnet_resnetd50b_coco(pretrained_backbone=False, num_classes=21, aux=True, **kwargs):
+def pspnet_resnetd50b_coco(pretrained_backbone=False,
+                           num_classes=21,
+                           aux=True,
+                           **kwargs) -> nn.Module:
     """
     PSPNet model on the base of ResNet(D)-50b for COCO from 'Pyramid Scene Parsing Network,'
     https://arxiv.org/abs/1612.01105.
@@ -325,13 +349,23 @@ def pspnet_resnetd50b_coco(pretrained_backbone=False, num_classes=21, aux=True, 
     nn.Module
         Desired module.
     """
-    backbone = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd50b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_pspnet(backbone=backbone, num_classes=num_classes, aux=aux, model_name="pspnet_resnetd50b_coco",
-                      **kwargs)
+    return get_pspnet(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="pspnet_resnetd50b_coco",
+        **kwargs)
 
 
-def pspnet_resnetd101b_coco(pretrained_backbone=False, num_classes=21, aux=True, **kwargs):
+def pspnet_resnetd101b_coco(pretrained_backbone=False,
+                            num_classes=21,
+                            aux=True,
+                            **kwargs) -> nn.Module:
     """
     PSPNet model on the base of ResNet(D)-101b for COCO from 'Pyramid Scene Parsing Network,'
     https://arxiv.org/abs/1612.01105.
@@ -354,13 +388,23 @@ def pspnet_resnetd101b_coco(pretrained_backbone=False, num_classes=21, aux=True,
     nn.Module
         Desired module.
     """
-    backbone = resnetd101b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd101b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_pspnet(backbone=backbone, num_classes=num_classes, aux=aux, model_name="pspnet_resnetd101b_coco",
-                      **kwargs)
+    return get_pspnet(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="pspnet_resnetd101b_coco",
+        **kwargs)
 
 
-def pspnet_resnetd50b_ade20k(pretrained_backbone=False, num_classes=150, aux=True, **kwargs):
+def pspnet_resnetd50b_ade20k(pretrained_backbone=False,
+                             num_classes=150,
+                             aux=True,
+                             **kwargs) -> nn.Module:
     """
     PSPNet model on the base of ResNet(D)-50b for ADE20K from 'Pyramid Scene Parsing Network,'
     https://arxiv.org/abs/1612.01105.
@@ -383,13 +427,23 @@ def pspnet_resnetd50b_ade20k(pretrained_backbone=False, num_classes=150, aux=Tru
     nn.Module
         Desired module.
     """
-    backbone = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd50b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_pspnet(backbone=backbone, num_classes=num_classes, aux=aux, model_name="pspnet_resnetd50b_ade20k",
-                      **kwargs)
+    return get_pspnet(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="pspnet_resnetd50b_ade20k",
+        **kwargs)
 
 
-def pspnet_resnetd101b_ade20k(pretrained_backbone=False, num_classes=150, aux=True, **kwargs):
+def pspnet_resnetd101b_ade20k(pretrained_backbone=False,
+                              num_classes=150,
+                              aux=True,
+                              **kwargs) -> nn.Module:
     """
     PSPNet model on the base of ResNet(D)-101b for ADE20K from 'Pyramid Scene Parsing Network,'
     https://arxiv.org/abs/1612.01105.
@@ -412,13 +466,23 @@ def pspnet_resnetd101b_ade20k(pretrained_backbone=False, num_classes=150, aux=Tr
     nn.Module
         Desired module.
     """
-    backbone = resnetd101b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd101b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_pspnet(backbone=backbone, num_classes=num_classes, aux=aux, model_name="pspnet_resnetd101b_ade20k",
-                      **kwargs)
+    return get_pspnet(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="pspnet_resnetd101b_ade20k",
+        **kwargs)
 
 
-def pspnet_resnetd50b_cityscapes(pretrained_backbone=False, num_classes=19, aux=True, **kwargs):
+def pspnet_resnetd50b_cityscapes(pretrained_backbone=False,
+                                 num_classes=19,
+                                 aux=True,
+                                 **kwargs) -> nn.Module:
     """
     PSPNet model on the base of ResNet(D)-50b for Cityscapes from 'Pyramid Scene Parsing Network,'
     https://arxiv.org/abs/1612.01105.
@@ -441,13 +505,23 @@ def pspnet_resnetd50b_cityscapes(pretrained_backbone=False, num_classes=19, aux=
     nn.Module
         Desired module.
     """
-    backbone = resnetd50b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd50b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_pspnet(backbone=backbone, num_classes=num_classes, aux=aux, model_name="pspnet_resnetd50b_cityscapes",
-                      **kwargs)
+    return get_pspnet(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="pspnet_resnetd50b_cityscapes",
+        **kwargs)
 
 
-def pspnet_resnetd101b_cityscapes(pretrained_backbone=False, num_classes=19, aux=True, **kwargs):
+def pspnet_resnetd101b_cityscapes(pretrained_backbone=False,
+                                  num_classes=19,
+                                  aux=True,
+                                  **kwargs) -> nn.Module:
     """
     PSPNet model on the base of ResNet(D)-101b for Cityscapes from 'Pyramid Scene Parsing Network,'
     https://arxiv.org/abs/1612.01105.
@@ -470,10 +544,17 @@ def pspnet_resnetd101b_cityscapes(pretrained_backbone=False, num_classes=19, aux
     nn.Module
         Desired module.
     """
-    backbone = resnetd101b(pretrained=pretrained_backbone, ordinary_init=False, bends=(3,)).features
+    backbone = resnetd101b(
+        pretrained=pretrained_backbone,
+        ordinary_init=False,
+        bends=(3,)).features
     del backbone[-1]
-    return get_pspnet(backbone=backbone, num_classes=num_classes, aux=aux, model_name="pspnet_resnetd101b_cityscapes",
-                      **kwargs)
+    return get_pspnet(
+        backbone=backbone,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="pspnet_resnetd101b_cityscapes",
+        **kwargs)
 
 
 def _test():
@@ -496,7 +577,10 @@ def _test():
 
     for model, num_classes in models:
 
-        net = model(pretrained=pretrained, in_size=in_size, aux=aux)
+        net = model(
+            pretrained=pretrained,
+            in_size=in_size,
+            aux=aux)
 
         # net.train()
         net.eval()

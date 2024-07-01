@@ -150,7 +150,7 @@ def get_igcv3(width_scale,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
-              **kwargs):
+              **kwargs) -> nn.Module:
     """
     Create IGCV3-D model with specific parameters.
 
@@ -170,7 +170,6 @@ def get_igcv3(width_scale,
     nn.Module
         Desired module.
     """
-
     init_block_channels = 32
     final_block_channels = 1280
     layers = [1, 4, 6, 8, 6, 6, 1]
@@ -209,7 +208,7 @@ def get_igcv3(width_scale,
     return net
 
 
-def igcv3_w1(**kwargs):
+def igcv3_w1(**kwargs) -> nn.Module:
     """
     IGCV3-D 1.0x model from 'IGCV3: Interleaved Low-Rank Group Convolutions for Efficient Deep Neural Networks,'
     https://arxiv.org/abs/1806.00178.
@@ -226,10 +225,13 @@ def igcv3_w1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_igcv3(width_scale=1.0, model_name="igcv3_w1", **kwargs)
+    return get_igcv3(
+        width_scale=1.0,
+        model_name="igcv3_w1",
+        **kwargs)
 
 
-def igcv3_w3d4(**kwargs):
+def igcv3_w3d4(**kwargs) -> nn.Module:
     """
     IGCV3-D 0.75x model from 'IGCV3: Interleaved Low-Rank Group Convolutions for Efficient Deep Neural Networks,'
     https://arxiv.org/abs/1806.00178.
@@ -246,10 +248,13 @@ def igcv3_w3d4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_igcv3(width_scale=0.75, model_name="igcv3_w3d4", **kwargs)
+    return get_igcv3(
+        width_scale=0.75,
+        model_name="igcv3_w3d4",
+        **kwargs)
 
 
-def igcv3_wd2(**kwargs):
+def igcv3_wd2(**kwargs) -> nn.Module:
     """
     IGCV3-D 0.5x model from 'IGCV3: Interleaved Low-Rank Group Convolutions for Efficient Deep Neural Networks,'
     https://arxiv.org/abs/1806.00178.
@@ -266,10 +271,13 @@ def igcv3_wd2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_igcv3(width_scale=0.5, model_name="igcv3_wd2", **kwargs)
+    return get_igcv3(
+        width_scale=0.5,
+        model_name="igcv3_wd2",
+        **kwargs)
 
 
-def igcv3_wd4(**kwargs):
+def igcv3_wd4(**kwargs) -> nn.Module:
     """
     IGCV3-D 0.25x model from 'IGCV3: Interleaved Low-Rank Group Convolutions for Efficient Deep Neural Networks,'
     https://arxiv.org/abs/1806.00178.
@@ -286,7 +294,10 @@ def igcv3_wd4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_igcv3(width_scale=0.25, model_name="igcv3_wd4", **kwargs)
+    return get_igcv3(
+        width_scale=0.25,
+        model_name="igcv3_wd4",
+        **kwargs)
 
 
 def _test():

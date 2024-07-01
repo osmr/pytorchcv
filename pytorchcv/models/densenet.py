@@ -182,7 +182,6 @@ def get_densenet(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 121:
         init_block_channels = 64
         growth_rate = 32
@@ -244,7 +243,10 @@ def densenet121(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet(blocks=121, model_name="densenet121", **kwargs)
+    return get_densenet(
+        blocks=121,
+        model_name="densenet121",
+        **kwargs)
 
 
 def densenet161(**kwargs) -> nn.Module:
@@ -263,7 +265,10 @@ def densenet161(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet(blocks=161, model_name="densenet161", **kwargs)
+    return get_densenet(
+        blocks=161,
+        model_name="densenet161",
+        **kwargs)
 
 
 def densenet169(**kwargs) -> nn.Module:
@@ -282,7 +287,10 @@ def densenet169(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet(blocks=169, model_name="densenet169", **kwargs)
+    return get_densenet(
+        blocks=169,
+        model_name="densenet169",
+        **kwargs)
 
 
 def densenet201(**kwargs) -> nn.Module:
@@ -301,7 +309,10 @@ def densenet201(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet(blocks=201, model_name="densenet201", **kwargs)
+    return get_densenet(
+        blocks=201,
+        model_name="densenet201",
+        **kwargs)
 
 
 def _test():

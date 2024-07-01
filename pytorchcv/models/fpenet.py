@@ -332,7 +332,7 @@ class FPENet(nn.Module):
 def get_fpenet(model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
-               **kwargs):
+               **kwargs) -> nn.Module:
     """
     Create FPENet model with specific parameters.
 
@@ -377,7 +377,8 @@ def get_fpenet(model_name: str | None = None,
     return net
 
 
-def fpenet_cityscapes(num_classes=19, **kwargs):
+def fpenet_cityscapes(num_classes=19,
+                      **kwargs) -> nn.Module:
     """
     FPENet model for Cityscapes from 'Feature Pyramid Encoding Network for Real-time Semantic Segmentation,'
     https://arxiv.org/abs/1909.08599.
@@ -396,7 +397,10 @@ def fpenet_cityscapes(num_classes=19, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_fpenet(num_classes=num_classes, model_name="fpenet_cityscapes", **kwargs)
+    return get_fpenet(
+        num_classes=num_classes,
+        model_name="fpenet_cityscapes",
+        **kwargs)
 
 
 def _test():

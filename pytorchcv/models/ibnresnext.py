@@ -203,7 +203,7 @@ def get_ibnresnext(blocks,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),
-                   **kwargs):
+                   **kwargs) -> nn.Module:
     """
     Create IBN-ResNeXt model with specific parameters.
 
@@ -227,7 +227,6 @@ def get_ibnresnext(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 50:
         layers = [3, 4, 6, 3]
     elif blocks == 101:
@@ -259,7 +258,7 @@ def get_ibnresnext(blocks,
     return net
 
 
-def ibn_resnext50_32x4d(**kwargs):
+def ibn_resnext50_32x4d(**kwargs) -> nn.Module:
     """
     IBN-ResNeXt-50 (32x4d) model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -276,10 +275,15 @@ def ibn_resnext50_32x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibnresnext(blocks=50, cardinality=32, bottleneck_width=4, model_name="ibn_resnext50_32x4d", **kwargs)
+    return get_ibnresnext(
+        blocks=50,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="ibn_resnext50_32x4d",
+        **kwargs)
 
 
-def ibn_resnext101_32x4d(**kwargs):
+def ibn_resnext101_32x4d(**kwargs) -> nn.Module:
     """
     IBN-ResNeXt-101 (32x4d) model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -296,10 +300,15 @@ def ibn_resnext101_32x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibnresnext(blocks=101, cardinality=32, bottleneck_width=4, model_name="ibn_resnext101_32x4d", **kwargs)
+    return get_ibnresnext(
+        blocks=101,
+        cardinality=32,
+        bottleneck_width=4,
+        model_name="ibn_resnext101_32x4d",
+        **kwargs)
 
 
-def ibn_resnext101_64x4d(**kwargs):
+def ibn_resnext101_64x4d(**kwargs) -> nn.Module:
     """
     IBN-ResNeXt-101 (64x4d) model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -316,7 +325,12 @@ def ibn_resnext101_64x4d(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibnresnext(blocks=101, cardinality=64, bottleneck_width=4, model_name="ibn_resnext101_64x4d", **kwargs)
+    return get_ibnresnext(
+        blocks=101,
+        cardinality=64,
+        bottleneck_width=4,
+        model_name="ibn_resnext101_64x4d",
+        **kwargs)
 
 
 def _test():

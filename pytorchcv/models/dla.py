@@ -456,8 +456,12 @@ def dla34(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dla(levels=[1, 2, 2, 1], channels=[64, 128, 256, 512], res_body_class=ResBlock, model_name="dla34",
-                   **kwargs)
+    return get_dla(
+        levels=[1, 2, 2, 1],
+        channels=[64, 128, 256, 512],
+        res_body_class=ResBlock,
+        model_name="dla34",
+        **kwargs)
 
 
 def dla46c(**kwargs) -> nn.Module:
@@ -476,8 +480,12 @@ def dla46c(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dla(levels=[1, 2, 2, 1], channels=[64, 64, 128, 256], res_body_class=DLABottleneck, model_name="dla46c",
-                   **kwargs)
+    return get_dla(
+        levels=[1, 2, 2, 1],
+        channels=[64, 64, 128, 256],
+        res_body_class=DLABottleneck,
+        model_name="dla46c",
+        **kwargs)
 
 
 def dla46xc(**kwargs) -> nn.Module:
@@ -496,8 +504,12 @@ def dla46xc(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dla(levels=[1, 2, 2, 1], channels=[64, 64, 128, 256], res_body_class=DLABottleneckX,
-                   model_name="dla46xc", **kwargs)
+    return get_dla(
+        levels=[1, 2, 2, 1],
+        channels=[64, 64, 128, 256],
+        res_body_class=DLABottleneckX,
+        model_name="dla46xc",
+        **kwargs)
 
 
 def dla60(**kwargs) -> nn.Module:
@@ -516,8 +528,12 @@ def dla60(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dla(levels=[1, 2, 3, 1], channels=[128, 256, 512, 1024], res_body_class=DLABottleneck,
-                   model_name="dla60", **kwargs)
+    return get_dla(
+        levels=[1, 2, 3, 1],
+        channels=[128, 256, 512, 1024],
+        res_body_class=DLABottleneck,
+        model_name="dla60",
+        **kwargs)
 
 
 def dla60x(**kwargs) -> nn.Module:
@@ -536,8 +552,12 @@ def dla60x(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dla(levels=[1, 2, 3, 1], channels=[128, 256, 512, 1024], res_body_class=DLABottleneckX,
-                   model_name="dla60x", **kwargs)
+    return get_dla(
+        levels=[1, 2, 3, 1],
+        channels=[128, 256, 512, 1024],
+        res_body_class=DLABottleneckX,
+        model_name="dla60x",
+        **kwargs)
 
 
 def dla60xc(**kwargs) -> nn.Module:
@@ -556,8 +576,12 @@ def dla60xc(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dla(levels=[1, 2, 3, 1], channels=[64, 64, 128, 256], res_body_class=DLABottleneckX,
-                   model_name="dla60xc", **kwargs)
+    return get_dla(
+        levels=[1, 2, 3, 1],
+        channels=[64, 64, 128, 256],
+        res_body_class=DLABottleneckX,
+        model_name="dla60xc",
+        **kwargs)
 
 
 def dla102(**kwargs) -> nn.Module:
@@ -576,8 +600,13 @@ def dla102(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dla(levels=[1, 3, 4, 1], channels=[128, 256, 512, 1024], res_body_class=DLABottleneck,
-                   residual_root=True, model_name="dla102", **kwargs)
+    return get_dla(
+        levels=[1, 3, 4, 1],
+        channels=[128, 256, 512, 1024],
+        res_body_class=DLABottleneck,
+        residual_root=True,
+        model_name="dla102",
+        **kwargs)
 
 
 def dla102x(**kwargs) -> nn.Module:
@@ -596,8 +625,13 @@ def dla102x(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dla(levels=[1, 3, 4, 1], channels=[128, 256, 512, 1024], res_body_class=DLABottleneckX,
-                   residual_root=True, model_name="dla102x", **kwargs)
+    return get_dla(
+        levels=[1, 3, 4, 1],
+        channels=[128, 256, 512, 1024],
+        res_body_class=DLABottleneckX,
+        residual_root=True,
+        model_name="dla102x",
+        **kwargs)
 
 
 def dla102x2(**kwargs) -> nn.Module:
@@ -620,8 +654,13 @@ def dla102x2(**kwargs) -> nn.Module:
         def __init__(self, in_channels, out_channels, stride):
             super(DLABottleneckX64, self).__init__(in_channels, out_channels, stride, cardinality=64)
 
-    return get_dla(levels=[1, 3, 4, 1], channels=[128, 256, 512, 1024], res_body_class=DLABottleneckX64,
-                   residual_root=True, model_name="dla102x2", **kwargs)
+    return get_dla(
+        levels=[1, 3, 4, 1],
+        channels=[128, 256, 512, 1024],
+        res_body_class=DLABottleneckX64,
+        residual_root=True,
+        model_name="dla102x2",
+        **kwargs)
 
 
 def dla169(**kwargs) -> nn.Module:
@@ -640,8 +679,13 @@ def dla169(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dla(levels=[2, 3, 5, 1], channels=[128, 256, 512, 1024], res_body_class=DLABottleneck,
-                   residual_root=True, model_name="dla169", **kwargs)
+    return get_dla(
+        levels=[2, 3, 5, 1],
+        channels=[128, 256, 512, 1024],
+        res_body_class=DLABottleneck,
+        residual_root=True,
+        model_name="dla169",
+        **kwargs)
 
 
 def _test():

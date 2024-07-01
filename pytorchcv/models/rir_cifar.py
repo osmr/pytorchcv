@@ -216,7 +216,7 @@ def get_rir_cifar(num_classes,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create RiR model for CIFAR with specific parameters.
 
@@ -236,7 +236,6 @@ def get_rir_cifar(num_classes,
     nn.Module
         Desired module.
     """
-
     channels = [[48, 48, 48, 48], [96, 96, 96, 96, 96, 96], [192, 192, 192, 192, 192, 192]]
     init_block_channels = 48
     final_block_channels = 384
@@ -260,7 +259,8 @@ def get_rir_cifar(num_classes,
     return net
 
 
-def rir_cifar10(num_classes=10, **kwargs):
+def rir_cifar10(num_classes=10,
+                **kwargs) -> nn.Module:
     """
     RiR model for CIFAR-10 from 'Resnet in Resnet: Generalizing Residual Architectures,'
     https://arxiv.org/abs/1603.08029.
@@ -279,10 +279,14 @@ def rir_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_rir_cifar(num_classes=num_classes, model_name="rir_cifar10", **kwargs)
+    return get_rir_cifar(
+        num_classes=num_classes,
+        model_name="rir_cifar10",
+        **kwargs)
 
 
-def rir_cifar100(num_classes=100, **kwargs):
+def rir_cifar100(num_classes=100,
+                 **kwargs) -> nn.Module:
     """
     RiR model for CIFAR-100 from 'Resnet in Resnet: Generalizing Residual Architectures,'
     https://arxiv.org/abs/1603.08029.
@@ -301,10 +305,14 @@ def rir_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_rir_cifar(num_classes=num_classes, model_name="rir_cifar100", **kwargs)
+    return get_rir_cifar(
+        num_classes=num_classes,
+        model_name="rir_cifar100",
+        **kwargs)
 
 
-def rir_svhn(num_classes=10, **kwargs):
+def rir_svhn(num_classes=10,
+             **kwargs) -> nn.Module:
     """
     RiR model for SVHN from 'Resnet in Resnet: Generalizing Residual Architectures,'
     https://arxiv.org/abs/1603.08029.
@@ -323,7 +331,10 @@ def rir_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_rir_cifar(num_classes=num_classes, model_name="rir_svhn", **kwargs)
+    return get_rir_cifar(
+        num_classes=num_classes,
+        model_name="rir_svhn",
+        **kwargs)
 
 
 def _test():

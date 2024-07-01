@@ -31,7 +31,7 @@ class IBNPreConvBlock(nn.Module):
     padding : int or tuple(int, int)
         Padding value for convolution layer.
     use_ibn : bool, default False
-        Whether use Instance-Batch Normalization.
+        Whether to use Instance-Batch Normalization.
     return_preact : bool, default False
         Whether return pre-activation. It's used by PreResNet.
     """
@@ -236,7 +236,7 @@ def get_ibndensenet(num_layers,
                     model_name: str | None = None,
                     pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),
-                    **kwargs):
+                    **kwargs) -> nn.Module:
     """
     Create IBN-DenseNet model with specific parameters.
 
@@ -256,7 +256,6 @@ def get_ibndensenet(num_layers,
     nn.Module
         Desired module.
     """
-
     if num_layers == 121:
         init_block_channels = 64
         growth_rate = 32
@@ -302,7 +301,7 @@ def get_ibndensenet(num_layers,
     return net
 
 
-def ibn_densenet121(**kwargs):
+def ibn_densenet121(**kwargs) -> nn.Module:
     """
     IBN-DenseNet-121 model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -319,10 +318,13 @@ def ibn_densenet121(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibndensenet(num_layers=121, model_name="ibn_densenet121", **kwargs)
+    return get_ibndensenet(
+        num_layers=121,
+        model_name="ibn_densenet121",
+        **kwargs)
 
 
-def ibn_densenet161(**kwargs):
+def ibn_densenet161(**kwargs) -> nn.Module:
     """
     IBN-DenseNet-161 model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -339,10 +341,13 @@ def ibn_densenet161(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibndensenet(num_layers=161, model_name="ibn_densenet161", **kwargs)
+    return get_ibndensenet(
+        num_layers=161,
+        model_name="ibn_densenet161",
+        **kwargs)
 
 
-def ibn_densenet169(**kwargs):
+def ibn_densenet169(**kwargs) -> nn.Module:
     """
     IBN-DenseNet-169 model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -359,10 +364,13 @@ def ibn_densenet169(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibndensenet(num_layers=169, model_name="ibn_densenet169", **kwargs)
+    return get_ibndensenet(
+        num_layers=169,
+        model_name="ibn_densenet169",
+        **kwargs)
 
 
-def ibn_densenet201(**kwargs):
+def ibn_densenet201(**kwargs) -> nn.Module:
     """
     IBN-DenseNet-201 model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -379,7 +387,10 @@ def ibn_densenet201(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibndensenet(num_layers=201, model_name="ibn_densenet201", **kwargs)
+    return get_ibndensenet(
+        num_layers=201,
+        model_name="ibn_densenet201",
+        **kwargs)
 
 
 def _test():

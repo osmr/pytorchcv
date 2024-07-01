@@ -1159,7 +1159,7 @@ def get_nasnet(repeat,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
-               **kwargs):
+               **kwargs) -> nn.Module:
     """
     Create NASNet-A model with specific parameters.
 
@@ -1223,7 +1223,7 @@ def get_nasnet(repeat,
     return net
 
 
-def nasnet_4a1056(**kwargs):
+def nasnet_4a1056(**kwargs) -> nn.Module:
     """
     NASNet-A 4@1056 (NASNet-A-Mobile) model from 'Learning Transferable Architectures for Scalable Image Recognition,'
     https://arxiv.org/abs/1707.07012.
@@ -1252,7 +1252,7 @@ def nasnet_4a1056(**kwargs):
         **kwargs)
 
 
-def nasnet_6a4032(**kwargs):
+def nasnet_6a4032(**kwargs) -> nn.Module:
     """
     NASNet-A 6@4032 (NASNet-A-Large) model from 'Learning Transferable Architectures for Scalable Image Recognition,'
     https://arxiv.org/abs/1707.07012.

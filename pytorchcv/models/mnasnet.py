@@ -262,7 +262,7 @@ def get_mnasnet(version,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create MnasNet model with specific parameters.
 
@@ -341,7 +341,7 @@ def get_mnasnet(version,
     return net
 
 
-def mnasnet_b1(**kwargs):
+def mnasnet_b1(**kwargs) -> nn.Module:
     """
     MnasNet-B1 model from 'MnasNet: Platform-Aware Neural Architecture Search for Mobile,'
     https://arxiv.org/abs/1807.11626.
@@ -358,10 +358,14 @@ def mnasnet_b1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mnasnet(version="b1", width_scale=1.0, model_name="mnasnet_b1", **kwargs)
+    return get_mnasnet(
+        version="b1",
+        width_scale=1.0,
+        model_name="mnasnet_b1",
+        **kwargs)
 
 
-def mnasnet_a1(**kwargs):
+def mnasnet_a1(**kwargs) -> nn.Module:
     """
     MnasNet-A1 model from 'MnasNet: Platform-Aware Neural Architecture Search for Mobile,'
     https://arxiv.org/abs/1807.11626.
@@ -378,10 +382,14 @@ def mnasnet_a1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mnasnet(version="a1", width_scale=1.0, model_name="mnasnet_a1", **kwargs)
+    return get_mnasnet(
+        version="a1",
+        width_scale=1.0,
+        model_name="mnasnet_a1",
+        **kwargs)
 
 
-def mnasnet_small(**kwargs):
+def mnasnet_small(**kwargs) -> nn.Module:
     """
     MnasNet-Small model from 'MnasNet: Platform-Aware Neural Architecture Search for Mobile,'
     https://arxiv.org/abs/1807.11626.
@@ -398,7 +406,11 @@ def mnasnet_small(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mnasnet(version="small", width_scale=1.0, model_name="mnasnet_small", **kwargs)
+    return get_mnasnet(
+        version="small",
+        width_scale=1.0,
+        model_name="mnasnet_small",
+        **kwargs)
 
 
 def _test():

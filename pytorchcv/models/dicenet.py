@@ -620,7 +620,10 @@ def dicenet_wd5(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dicenet(width_scale=0.2, model_name="dicenet_wd5", **kwargs)
+    return get_dicenet(
+        width_scale=0.2,
+        model_name="dicenet_wd5",
+        **kwargs)
 
 
 def dicenet_wd2(**kwargs) -> nn.Module:
@@ -640,7 +643,10 @@ def dicenet_wd2(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dicenet(width_scale=0.5, model_name="dicenet_wd2", **kwargs)
+    return get_dicenet(
+        width_scale=0.5,
+        model_name="dicenet_wd2",
+        **kwargs)
 
 
 def dicenet_w3d4(**kwargs) -> nn.Module:
@@ -660,7 +666,10 @@ def dicenet_w3d4(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dicenet(width_scale=0.75, model_name="dicenet_w3d4", **kwargs)
+    return get_dicenet(
+        width_scale=0.75,
+        model_name="dicenet_w3d4",
+        **kwargs)
 
 
 def dicenet_w1(**kwargs) -> nn.Module:
@@ -680,7 +689,10 @@ def dicenet_w1(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dicenet(width_scale=1.0, model_name="dicenet_w1", **kwargs)
+    return get_dicenet(
+        width_scale=1.0,
+        model_name="dicenet_w1",
+        **kwargs)
 
 
 def dicenet_w5d4(**kwargs) -> nn.Module:
@@ -700,7 +712,10 @@ def dicenet_w5d4(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dicenet(width_scale=1.25, model_name="dicenet_w5d4", **kwargs)
+    return get_dicenet(
+        width_scale=1.25,
+        model_name="dicenet_w5d4",
+        **kwargs)
 
 
 def dicenet_w3d2(**kwargs) -> nn.Module:
@@ -720,7 +735,10 @@ def dicenet_w3d2(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dicenet(width_scale=1.5, model_name="dicenet_w3d2", **kwargs)
+    return get_dicenet(
+        width_scale=1.5,
+        model_name="dicenet_w3d2",
+        **kwargs)
 
 
 def dicenet_w7d8(**kwargs) -> nn.Module:
@@ -740,7 +758,10 @@ def dicenet_w7d8(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dicenet(width_scale=1.75, model_name="dicenet_w7d8", **kwargs)
+    return get_dicenet(
+        width_scale=1.75,
+        model_name="dicenet_w7d8",
+        **kwargs)
 
 
 def dicenet_w2(**kwargs) -> nn.Module:
@@ -760,7 +781,10 @@ def dicenet_w2(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_dicenet(width_scale=2.0, model_name="dicenet_w2", **kwargs)
+    return get_dicenet(
+        width_scale=2.0,
+        model_name="dicenet_w2",
+        **kwargs)
 
 
 def _test():

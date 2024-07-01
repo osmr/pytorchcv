@@ -148,7 +148,7 @@ def get_resdropresnet_cifar(num_classes,
                             model_name: str | None = None,
                             pretrained: bool = False,
                             root: str = os.path.join("~", ".torch", "models"),
-                            **kwargs):
+                            **kwargs) -> nn.Module:
     """
     Create ResDrop-ResNet model for CIFAR with specific parameters.
 
@@ -214,7 +214,7 @@ def get_resdropresnet_cifar(num_classes,
 
 
 def resdropresnet20_cifar10(num_classes=10,
-                            **kwargs):
+                            **kwargs) -> nn.Module:
     """
     ResDrop-ResNet-20 model for CIFAR-10 from 'Deep Networks with Stochastic Depth,' https://arxiv.org/abs/1603.09382.
 
@@ -241,7 +241,7 @@ def resdropresnet20_cifar10(num_classes=10,
 
 
 def resdropresnet20_cifar100(num_classes=100,
-                             **kwargs):
+                             **kwargs) -> nn.Module:
     """
     ResDrop-ResNet-20 model for CIFAR-100 from 'Deep Networks with Stochastic Depth,' https://arxiv.org/abs/1603.09382.
 
@@ -268,7 +268,7 @@ def resdropresnet20_cifar100(num_classes=100,
 
 
 def resdropresnet20_svhn(num_classes=10,
-                         **kwargs):
+                         **kwargs) -> nn.Module:
     """
     ResDrop-ResNet-20 model for SVHN from 'Deep Networks with Stochastic Depth,' https://arxiv.org/abs/1603.09382.
 

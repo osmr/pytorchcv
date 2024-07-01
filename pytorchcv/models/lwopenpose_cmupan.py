@@ -638,7 +638,10 @@ def _test():
 
     for model, model_dim in models:
 
-        net = model(pretrained=pretrained, in_size=in_size, return_heatmap=return_heatmap)
+        net = model(
+            pretrained=pretrained,
+            in_size=in_size,
+            return_heatmap=return_heatmap)
 
         # net.train()
         net.eval()

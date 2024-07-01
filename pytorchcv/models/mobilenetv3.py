@@ -284,7 +284,7 @@ def get_mobilenetv3(version,
                     model_name: str | None = None,
                     pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),
-                    **kwargs):
+                    **kwargs) -> nn.Module:
     """
     Create MobileNetV3 model with specific parameters.
 
@@ -362,7 +362,7 @@ def get_mobilenetv3(version,
     return net
 
 
-def mobilenetv3_small_w7d20(**kwargs):
+def mobilenetv3_small_w7d20(**kwargs) -> nn.Module:
     """
     MobileNetV3 Small 224/0.35 model from 'Searching for MobileNetV3,' https://arxiv.org/abs/1905.02244.
 
@@ -378,10 +378,14 @@ def mobilenetv3_small_w7d20(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv3(version="small", width_scale=0.35, model_name="mobilenetv3_small_w7d20", **kwargs)
+    return get_mobilenetv3(
+        version="small",
+        width_scale=0.35,
+        model_name="mobilenetv3_small_w7d20",
+        **kwargs)
 
 
-def mobilenetv3_small_wd2(**kwargs):
+def mobilenetv3_small_wd2(**kwargs) -> nn.Module:
     """
     MobileNetV3 Small 224/0.5 model from 'Searching for MobileNetV3,' https://arxiv.org/abs/1905.02244.
 
@@ -397,10 +401,14 @@ def mobilenetv3_small_wd2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv3(version="small", width_scale=0.5, model_name="mobilenetv3_small_wd2", **kwargs)
+    return get_mobilenetv3(
+        version="small",
+        width_scale=0.5,
+        model_name="mobilenetv3_small_wd2",
+        **kwargs)
 
 
-def mobilenetv3_small_w3d4(**kwargs):
+def mobilenetv3_small_w3d4(**kwargs) -> nn.Module:
     """
     MobileNetV3 Small 224/0.75 model from 'Searching for MobileNetV3,' https://arxiv.org/abs/1905.02244.
 
@@ -416,10 +424,14 @@ def mobilenetv3_small_w3d4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv3(version="small", width_scale=0.75, model_name="mobilenetv3_small_w3d4", **kwargs)
+    return get_mobilenetv3(
+        version="small",
+        width_scale=0.75,
+        model_name="mobilenetv3_small_w3d4",
+        **kwargs)
 
 
-def mobilenetv3_small_w1(**kwargs):
+def mobilenetv3_small_w1(**kwargs) -> nn.Module:
     """
     MobileNetV3 Small 224/1.0 model from 'Searching for MobileNetV3,' https://arxiv.org/abs/1905.02244.
 
@@ -435,10 +447,14 @@ def mobilenetv3_small_w1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv3(version="small", width_scale=1.0, model_name="mobilenetv3_small_w1", **kwargs)
+    return get_mobilenetv3(
+        version="small",
+        width_scale=1.0,
+        model_name="mobilenetv3_small_w1",
+        **kwargs)
 
 
-def mobilenetv3_small_w5d4(**kwargs):
+def mobilenetv3_small_w5d4(**kwargs) -> nn.Module:
     """
     MobileNetV3 Small 224/1.25 model from 'Searching for MobileNetV3,' https://arxiv.org/abs/1905.02244.
 
@@ -454,10 +470,14 @@ def mobilenetv3_small_w5d4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv3(version="small", width_scale=1.25, model_name="mobilenetv3_small_w5d4", **kwargs)
+    return get_mobilenetv3(
+        version="small",
+        width_scale=1.25,
+        model_name="mobilenetv3_small_w5d4",
+        **kwargs)
 
 
-def mobilenetv3_large_w7d20(**kwargs):
+def mobilenetv3_large_w7d20(**kwargs) -> nn.Module:
     """
     MobileNetV3 Small 224/0.35 model from 'Searching for MobileNetV3,' https://arxiv.org/abs/1905.02244.
 
@@ -473,10 +493,14 @@ def mobilenetv3_large_w7d20(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv3(version="large", width_scale=0.35, model_name="mobilenetv3_small_w7d20", **kwargs)
+    return get_mobilenetv3(
+        version="large",
+        width_scale=0.35,
+        model_name="mobilenetv3_small_w7d20",
+        **kwargs)
 
 
-def mobilenetv3_large_wd2(**kwargs):
+def mobilenetv3_large_wd2(**kwargs) -> nn.Module:
     """
     MobileNetV3 Large 224/0.5 model from 'Searching for MobileNetV3,' https://arxiv.org/abs/1905.02244.
 
@@ -492,10 +516,14 @@ def mobilenetv3_large_wd2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv3(version="large", width_scale=0.5, model_name="mobilenetv3_large_wd2", **kwargs)
+    return get_mobilenetv3(
+        version="large",
+        width_scale=0.5,
+        model_name="mobilenetv3_large_wd2",
+        **kwargs)
 
 
-def mobilenetv3_large_w3d4(**kwargs):
+def mobilenetv3_large_w3d4(**kwargs) -> nn.Module:
     """
     MobileNetV3 Large 224/0.75 model from 'Searching for MobileNetV3,' https://arxiv.org/abs/1905.02244.
 
@@ -511,10 +539,14 @@ def mobilenetv3_large_w3d4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv3(version="large", width_scale=0.75, model_name="mobilenetv3_large_w3d4", **kwargs)
+    return get_mobilenetv3(
+        version="large",
+        width_scale=0.75,
+        model_name="mobilenetv3_large_w3d4",
+        **kwargs)
 
 
-def mobilenetv3_large_w1(**kwargs):
+def mobilenetv3_large_w1(**kwargs) -> nn.Module:
     """
     MobileNetV3 Large 224/1.0 model from 'Searching for MobileNetV3,' https://arxiv.org/abs/1905.02244.
 
@@ -530,10 +562,14 @@ def mobilenetv3_large_w1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv3(version="large", width_scale=1.0, model_name="mobilenetv3_large_w1", **kwargs)
+    return get_mobilenetv3(
+        version="large",
+        width_scale=1.0,
+        model_name="mobilenetv3_large_w1",
+        **kwargs)
 
 
-def mobilenetv3_large_w5d4(**kwargs):
+def mobilenetv3_large_w5d4(**kwargs) -> nn.Module:
     """
     MobileNetV3 Large 224/1.25 model from 'Searching for MobileNetV3,' https://arxiv.org/abs/1905.02244.
 
@@ -549,7 +585,11 @@ def mobilenetv3_large_w5d4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenetv3(version="large", width_scale=1.25, model_name="mobilenetv3_large_w5d4", **kwargs)
+    return get_mobilenetv3(
+        version="large",
+        width_scale=1.25,
+        model_name="mobilenetv3_large_w5d4",
+        **kwargs)
 
 
 def _test():

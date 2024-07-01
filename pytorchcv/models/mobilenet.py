@@ -99,7 +99,7 @@ def get_mobilenet(width_scale,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create MobileNet model with specific parameters.
 
@@ -153,7 +153,7 @@ def get_mobilenet(width_scale,
     return net
 
 
-def mobilenet_w1(**kwargs):
+def mobilenet_w1(**kwargs) -> nn.Module:
     """
     1.0 MobileNet-224 model from 'MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications,'
     https://arxiv.org/abs/1704.04861.
@@ -170,10 +170,13 @@ def mobilenet_w1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenet(width_scale=1.0, model_name="mobilenet_w1", **kwargs)
+    return get_mobilenet(
+        width_scale=1.0,
+        model_name="mobilenet_w1",
+        **kwargs)
 
 
-def mobilenet_w3d4(**kwargs):
+def mobilenet_w3d4(**kwargs) -> nn.Module:
     """
     0.75 MobileNet-224 model from 'MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications,'
     https://arxiv.org/abs/1704.04861.
@@ -190,10 +193,13 @@ def mobilenet_w3d4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenet(width_scale=0.75, model_name="mobilenet_w3d4", **kwargs)
+    return get_mobilenet(
+        width_scale=0.75,
+        model_name="mobilenet_w3d4",
+        **kwargs)
 
 
-def mobilenet_wd2(**kwargs):
+def mobilenet_wd2(**kwargs) -> nn.Module:
     """
     0.5 MobileNet-224 model from 'MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications,'
     https://arxiv.org/abs/1704.04861.
@@ -210,10 +216,13 @@ def mobilenet_wd2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenet(width_scale=0.5, model_name="mobilenet_wd2", **kwargs)
+    return get_mobilenet(
+        width_scale=0.5,
+        model_name="mobilenet_wd2",
+        **kwargs)
 
 
-def mobilenet_wd4(**kwargs):
+def mobilenet_wd4(**kwargs) -> nn.Module:
     """
     0.25 MobileNet-224 model from 'MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications,'
     https://arxiv.org/abs/1704.04861.
@@ -230,7 +239,10 @@ def mobilenet_wd4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_mobilenet(width_scale=0.25, model_name="mobilenet_wd4", **kwargs)
+    return get_mobilenet(
+        width_scale=0.25,
+        model_name="mobilenet_wd4",
+        **kwargs)
 
 
 def _test():

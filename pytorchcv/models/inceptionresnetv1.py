@@ -462,7 +462,7 @@ class InceptionResNetV1(nn.Module):
 def get_inceptionresnetv1(model_name: str | None = None,
                           pretrained: bool = False,
                           root: str = os.path.join("~", ".torch", "models"),
-                          **kwargs):
+                          **kwargs) -> nn.Module:
     """
     Create InceptionResNetV1 model with specific parameters.
 
@@ -494,7 +494,7 @@ def get_inceptionresnetv1(model_name: str | None = None,
     return net
 
 
-def inceptionresnetv1(**kwargs):
+def inceptionresnetv1(**kwargs) -> nn.Module:
     """
     InceptionResNetV1 model from 'Inception-v4, Inception-ResNet and the Impact of Residual Connections on Learning,'
     https://arxiv.org/abs/1602.07261.
@@ -511,7 +511,10 @@ def inceptionresnetv1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_inceptionresnetv1(model_name="inceptionresnetv1", bn_eps=1e-3, **kwargs)
+    return get_inceptionresnetv1(
+        model_name="inceptionresnetv1",
+        bn_eps=1e-3,
+        **kwargs)
 
 
 def _test():

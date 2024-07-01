@@ -265,7 +265,7 @@ def get_ibnbresnet(blocks,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),
-                   **kwargs):
+                   **kwargs) -> nn.Module:
     """
     Create IBN(b)-ResNet model with specific parameters.
 
@@ -285,7 +285,6 @@ def get_ibnbresnet(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 50:
         layers = [3, 4, 6, 3]
     elif blocks == 101:
@@ -316,7 +315,7 @@ def get_ibnbresnet(blocks,
     return net
 
 
-def ibnb_resnet50(**kwargs):
+def ibnb_resnet50(**kwargs) -> nn.Module:
     """
     IBN(b)-ResNet-50 model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -333,10 +332,13 @@ def ibnb_resnet50(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibnbresnet(blocks=50, model_name="ibnb_resnet50", **kwargs)
+    return get_ibnbresnet(
+        blocks=50,
+        model_name="ibnb_resnet50",
+        **kwargs)
 
 
-def ibnb_resnet101(**kwargs):
+def ibnb_resnet101(**kwargs) -> nn.Module:
     """
     IBN(b)-ResNet-101 model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -353,10 +355,13 @@ def ibnb_resnet101(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibnbresnet(blocks=101, model_name="ibnb_resnet101", **kwargs)
+    return get_ibnbresnet(
+        blocks=101,
+        model_name="ibnb_resnet101",
+        **kwargs)
 
 
-def ibnb_resnet152(**kwargs):
+def ibnb_resnet152(**kwargs) -> nn.Module:
     """
     IBN(b)-ResNet-152 model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -373,7 +378,10 @@ def ibnb_resnet152(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibnbresnet(blocks=152, model_name="ibnb_resnet152", **kwargs)
+    return get_ibnbresnet(
+        blocks=152,
+        model_name="ibnb_resnet152",
+        **kwargs)
 
 
 def _test():

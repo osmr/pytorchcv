@@ -122,7 +122,7 @@ class CondenseComplexConv(nn.Module):
         self.c_shuffle = ChannelShuffle(
             channels=out_channels,
             groups=groups)
-        self.register_buffer('index', torch.LongTensor(in_channels))
+        self.register_buffer("index", torch.LongTensor(in_channels))
         self.index.fill_(0)
 
     def forward(self, x):
@@ -285,7 +285,7 @@ class CondenseLinear(nn.Module):
         self.linear = nn.Linear(
             in_features=drop_in_features,
             out_features=out_features)
-        self.register_buffer('index', torch.LongTensor(drop_in_features))
+        self.register_buffer("index", torch.LongTensor(drop_in_features))
         self.index.fill_(0)
 
     def forward(self, x):
@@ -398,7 +398,6 @@ def get_condensenet(num_layers: int,
     nn.Module
         Desired module.
     """
-
     if num_layers == 74:
         init_block_channels = 16
         layers = [4, 6, 8, 10, 8]

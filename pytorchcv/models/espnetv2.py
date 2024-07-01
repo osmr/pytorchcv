@@ -443,7 +443,10 @@ def espnetv2_wd2(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_espnetv2(width_scale=0.5, model_name="espnetv2_wd2", **kwargs)
+    return get_espnetv2(
+        width_scale=0.5,
+        model_name="espnetv2_wd2",
+        **kwargs)
 
 
 def espnetv2_w1(**kwargs) -> nn.Module:
@@ -463,7 +466,10 @@ def espnetv2_w1(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_espnetv2(width_scale=1.0, model_name="espnetv2_w1", **kwargs)
+    return get_espnetv2(
+        width_scale=1.0,
+        model_name="espnetv2_w1",
+        **kwargs)
 
 
 def espnetv2_w5d4(**kwargs) -> nn.Module:
@@ -483,7 +489,10 @@ def espnetv2_w5d4(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_espnetv2(width_scale=1.25, model_name="espnetv2_w5d4", **kwargs)
+    return get_espnetv2(
+        width_scale=1.25,
+        model_name="espnetv2_w5d4",
+        **kwargs)
 
 
 def espnetv2_w3d2(**kwargs) -> nn.Module:
@@ -503,7 +512,10 @@ def espnetv2_w3d2(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_espnetv2(width_scale=1.5, model_name="espnetv2_w3d2", **kwargs)
+    return get_espnetv2(
+        width_scale=1.5,
+        model_name="espnetv2_w3d2",
+        **kwargs)
 
 
 def espnetv2_w2(**kwargs) -> nn.Module:
@@ -523,7 +535,10 @@ def espnetv2_w2(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_espnetv2(width_scale=2.0, model_name="espnetv2_w2", **kwargs)
+    return get_espnetv2(
+        width_scale=2.0,
+        model_name="espnetv2_w2",
+        **kwargs)
 
 
 def _test():

@@ -35,7 +35,7 @@ class IBNConvBlock(nn.Module):
     bias : bool, default False
         Whether the layer uses a bias vector.
     use_ibn : bool, default False
-        Whether use Instance-Batch Normalization.
+        Whether to use Instance-Batch Normalization.
     activate : bool, default True
         Whether activate the convolution block.
     """
@@ -284,7 +284,7 @@ def get_ibnresnet(blocks,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create IBN-ResNet model with specific parameters.
 
@@ -304,7 +304,6 @@ def get_ibnresnet(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 50:
         layers = [3, 4, 6, 3]
     elif blocks == 101:
@@ -335,7 +334,7 @@ def get_ibnresnet(blocks,
     return net
 
 
-def ibn_resnet50(**kwargs):
+def ibn_resnet50(**kwargs) -> nn.Module:
     """
     IBN-ResNet-50 model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -352,10 +351,13 @@ def ibn_resnet50(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibnresnet(blocks=50, model_name="ibn_resnet50", **kwargs)
+    return get_ibnresnet(
+        blocks=50,
+        model_name="ibn_resnet50",
+        **kwargs)
 
 
-def ibn_resnet101(**kwargs):
+def ibn_resnet101(**kwargs) -> nn.Module:
     """
     IBN-ResNet-101 model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -372,10 +374,13 @@ def ibn_resnet101(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibnresnet(blocks=101, model_name="ibn_resnet101", **kwargs)
+    return get_ibnresnet(
+        blocks=101,
+        model_name="ibn_resnet101",
+        **kwargs)
 
 
-def ibn_resnet152(**kwargs):
+def ibn_resnet152(**kwargs) -> nn.Module:
     """
     IBN-ResNet-152 model from 'Two at Once: Enhancing Learning and Generalization Capacities via IBN-Net,'
     https://arxiv.org/abs/1807.09441.
@@ -392,7 +397,10 @@ def ibn_resnet152(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibnresnet(blocks=152, model_name="ibn_resnet152", **kwargs)
+    return get_ibnresnet(
+        blocks=152,
+        model_name="ibn_resnet152",
+        **kwargs)
 
 
 def _test():

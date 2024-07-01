@@ -277,7 +277,7 @@ class PeleeNet(nn.Module):
 def get_peleenet(model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),
-                 **kwargs):
+                 **kwargs) -> nn.Module:
     """
     Create PeleeNet model with specific parameters.
 
@@ -327,7 +327,7 @@ def get_peleenet(model_name: str | None = None,
     return net
 
 
-def peleenet(**kwargs):
+def peleenet(**kwargs) -> nn.Module:
     """
     PeleeNet model from 'Pelee: A Real-Time Object Detection System on Mobile Devices,'
     https://arxiv.org/abs/1804.06882.
@@ -344,7 +344,9 @@ def peleenet(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_peleenet(model_name="peleenet", **kwargs)
+    return get_peleenet(
+        model_name="peleenet",
+        **kwargs)
 
 
 def _test():

@@ -319,7 +319,7 @@ def get_ntsnet(backbone,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
-               **kwargs):
+               **kwargs) -> nn.Module:
     """
     Create NTS-Net model with specific parameters.
 
@@ -358,7 +358,9 @@ def get_ntsnet(backbone,
     return net
 
 
-def ntsnet_cub(pretrained_backbone=False, aux=True, **kwargs):
+def ntsnet_cub(pretrained_backbone=False,
+               aux=True,
+               **kwargs) -> nn.Module:
     """
     NTS-Net model from 'Learning to Navigate for Fine-grained Classification,' https://arxiv.org/abs/1809.00287.
 
@@ -380,7 +382,11 @@ def ntsnet_cub(pretrained_backbone=False, aux=True, **kwargs):
     """
     backbone = resnet50b(pretrained=pretrained_backbone).features
     del backbone[-1]
-    return get_ntsnet(backbone=backbone, aux=aux, model_name="ntsnet_cub", **kwargs)
+    return get_ntsnet(
+        backbone=backbone,
+        aux=aux,
+        model_name="ntsnet_cub",
+        **kwargs)
 
 
 def _test():

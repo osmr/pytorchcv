@@ -501,7 +501,9 @@ def bninception(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_bninception(model_name="bninception", **kwargs)
+    return get_bninception(
+        model_name="bninception",
+        **kwargs)
 
 
 def _test():

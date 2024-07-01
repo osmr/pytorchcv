@@ -153,18 +153,17 @@ def get_darknet(version,
     nn.Module
         Desired module.
     """
-
-    if version == 'ref':
+    if version == "ref":
         channels = [[16], [32], [64], [128], [256], [512], [1024]]
         odd_pointwise = False
         avg_pool_size = 3
         cls_activ = True
-    elif version == 'tiny':
+    elif version == "tiny":
         channels = [[16], [32], [16, 128, 16, 128], [32, 256, 32, 256], [64, 512, 64, 512, 128]]
         odd_pointwise = True
         avg_pool_size = 14
         cls_activ = False
-    elif version == '19':
+    elif version == "19":
         channels = [[32], [64], [128, 64, 128], [256, 128, 256], [512, 256, 512, 256, 512],
                     [1024, 512, 1024, 512, 1024]]
         odd_pointwise = False
@@ -208,7 +207,10 @@ def darknet_ref(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_darknet(version="ref", model_name="darknet_ref", **kwargs)
+    return get_darknet(
+        version="ref",
+        model_name="darknet_ref",
+        **kwargs)
 
 
 def darknet_tiny(**kwargs) -> nn.Module:
@@ -227,7 +229,10 @@ def darknet_tiny(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_darknet(version="tiny", model_name="darknet_tiny", **kwargs)
+    return get_darknet(
+        version="tiny",
+        model_name="darknet_tiny",
+        **kwargs)
 
 
 def darknet19(**kwargs) -> nn.Module:
@@ -246,7 +251,10 @@ def darknet19(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_darknet(version="19", model_name="darknet19", **kwargs)
+    return get_darknet(
+        version="19",
+        model_name="darknet19",
+        **kwargs)
 
 
 def _test():

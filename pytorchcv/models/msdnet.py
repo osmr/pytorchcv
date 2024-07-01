@@ -463,7 +463,7 @@ def get_msdnet(blocks,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
-               **kwargs):
+               **kwargs) -> nn.Module:
     """
     Create MSDNet model with specific parameters.
 
@@ -483,7 +483,6 @@ def get_msdnet(blocks,
     nn.Module
         Desired module.
     """
-
     assert (blocks == 22)
 
     num_scales = 4
@@ -567,7 +566,7 @@ def get_msdnet(blocks,
     return net
 
 
-def msdnet22(**kwargs):
+def msdnet22(**kwargs) -> nn.Module:
     """
     MSDNet-22 model from 'Multi-Scale Dense Networks for Resource Efficient Image Classification,'
     https://arxiv.org/abs/1703.09844.
@@ -584,7 +583,10 @@ def msdnet22(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_msdnet(blocks=22, model_name="msdnet22", **kwargs)
+    return get_msdnet(
+        blocks=22,
+        model_name="msdnet22",
+        **kwargs)
 
 
 def _test():

@@ -348,7 +348,8 @@ def get_espcnet(model_name: str | None = None,
     return net
 
 
-def espcnet_cityscapes(num_classes=19, **kwargs) -> nn.Module:
+def espcnet_cityscapes(num_classes=19,
+                       **kwargs) -> nn.Module:
     """
     ESPNet-C model for Cityscapes from 'ESPNet: Efficient Spatial Pyramid of Dilated Convolutions for Semantic
     Segmentation,' https://arxiv.org/abs/1803.06815.
@@ -367,7 +368,10 @@ def espcnet_cityscapes(num_classes=19, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_espcnet(num_classes=num_classes, model_name="espcnet_cityscapes", **kwargs)
+    return get_espcnet(
+        num_classes=num_classes,
+        model_name="espcnet_cityscapes",
+        **kwargs)
 
 
 def _test():
@@ -382,7 +386,10 @@ def _test():
 
     for model in models:
 
-        net = model(pretrained=pretrained, in_size=in_size, fixed_size=fixed_size)
+        net = model(
+            pretrained=pretrained,
+            in_size=in_size,
+            fixed_size=fixed_size)
 
         # net.train()
         net.eval()

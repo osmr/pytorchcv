@@ -301,7 +301,7 @@ def get_preresnet(blocks: int,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create PreResNet model with specific parameters.
 
@@ -401,7 +401,7 @@ def get_preresnet(blocks: int,
     return net
 
 
-def preresnet10(**kwargs):
+def preresnet10(**kwargs) -> nn.Module:
     """
     PreResNet-10 model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
     It's an experimental model.
@@ -418,10 +418,13 @@ def preresnet10(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=10, model_name="preresnet10", **kwargs)
+    return get_preresnet(
+        blocks=10,
+        model_name="preresnet10",
+        **kwargs)
 
 
-def preresnet12(**kwargs):
+def preresnet12(**kwargs) -> nn.Module:
     """
     PreResNet-12 model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
     It's an experimental model.
@@ -438,10 +441,13 @@ def preresnet12(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=12, model_name="preresnet12", **kwargs)
+    return get_preresnet(
+        blocks=12,
+        model_name="preresnet12",
+        **kwargs)
 
 
-def preresnet14(**kwargs):
+def preresnet14(**kwargs) -> nn.Module:
     """
     PreResNet-14 model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
     It's an experimental model.
@@ -458,10 +464,13 @@ def preresnet14(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=14, model_name="preresnet14", **kwargs)
+    return get_preresnet(
+        blocks=14,
+        model_name="preresnet14",
+        **kwargs)
 
 
-def preresnetbc14b(**kwargs):
+def preresnetbc14b(**kwargs) -> nn.Module:
     """
     PreResNet-BC-14b model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
     It's an experimental model (bottleneck compressed).
@@ -478,10 +487,15 @@ def preresnetbc14b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=14, bottleneck=True, conv1_stride=False, model_name="preresnetbc14b", **kwargs)
+    return get_preresnet(
+        blocks=14,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="preresnetbc14b",
+        **kwargs)
 
 
-def preresnet16(**kwargs):
+def preresnet16(**kwargs) -> nn.Module:
     """
     PreResNet-16 model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
     It's an experimental model.
@@ -498,10 +512,13 @@ def preresnet16(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=16, model_name="preresnet16", **kwargs)
+    return get_preresnet(
+        blocks=16,
+        model_name="preresnet16",
+        **kwargs)
 
 
-def preresnet18_wd4(**kwargs):
+def preresnet18_wd4(**kwargs) -> nn.Module:
     """
     PreResNet-18 model with 0.25 width scale from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027. It's an experimental model.
@@ -518,10 +535,14 @@ def preresnet18_wd4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=18, width_scale=0.25, model_name="preresnet18_wd4", **kwargs)
+    return get_preresnet(
+        blocks=18,
+        width_scale=0.25,
+        model_name="preresnet18_wd4",
+        **kwargs)
 
 
-def preresnet18_wd2(**kwargs):
+def preresnet18_wd2(**kwargs) -> nn.Module:
     """
     PreResNet-18 model with 0.5 width scale from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027. It's an experimental model.
@@ -538,10 +559,14 @@ def preresnet18_wd2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=18, width_scale=0.5, model_name="preresnet18_wd2", **kwargs)
+    return get_preresnet(
+        blocks=18,
+        width_scale=0.5,
+        model_name="preresnet18_wd2",
+        **kwargs)
 
 
-def preresnet18_w3d4(**kwargs):
+def preresnet18_w3d4(**kwargs) -> nn.Module:
     """
     PreResNet-18 model with 0.75 width scale from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027. It's an experimental model.
@@ -558,10 +583,14 @@ def preresnet18_w3d4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=18, width_scale=0.75, model_name="preresnet18_w3d4", **kwargs)
+    return get_preresnet(
+        blocks=18,
+        width_scale=0.75,
+        model_name="preresnet18_w3d4",
+        **kwargs)
 
 
-def preresnet18(**kwargs):
+def preresnet18(**kwargs) -> nn.Module:
     """
     PreResNet-18 model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
 
@@ -577,10 +606,13 @@ def preresnet18(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=18, model_name="preresnet18", **kwargs)
+    return get_preresnet(
+        blocks=18,
+        model_name="preresnet18",
+        **kwargs)
 
 
-def preresnet26(**kwargs):
+def preresnet26(**kwargs) -> nn.Module:
     """
     PreResNet-26 model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
     It's an experimental model.
@@ -597,10 +629,14 @@ def preresnet26(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=26, bottleneck=False, model_name="preresnet26", **kwargs)
+    return get_preresnet(
+        blocks=26,
+        bottleneck=False,
+        model_name="preresnet26",
+        **kwargs)
 
 
-def preresnetbc26b(**kwargs):
+def preresnetbc26b(**kwargs) -> nn.Module:
     """
     PreResNet-BC-26b model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
     It's an experimental model (bottleneck compressed).
@@ -617,10 +653,15 @@ def preresnetbc26b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=26, bottleneck=True, conv1_stride=False, model_name="preresnetbc26b", **kwargs)
+    return get_preresnet(
+        blocks=26,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="preresnetbc26b",
+        **kwargs)
 
 
-def preresnet34(**kwargs):
+def preresnet34(**kwargs) -> nn.Module:
     """
     PreResNet-34 model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
 
@@ -636,10 +677,13 @@ def preresnet34(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=34, model_name="preresnet34", **kwargs)
+    return get_preresnet(
+        blocks=34,
+        model_name="preresnet34",
+        **kwargs)
 
 
-def preresnetbc38b(**kwargs):
+def preresnetbc38b(**kwargs) -> nn.Module:
     """
     PreResNet-BC-38b model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
     It's an experimental model (bottleneck compressed).
@@ -656,10 +700,15 @@ def preresnetbc38b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=38, bottleneck=True, conv1_stride=False, model_name="preresnetbc38b", **kwargs)
+    return get_preresnet(
+        blocks=38,
+        bottleneck=True,
+        conv1_stride=False,
+        model_name="preresnetbc38b",
+        **kwargs)
 
 
-def preresnet50(**kwargs):
+def preresnet50(**kwargs) -> nn.Module:
     """
     PreResNet-50 model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
 
@@ -675,10 +724,13 @@ def preresnet50(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=50, model_name="preresnet50", **kwargs)
+    return get_preresnet(
+        blocks=50,
+        model_name="preresnet50",
+        **kwargs)
 
 
-def preresnet50b(**kwargs):
+def preresnet50b(**kwargs) -> nn.Module:
     """
     PreResNet-50 model with stride at the second convolution in bottleneck block from 'Identity Mappings in Deep
     Residual Networks,' https://arxiv.org/abs/1603.05027.
@@ -695,10 +747,14 @@ def preresnet50b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=50, conv1_stride=False, model_name="preresnet50b", **kwargs)
+    return get_preresnet(
+        blocks=50,
+        conv1_stride=False,
+        model_name="preresnet50b",
+        **kwargs)
 
 
-def preresnet101(**kwargs):
+def preresnet101(**kwargs) -> nn.Module:
     """
     PreResNet-101 model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
 
@@ -714,10 +770,13 @@ def preresnet101(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=101, model_name="preresnet101", **kwargs)
+    return get_preresnet(
+        blocks=101,
+        model_name="preresnet101",
+        **kwargs)
 
 
-def preresnet101b(**kwargs):
+def preresnet101b(**kwargs) -> nn.Module:
     """
     PreResNet-101 model with stride at the second convolution in bottleneck block from 'Identity Mappings in Deep
     Residual Networks,' https://arxiv.org/abs/1603.05027.
@@ -734,10 +793,14 @@ def preresnet101b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=101, conv1_stride=False, model_name="preresnet101b", **kwargs)
+    return get_preresnet(
+        blocks=101,
+        conv1_stride=False,
+        model_name="preresnet101b",
+        **kwargs)
 
 
-def preresnet152(**kwargs):
+def preresnet152(**kwargs) -> nn.Module:
     """
     PreResNet-152 model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
 
@@ -753,10 +816,13 @@ def preresnet152(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=152, model_name="preresnet152", **kwargs)
+    return get_preresnet(
+        blocks=152,
+        model_name="preresnet152",
+        **kwargs)
 
 
-def preresnet152b(**kwargs):
+def preresnet152b(**kwargs) -> nn.Module:
     """
     PreResNet-152 model with stride at the second convolution in bottleneck block from 'Identity Mappings in Deep
     Residual Networks,' https://arxiv.org/abs/1603.05027.
@@ -773,10 +839,14 @@ def preresnet152b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=152, conv1_stride=False, model_name="preresnet152b", **kwargs)
+    return get_preresnet(
+        blocks=152,
+        conv1_stride=False,
+        model_name="preresnet152b",
+        **kwargs)
 
 
-def preresnet200(**kwargs):
+def preresnet200(**kwargs) -> nn.Module:
     """
     PreResNet-200 model from 'Identity Mappings in Deep Residual Networks,' https://arxiv.org/abs/1603.05027.
 
@@ -792,10 +862,13 @@ def preresnet200(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=200, model_name="preresnet200", **kwargs)
+    return get_preresnet(
+        blocks=200,
+        model_name="preresnet200",
+        **kwargs)
 
 
-def preresnet200b(**kwargs):
+def preresnet200b(**kwargs) -> nn.Module:
     """
     PreResNet-200 model with stride at the second convolution in bottleneck block from 'Identity Mappings in Deep
     Residual Networks,' https://arxiv.org/abs/1603.05027.
@@ -812,10 +885,14 @@ def preresnet200b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=200, conv1_stride=False, model_name="preresnet200b", **kwargs)
+    return get_preresnet(
+        blocks=200,
+        conv1_stride=False,
+        model_name="preresnet200b",
+        **kwargs)
 
 
-def preresnet269b(**kwargs):
+def preresnet269b(**kwargs) -> nn.Module:
     """
     PreResNet-269 model with stride at the second convolution in bottleneck block from 'Identity Mappings in Deep
     Residual Networks,' https://arxiv.org/abs/1603.05027.
@@ -832,7 +909,11 @@ def preresnet269b(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet(blocks=269, conv1_stride=False, model_name="preresnet269b", **kwargs)
+    return get_preresnet(
+        blocks=269,
+        conv1_stride=False,
+        model_name="preresnet269b",
+        **kwargs)
 
 
 def _test():

@@ -497,7 +497,7 @@ class IbpPose(nn.Module):
 def get_ibppose(model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create IBPPose model with specific parameters.
 
@@ -543,7 +543,7 @@ def get_ibppose(model_name: str | None = None,
     return net
 
 
-def ibppose_coco(**kwargs):
+def ibppose_coco(**kwargs) -> nn.Module:
     """
     IBPPose model for COCO Keypoint from 'Simple Pose: Rethinking and Improving a Bottom-up Approach for Multi-Person
     Pose Estimation,' https://arxiv.org/abs/1911.10529.
@@ -560,7 +560,9 @@ def ibppose_coco(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_ibppose(model_name="ibppose_coco", **kwargs)
+    return get_ibppose(
+        model_name="ibppose_coco",
+        **kwargs)
 
 
 def _test():

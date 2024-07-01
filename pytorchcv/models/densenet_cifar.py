@@ -207,7 +207,8 @@ def get_densenet_cifar(num_classes,
     return net
 
 
-def densenet40_k12_cifar10(num_classes=10, **kwargs) -> nn.Module:
+def densenet40_k12_cifar10(num_classes=10,
+                           **kwargs) -> nn.Module:
     """
     DenseNet-40 (k=12) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
     https://arxiv.org/abs/1608.06993.
@@ -226,11 +227,17 @@ def densenet40_k12_cifar10(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet_cifar(num_classes=num_classes, blocks=40, growth_rate=12, bottleneck=False,
-                              model_name="densenet40_k12_cifar10", **kwargs)
+    return get_densenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=12,
+        bottleneck=False,
+        model_name="densenet40_k12_cifar10",
+        **kwargs)
 
 
-def densenet40_k12_cifar100(num_classes=100, **kwargs) -> nn.Module:
+def densenet40_k12_cifar100(num_classes=100,
+                            **kwargs) -> nn.Module:
     """
     DenseNet-40 (k=12) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
     https://arxiv.org/abs/1608.06993.
@@ -249,11 +256,17 @@ def densenet40_k12_cifar100(num_classes=100, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet_cifar(num_classes=num_classes, blocks=40, growth_rate=12, bottleneck=False,
-                              model_name="densenet40_k12_cifar100", **kwargs)
+    return get_densenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=12,
+        bottleneck=False,
+        model_name="densenet40_k12_cifar100",
+        **kwargs)
 
 
-def densenet40_k12_svhn(num_classes=10, **kwargs) -> nn.Module:
+def densenet40_k12_svhn(num_classes=10,
+                        **kwargs) -> nn.Module:
     """
     DenseNet-40 (k=12) model for SVHN from 'Densely Connected Convolutional Networks,'
     https://arxiv.org/abs/1608.06993.
@@ -272,11 +285,17 @@ def densenet40_k12_svhn(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet_cifar(num_classes=num_classes, blocks=40, growth_rate=12, bottleneck=False,
-                              model_name="densenet40_k12_svhn", **kwargs)
+    return get_densenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=12,
+        bottleneck=False,
+        model_name="densenet40_k12_svhn",
+        **kwargs)
 
 
-def densenet40_k12_bc_cifar10(num_classes=10, **kwargs) -> nn.Module:
+def densenet40_k12_bc_cifar10(num_classes=10,
+                              **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=12) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
     https://arxiv.org/abs/1608.06993.
@@ -295,11 +314,17 @@ def densenet40_k12_bc_cifar10(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet_cifar(num_classes=num_classes, blocks=40, growth_rate=12, bottleneck=True,
-                              model_name="densenet40_k12_bc_cifar10", **kwargs)
+    return get_densenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=12,
+        bottleneck=True,
+        model_name="densenet40_k12_bc_cifar10",
+        **kwargs)
 
 
-def densenet40_k12_bc_cifar100(num_classes=100, **kwargs) -> nn.Module:
+def densenet40_k12_bc_cifar100(num_classes=100,
+                               **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=12) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
     https://arxiv.org/abs/1608.06993.
@@ -318,11 +343,17 @@ def densenet40_k12_bc_cifar100(num_classes=100, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet_cifar(num_classes=num_classes, blocks=40, growth_rate=12, bottleneck=True,
-                              model_name="densenet40_k12_bc_cifar100", **kwargs)
+    return get_densenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=12,
+        bottleneck=True,
+        model_name="densenet40_k12_bc_cifar100",
+        **kwargs)
 
 
-def densenet40_k12_bc_svhn(num_classes=10, **kwargs) -> nn.Module:
+def densenet40_k12_bc_svhn(num_classes=10,
+                           **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=12) model for SVHN from 'Densely Connected Convolutional Networks,'
     https://arxiv.org/abs/1608.06993.
@@ -341,11 +372,17 @@ def densenet40_k12_bc_svhn(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet_cifar(num_classes=num_classes, blocks=40, growth_rate=12, bottleneck=True,
-                              model_name="densenet40_k12_bc_svhn", **kwargs)
+    return get_densenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=12,
+        bottleneck=True,
+        model_name="densenet40_k12_bc_svhn",
+        **kwargs)
 
 
-def densenet40_k24_bc_cifar10(num_classes=10, **kwargs) -> nn.Module:
+def densenet40_k24_bc_cifar10(num_classes=10,
+                              **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=24) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
     https://arxiv.org/abs/1608.06993.
@@ -364,11 +401,17 @@ def densenet40_k24_bc_cifar10(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet_cifar(num_classes=num_classes, blocks=40, growth_rate=24, bottleneck=True,
-                              model_name="densenet40_k24_bc_cifar10", **kwargs)
+    return get_densenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=24,
+        bottleneck=True,
+        model_name="densenet40_k24_bc_cifar10",
+        **kwargs)
 
 
-def densenet40_k24_bc_cifar100(num_classes=100, **kwargs) -> nn.Module:
+def densenet40_k24_bc_cifar100(num_classes=100,
+                               **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=24) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
     https://arxiv.org/abs/1608.06993.
@@ -387,11 +430,17 @@ def densenet40_k24_bc_cifar100(num_classes=100, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet_cifar(num_classes=num_classes, blocks=40, growth_rate=24, bottleneck=True,
-                              model_name="densenet40_k24_bc_cifar100", **kwargs)
+    return get_densenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=24,
+        bottleneck=True,
+        model_name="densenet40_k24_bc_cifar100",
+        **kwargs)
 
 
-def densenet40_k24_bc_svhn(num_classes=10, **kwargs) -> nn.Module:
+def densenet40_k24_bc_svhn(num_classes=10,
+                           **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=24) model for SVHN from 'Densely Connected Convolutional Networks,'
     https://arxiv.org/abs/1608.06993.
@@ -410,11 +459,17 @@ def densenet40_k24_bc_svhn(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet_cifar(num_classes=num_classes, blocks=40, growth_rate=24, bottleneck=True,
-                              model_name="densenet40_k24_bc_svhn", **kwargs)
+    return get_densenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=24,
+        bottleneck=True,
+        model_name="densenet40_k24_bc_svhn",
+        **kwargs)
 
 
-def densenet40_k36_bc_cifar10(num_classes=10, **kwargs) -> nn.Module:
+def densenet40_k36_bc_cifar10(num_classes=10,
+                              **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=36) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
     https://arxiv.org/abs/1608.06993.
@@ -433,11 +488,17 @@ def densenet40_k36_bc_cifar10(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet_cifar(num_classes=num_classes, blocks=40, growth_rate=36, bottleneck=True,
-                              model_name="densenet40_k36_bc_cifar10", **kwargs)
+    return get_densenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=36,
+        bottleneck=True,
+        model_name="densenet40_k36_bc_cifar10",
+        **kwargs)
 
 
-def densenet40_k36_bc_cifar100(num_classes=100, **kwargs) -> nn.Module:
+def densenet40_k36_bc_cifar100(num_classes=100,
+                               **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=36) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
     https://arxiv.org/abs/1608.06993.
@@ -456,8 +517,13 @@ def densenet40_k36_bc_cifar100(num_classes=100, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_densenet_cifar(num_classes=num_classes, blocks=40, growth_rate=36, bottleneck=True,
-                              model_name="densenet40_k36_bc_cifar100", **kwargs)
+    return get_densenet_cifar(
+        num_classes=num_classes,
+        blocks=40,
+        growth_rate=36,
+        bottleneck=True,
+        model_name="densenet40_k36_bc_cifar100",
+        **kwargs)
 
 
 def densenet40_k36_bc_svhn(num_classes=10,

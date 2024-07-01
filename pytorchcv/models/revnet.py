@@ -394,7 +394,7 @@ def get_revnet(blocks,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
-               **kwargs):
+               **kwargs) -> nn.Module:
     """
     Create RevNet model with specific parameters.
 
@@ -414,7 +414,6 @@ def get_revnet(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 38:
         layers = [3, 3, 3]
         channels_per_layers = [32, 64, 112]
@@ -452,7 +451,7 @@ def get_revnet(blocks,
     return net
 
 
-def revnet38(**kwargs):
+def revnet38(**kwargs) -> nn.Module:
     """
     RevNet-38 model from 'The Reversible Residual Network: Backpropagation Without Storing Activations,'
     https://arxiv.org/abs/1707.04585.
@@ -469,10 +468,13 @@ def revnet38(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_revnet(blocks=38, model_name="revnet38", **kwargs)
+    return get_revnet(
+        blocks=38,
+        model_name="revnet38",
+        **kwargs)
 
 
-def revnet110(**kwargs):
+def revnet110(**kwargs) -> nn.Module:
     """
     RevNet-110 model from 'The Reversible Residual Network: Backpropagation Without Storing Activations,'
     https://arxiv.org/abs/1707.04585.
@@ -489,10 +491,13 @@ def revnet110(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_revnet(blocks=110, model_name="revnet110", **kwargs)
+    return get_revnet(
+        blocks=110,
+        model_name="revnet110",
+        **kwargs)
 
 
-def revnet164(**kwargs):
+def revnet164(**kwargs) -> nn.Module:
     """
     RevNet-164 model from 'The Reversible Residual Network: Backpropagation Without Storing Activations,'
     https://arxiv.org/abs/1707.04585.
@@ -509,7 +514,10 @@ def revnet164(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_revnet(blocks=164, model_name="revnet164", **kwargs)
+    return get_revnet(
+        blocks=164,
+        model_name="revnet164",
+        **kwargs)
 
 
 def _test():

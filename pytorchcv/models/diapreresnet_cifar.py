@@ -160,7 +160,8 @@ def get_diapreresnet_cifar(num_classes,
     return net
 
 
-def diapreresnet20_cifar10(num_classes=10, **kwargs) -> nn.Module:
+def diapreresnet20_cifar10(num_classes=10,
+                           **kwargs) -> nn.Module:
     """
     DIA-PreResNet-20 model for CIFAR-10 from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -179,11 +180,16 @@ def diapreresnet20_cifar10(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=20, bottleneck=False,
-                                  model_name="diapreresnet20_cifar10", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        bottleneck=False,
+        model_name="diapreresnet20_cifar10",
+        **kwargs)
 
 
-def diapreresnet20_cifar100(num_classes=100, **kwargs) -> nn.Module:
+def diapreresnet20_cifar100(num_classes=100,
+                            **kwargs) -> nn.Module:
     """
     DIA-PreResNet-20 model for CIFAR-100 from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -202,11 +208,16 @@ def diapreresnet20_cifar100(num_classes=100, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=20, bottleneck=False,
-                                  model_name="diapreresnet20_cifar100", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        bottleneck=False,
+        model_name="diapreresnet20_cifar100",
+        **kwargs)
 
 
-def diapreresnet20_svhn(num_classes=10, **kwargs) -> nn.Module:
+def diapreresnet20_svhn(num_classes=10,
+                        **kwargs) -> nn.Module:
     """
     DIA-PreResNet-20 model for SVHN from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -225,11 +236,16 @@ def diapreresnet20_svhn(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=20, bottleneck=False,
-                                  model_name="diapreresnet20_svhn", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        bottleneck=False,
+        model_name="diapreresnet20_svhn",
+        **kwargs)
 
 
-def diapreresnet56_cifar10(num_classes=10, **kwargs) -> nn.Module:
+def diapreresnet56_cifar10(num_classes=10,
+                           **kwargs) -> nn.Module:
     """
     DIA-PreResNet-56 model for CIFAR-10 from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -248,11 +264,16 @@ def diapreresnet56_cifar10(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=56, bottleneck=False,
-                                  model_name="diapreresnet56_cifar10", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=56,
+        bottleneck=False,
+        model_name="diapreresnet56_cifar10",
+        **kwargs)
 
 
-def diapreresnet56_cifar100(num_classes=100, **kwargs) -> nn.Module:
+def diapreresnet56_cifar100(num_classes=100,
+                            **kwargs) -> nn.Module:
     """
     DIA-PreResNet-56 model for CIFAR-100 from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -271,11 +292,16 @@ def diapreresnet56_cifar100(num_classes=100, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=56, bottleneck=False,
-                                  model_name="diapreresnet56_cifar100", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=56,
+        bottleneck=False,
+        model_name="diapreresnet56_cifar100",
+        **kwargs)
 
 
-def diapreresnet56_svhn(num_classes=10, **kwargs) -> nn.Module:
+def diapreresnet56_svhn(num_classes=10,
+                        **kwargs) -> nn.Module:
     """
     DIA-PreResNet-56 model for SVHN from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -294,11 +320,16 @@ def diapreresnet56_svhn(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=56, bottleneck=False,
-                                  model_name="diapreresnet56_svhn", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=56,
+        bottleneck=False,
+        model_name="diapreresnet56_svhn",
+        **kwargs)
 
 
-def diapreresnet110_cifar10(num_classes=10, **kwargs) -> nn.Module:
+def diapreresnet110_cifar10(num_classes=10,
+                            **kwargs) -> nn.Module:
     """
     DIA-PreResNet-110 model for CIFAR-10 from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -317,11 +348,16 @@ def diapreresnet110_cifar10(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=110, bottleneck=False,
-                                  model_name="diapreresnet110_cifar10", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=110,
+        bottleneck=False,
+        model_name="diapreresnet110_cifar10",
+        **kwargs)
 
 
-def diapreresnet110_cifar100(num_classes=100, **kwargs) -> nn.Module:
+def diapreresnet110_cifar100(num_classes=100,
+                             **kwargs) -> nn.Module:
     """
     DIA-PreResNet-110 model for CIFAR-100 from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -340,11 +376,16 @@ def diapreresnet110_cifar100(num_classes=100, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=110, bottleneck=False,
-                                  model_name="diapreresnet110_cifar100", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=110,
+        bottleneck=False,
+        model_name="diapreresnet110_cifar100",
+        **kwargs)
 
 
-def diapreresnet110_svhn(num_classes=10, **kwargs) -> nn.Module:
+def diapreresnet110_svhn(num_classes=10,
+                         **kwargs) -> nn.Module:
     """
     DIA-PreResNet-110 model for SVHN from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -363,11 +404,16 @@ def diapreresnet110_svhn(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=110, bottleneck=False,
-                                  model_name="diapreresnet110_svhn", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=110,
+        bottleneck=False,
+        model_name="diapreresnet110_svhn",
+        **kwargs)
 
 
-def diapreresnet164bn_cifar10(num_classes=10, **kwargs) -> nn.Module:
+def diapreresnet164bn_cifar10(num_classes=10,
+                              **kwargs) -> nn.Module:
     """
     DIA-PreResNet-164(BN) model for CIFAR-10 from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -386,11 +432,16 @@ def diapreresnet164bn_cifar10(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=164, bottleneck=True,
-                                  model_name="diapreresnet164bn_cifar10", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=164,
+        bottleneck=True,
+        model_name="diapreresnet164bn_cifar10",
+        **kwargs)
 
 
-def diapreresnet164bn_cifar100(num_classes=100, **kwargs) -> nn.Module:
+def diapreresnet164bn_cifar100(num_classes=100,
+                               **kwargs) -> nn.Module:
     """
     DIA-PreResNet-164(BN) model for CIFAR-100 from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -409,11 +460,16 @@ def diapreresnet164bn_cifar100(num_classes=100, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=164, bottleneck=True,
-                                  model_name="diapreresnet164bn_cifar100", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=164,
+        bottleneck=True,
+        model_name="diapreresnet164bn_cifar100",
+        **kwargs)
 
 
-def diapreresnet164bn_svhn(num_classes=10, **kwargs) -> nn.Module:
+def diapreresnet164bn_svhn(num_classes=10,
+                           **kwargs) -> nn.Module:
     """
     DIA-PreResNet-164(BN) model for SVHN from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -432,11 +488,16 @@ def diapreresnet164bn_svhn(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=164, bottleneck=True,
-                                  model_name="diapreresnet164bn_svhn", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=164,
+        bottleneck=True,
+        model_name="diapreresnet164bn_svhn",
+        **kwargs)
 
 
-def diapreresnet1001_cifar10(num_classes=10, **kwargs) -> nn.Module:
+def diapreresnet1001_cifar10(num_classes=10,
+                             **kwargs) -> nn.Module:
     """
     DIA-PreResNet-1001 model for CIFAR-10 from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -455,11 +516,16 @@ def diapreresnet1001_cifar10(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=1001, bottleneck=True,
-                                  model_name="diapreresnet1001_cifar10", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=1001,
+        bottleneck=True,
+        model_name="diapreresnet1001_cifar10",
+        **kwargs)
 
 
-def diapreresnet1001_cifar100(num_classes=100, **kwargs) -> nn.Module:
+def diapreresnet1001_cifar100(num_classes=100,
+                              **kwargs) -> nn.Module:
     """
     DIA-PreResNet-1001 model for CIFAR-100 from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -478,11 +544,16 @@ def diapreresnet1001_cifar100(num_classes=100, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=1001, bottleneck=True,
-                                  model_name="diapreresnet1001_cifar100", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=1001,
+        bottleneck=True,
+        model_name="diapreresnet1001_cifar100",
+        **kwargs)
 
 
-def diapreresnet1001_svhn(num_classes=10, **kwargs) -> nn.Module:
+def diapreresnet1001_svhn(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     DIA-PreResNet-1001 model for SVHN from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -501,11 +572,16 @@ def diapreresnet1001_svhn(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=1001, bottleneck=True,
-                                  model_name="diapreresnet1001_svhn", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=1001,
+        bottleneck=True,
+        model_name="diapreresnet1001_svhn",
+        **kwargs)
 
 
-def diapreresnet1202_cifar10(num_classes=10, **kwargs) -> nn.Module:
+def diapreresnet1202_cifar10(num_classes=10,
+                             **kwargs) -> nn.Module:
     """
     DIA-PreResNet-1202 model for CIFAR-10 from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -524,11 +600,16 @@ def diapreresnet1202_cifar10(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=1202, bottleneck=False,
-                                  model_name="diapreresnet1202_cifar10", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=1202,
+        bottleneck=False,
+        model_name="diapreresnet1202_cifar10",
+        **kwargs)
 
 
-def diapreresnet1202_cifar100(num_classes=100, **kwargs) -> nn.Module:
+def diapreresnet1202_cifar100(num_classes=100,
+                              **kwargs) -> nn.Module:
     """
     DIA-PreResNet-1202 model for CIFAR-100 from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -546,11 +627,16 @@ def diapreresnet1202_cifar100(num_classes=100, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=1202, bottleneck=False,
-                                  model_name="diapreresnet1202_cifar100", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=1202,
+        bottleneck=False,
+        model_name="diapreresnet1202_cifar100",
+        **kwargs)
 
 
-def diapreresnet1202_svhn(num_classes=10, **kwargs) -> nn.Module:
+def diapreresnet1202_svhn(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     DIA-PreResNet-1202 model for SVHN from 'DIANet: Dense-and-Implicit Attention Network,'
     https://arxiv.org/abs/1905.10671.
@@ -569,8 +655,12 @@ def diapreresnet1202_svhn(num_classes=10, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_diapreresnet_cifar(num_classes=num_classes, blocks=1202, bottleneck=False,
-                                  model_name="diapreresnet1202_svhn", **kwargs)
+    return get_diapreresnet_cifar(
+        num_classes=num_classes,
+        blocks=1202,
+        bottleneck=False,
+        model_name="diapreresnet1202_svhn",
+        **kwargs)
 
 
 def _test():

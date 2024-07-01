@@ -663,7 +663,7 @@ def get_octresnet(blocks,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create Oct-ResNet model with specific parameters.
 
@@ -764,7 +764,7 @@ def get_octresnet(blocks,
     return net
 
 
-def octresnet10_ad2(**kwargs):
+def octresnet10_ad2(**kwargs) -> nn.Module:
     """
     Oct-ResNet-10 (alpha=1/2) model from 'Drop an Octave: Reducing Spatial Redundancy in Convolutional Neural Networks
     with Octave Convolution,' https://arxiv.org/abs/1904.05049.
@@ -781,10 +781,14 @@ def octresnet10_ad2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_octresnet(blocks=10, oct_alpha=0.5, model_name="octresnet10_ad2", **kwargs)
+    return get_octresnet(
+        blocks=10,
+        oct_alpha=0.5,
+        model_name="octresnet10_ad2",
+        **kwargs)
 
 
-def octresnet50b_ad2(**kwargs):
+def octresnet50b_ad2(**kwargs) -> nn.Module:
     """
     Oct-ResNet-50b (alpha=1/2) model from 'Drop an Octave: Reducing Spatial Redundancy in Convolutional Neural Networks
     with Octave Convolution,' https://arxiv.org/abs/1904.05049.
@@ -801,7 +805,12 @@ def octresnet50b_ad2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_octresnet(blocks=50, conv1_stride=False, oct_alpha=0.5, model_name="octresnet50b_ad2", **kwargs)
+    return get_octresnet(
+        blocks=50,
+        conv1_stride=False,
+        oct_alpha=0.5,
+        model_name="octresnet50b_ad2",
+        **kwargs)
 
 
 def _test():

@@ -132,7 +132,7 @@ def get_nin_cifar(num_classes,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create NIN model for CIFAR with specific parameters.
 
@@ -152,7 +152,6 @@ def get_nin_cifar(num_classes,
     nn.Module
         Desired module.
     """
-
     channels = [[192, 160, 96], [192, 192, 192], [192, 192]]
     first_kernel_sizes = [5, 5, 3]
 
@@ -174,7 +173,8 @@ def get_nin_cifar(num_classes,
     return net
 
 
-def nin_cifar10(num_classes=10, **kwargs):
+def nin_cifar10(num_classes=10,
+                **kwargs) -> nn.Module:
     """
     NIN model for CIFAR-10 from 'Network In Network,' https://arxiv.org/abs/1312.4400.
 
@@ -192,10 +192,14 @@ def nin_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_nin_cifar(num_classes=num_classes, model_name="nin_cifar10", **kwargs)
+    return get_nin_cifar(
+        num_classes=num_classes,
+        model_name="nin_cifar10",
+        **kwargs)
 
 
-def nin_cifar100(num_classes=100, **kwargs):
+def nin_cifar100(num_classes=100,
+                 **kwargs) -> nn.Module:
     """
     NIN model for CIFAR-100 from 'Network In Network,' https://arxiv.org/abs/1312.4400.
 
@@ -213,10 +217,14 @@ def nin_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_nin_cifar(num_classes=num_classes, model_name="nin_cifar100", **kwargs)
+    return get_nin_cifar(
+        num_classes=num_classes,
+        model_name="nin_cifar100",
+        **kwargs)
 
 
-def nin_svhn(num_classes=10, **kwargs):
+def nin_svhn(num_classes=10,
+             **kwargs) -> nn.Module:
     """
     NIN model for SVHN from 'Network In Network,' https://arxiv.org/abs/1312.4400.
 
@@ -234,7 +242,10 @@ def nin_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_nin_cifar(num_classes=num_classes, model_name="nin_svhn", **kwargs)
+    return get_nin_cifar(
+        num_classes=num_classes,
+        model_name="nin_svhn",
+        **kwargs)
 
 
 def _test():

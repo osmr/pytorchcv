@@ -162,7 +162,8 @@ def get_segnet(model_name: str | None = None,
     return net
 
 
-def segnet_cityscapes(num_classes: int = 19, **kwargs) -> nn.Module:
+def segnet_cityscapes(num_classes: int = 19,
+                      **kwargs) -> nn.Module:
     """
     SegNet model for Cityscapes from 'SegNet: A Deep Convolutional Encoder-Decoder Architecture for Image Segmentation,'
     https://arxiv.org/abs/1511.00561.
@@ -181,7 +182,10 @@ def segnet_cityscapes(num_classes: int = 19, **kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_segnet(num_classes=num_classes, model_name="segnet_cityscapes", **kwargs)
+    return get_segnet(
+        num_classes=num_classes,
+        model_name="segnet_cityscapes",
+        **kwargs)
 
 
 def _test():

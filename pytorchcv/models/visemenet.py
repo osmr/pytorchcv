@@ -197,8 +197,7 @@ def get_visemenet(model_name: str | None = None,
     nn.Module
         Desired module.
     """
-    net = VisemeNet(
-        **kwargs)
+    net = VisemeNet(**kwargs)
 
     if pretrained:
         if (model_name is None) or (not model_name):

@@ -250,7 +250,7 @@ def get_pyramidnet(blocks,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),
-                   **kwargs):
+                   **kwargs) -> nn.Module:
     """
     Create PyramidNet model with specific parameters.
 
@@ -272,7 +272,6 @@ def get_pyramidnet(blocks,
     nn.Module
         Desired module.
     """
-
     if blocks == 10:
         layers = [1, 1, 1, 1]
     elif blocks == 12:
@@ -330,7 +329,7 @@ def get_pyramidnet(blocks,
     return net
 
 
-def pyramidnet101_a360(**kwargs):
+def pyramidnet101_a360(**kwargs) -> nn.Module:
     """
     PyramidNet-101 model from 'Deep Pyramidal Residual Networks,' https://arxiv.org/abs/1610.02915.
 
@@ -346,7 +345,11 @@ def pyramidnet101_a360(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_pyramidnet(blocks=101, alpha=360, model_name="pyramidnet101_a360", **kwargs)
+    return get_pyramidnet(
+        blocks=101,
+        alpha=360,
+        model_name="pyramidnet101_a360",
+        **kwargs)
 
 
 def _test():

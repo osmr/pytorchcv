@@ -205,7 +205,7 @@ def get_regnet(channels_init,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
-               **kwargs):
+               **kwargs) -> nn.Module:
     """
     Create RegNet model with specific parameters.
 
@@ -276,7 +276,7 @@ def get_regnet(channels_init,
     return net
 
 
-def regnetx002(**kwargs):
+def regnetx002(**kwargs) -> nn.Module:
     """
     RegNetX-200MF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -292,11 +292,17 @@ def regnetx002(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=24, channels_slope=36.44, channels_mult=2.49, depth=13, groups=8,
-                      model_name="regnetx002", **kwargs)
+    return get_regnet(
+        channels_init=24,
+        channels_slope=36.44,
+        channels_mult=2.49,
+        depth=13,
+        groups=8,
+        model_name="regnetx002",
+        **kwargs)
 
 
-def regnetx004(**kwargs):
+def regnetx004(**kwargs) -> nn.Module:
     """
     RegNetX-400MF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -312,11 +318,17 @@ def regnetx004(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=24, channels_slope=24.48, channels_mult=2.54, depth=22, groups=16,
-                      model_name="regnetx004", **kwargs)
+    return get_regnet(
+        channels_init=24,
+        channels_slope=24.48,
+        channels_mult=2.54,
+        depth=22,
+        groups=16,
+        model_name="regnetx004",
+        **kwargs)
 
 
-def regnetx006(**kwargs):
+def regnetx006(**kwargs) -> nn.Module:
     """
     RegNetX-600MF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -332,11 +344,17 @@ def regnetx006(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=48, channels_slope=36.97, channels_mult=2.24, depth=16, groups=24,
-                      model_name="regnetx006", **kwargs)
+    return get_regnet(
+        channels_init=48,
+        channels_slope=36.97,
+        channels_mult=2.24,
+        depth=16,
+        groups=24,
+        model_name="regnetx006",
+        **kwargs)
 
 
-def regnetx008(**kwargs):
+def regnetx008(**kwargs) -> nn.Module:
     """
     RegNetX-800MF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -352,11 +370,17 @@ def regnetx008(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=56, channels_slope=35.73, channels_mult=2.28, depth=16, groups=16,
-                      model_name="regnetx008", **kwargs)
+    return get_regnet(
+        channels_init=56,
+        channels_slope=35.73,
+        channels_mult=2.28,
+        depth=16,
+        groups=16,
+        model_name="regnetx008",
+        **kwargs)
 
 
-def regnetx016(**kwargs):
+def regnetx016(**kwargs) -> nn.Module:
     """
     RegNetX-1.6GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -372,11 +396,17 @@ def regnetx016(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=80, channels_slope=34.01, channels_mult=2.25, depth=18, groups=24,
-                      model_name="regnetx016", **kwargs)
+    return get_regnet(
+        channels_init=80,
+        channels_slope=34.01,
+        channels_mult=2.25,
+        depth=18,
+        groups=24,
+        model_name="regnetx016",
+        **kwargs)
 
 
-def regnetx032(**kwargs):
+def regnetx032(**kwargs) -> nn.Module:
     """
     RegNetX-3.2GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -392,11 +422,17 @@ def regnetx032(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=88, channels_slope=26.31, channels_mult=2.25, depth=25, groups=48,
-                      model_name="regnetx032", **kwargs)
+    return get_regnet(
+        channels_init=88,
+        channels_slope=26.31,
+        channels_mult=2.25,
+        depth=25,
+        groups=48,
+        model_name="regnetx032",
+        **kwargs)
 
 
-def regnetx040(**kwargs):
+def regnetx040(**kwargs) -> nn.Module:
     """
     RegNetX-4.0GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -412,11 +448,17 @@ def regnetx040(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=96, channels_slope=38.65, channels_mult=2.43, depth=23, groups=40,
-                      model_name="regnetx040", **kwargs)
+    return get_regnet(
+        channels_init=96,
+        channels_slope=38.65,
+        channels_mult=2.43,
+        depth=23,
+        groups=40,
+        model_name="regnetx040",
+        **kwargs)
 
 
-def regnetx064(**kwargs):
+def regnetx064(**kwargs) -> nn.Module:
     """
     RegNetX-6.4GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -432,11 +474,17 @@ def regnetx064(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=184, channels_slope=60.83, channels_mult=2.07, depth=17, groups=56,
-                      model_name="regnetx064", **kwargs)
+    return get_regnet(
+        channels_init=184,
+        channels_slope=60.83,
+        channels_mult=2.07,
+        depth=17,
+        groups=56,
+        model_name="regnetx064",
+        **kwargs)
 
 
-def regnetx080(**kwargs):
+def regnetx080(**kwargs) -> nn.Module:
     """
     RegNetX-8.0GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -452,11 +500,17 @@ def regnetx080(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=80, channels_slope=49.56, channels_mult=2.88, depth=23, groups=120,
-                      model_name="regnetx080", **kwargs)
+    return get_regnet(
+        channels_init=80,
+        channels_slope=49.56,
+        channels_mult=2.88,
+        depth=23,
+        groups=120,
+        model_name="regnetx080",
+        **kwargs)
 
 
-def regnetx120(**kwargs):
+def regnetx120(**kwargs) -> nn.Module:
     """
     RegNetX-12GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -472,11 +526,17 @@ def regnetx120(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=168, channels_slope=73.36, channels_mult=2.37, depth=19, groups=112,
-                      model_name="regnetx120", **kwargs)
+    return get_regnet(
+        channels_init=168,
+        channels_slope=73.36,
+        channels_mult=2.37,
+        depth=19,
+        groups=112,
+        model_name="regnetx120",
+        **kwargs)
 
 
-def regnetx160(**kwargs):
+def regnetx160(**kwargs) -> nn.Module:
     """
     RegNetX-16GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -492,11 +552,17 @@ def regnetx160(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=216, channels_slope=55.59, channels_mult=2.1, depth=22, groups=128,
-                      model_name="regnetx160", **kwargs)
+    return get_regnet(
+        channels_init=216,
+        channels_slope=55.59,
+        channels_mult=2.1,
+        depth=22,
+        groups=128,
+        model_name="regnetx160",
+        **kwargs)
 
 
-def regnetx320(**kwargs):
+def regnetx320(**kwargs) -> nn.Module:
     """
     RegNetX-32GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -512,11 +578,17 @@ def regnetx320(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=320, channels_slope=69.86, channels_mult=2.0, depth=23, groups=168,
-                      model_name="regnetx320", **kwargs)
+    return get_regnet(
+        channels_init=320,
+        channels_slope=69.86,
+        channels_mult=2.0,
+        depth=23,
+        groups=168,
+        model_name="regnetx320",
+        **kwargs)
 
 
-def regnety002(**kwargs):
+def regnety002(**kwargs) -> nn.Module:
     """
     RegNetY-200MF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -532,11 +604,18 @@ def regnety002(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=24, channels_slope=36.44, channels_mult=2.49, depth=13, groups=8, use_se=True,
-                      model_name="regnety002", **kwargs)
+    return get_regnet(
+        channels_init=24,
+        channels_slope=36.44,
+        channels_mult=2.49,
+        depth=13,
+        groups=8,
+        use_se=True,
+        model_name="regnety002",
+        **kwargs)
 
 
-def regnety004(**kwargs):
+def regnety004(**kwargs) -> nn.Module:
     """
     RegNetY-400MF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -552,11 +631,18 @@ def regnety004(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=48, channels_slope=27.89, channels_mult=2.09, depth=16, groups=8, use_se=True,
-                      model_name="regnety004", **kwargs)
+    return get_regnet(
+        channels_init=48,
+        channels_slope=27.89,
+        channels_mult=2.09,
+        depth=16,
+        groups=8,
+        use_se=True,
+        model_name="regnety004",
+        **kwargs)
 
 
-def regnety006(**kwargs):
+def regnety006(**kwargs) -> nn.Module:
     """
     RegNetY-600MF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -572,11 +658,18 @@ def regnety006(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=48, channels_slope=32.54, channels_mult=2.32, depth=15, groups=16, use_se=True,
-                      model_name="regnety006", **kwargs)
+    return get_regnet(
+        channels_init=48,
+        channels_slope=32.54,
+        channels_mult=2.32,
+        depth=15,
+        groups=16,
+        use_se=True,
+        model_name="regnety006",
+        **kwargs)
 
 
-def regnety008(**kwargs):
+def regnety008(**kwargs) -> nn.Module:
     """
     RegNetY-800MF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -592,11 +685,18 @@ def regnety008(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=56, channels_slope=38.84, channels_mult=2.4, depth=14, groups=16, use_se=True,
-                      model_name="regnety008", **kwargs)
+    return get_regnet(
+        channels_init=56,
+        channels_slope=38.84,
+        channels_mult=2.4,
+        depth=14,
+        groups=16,
+        use_se=True,
+        model_name="regnety008",
+        **kwargs)
 
 
-def regnety016(**kwargs):
+def regnety016(**kwargs) -> nn.Module:
     """
     RegNetY-1.6GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -612,11 +712,18 @@ def regnety016(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=48, channels_slope=20.71, channels_mult=2.65, depth=27, groups=24, use_se=True,
-                      model_name="regnety016", **kwargs)
+    return get_regnet(
+        channels_init=48,
+        channels_slope=20.71,
+        channels_mult=2.65,
+        depth=27,
+        groups=24,
+        use_se=True,
+        model_name="regnety016",
+        **kwargs)
 
 
-def regnety032(**kwargs):
+def regnety032(**kwargs) -> nn.Module:
     """
     RegNetY-3.2GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -632,11 +739,18 @@ def regnety032(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=80, channels_slope=42.63, channels_mult=2.66, depth=21, groups=24, use_se=True,
-                      model_name="regnety032", **kwargs)
+    return get_regnet(
+        channels_init=80,
+        channels_slope=42.63,
+        channels_mult=2.66,
+        depth=21,
+        groups=24,
+        use_se=True,
+        model_name="regnety032",
+        **kwargs)
 
 
-def regnety040(**kwargs):
+def regnety040(**kwargs) -> nn.Module:
     """
     RegNetY-4.0GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -652,11 +766,18 @@ def regnety040(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=96, channels_slope=31.41, channels_mult=2.24, depth=22, groups=64, use_se=True,
-                      model_name="regnety040", **kwargs)
+    return get_regnet(
+        channels_init=96,
+        channels_slope=31.41,
+        channels_mult=2.24,
+        depth=22,
+        groups=64,
+        use_se=True,
+        model_name="regnety040",
+        **kwargs)
 
 
-def regnety064(**kwargs):
+def regnety064(**kwargs) -> nn.Module:
     """
     RegNetY-6.4GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -672,11 +793,18 @@ def regnety064(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=112, channels_slope=33.22, channels_mult=2.27, depth=25, groups=72, use_se=True,
-                      model_name="regnety064", **kwargs)
+    return get_regnet(
+        channels_init=112,
+        channels_slope=33.22,
+        channels_mult=2.27,
+        depth=25,
+        groups=72,
+        use_se=True,
+        model_name="regnety064",
+        **kwargs)
 
 
-def regnety080(**kwargs):
+def regnety080(**kwargs) -> nn.Module:
     """
     RegNetY-8.0GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -692,11 +820,18 @@ def regnety080(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=192, channels_slope=76.82, channels_mult=2.19, depth=17, groups=56, use_se=True,
-                      model_name="regnety080", **kwargs)
+    return get_regnet(
+        channels_init=192,
+        channels_slope=76.82,
+        channels_mult=2.19,
+        depth=17,
+        groups=56,
+        use_se=True,
+        model_name="regnety080",
+        **kwargs)
 
 
-def regnety120(**kwargs):
+def regnety120(**kwargs) -> nn.Module:
     """
     RegNetY-12GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -712,11 +847,18 @@ def regnety120(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=168, channels_slope=73.36, channels_mult=2.37, depth=19, groups=112, use_se=True,
-                      model_name="regnety120", **kwargs)
+    return get_regnet(
+        channels_init=168,
+        channels_slope=73.36,
+        channels_mult=2.37,
+        depth=19,
+        groups=112,
+        use_se=True,
+        model_name="regnety120",
+        **kwargs)
 
 
-def regnety160(**kwargs):
+def regnety160(**kwargs) -> nn.Module:
     """
     RegNetY-16GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -732,11 +874,18 @@ def regnety160(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=200, channels_slope=106.23, channels_mult=2.48, depth=18, groups=112, use_se=True,
-                      model_name="regnety160", **kwargs)
+    return get_regnet(
+        channels_init=200,
+        channels_slope=106.23,
+        channels_mult=2.48,
+        depth=18,
+        groups=112,
+        use_se=True,
+        model_name="regnety160",
+        **kwargs)
 
 
-def regnety320(**kwargs):
+def regnety320(**kwargs) -> nn.Module:
     """
     RegNetY-32GF model from 'Designing Network Design Spaces,' https://arxiv.org/abs/2003.13678.
 
@@ -752,8 +901,15 @@ def regnety320(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_regnet(channels_init=232, channels_slope=115.89, channels_mult=2.53, depth=20, groups=232, use_se=True,
-                      model_name="regnety320", **kwargs)
+    return get_regnet(
+        channels_init=232,
+        channels_slope=115.89,
+        channels_mult=2.53,
+        depth=20,
+        groups=232,
+        use_se=True,
+        model_name="regnety320",
+        **kwargs)
 
 
 def _test():

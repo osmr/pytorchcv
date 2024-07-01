@@ -852,7 +852,7 @@ class PolyNet(nn.Module):
 def get_polynet(model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
-                **kwargs):
+                **kwargs) -> nn.Module:
     """
     Create PolyNet model with specific parameters.
 
@@ -896,7 +896,7 @@ def get_polynet(model_name: str | None = None,
     return net
 
 
-def polynet(**kwargs):
+def polynet(**kwargs) -> nn.Module:
     """
     PolyNet model from 'PolyNet: A Pursuit of Structural Diversity in Very Deep Networks,'
     https://arxiv.org/abs/1611.05725.
@@ -913,7 +913,9 @@ def polynet(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_polynet(model_name="polynet", **kwargs)
+    return get_polynet(
+        model_name="polynet",
+        **kwargs)
 
 
 def _test():

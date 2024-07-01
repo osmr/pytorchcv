@@ -379,7 +379,7 @@ def get_fractalnet_cifar(num_classes,
                          model_name: str | None = None,
                          pretrained: bool = False,
                          root: str = os.path.join("~", ".torch", "models"),
-                         **kwargs):
+                         **kwargs) -> nn.Module:
     """
     Create WRN model for CIFAR with specific parameters.
 
@@ -399,7 +399,6 @@ def get_fractalnet_cifar(num_classes,
     nn.Module
         Desired module.
     """
-
     dropout_probs = (0.0, 0.1, 0.2, 0.3, 0.4)
     channels = [64 * (2 ** (i if i != len(dropout_probs) - 1 else i - 1)) for i in range(len(dropout_probs))]
     num_columns = 3
@@ -427,7 +426,8 @@ def get_fractalnet_cifar(num_classes,
     return net
 
 
-def fractalnet_cifar10(num_classes=10, **kwargs):
+def fractalnet_cifar10(num_classes=10,
+                       **kwargs) -> nn.Module:
     """
     FractalNet model for CIFAR-10 from 'FractalNet: Ultra-Deep Neural Networks without Residuals,'
     https://arxiv.org/abs/1605.07648.
@@ -446,10 +446,14 @@ def fractalnet_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_fractalnet_cifar(num_classes=num_classes, model_name="fractalnet_cifar10", **kwargs)
+    return get_fractalnet_cifar(
+        num_classes=num_classes,
+        model_name="fractalnet_cifar10",
+        **kwargs)
 
 
-def fractalnet_cifar100(num_classes=100, **kwargs):
+def fractalnet_cifar100(num_classes=100,
+                        **kwargs) -> nn.Module:
     """
     FractalNet model for CIFAR-100 from 'FractalNet: Ultra-Deep Neural Networks without Residuals,'
     https://arxiv.org/abs/1605.07648.
@@ -468,7 +472,10 @@ def fractalnet_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_fractalnet_cifar(num_classes=num_classes, model_name="fractalnet_cifar100", **kwargs)
+    return get_fractalnet_cifar(
+        num_classes=num_classes,
+        model_name="fractalnet_cifar100",
+        **kwargs)
 
 
 def _test():

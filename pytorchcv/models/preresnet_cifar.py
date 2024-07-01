@@ -96,7 +96,7 @@ def get_preresnet_cifar(num_classes,
                         model_name: str | None = None,
                         pretrained: bool = False,
                         root: str = os.path.join("~", ".torch", "models"),
-                        **kwargs):
+                        **kwargs) -> nn.Module:
     """
     Create PreResNet model for CIFAR with specific parameters.
 
@@ -156,7 +156,8 @@ def get_preresnet_cifar(num_classes,
     return net
 
 
-def preresnet20_cifar10(num_classes=10, **kwargs):
+def preresnet20_cifar10(num_classes=10,
+                        **kwargs) -> nn.Module:
     """
     PreResNet-20 model for CIFAR-10 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -175,11 +176,16 @@ def preresnet20_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=20, bottleneck=False, model_name="preresnet20_cifar10",
-                               **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        bottleneck=False,
+        model_name="preresnet20_cifar10",
+        **kwargs)
 
 
-def preresnet20_cifar100(num_classes=100, **kwargs):
+def preresnet20_cifar100(num_classes=100,
+                         **kwargs) -> nn.Module:
     """
     PreResNet-20 model for CIFAR-100 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -198,11 +204,16 @@ def preresnet20_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=20, bottleneck=False, model_name="preresnet20_cifar100",
-                               **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        bottleneck=False,
+        model_name="preresnet20_cifar100",
+        **kwargs)
 
 
-def preresnet20_svhn(num_classes=10, **kwargs):
+def preresnet20_svhn(num_classes=10,
+                     **kwargs) -> nn.Module:
     """
     PreResNet-20 model for SVHN from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -221,11 +232,16 @@ def preresnet20_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=20, bottleneck=False, model_name="preresnet20_svhn",
-                               **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=20,
+        bottleneck=False,
+        model_name="preresnet20_svhn",
+        **kwargs)
 
 
-def preresnet56_cifar10(num_classes=10, **kwargs):
+def preresnet56_cifar10(num_classes=10,
+                        **kwargs) -> nn.Module:
     """
     PreResNet-56 model for CIFAR-10 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -244,11 +260,16 @@ def preresnet56_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=56, bottleneck=False, model_name="preresnet56_cifar10",
-                               **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=56,
+        bottleneck=False,
+        model_name="preresnet56_cifar10",
+        **kwargs)
 
 
-def preresnet56_cifar100(num_classes=100, **kwargs):
+def preresnet56_cifar100(num_classes=100,
+                         **kwargs) -> nn.Module:
     """
     PreResNet-56 model for CIFAR-100 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -267,11 +288,16 @@ def preresnet56_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=56, bottleneck=False, model_name="preresnet56_cifar100",
-                               **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=56,
+        bottleneck=False,
+        model_name="preresnet56_cifar100",
+        **kwargs)
 
 
-def preresnet56_svhn(num_classes=10, **kwargs):
+def preresnet56_svhn(num_classes=10,
+                     **kwargs) -> nn.Module:
     """
     PreResNet-56 model for SVHN from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -290,11 +316,16 @@ def preresnet56_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=56, bottleneck=False, model_name="preresnet56_svhn",
-                               **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=56,
+        bottleneck=False,
+        model_name="preresnet56_svhn",
+        **kwargs)
 
 
-def preresnet110_cifar10(num_classes=10, **kwargs):
+def preresnet110_cifar10(num_classes=10,
+                         **kwargs) -> nn.Module:
     """
     PreResNet-110 model for CIFAR-10 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -313,11 +344,16 @@ def preresnet110_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=110, bottleneck=False, model_name="preresnet110_cifar10",
-                               **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=110,
+        bottleneck=False,
+        model_name="preresnet110_cifar10",
+        **kwargs)
 
 
-def preresnet110_cifar100(num_classes=100, **kwargs):
+def preresnet110_cifar100(num_classes=100,
+                          **kwargs) -> nn.Module:
     """
     PreResNet-110 model for CIFAR-100 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -336,11 +372,16 @@ def preresnet110_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=110, bottleneck=False,
-                               model_name="preresnet110_cifar100", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=110,
+        bottleneck=False,
+        model_name="preresnet110_cifar100",
+        **kwargs)
 
 
-def preresnet110_svhn(num_classes=10, **kwargs):
+def preresnet110_svhn(num_classes=10,
+                      **kwargs) -> nn.Module:
     """
     PreResNet-110 model for SVHN from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -359,11 +400,16 @@ def preresnet110_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=110, bottleneck=False, model_name="preresnet110_svhn",
-                               **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=110,
+        bottleneck=False,
+        model_name="preresnet110_svhn",
+        **kwargs)
 
 
-def preresnet164bn_cifar10(num_classes=10, **kwargs):
+def preresnet164bn_cifar10(num_classes=10,
+                           **kwargs) -> nn.Module:
     """
     PreResNet-164(BN) model for CIFAR-10 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -382,11 +428,16 @@ def preresnet164bn_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=164, bottleneck=True,
-                               model_name="preresnet164bn_cifar10", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=164,
+        bottleneck=True,
+        model_name="preresnet164bn_cifar10",
+        **kwargs)
 
 
-def preresnet164bn_cifar100(num_classes=100, **kwargs):
+def preresnet164bn_cifar100(num_classes=100,
+                            **kwargs) -> nn.Module:
     """
     PreResNet-164(BN) model for CIFAR-100 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -405,11 +456,16 @@ def preresnet164bn_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=164, bottleneck=True,
-                               model_name="preresnet164bn_cifar100", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=164,
+        bottleneck=True,
+        model_name="preresnet164bn_cifar100",
+        **kwargs)
 
 
-def preresnet164bn_svhn(num_classes=10, **kwargs):
+def preresnet164bn_svhn(num_classes=10,
+                        **kwargs) -> nn.Module:
     """
     PreResNet-164(BN) model for SVHN from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -428,11 +484,16 @@ def preresnet164bn_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=164, bottleneck=True,
-                               model_name="preresnet164bn_svhn", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=164,
+        bottleneck=True,
+        model_name="preresnet164bn_svhn",
+        **kwargs)
 
 
-def preresnet272bn_cifar10(num_classes=10, **kwargs):
+def preresnet272bn_cifar10(num_classes=10,
+                           **kwargs) -> nn.Module:
     """
     PreResNet-272(BN) model for CIFAR-10 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -451,11 +512,16 @@ def preresnet272bn_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=272, bottleneck=True,
-                               model_name="preresnet272bn_cifar10", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=272,
+        bottleneck=True,
+        model_name="preresnet272bn_cifar10",
+        **kwargs)
 
 
-def preresnet272bn_cifar100(num_classes=100, **kwargs):
+def preresnet272bn_cifar100(num_classes=100,
+                            **kwargs) -> nn.Module:
     """
     PreResNet-272(BN) model for CIFAR-100 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -474,11 +540,16 @@ def preresnet272bn_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=272, bottleneck=True,
-                               model_name="preresnet272bn_cifar100", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=272,
+        bottleneck=True,
+        model_name="preresnet272bn_cifar100",
+        **kwargs)
 
 
-def preresnet272bn_svhn(num_classes=10, **kwargs):
+def preresnet272bn_svhn(num_classes=10,
+                        **kwargs) -> nn.Module:
     """
     PreResNet-272(BN) model for SVHN from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -497,11 +568,16 @@ def preresnet272bn_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=272, bottleneck=True,
-                               model_name="preresnet272bn_svhn", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=272,
+        bottleneck=True,
+        model_name="preresnet272bn_svhn",
+        **kwargs)
 
 
-def preresnet542bn_cifar10(num_classes=10, **kwargs):
+def preresnet542bn_cifar10(num_classes=10,
+                           **kwargs) -> nn.Module:
     """
     PreResNet-542(BN) model for CIFAR-10 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -520,11 +596,16 @@ def preresnet542bn_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=542, bottleneck=True,
-                               model_name="preresnet542bn_cifar10", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=542,
+        bottleneck=True,
+        model_name="preresnet542bn_cifar10",
+        **kwargs)
 
 
-def preresnet542bn_cifar100(num_classes=100, **kwargs):
+def preresnet542bn_cifar100(num_classes=100,
+                            **kwargs) -> nn.Module:
     """
     PreResNet-542(BN) model for CIFAR-100 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -543,11 +624,16 @@ def preresnet542bn_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=542, bottleneck=True,
-                               model_name="preresnet542bn_cifar100", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=542,
+        bottleneck=True,
+        model_name="preresnet542bn_cifar100",
+        **kwargs)
 
 
-def preresnet542bn_svhn(num_classes=10, **kwargs):
+def preresnet542bn_svhn(num_classes=10,
+                        **kwargs) -> nn.Module:
     """
     PreResNet-542(BN) model for SVHN from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -566,11 +652,16 @@ def preresnet542bn_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=542, bottleneck=True,
-                               model_name="preresnet542bn_svhn", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=542,
+        bottleneck=True,
+        model_name="preresnet542bn_svhn",
+        **kwargs)
 
 
-def preresnet1001_cifar10(num_classes=10, **kwargs):
+def preresnet1001_cifar10(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     PreResNet-1001 model for CIFAR-10 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -589,11 +680,16 @@ def preresnet1001_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=1001, bottleneck=True,
-                               model_name="preresnet1001_cifar10", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=1001,
+        bottleneck=True,
+        model_name="preresnet1001_cifar10",
+        **kwargs)
 
 
-def preresnet1001_cifar100(num_classes=100, **kwargs):
+def preresnet1001_cifar100(num_classes=100,
+                           **kwargs) -> nn.Module:
     """
     PreResNet-1001 model for CIFAR-100 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -612,11 +708,16 @@ def preresnet1001_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=1001, bottleneck=True,
-                               model_name="preresnet1001_cifar100", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=1001,
+        bottleneck=True,
+        model_name="preresnet1001_cifar100",
+        **kwargs)
 
 
-def preresnet1001_svhn(num_classes=10, **kwargs):
+def preresnet1001_svhn(num_classes=10,
+                       **kwargs) -> nn.Module:
     """
     PreResNet-1001 model for SVHN from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -635,11 +736,16 @@ def preresnet1001_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=1001, bottleneck=True,
-                               model_name="preresnet1001_svhn", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=1001,
+        bottleneck=True,
+        model_name="preresnet1001_svhn",
+        **kwargs)
 
 
-def preresnet1202_cifar10(num_classes=10, **kwargs):
+def preresnet1202_cifar10(num_classes=10,
+                          **kwargs) -> nn.Module:
     """
     PreResNet-1202 model for CIFAR-10 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -658,11 +764,16 @@ def preresnet1202_cifar10(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=1202, bottleneck=False,
-                               model_name="preresnet1202_cifar10", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=1202,
+        bottleneck=False,
+        model_name="preresnet1202_cifar10",
+        **kwargs)
 
 
-def preresnet1202_cifar100(num_classes=100, **kwargs):
+def preresnet1202_cifar100(num_classes=100,
+                           **kwargs) -> nn.Module:
     """
     PreResNet-1202 model for CIFAR-100 from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -681,11 +792,16 @@ def preresnet1202_cifar100(num_classes=100, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=1202, bottleneck=False,
-                               model_name="preresnet1202_cifar100", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=1202,
+        bottleneck=False,
+        model_name="preresnet1202_cifar100",
+        **kwargs)
 
 
-def preresnet1202_svhn(num_classes=10, **kwargs):
+def preresnet1202_svhn(num_classes=10,
+                       **kwargs) -> nn.Module:
     """
     PreResNet-1202 model for SVHN from 'Identity Mappings in Deep Residual Networks,'
     https://arxiv.org/abs/1603.05027.
@@ -704,8 +820,12 @@ def preresnet1202_svhn(num_classes=10, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_preresnet_cifar(num_classes=num_classes, blocks=1202, bottleneck=False,
-                               model_name="preresnet1202_svhn", **kwargs)
+    return get_preresnet_cifar(
+        num_classes=num_classes,
+        blocks=1202,
+        bottleneck=False,
+        model_name="preresnet1202_svhn",
+        **kwargs)
 
 
 def _test():

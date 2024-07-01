@@ -416,7 +416,7 @@ class FastSCNN(nn.Module):
 def get_fastscnn(model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),
-                 **kwargs):
+                 **kwargs) -> nn.Module:
     """
     Create Fast-SCNN model with specific parameters.
 
@@ -434,8 +434,7 @@ def get_fastscnn(model_name: str | None = None,
     nn.Module
         Desired module.
     """
-    net = FastSCNN(
-        **kwargs)
+    net = FastSCNN(**kwargs)
 
     if pretrained:
         if (model_name is None) or (not model_name):
@@ -449,7 +448,9 @@ def get_fastscnn(model_name: str | None = None,
     return net
 
 
-def fastscnn_cityscapes(num_classes=19, aux=True, **kwargs):
+def fastscnn_cityscapes(num_classes=19,
+                        aux=True,
+                        **kwargs) -> nn.Module:
     """
     Fast-SCNN model for Cityscapes from 'Fast-SCNN: Fast Semantic Segmentation Network,'
     https://arxiv.org/abs/1902.04502.
@@ -472,7 +473,11 @@ def fastscnn_cityscapes(num_classes=19, aux=True, **kwargs):
     nn.Module
         Desired module.
     """
-    return get_fastscnn(num_classes=num_classes, aux=aux, model_name="fastscnn_cityscapes", **kwargs)
+    return get_fastscnn(
+        num_classes=num_classes,
+        aux=aux,
+        model_name="fastscnn_cityscapes",
+        **kwargs)
 
 
 def _test():

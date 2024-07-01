@@ -278,7 +278,7 @@ def get_resnesta(blocks,
                  model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),
-                 **kwargs):
+                 **kwargs) -> nn.Module:
     """
     Create ResNeSt(A) with average downsampling model with specific parameters.
 
@@ -378,7 +378,7 @@ def get_resnesta(blocks,
     return net
 
 
-def resnestabc14(**kwargs):
+def resnestabc14(**kwargs) -> nn.Module:
     """
     ResNeSt(A)-BC-14 with average downsampling model from 'ResNeSt: Split-Attention Networks,'
     https://arxiv.org/abs/2004.08955.
@@ -395,10 +395,14 @@ def resnestabc14(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnesta(blocks=14, bottleneck=True, model_name="resnestabc14", **kwargs)
+    return get_resnesta(
+        blocks=14,
+        bottleneck=True,
+        model_name="resnestabc14",
+        **kwargs)
 
 
-def resnesta18(**kwargs):
+def resnesta18(**kwargs) -> nn.Module:
     """
     ResNeSt(A)-18 with average downsampling model from 'ResNeSt: Split-Attention Networks,'
     https://arxiv.org/abs/2004.08955.
@@ -415,10 +419,13 @@ def resnesta18(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnesta(blocks=18, model_name="resnesta18", **kwargs)
+    return get_resnesta(
+        blocks=18,
+        model_name="resnesta18",
+        **kwargs)
 
 
-def resnestabc26(**kwargs):
+def resnestabc26(**kwargs) -> nn.Module:
     """
     ResNeSt(A)-BC-26 with average downsampling model from 'ResNeSt: Split-Attention Networks,'
     https://arxiv.org/abs/2004.08955.
@@ -435,10 +442,14 @@ def resnestabc26(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnesta(blocks=26, bottleneck=True, model_name="resnestabc26", **kwargs)
+    return get_resnesta(
+        blocks=26,
+        bottleneck=True,
+        model_name="resnestabc26",
+        **kwargs)
 
 
-def resnesta50(**kwargs):
+def resnesta50(**kwargs) -> nn.Module:
     """
     ResNeSt(A)-50 with average downsampling model with stride at the second convolution in bottleneck block
     from 'ResNeSt: Split-Attention Networks,' https://arxiv.org/abs/2004.08955.
@@ -455,10 +466,13 @@ def resnesta50(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnesta(blocks=50, model_name="resnesta50", **kwargs)
+    return get_resnesta(
+        blocks=50,
+        model_name="resnesta50",
+        **kwargs)
 
 
-def resnesta101(**kwargs):
+def resnesta101(**kwargs) -> nn.Module:
     """
     ResNeSt(A)-101 with average downsampling model with stride at the second convolution in bottleneck
     block from 'ResNeSt: Split-Attention Networks,' https://arxiv.org/abs/2004.08955.
@@ -475,10 +489,13 @@ def resnesta101(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnesta(blocks=101, model_name="resnesta101", **kwargs)
+    return get_resnesta(
+        blocks=101,
+        model_name="resnesta101",
+        **kwargs)
 
 
-def resnesta152(**kwargs):
+def resnesta152(**kwargs) -> nn.Module:
     """
     ResNeSt(A)-152 with average downsampling model with stride at the second convolution in bottleneck
     block from 'ResNeSt: Split-Attention Networks,' https://arxiv.org/abs/2004.08955.
@@ -495,10 +512,14 @@ def resnesta152(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnesta(blocks=152, model_name="resnesta152", **kwargs)
+    return get_resnesta(
+        blocks=152,
+        model_name="resnesta152",
+        **kwargs)
 
 
-def resnesta200(in_size=(256, 256), **kwargs):
+def resnesta200(in_size=(256, 256),
+                **kwargs) -> nn.Module:
     """
     ResNeSt(A)-200 with average downsampling model with stride at the second convolution in bottleneck
     block from 'ResNeSt: Split-Attention Networks,' https://arxiv.org/abs/2004.08955.
@@ -517,10 +538,16 @@ def resnesta200(in_size=(256, 256), **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnesta(blocks=200, in_size=in_size, dropout_rate=0.2, model_name="resnesta200", **kwargs)
+    return get_resnesta(
+        blocks=200,
+        in_size=in_size,
+        dropout_rate=0.2,
+        model_name="resnesta200",
+        **kwargs)
 
 
-def resnesta269(in_size=(320, 320), **kwargs):
+def resnesta269(in_size=(320, 320),
+                **kwargs) -> nn.Module:
     """
     ResNeSt(A)-269 with average downsampling model with stride at the second convolution in bottleneck
     block from 'ResNeSt: Split-Attention Networks,' https://arxiv.org/abs/2004.08955.
@@ -539,7 +566,12 @@ def resnesta269(in_size=(320, 320), **kwargs):
     nn.Module
         Desired module.
     """
-    return get_resnesta(blocks=269, in_size=in_size, dropout_rate=0.2, model_name="resnesta269", **kwargs)
+    return get_resnesta(
+        blocks=269,
+        in_size=in_size,
+        dropout_rate=0.2,
+        model_name="resnesta269",
+        **kwargs)
 
 
 def _test():

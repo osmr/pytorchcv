@@ -174,7 +174,7 @@ def get_nvpattexp(base_persons,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
-                  **kwargs):
+                  **kwargs) -> nn.Module:
     """
     Create Neural Voice Puppetry Audio-to-Expression model with specific parameters.
 
@@ -213,7 +213,7 @@ def get_nvpattexp(base_persons,
     return net
 
 
-def nvpattexp116bazel76(**kwargs):
+def nvpattexp116bazel76(**kwargs) -> nn.Module:
     """
     Neural Voice Puppetry Audio-to-Expression model for 116 base persons and Bazel topology with 76 blendshapes from
     'Neural Voice Puppetry: Audio-driven Facial Reenactment,' https://arxiv.org/abs/1912.05566.
@@ -230,7 +230,11 @@ def nvpattexp116bazel76(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_nvpattexp(base_persons=116, blendshapes=76, model_name="nvpattexp116bazel76", **kwargs)
+    return get_nvpattexp(
+        base_persons=116,
+        blendshapes=76,
+        model_name="nvpattexp116bazel76",
+        **kwargs)
 
 
 def _test():

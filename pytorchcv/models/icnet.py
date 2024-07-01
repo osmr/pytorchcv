@@ -277,7 +277,7 @@ def get_icnet(backbones,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
-              **kwargs):
+              **kwargs) -> nn.Module:
     """
     Create ICNet model with specific parameters.
 
@@ -328,7 +328,10 @@ def get_icnet(backbones,
     return net
 
 
-def icnet_resnetd50b_cityscapes(pretrained_backbone=False, num_classes=19, aux=True, **kwargs):
+def icnet_resnetd50b_cityscapes(pretrained_backbone=False,
+                                num_classes=19,
+                                aux=True,
+                                **kwargs) -> nn.Module:
     """
     ICNet model on the base of ResNet(D)-50b for Cityscapes from 'ICNet for Real-Time Semantic Segmentation on
     High-Resolution Images,' https://arxiv.org/abs/1704.08545.
@@ -360,8 +363,13 @@ def icnet_resnetd50b_cityscapes(pretrained_backbone=False, num_classes=19, aux=T
         del backbone2[0]
     backbones = (backbone1, backbone2)
     backbones_out_channels = (512, 2048)
-    return get_icnet(backbones=backbones, backbones_out_channels=backbones_out_channels, num_classes=num_classes,
-                     aux=aux, model_name="icnet_resnetd50b_cityscapes", **kwargs)
+    return get_icnet(
+        backbones=backbones,
+        backbones_out_channels=backbones_out_channels,
+        num_classes=num_classes,
+        aux=aux,
+        model_name="icnet_resnetd50b_cityscapes",
+        **kwargs)
 
 
 def _test():
@@ -378,7 +386,11 @@ def _test():
 
     for model, num_classes in models:
 
-        net = model(pretrained=pretrained, in_size=in_size, fixed_size=fixed_size, aux=aux)
+        net = model(
+            pretrained=pretrained,
+            in_size=in_size,
+            fixed_size=fixed_size,
+            aux=aux)
 
         # net.train()
         net.eval()

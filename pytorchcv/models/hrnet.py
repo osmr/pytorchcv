@@ -382,7 +382,7 @@ def get_hrnet(version,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
-              **kwargs):
+              **kwargs) -> nn.Module:
     """
     Create HRNet model with specific parameters.
 
@@ -472,7 +472,7 @@ def get_hrnet(version,
     return net
 
 
-def hrnet_w18_small_v1(**kwargs):
+def hrnet_w18_small_v1(**kwargs) -> nn.Module:
     """
     HRNet-W18 Small V1 model from 'Deep High-Resolution Representation Learning for Visual Recognition,'
     https://arxiv.org/abs/1908.07919.
@@ -489,10 +489,13 @@ def hrnet_w18_small_v1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hrnet(version="w18s1", model_name="hrnet_w18_small_v1", **kwargs)
+    return get_hrnet(
+        version="w18s1",
+        model_name="hrnet_w18_small_v1",
+        **kwargs)
 
 
-def hrnet_w18_small_v2(**kwargs):
+def hrnet_w18_small_v2(**kwargs) -> nn.Module:
     """
     HRNet-W18 Small V2 model from 'Deep High-Resolution Representation Learning for Visual Recognition,'
     https://arxiv.org/abs/1908.07919.
@@ -509,10 +512,13 @@ def hrnet_w18_small_v2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hrnet(version="w18s2", model_name="hrnet_w18_small_v2", **kwargs)
+    return get_hrnet(
+        version="w18s2",
+        model_name="hrnet_w18_small_v2",
+        **kwargs)
 
 
-def hrnetv2_w18(**kwargs):
+def hrnetv2_w18(**kwargs) -> nn.Module:
     """
     HRNetV2-W18 model from 'Deep High-Resolution Representation Learning for Visual Recognition,'
     https://arxiv.org/abs/1908.07919.
@@ -529,10 +535,13 @@ def hrnetv2_w18(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hrnet(version="w18", model_name="hrnetv2_w18", **kwargs)
+    return get_hrnet(
+        version="w18",
+        model_name="hrnetv2_w18",
+        **kwargs)
 
 
-def hrnetv2_w30(**kwargs):
+def hrnetv2_w30(**kwargs) -> nn.Module:
     """
     HRNetV2-W30 model from 'Deep High-Resolution Representation Learning for Visual Recognition,'
     https://arxiv.org/abs/1908.07919.
@@ -549,10 +558,13 @@ def hrnetv2_w30(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hrnet(version="w30", model_name="hrnetv2_w30", **kwargs)
+    return get_hrnet(
+        version="w30",
+        model_name="hrnetv2_w30",
+        **kwargs)
 
 
-def hrnetv2_w32(**kwargs):
+def hrnetv2_w32(**kwargs) -> nn.Module:
     """
     HRNetV2-W32 model from 'Deep High-Resolution Representation Learning for Visual Recognition,'
     https://arxiv.org/abs/1908.07919.
@@ -569,10 +581,13 @@ def hrnetv2_w32(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hrnet(version="w32", model_name="hrnetv2_w32", **kwargs)
+    return get_hrnet(
+        version="w32",
+        model_name="hrnetv2_w32",
+        **kwargs)
 
 
-def hrnetv2_w40(**kwargs):
+def hrnetv2_w40(**kwargs) -> nn.Module:
     """
     HRNetV2-W40 model from 'Deep High-Resolution Representation Learning for Visual Recognition,'
     https://arxiv.org/abs/1908.07919.
@@ -589,10 +604,13 @@ def hrnetv2_w40(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hrnet(version="w40", model_name="hrnetv2_w40", **kwargs)
+    return get_hrnet(
+        version="w40",
+        model_name="hrnetv2_w40",
+        **kwargs)
 
 
-def hrnetv2_w44(**kwargs):
+def hrnetv2_w44(**kwargs) -> nn.Module:
     """
     HRNetV2-W44 model from 'Deep High-Resolution Representation Learning for Visual Recognition,'
     https://arxiv.org/abs/1908.07919.
@@ -609,10 +627,13 @@ def hrnetv2_w44(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hrnet(version="w44", model_name="hrnetv2_w44", **kwargs)
+    return get_hrnet(
+        version="w44",
+        model_name="hrnetv2_w44",
+        **kwargs)
 
 
-def hrnetv2_w48(**kwargs):
+def hrnetv2_w48(**kwargs) -> nn.Module:
     """
     HRNetV2-W48 model from 'Deep High-Resolution Representation Learning for Visual Recognition,'
     https://arxiv.org/abs/1908.07919.
@@ -629,10 +650,13 @@ def hrnetv2_w48(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hrnet(version="w48", model_name="hrnetv2_w48", **kwargs)
+    return get_hrnet(
+        version="w48",
+        model_name="hrnetv2_w48",
+        **kwargs)
 
 
-def hrnetv2_w64(**kwargs):
+def hrnetv2_w64(**kwargs) -> nn.Module:
     """
     HRNetV2-W64 model from 'Deep High-Resolution Representation Learning for Visual Recognition,'
     https://arxiv.org/abs/1908.07919.
@@ -649,7 +673,10 @@ def hrnetv2_w64(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_hrnet(version="w64", model_name="hrnetv2_w64", **kwargs)
+    return get_hrnet(
+        version="w64",
+        model_name="hrnetv2_w64",
+        **kwargs)
 
 
 def _test():

@@ -7,6 +7,7 @@
 __all__ = ['get_fdmobilenet', 'fdmobilenet_w1', 'fdmobilenet_w3d4', 'fdmobilenet_wd2', 'fdmobilenet_wd4']
 
 import os
+import torch.nn as nn
 from .mobilenet import MobileNet
 from .common import calc_net_weights
 
@@ -15,7 +16,7 @@ def get_fdmobilenet(width_scale,
                     model_name: str | None = None,
                     pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),
-                    **kwargs):
+                    **kwargs) -> nn.Module:
     """
     Create FD-MobileNet model with specific parameters.
 
@@ -58,7 +59,7 @@ def get_fdmobilenet(width_scale,
     return net
 
 
-def fdmobilenet_w1(**kwargs):
+def fdmobilenet_w1(**kwargs) -> nn.Module:
     """
     FD-MobileNet 1.0x model from 'FD-MobileNet: Improved MobileNet with A Fast Downsampling Strategy,'
     https://arxiv.org/abs/1802.03750.
@@ -75,10 +76,13 @@ def fdmobilenet_w1(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_fdmobilenet(width_scale=1.0, model_name="fdmobilenet_w1", **kwargs)
+    return get_fdmobilenet(
+        width_scale=1.0,
+        model_name="fdmobilenet_w1",
+        **kwargs)
 
 
-def fdmobilenet_w3d4(**kwargs):
+def fdmobilenet_w3d4(**kwargs) -> nn.Module:
     """
     FD-MobileNet 0.75x model from 'FD-MobileNet: Improved MobileNet with A Fast Downsampling Strategy,'
     https://arxiv.org/abs/1802.03750.
@@ -95,10 +99,13 @@ def fdmobilenet_w3d4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_fdmobilenet(width_scale=0.75, model_name="fdmobilenet_w3d4", **kwargs)
+    return get_fdmobilenet(
+        width_scale=0.75,
+        model_name="fdmobilenet_w3d4",
+        **kwargs)
 
 
-def fdmobilenet_wd2(**kwargs):
+def fdmobilenet_wd2(**kwargs) -> nn.Module:
     """
     FD-MobileNet 0.5x model from 'FD-MobileNet: Improved MobileNet with A Fast Downsampling Strategy,'
     https://arxiv.org/abs/1802.03750.
@@ -115,10 +122,13 @@ def fdmobilenet_wd2(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_fdmobilenet(width_scale=0.5, model_name="fdmobilenet_wd2", **kwargs)
+    return get_fdmobilenet(
+        width_scale=0.5,
+        model_name="fdmobilenet_wd2",
+        **kwargs)
 
 
-def fdmobilenet_wd4(**kwargs):
+def fdmobilenet_wd4(**kwargs) -> nn.Module:
     """
     FD-MobileNet 0.25x model from 'FD-MobileNet: Improved MobileNet with A Fast Downsampling Strategy,'
     https://arxiv.org/abs/1802.03750.
@@ -135,7 +145,10 @@ def fdmobilenet_wd4(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_fdmobilenet(width_scale=0.25, model_name="fdmobilenet_wd4", **kwargs)
+    return get_fdmobilenet(
+        width_scale=0.25,
+        model_name="fdmobilenet_wd4",
+        **kwargs)
 
 
 def _test():

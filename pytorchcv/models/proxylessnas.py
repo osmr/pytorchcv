@@ -241,7 +241,7 @@ def get_proxylessnas(version,
                      model_name: str | None = None,
                      pretrained: bool = False,
                      root: str = os.path.join("~", ".torch", "models"),
-                     **kwargs):
+                     **kwargs) -> nn.Module:
     """
     Create ProxylessNAS model with specific parameters.
 
@@ -261,7 +261,6 @@ def get_proxylessnas(version,
     nn.Module
         Desired module.
     """
-
     if version == "cpu":
         residuals = [[1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 0, 0, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1]]
         channels = [[24], [32, 32, 32, 32], [48, 48, 48, 48], [88, 88, 88, 88, 104, 104, 104, 104],
@@ -321,7 +320,7 @@ def get_proxylessnas(version,
     return net
 
 
-def proxylessnas_cpu(**kwargs):
+def proxylessnas_cpu(**kwargs) -> nn.Module:
     """
     ProxylessNAS (CPU) model from 'ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware,'
     https://arxiv.org/abs/1812.00332.
@@ -338,10 +337,13 @@ def proxylessnas_cpu(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_proxylessnas(version="cpu", model_name="proxylessnas_cpu", **kwargs)
+    return get_proxylessnas(
+        version="cpu",
+        model_name="proxylessnas_cpu",
+        **kwargs)
 
 
-def proxylessnas_gpu(**kwargs):
+def proxylessnas_gpu(**kwargs) -> nn.Module:
     """
     ProxylessNAS (GPU) model from 'ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware,'
     https://arxiv.org/abs/1812.00332.
@@ -358,10 +360,13 @@ def proxylessnas_gpu(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_proxylessnas(version="gpu", model_name="proxylessnas_gpu", **kwargs)
+    return get_proxylessnas(
+        version="gpu",
+        model_name="proxylessnas_gpu",
+        **kwargs)
 
 
-def proxylessnas_mobile(**kwargs):
+def proxylessnas_mobile(**kwargs) -> nn.Module:
     """
     ProxylessNAS (Mobile) model from 'ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware,'
     https://arxiv.org/abs/1812.00332.
@@ -378,10 +383,13 @@ def proxylessnas_mobile(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_proxylessnas(version="mobile", model_name="proxylessnas_mobile", **kwargs)
+    return get_proxylessnas(
+        version="mobile",
+        model_name="proxylessnas_mobile",
+        **kwargs)
 
 
-def proxylessnas_mobile14(**kwargs):
+def proxylessnas_mobile14(**kwargs) -> nn.Module:
     """
     ProxylessNAS (Mobile-14) model from 'ProxylessNAS: Direct Neural Architecture Search on Target Task and Hardware,'
     https://arxiv.org/abs/1812.00332.
@@ -398,7 +406,10 @@ def proxylessnas_mobile14(**kwargs):
     nn.Module
         Desired module.
     """
-    return get_proxylessnas(version="mobile14", model_name="proxylessnas_mobile14", **kwargs)
+    return get_proxylessnas(
+        version="mobile14",
+        model_name="proxylessnas_mobile14",
+        **kwargs)
 
 
 def _test():
