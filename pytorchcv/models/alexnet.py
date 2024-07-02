@@ -9,7 +9,7 @@ __all__ = ['AlexNet', 'alexnet', 'alexnetb']
 import os
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import ConvBlock, calc_net_weights
+from .common import ConvBlock
 
 
 class AlexConv(ConvBlock):
@@ -300,6 +300,7 @@ def alexnetb(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weights, get_model_weight_count
 
     pretrained = False
 
@@ -316,8 +317,7 @@ def _test():
         net.eval()
         weight_count = calc_net_weights(net)
         print("m={}, {}".format(model.__name__, weight_count))
-        assert (model != alexnet or weight_count == 62378344)
-        assert (model != alexnetb or weight_count == 61100840)
+        assert (weight_count == get_model_weight_count(model.__name__))
 
         x = torch.randn(1, 3, 224, 224)
         y = net(x)
