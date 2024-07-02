@@ -16,7 +16,7 @@ __all__ = ['CIFARDenseNet', 'densenet40_k12_cifar10', 'densenet40_k12_cifar100',
 import os
 import torch
 import torch.nn as nn
-from .common import conv3x3, pre_conv3x3_block, calc_net_weights
+from .common import conv3x3, pre_conv3x3_block
 from .preresnet import PreResActivation
 from .densenet import DenseUnit, TransitionBlock
 
@@ -992,6 +992,7 @@ def densenet250_k24_bc_svhn(num_classes=10,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -1031,7 +1032,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != densenet40_k12_cifar10 or weight_count == 599050)
         assert (model != densenet40_k12_cifar100 or weight_count == 622360)

@@ -8,7 +8,7 @@ __all__ = ['IBNResNeXt', 'ibn_resnext50_32x4d', 'ibn_resnext101_32x4d', 'ibn_res
 import os
 import math
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, calc_net_weights
+from .common import conv1x1_block, conv3x3_block
 from .resnet import ResInitBlock
 from .ibnresnet import ibn_conv1x1_block
 
@@ -335,6 +335,7 @@ def ibn_resnext101_64x4d(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -350,7 +351,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != ibn_resnext50_32x4d or weight_count == 25028904)
         assert (model != ibn_resnext101_32x4d or weight_count == 44177704)

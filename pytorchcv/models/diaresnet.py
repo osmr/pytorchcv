@@ -11,7 +11,7 @@ __all__ = ['DIAResNet', 'diaresnet10', 'diaresnet12', 'diaresnet14', 'diaresnetb
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1_block, DualPathSequential, calc_net_weights
+from .common import conv1x1_block, DualPathSequential
 from .resnet import ResBlock, ResBottleneck, ResInitBlock
 
 
@@ -818,6 +818,7 @@ def diaresnet200b(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -848,7 +849,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != diaresnet10 or weight_count == 6297352)
         assert (model != diaresnet12 or weight_count == 6371336)

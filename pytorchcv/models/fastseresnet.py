@@ -7,7 +7,7 @@ __all__ = ['FastSEResNet', 'fastseresnet101b']
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, SEBlock, calc_net_weights
+from .common import conv1x1_block, SEBlock
 from .resnet import ResBlock, ResBottleneck, ResInitBlock
 
 
@@ -277,6 +277,7 @@ def fastseresnet101b(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -290,7 +291,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != fastseresnet101b or weight_count == 55697960)
 

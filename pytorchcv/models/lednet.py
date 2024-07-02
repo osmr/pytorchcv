@@ -10,7 +10,7 @@ import os
 import torch
 import torch.nn as nn
 from .common import (conv1x1_block, conv3x3_block, conv5x5_block, conv7x7_block, asym_conv3x3_block, ChannelShuffle,
-                     InterpolationBlock, Hourglass, BreakBlock, calc_net_weights)
+                     InterpolationBlock, Hourglass, BreakBlock)
 from .enet import ENetMixDownBlock
 
 
@@ -423,6 +423,8 @@ def lednet_cityscapes(num_classes=19,
 
 
 def _test():
+    from .model_store import calc_net_weight_count
+
     pretrained = False
     fixed_size = True
     correct_size_mismatch = False
@@ -440,7 +442,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != lednet_cityscapes or weight_count == 922821)
 

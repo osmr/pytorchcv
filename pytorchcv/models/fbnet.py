@@ -8,7 +8,7 @@ __all__ = ['FBNet', 'fbnet_cb']
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block
 
 
 class FBNetUnit(nn.Module):
@@ -294,6 +294,7 @@ def fbnet_cb(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -307,7 +308,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != fbnet_cb or weight_count == 5572200)
 

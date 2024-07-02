@@ -11,7 +11,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import conv1x1_block, conv3x3_block, SEBlock, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, SEBlock
 
 
 def anti_aliased_downsample(x):
@@ -516,6 +516,7 @@ def tresnet_xl(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -531,7 +532,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != tresnet_m or weight_count == 31389032)
         assert (model != tresnet_l or weight_count == 55989256)

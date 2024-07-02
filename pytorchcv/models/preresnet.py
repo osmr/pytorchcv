@@ -11,7 +11,7 @@ __all__ = ['PreResNet', 'preresnet10', 'preresnet12', 'preresnet14', 'preresnetb
 
 import os
 import torch.nn as nn
-from .common import pre_conv1x1_block, pre_conv3x3_block, conv1x1, calc_net_weights
+from .common import pre_conv1x1_block, pre_conv3x3_block, conv1x1
 
 
 class PreResBlock(nn.Module):
@@ -918,6 +918,7 @@ def preresnet269b(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -952,7 +953,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != preresnet10 or weight_count == 5417128)
         assert (model != preresnet12 or weight_count == 5491112)

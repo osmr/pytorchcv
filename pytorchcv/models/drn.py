@@ -7,7 +7,6 @@ __all__ = ['DRN', 'drnc26', 'drnc42', 'drnc58', 'drnd22', 'drnd38', 'drnd54', 'd
 
 import os
 import torch.nn as nn
-from .common import calc_net_weights
 
 
 class DRNConv(nn.Module):
@@ -649,6 +648,7 @@ def drnd105(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -668,7 +668,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != drnc26 or weight_count == 21126584)
         assert (model != drnc42 or weight_count == 31234744)

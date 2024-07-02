@@ -10,7 +10,7 @@ import os
 import torch
 import torch.nn as nn
 from .common import (NormActivation, conv1x1, conv1x1_block, conv3x3_block, depthwise_conv3x3, SEBlock, Concurrent,
-                     DualPathSequential, InterpolationBlock, calc_net_weights)
+                     DualPathSequential, InterpolationBlock)
 
 
 class CGBlock(nn.Module):
@@ -433,6 +433,8 @@ def cgnet_cityscapes(num_classes: int = 19,
 
 
 def _test():
+    from .model_store import calc_net_weight_count
+
     pretrained = False
     fixed_size = True
     in_size = (1024, 2048)
@@ -448,7 +450,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != cgnet_cityscapes or weight_count == 496306)
 

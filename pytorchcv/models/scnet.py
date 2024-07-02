@@ -9,7 +9,7 @@ __all__ = ['SCNet', 'scnet50', 'scnet101', 'scneta50', 'scneta101']
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, InterpolationBlock, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, InterpolationBlock
 from .resnet import ResInitBlock
 from .senet import SEInitBlock
 from .resnesta import ResNeStADownBlock
@@ -482,6 +482,7 @@ def scneta101(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -498,7 +499,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != scnet50 or weight_count == 25564584)
         assert (model != scnet101 or weight_count == 44565416)

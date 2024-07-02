@@ -8,7 +8,7 @@ __all__ = ['ResNeStA', 'resnestabc14', 'resnesta18', 'resnestabc26', 'resnesta50
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, saconv3x3_block, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, saconv3x3_block
 from .senet import SEInitBlock
 
 
@@ -576,6 +576,7 @@ def resnesta269(in_size=(320, 320),
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -596,7 +597,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != resnestabc14 or weight_count == 10611688)
         assert (model != resnesta18 or weight_count == 12763784)

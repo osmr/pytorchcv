@@ -7,7 +7,7 @@ __all__ = ['AlphaPose', 'alphapose_fastseresnet101b_coco']
 
 import os
 import torch.nn as nn
-from .common import conv3x3, DucBlock, HeatmapMaxDetBlock, calc_net_weights
+from .common import conv3x3, DucBlock, HeatmapMaxDetBlock
 from .fastseresnet import fastseresnet101b
 
 
@@ -169,6 +169,7 @@ def alphapose_fastseresnet101b_coco(pretrained_backbone: bool = False,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     in_size = (256, 192)
     keypoints = 17
@@ -185,7 +186,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != alphapose_fastseresnet101b_coco or weight_count == 59569873)
 

@@ -10,7 +10,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import conv3x3, ConvBlock, AsymConvBlock, DeconvBlock, NormActivation, conv1x1_block, calc_net_weights
+from .common import conv3x3, ConvBlock, AsymConvBlock, DeconvBlock, NormActivation, conv1x1_block
 
 
 class ENetMaxDownBlock(nn.Module):
@@ -549,6 +549,8 @@ def enet_cityscapes(num_classes=19,
 
 
 def _test():
+    from .model_store import calc_net_weight_count
+
     pretrained = False
     fixed_size = True
     in_size = (1024, 2048)
@@ -564,7 +566,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != enet_cityscapes or weight_count == 358060)
 

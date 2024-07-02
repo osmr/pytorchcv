@@ -9,7 +9,7 @@ __all__ = ['InceptionV4', 'inceptionv4']
 import os
 import torch
 import torch.nn as nn
-from .common import ConvBlock, conv3x3_block, Concurrent, calc_net_weights
+from .common import ConvBlock, conv3x3_block, Concurrent
 from .inceptionv3 import MaxPoolBranch, AvgPoolBranch, Conv1x1Branch, ConvSeqBranch
 
 
@@ -574,6 +574,7 @@ def inceptionv4(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -586,7 +587,7 @@ def _test():
         net = model(pretrained=pretrained)
 
         # net.train()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != InceptionV4 or weight_count == 42679816)
 

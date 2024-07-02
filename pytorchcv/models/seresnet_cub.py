@@ -10,7 +10,6 @@ __all__ = ['seresnet10_cub', 'seresnet12_cub', 'seresnet14_cub', 'seresnetbc14b_
 
 import torch.nn as nn
 from .seresnet import get_seresnet
-from .common import calc_net_weights
 
 
 def seresnet10_cub(num_classes=200,
@@ -507,6 +506,7 @@ def seresnet200b_cub(num_classes=200,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -537,7 +537,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != seresnet10_cub or weight_count == 5052932)
         assert (model != seresnet12_cub or weight_count == 5127496)

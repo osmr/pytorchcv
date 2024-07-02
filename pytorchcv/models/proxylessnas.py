@@ -9,7 +9,7 @@ __all__ = ['ProxylessNAS', 'proxylessnas_cpu', 'proxylessnas_gpu', 'proxylessnas
 
 import os
 import torch.nn as nn
-from .common import ConvBlock, conv1x1_block, conv3x3_block, calc_net_weights
+from .common import ConvBlock, conv1x1_block, conv3x3_block
 
 
 class ProxylessBlock(nn.Module):
@@ -414,6 +414,7 @@ def proxylessnas_mobile14(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -430,7 +431,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != proxylessnas_cpu or weight_count == 4361648)
         assert (model != proxylessnas_gpu or weight_count == 7119848)

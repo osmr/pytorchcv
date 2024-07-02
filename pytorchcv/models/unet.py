@@ -9,7 +9,7 @@ __all__ = ['UNet', 'unet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, conv3x3_block, InterpolationBlock, Hourglass, Identity, calc_net_weights
+from .common import conv1x1, conv3x3_block, InterpolationBlock, Hourglass, Identity
 
 
 class UNetBlock(nn.Module):
@@ -305,6 +305,8 @@ def unet_cityscapes(num_classes: int = 19,
 
 
 def _test():
+    from .model_store import calc_net_weight_count
+
     pretrained = False
     fixed_size = True
     in_size = (1024, 2048)
@@ -323,7 +325,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != unet_cityscapes or weight_count == 13396499)
 

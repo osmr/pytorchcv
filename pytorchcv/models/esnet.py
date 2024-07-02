@@ -9,7 +9,7 @@ __all__ = ['ESNet', 'esnet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common import AsymConvBlock, deconv3x3_block, Concurrent, calc_net_weights
+from .common import AsymConvBlock, deconv3x3_block, Concurrent
 from .enet import ENetMixDownBlock
 from .erfnet import FCU
 
@@ -313,6 +313,8 @@ def esnet_cityscapes(num_classes=19,
 
 
 def _test():
+    from .model_store import calc_net_weight_count
+
     pretrained = False
     fixed_size = True
     correct_size_mismatch = False
@@ -333,7 +335,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != esnet_cityscapes or weight_count == 1660607)
 

@@ -8,7 +8,7 @@ __all__ = ['InceptionResNetV2', 'inceptionresnetv2']
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, Concurrent, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, Concurrent
 from .inceptionv3 import AvgPoolBranch, Conv1x1Branch, ConvSeqBranch
 from .inceptionresnetv1 import InceptionAUnit, InceptionBUnit, InceptionCUnit, ReductionAUnit, ReductionBUnit
 
@@ -276,6 +276,7 @@ def inceptionresnetv2(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -289,7 +290,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != inceptionresnetv2 or weight_count == 55843464)
 

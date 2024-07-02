@@ -10,7 +10,7 @@ __all__ = ['CenterNet', 'centernet_resnet18_voc', 'centernet_resnet18_coco', 'ce
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, conv3x3_block, DeconvBlock, Concurrent, calc_net_weights
+from .common import conv1x1, conv3x3_block, DeconvBlock, Concurrent
 from .resnet import resnet18, resnet50b, resnet101b
 
 
@@ -511,6 +511,8 @@ def centernet_resnet101b_coco(pretrained_backbone: bool = False,
 
 
 def _test():
+    from .model_store import calc_net_weight_count
+
     in_size = (512, 512)
     topk = 40
     return_heatmap = False
@@ -531,7 +533,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != centernet_resnet18_voc or weight_count == 14215640)
         assert (model != centernet_resnet18_coco or weight_count == 14219540)

@@ -10,7 +10,6 @@ __all__ = ['quartznet5x5_en_ls', 'quartznet15x5_en', 'quartznet15x5_en_nr', 'qua
 
 import torch.nn as nn
 from .jasper import get_jasper
-from .common import calc_net_weights
 
 
 def quartznet5x5_en_ls(num_classes=29,
@@ -356,6 +355,8 @@ def quartznet15x5_ru34(num_classes=34,
 
 
 def _test():
+    from .model_store import calc_net_weight_count
+
     import numpy as np
     import torch
 
@@ -390,7 +391,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != quartznet5x5_en_ls or weight_count == 6713181)
         assert (model != quartznet15x5_en or weight_count == 18924381)

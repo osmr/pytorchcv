@@ -7,7 +7,6 @@ __all__ = ['jasperdr10x5_en', 'jasperdr10x5_en_nr']
 
 import torch.nn as nn
 from .jasper import get_jasper
-from .common import calc_net_weights
 
 
 def jasperdr10x5_en(num_classes=29,
@@ -69,6 +68,7 @@ def jasperdr10x5_en_nr(num_classes=29,
 def _test():
     import numpy as np
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
     audio_features = 64
@@ -86,7 +86,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != jasperdr10x5_en or weight_count == 332632349)
         assert (model != jasperdr10x5_en_nr or weight_count == 332632349)

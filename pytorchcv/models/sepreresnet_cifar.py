@@ -14,7 +14,7 @@ __all__ = ['CIFARSEPreResNet', 'sepreresnet20_cifar10', 'sepreresnet20_cifar100'
 
 import os
 import torch.nn as nn
-from .common import conv3x3_block, calc_net_weights
+from .common import conv3x3_block
 from .sepreresnet import SEPreResUnit
 
 
@@ -805,6 +805,7 @@ def sepreresnet1202_svhn(num_classes=10,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -841,7 +842,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != sepreresnet20_cifar10 or weight_count == 274559)
         assert (model != sepreresnet20_cifar100 or weight_count == 280409)

@@ -12,7 +12,6 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import calc_net_weights
 
 
 class Binarize(torch.autograd.Function):
@@ -812,6 +811,7 @@ def wrn20_10_32bit_svhn(num_classes=10,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -830,7 +830,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != wrn20_10_1bit_cifar10 or weight_count == 26737140)
         assert (model != wrn20_10_1bit_cifar100 or weight_count == 26794920)

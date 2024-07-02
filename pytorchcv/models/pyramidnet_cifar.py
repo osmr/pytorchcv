@@ -13,7 +13,7 @@ __all__ = ['CIFARPyramidNet', 'pyramidnet110_a48_cifar10', 'pyramidnet110_a48_ci
 
 import os
 import torch.nn as nn
-from .common import conv3x3_block, calc_net_weights
+from .common import conv3x3_block
 from .preresnet import PreResActivation
 from .pyramidnet import PyrUnit
 
@@ -766,6 +766,7 @@ def pyramidnet272_a200_bn_svhn(num_classes=10,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -799,7 +800,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != pyramidnet110_a48_cifar10 or weight_count == 1772706)
         assert (model != pyramidnet110_a48_cifar100 or weight_count == 1778556)

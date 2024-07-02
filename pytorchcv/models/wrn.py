@@ -7,7 +7,6 @@ __all__ = ['WRN', 'wrn50_2']
 
 import os
 import torch.nn as nn
-from .common import calc_net_weights
 
 
 class WRNConv(nn.Module):
@@ -392,6 +391,7 @@ def wrn50_2(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -405,7 +405,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != wrn50_2 or weight_count == 68849128)
 

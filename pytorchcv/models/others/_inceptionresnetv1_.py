@@ -508,6 +508,7 @@ def calc_net_weights(net: nn.Module) -> int:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 

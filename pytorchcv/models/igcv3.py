@@ -8,7 +8,7 @@ __all__ = ['IGCV3', 'igcv3_w1', 'igcv3_w3d4', 'igcv3_wd2', 'igcv3_wd4']
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, dwconv3x3_block, ChannelShuffle, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, dwconv3x3_block, ChannelShuffle
 
 
 class InvResUnit(nn.Module):
@@ -24,7 +24,7 @@ class InvResUnit(nn.Module):
     stride : int or tuple(int, int)
         Strides of the second convolution layer.
     expansion : bool
-        Whether do expansion of channels.
+        Whether to do expansion of channels.
     """
     def __init__(self,
                  in_channels,
@@ -302,6 +302,7 @@ def igcv3_wd4(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -318,7 +319,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != igcv3_w1 or weight_count == 3491688)
         assert (model != igcv3_w3d4 or weight_count == 2638084)

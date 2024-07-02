@@ -8,7 +8,7 @@ __all__ = ['DarkNet', 'darknet_ref', 'darknet_tiny', 'darknet19']
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, calc_net_weights
+from .common import conv1x1_block, conv3x3_block
 
 
 def dark_convYxY(in_channels,
@@ -258,6 +258,7 @@ def darknet19(**kwargs) -> nn.Module:
 
 
 def _test():
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -273,7 +274,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != darknet_ref or weight_count == 7319416)
         assert (model != darknet_tiny or weight_count == 1042104)

@@ -10,7 +10,7 @@ __all__ = ['SimplePose', 'simplepose_resnet18_coco', 'simplepose_resnet50b_coco'
 import os
 import torch
 import torch.nn as nn
-from .common import DeconvBlock, conv1x1, HeatmapMaxDetBlock, calc_net_weights
+from .common import DeconvBlock, conv1x1, HeatmapMaxDetBlock
 from .resnet import resnet18, resnet50b, resnet101b, resnet152b
 from .resneta import resneta50b, resneta101b, resneta152b
 
@@ -371,6 +371,8 @@ def simplepose_resneta152b_coco(pretrained_backbone=False,
 
 
 def _test():
+    from .model_store import calc_net_weight_count
+
     in_size = (256, 192)
     keypoints = 17
     return_heatmap = False
@@ -392,7 +394,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != simplepose_resnet18_coco or weight_count == 15376721)
         assert (model != simplepose_resnet50b_coco or weight_count == 33999697)

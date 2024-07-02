@@ -12,7 +12,7 @@ __all__ = ['CIFARDIAPreResNet', 'diapreresnet20_cifar10', 'diapreresnet20_cifar1
 
 import os
 import torch.nn as nn
-from .common import conv3x3, DualPathSequential, calc_net_weights
+from .common import conv3x3, DualPathSequential
 from .preresnet import PreResActivation
 from .diaresnet import DIAAttention
 from .diapreresnet import DIAPreResUnit
@@ -665,6 +665,7 @@ def diapreresnet1202_svhn(num_classes=10,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -695,7 +696,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != diapreresnet20_cifar10 or weight_count == 286674)
         assert (model != diapreresnet20_cifar100 or weight_count == 292524)

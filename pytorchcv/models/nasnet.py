@@ -9,7 +9,7 @@ __all__ = ['NASNet', 'nasnet_4a1056', 'nasnet_6a4032', 'nasnet_dual_path_sequent
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, DualPathSequential, calc_net_weights
+from .common import conv1x1, DualPathSequential
 
 
 class NasDualPathScheme(object):
@@ -1283,6 +1283,7 @@ def nasnet_6a4032(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -1297,7 +1298,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != nasnet_4a1056 or weight_count == 5289978)
         assert (model != nasnet_6a4032 or weight_count == 88753150)

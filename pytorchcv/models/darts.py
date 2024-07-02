@@ -8,7 +8,7 @@ __all__ = ['DARTS', 'darts']
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, Identity, calc_net_weights
+from .common import conv1x1, Identity
 from .nasnet import nasnet_dual_path_sequential
 
 
@@ -707,6 +707,7 @@ def darts(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -720,7 +721,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != darts or weight_count == 4718752)
 

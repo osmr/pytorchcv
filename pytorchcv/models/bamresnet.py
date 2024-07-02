@@ -7,7 +7,7 @@ __all__ = ['BamResNet', 'bam_resnet18', 'bam_resnet34', 'bam_resnet50', 'bam_res
 
 import os
 import torch.nn as nn
-from .common import conv1x1, conv1x1_block, conv3x3_block, calc_net_weights
+from .common import conv1x1, conv1x1_block, conv3x3_block
 from .resnet import ResInitBlock, ResUnit
 
 
@@ -451,6 +451,7 @@ def bam_resnet152(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -468,7 +469,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != bam_resnet18 or weight_count == 11712503)
         assert (model != bam_resnet34 or weight_count == 21820663)

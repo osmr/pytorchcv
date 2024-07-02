@@ -9,7 +9,7 @@ __all__ = ['CIFAR10MSDNet', 'msdnet22_cifar10']
 import os
 import math
 import torch.nn as nn
-from .common import conv3x3_block, calc_net_weights
+from .common import conv3x3_block
 from .msdnet import MultiOutputSequential, MSDFeatureBlock
 
 
@@ -295,6 +295,7 @@ def msdnet22_cifar10(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -308,7 +309,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != msdnet22_cifar10 or weight_count == 4839544)  # 5440864
 

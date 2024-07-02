@@ -11,8 +11,7 @@ from contextlib import contextmanager
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from .common import (conv1x1, conv3x3, conv1x1_block, conv3x3_block, pre_conv1x1_block, pre_conv3x3_block,
-                     calc_net_weights)
+from .common import conv1x1, conv3x3, conv1x1_block, conv3x3_block, pre_conv1x1_block, pre_conv3x3_block
 
 
 use_context_mans = int(
@@ -522,6 +521,7 @@ def revnet164(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -537,7 +537,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != revnet38 or weight_count == 685864)
         assert (model != revnet110 or weight_count == 1982600)

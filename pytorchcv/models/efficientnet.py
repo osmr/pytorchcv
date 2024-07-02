@@ -16,8 +16,7 @@ import os
 import math
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import (round_channels, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, SEBlock,
-                     calc_net_weights)
+from .common import round_channels, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, SEBlock
 
 
 def calc_tf_padding(x,
@@ -1226,6 +1225,7 @@ def efficientnet_b8c(in_size=(672, 672),
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -1264,7 +1264,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != efficientnet_b0 or weight_count == 5288548)
         assert (model != efficientnet_b1 or weight_count == 7794184)

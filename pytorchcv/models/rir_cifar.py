@@ -8,7 +8,7 @@ __all__ = ['CIFARRiR', 'rir_cifar10', 'rir_cifar100', 'rir_svhn', 'RiRFinalBlock
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, conv3x3, conv1x1_block, conv3x3_block, DualPathSequential, calc_net_weights
+from .common import conv1x1, conv3x3, conv1x1_block, conv3x3_block, DualPathSequential
 
 
 class PostActivation(nn.Module):
@@ -339,6 +339,7 @@ def rir_svhn(num_classes=10,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -354,7 +355,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != rir_cifar10 or weight_count == 9492980)
         assert (model != rir_cifar100 or weight_count == 9527720)

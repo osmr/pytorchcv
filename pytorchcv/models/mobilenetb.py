@@ -8,7 +8,6 @@ __all__ = ['mobilenetb_w1', 'mobilenetb_w3d4', 'mobilenetb_wd2', 'mobilenetb_wd4
 
 import torch.nn as nn
 from .mobilenet import get_mobilenet
-from .common import calc_net_weights
 
 
 def mobilenetb_w1(**kwargs) -> nn.Module:
@@ -109,6 +108,7 @@ def mobilenetb_wd4(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -125,7 +125,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != mobilenetb_w1 or weight_count == 4222056)
         assert (model != mobilenetb_w3d4 or weight_count == 2578120)

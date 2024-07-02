@@ -9,7 +9,7 @@ __all__ = ['EfficientNetEdge', 'efficientnet_edge_small_b', 'efficientnet_edge_m
 import os
 import math
 import torch.nn as nn
-from .common import round_channels, conv1x1_block, conv3x3_block, SEBlock, calc_net_weights
+from .common import round_channels, conv1x1_block, conv3x3_block, SEBlock
 from .efficientnet import EffiInvResUnit, EffiInitBlock
 
 
@@ -400,6 +400,7 @@ def efficientnet_edge_large_b(in_size=(300, 300),
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -415,7 +416,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != efficientnet_edge_small_b or weight_count == 5438392)
         assert (model != efficientnet_edge_medium_b or weight_count == 6899496)

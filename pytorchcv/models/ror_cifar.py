@@ -9,7 +9,7 @@ __all__ = ['CIFARRoR', 'ror3_56_cifar10', 'ror3_56_cifar100', 'ror3_56_svhn', 'r
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, calc_net_weights
+from .common import conv1x1_block, conv3x3_block
 
 
 class RoRBlock(nn.Module):
@@ -557,6 +557,7 @@ def ror3_164_svhn(num_classes=10,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -578,7 +579,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != ror3_56_cifar10 or weight_count == 762746)
         assert (model != ror3_56_cifar100 or weight_count == 768596)

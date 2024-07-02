@@ -8,7 +8,7 @@ __all__ = ['PRNet', 'prnet']
 
 import os
 import torch.nn as nn
-from .common import ConvBlock, DeconvBlock, conv1x1, conv1x1_block, NormActivation, calc_net_weights
+from .common import ConvBlock, DeconvBlock, conv1x1, conv1x1_block, NormActivation
 
 
 def conv4x4_block(in_channels,
@@ -420,6 +420,7 @@ def prnet(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -433,7 +434,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != prnet or weight_count == 13353618)
 

@@ -8,7 +8,7 @@ __all__ = ['BNInception', 'bninception']
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, conv7x7_block, Concurrent, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, conv7x7_block, Concurrent
 
 
 class Inception3x3Branch(nn.Module):
@@ -508,6 +508,7 @@ def bninception(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -521,7 +522,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != bninception or weight_count == 11295240)
 

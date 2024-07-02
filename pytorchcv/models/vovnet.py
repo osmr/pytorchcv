@@ -8,7 +8,7 @@ __all__ = ['VoVNet', 'vovnet27s', 'vovnet39', 'vovnet57']
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, SequentialConcurrent, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, SequentialConcurrent
 
 
 class VoVUnit(nn.Module):
@@ -323,6 +323,7 @@ def vovnet57(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -338,7 +339,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != vovnet27s or weight_count == 3525736)
         assert (model != vovnet39 or weight_count == 22600296)

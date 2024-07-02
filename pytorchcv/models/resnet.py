@@ -10,7 +10,7 @@ __all__ = ['ResNet', 'resnet10', 'resnet12', 'resnet14', 'resnetbc14b', 'resnet1
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, conv7x7_block, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, conv7x7_block
 
 
 class ResBlock(nn.Module):
@@ -887,6 +887,7 @@ def resnet200b(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -920,7 +921,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != resnet10 or weight_count == 5418792)
         assert (model != resnet12 or weight_count == 5492776)

@@ -10,7 +10,7 @@ __all__ = ['iSQRTCOVResNet', 'isqrtcovresnet18', 'isqrtcovresnet34', 'isqrtcovre
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1_block, calc_net_weights
+from .common import conv1x1_block
 from .resnet import ResUnit, ResInitBlock
 
 
@@ -461,6 +461,7 @@ def isqrtcovresnet101b(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -479,7 +480,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != isqrtcovresnet18 or weight_count == 44205096)
         assert (model != isqrtcovresnet34 or weight_count == 54313256)

@@ -8,7 +8,6 @@ __all__ = ['DiracNetV2', 'diracnet18v2', 'diracnet34v2']
 
 import os
 import torch.nn as nn
-from .common import calc_net_weights
 
 
 class DiracConv(nn.Module):
@@ -276,6 +275,7 @@ def diracnet34v2(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -290,7 +290,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != diracnet18v2 or weight_count == 11511784)
         assert (model != diracnet34v2 or weight_count == 21616232)

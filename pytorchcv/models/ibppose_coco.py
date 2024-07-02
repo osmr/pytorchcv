@@ -10,7 +10,7 @@ import os
 import torch
 from torch import nn
 from .common import (get_activation_layer, conv1x1_block, conv3x3_block, conv7x7_block, SEBlock, Hourglass,
-                     InterpolationBlock, calc_net_weights)
+                     InterpolationBlock)
 
 
 class IbpResBottleneck(nn.Module):
@@ -566,6 +566,8 @@ def ibppose_coco(**kwargs) -> nn.Module:
 
 
 def _test():
+    from .model_store import calc_net_weight_count
+
     in_size = (256, 256)
     pretrained = False
 
@@ -579,7 +581,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != ibppose_coco or weight_count == 95827784)
 

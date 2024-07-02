@@ -8,7 +8,7 @@ __all__ = ['SENet', 'senet16', 'senet28', 'senet40', 'senet52', 'senet103', 'sen
 import os
 import math
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, SEBlock, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, SEBlock
 
 
 class SENetBottleneck(nn.Module):
@@ -445,6 +445,7 @@ def senet154(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -463,7 +464,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != senet16 or weight_count == 31366168)
         assert (model != senet28 or weight_count == 36453768)

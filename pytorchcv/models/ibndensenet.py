@@ -9,7 +9,7 @@ __all__ = ['IBNDenseNet', 'ibn_densenet121', 'ibn_densenet161', 'ibn_densenet169
 import os
 import torch
 import torch.nn as nn
-from .common import pre_conv3x3_block, IBN, calc_net_weights
+from .common import pre_conv3x3_block, IBN
 from .preresnet import PreResInitBlock, PreResActivation
 from .densenet import TransitionBlock
 
@@ -395,6 +395,7 @@ def ibn_densenet201(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -411,7 +412,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != ibn_densenet121 or weight_count == 7978856)
         assert (model != ibn_densenet161 or weight_count == 28681000)

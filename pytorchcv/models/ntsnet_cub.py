@@ -10,7 +10,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import conv1x1, conv3x3, Flatten, calc_net_weights
+from .common import conv1x1, conv3x3, Flatten
 from .resnet import resnet50b
 
 
@@ -391,6 +391,7 @@ def ntsnet_cub(pretrained_backbone=False,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
     aux = True
@@ -405,7 +406,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         if aux:
             assert (model != ntsnet_cub or weight_count == 29033133)

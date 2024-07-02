@@ -9,7 +9,7 @@ __all__ = ['SegNet', 'segnet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common import conv3x3, conv3x3_block, DualPathSequential, calc_net_weights
+from .common import conv3x3, conv3x3_block, DualPathSequential
 
 
 class SegNet(nn.Module):
@@ -189,6 +189,8 @@ def segnet_cityscapes(num_classes: int = 19,
 
 
 def _test():
+    from .model_store import calc_net_weight_count
+
     pretrained = False
     fixed_size = True
     in_size = (1024, 2048)
@@ -204,7 +206,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != segnet_cityscapes or weight_count == 29453971)
 

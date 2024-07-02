@@ -8,7 +8,7 @@ __all__ = ['DenseNet', 'densenet121', 'densenet161', 'densenet169', 'densenet201
 import os
 import torch
 import torch.nn as nn
-from .common import pre_conv1x1_block, pre_conv3x3_block, calc_net_weights
+from .common import pre_conv1x1_block, pre_conv3x3_block
 from .preresnet import PreResInitBlock, PreResActivation
 
 
@@ -317,6 +317,7 @@ def densenet201(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -333,7 +334,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != densenet121 or weight_count == 7978856)
         assert (model != densenet161 or weight_count == 28681000)

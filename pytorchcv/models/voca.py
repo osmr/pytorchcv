@@ -9,7 +9,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import ConvBlock, calc_net_weights
+from .common import ConvBlock
 
 
 class VocaEncoder(nn.Module):
@@ -197,6 +197,7 @@ def voca8flame(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -210,7 +211,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != voca8flame or weight_count == 809563)
 

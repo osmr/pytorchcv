@@ -11,7 +11,7 @@ __all__ = ['DeepLabv3', 'deeplabv3_resnetd50b_voc', 'deeplabv3_resnetd101b_voc',
 import os
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import conv1x1, conv1x1_block, conv3x3_block, Concurrent, calc_net_weights
+from .common import conv1x1, conv1x1_block, conv3x3_block, Concurrent
 from .resnetd import resnetd50b, resnetd101b, resnetd152b
 
 
@@ -646,6 +646,7 @@ def deeplabv3_resnetd101b_cityscapes(pretrained_backbone=False,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     in_size = (480, 480)
     aux = True
@@ -670,7 +671,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         if aux:
             assert (model != deeplabv3_resnetd50b_voc or weight_count == 42127850)

@@ -8,7 +8,7 @@ __all__ = ['DLA', 'dla34', 'dla46c', 'dla46xc', 'dla60', 'dla60x', 'dla60xc', 'd
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, conv1x1_block, conv3x3_block, conv7x7_block, calc_net_weights
+from .common import conv1x1, conv1x1_block, conv3x3_block, conv7x7_block
 from .resnet import ResBlock, ResBottleneck
 from .resnext import ResNeXtBottleneck
 
@@ -690,6 +690,7 @@ def dla169(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -712,7 +713,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != dla34 or weight_count == 15742104)
         assert (model != dla46c or weight_count == 1301400)

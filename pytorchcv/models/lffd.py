@@ -7,8 +7,7 @@ __all__ = ['LFFD', 'lffd20x5s320v2_widerface', 'lffd25x8s560v1_widerface']
 
 import os
 import torch.nn as nn
-from .common import (conv3x3, conv1x1_block, conv3x3_block, Concurrent, MultiOutputSequential, ParallelConcurent,
-                     calc_net_weights)
+from .common import conv3x3, conv1x1_block, conv3x3_block, Concurrent, MultiOutputSequential, ParallelConcurent
 from .resnet import ResUnit
 from .preresnet import PreResUnit
 
@@ -318,6 +317,7 @@ def lffd25x8s560v1_widerface(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     in_size = (640, 640)
     pretrained = False
@@ -333,7 +333,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != lffd20x5s320v2_widerface or weight_count == 1520606)
         assert (model != lffd25x8s560v1_widerface or weight_count == 2290608)

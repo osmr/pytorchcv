@@ -10,7 +10,7 @@ __all__ = ['CIFARShakeShakeResNet', 'shakeshakeresnet20_2x16d_cifar10', 'shakesh
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, conv3x3_block, calc_net_weights
+from .common import conv1x1, conv3x3_block
 from .resnet import ResBlock, ResBottleneck
 
 
@@ -443,6 +443,7 @@ def shakeshakeresnet26_2x32d_svhn(num_classes=10,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -461,7 +462,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != shakeshakeresnet20_2x16d_cifar10 or weight_count == 541082)
         assert (model != shakeshakeresnet20_2x16d_cifar100 or weight_count == 546932)

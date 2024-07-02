@@ -9,7 +9,7 @@ __all__ = ['ShuffleNetV2', 'shufflenetv2_wd2', 'shufflenetv2_w1', 'shufflenetv2_
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, depthwise_conv3x3, conv1x1_block, conv3x3_block, ChannelShuffle, SEBlock, calc_net_weights
+from .common import conv1x1, depthwise_conv3x3, conv1x1_block, conv3x3_block, ChannelShuffle, SEBlock
 
 
 class ShuffleUnit(nn.Module):
@@ -359,6 +359,7 @@ def shufflenetv2_w2(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -375,7 +376,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != shufflenetv2_wd2 or weight_count == 1366792)
         assert (model != shufflenetv2_w1 or weight_count == 2278604)

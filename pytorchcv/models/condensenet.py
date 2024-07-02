@@ -10,7 +10,7 @@ import os
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from .common import ChannelShuffle, calc_net_weights
+from .common import ChannelShuffle
 
 
 class CondenseSimpleConv(nn.Module):
@@ -482,6 +482,7 @@ def condensenet74_c8_g8(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -496,7 +497,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != condensenet74_c4_g4 or weight_count == 4773944)
         assert (model != condensenet74_c8_g8 or weight_count == 2935416)

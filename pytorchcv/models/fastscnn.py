@@ -8,7 +8,7 @@ __all__ = ['FastSCNN', 'fastscnn_cityscapes']
 import os
 import torch.nn as nn
 from .common import (conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block, dwsconv3x3_block, Concurrent,
-                     InterpolationBlock, Identity, calc_net_weights)
+                     InterpolationBlock, Identity)
 
 
 class Stem(nn.Module):
@@ -482,6 +482,7 @@ def fastscnn_cityscapes(num_classes=19,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     in_size = (1024, 2048)
     aux = True
@@ -498,7 +499,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         if aux:
             assert (model != fastscnn_cityscapes or weight_count == 1176278)

@@ -9,7 +9,7 @@ import os
 import numpy as np
 import torch
 import torch.nn as nn
-from .common import ParametricSequential, calc_net_weights
+from .common import ParametricSequential
 
 
 class DropConvBlock(nn.Module):
@@ -480,6 +480,7 @@ def fractalnet_cifar100(num_classes=100,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -494,7 +495,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != fractalnet_cifar10 or weight_count == 33724618)
         assert (model != fractalnet_cifar100 or weight_count == 33770788)

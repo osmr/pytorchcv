@@ -8,7 +8,6 @@ __all__ = ['zfnet', 'zfnetb']
 import os
 import torch.nn as nn
 from .alexnet import AlexNet
-from .common import calc_net_weights
 
 
 def get_zfnet(version: str = "a",
@@ -115,6 +114,7 @@ def zfnetb(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -129,7 +129,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != zfnet or weight_count == 62357608)
         assert (model != zfnetb or weight_count == 107627624)

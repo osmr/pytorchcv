@@ -7,7 +7,7 @@ __all__ = ['ResNetA', 'resneta10', 'resnetabc14b', 'resneta18', 'resneta50b', 'r
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, calc_net_weights
+from .common import conv1x1_block
 from .resnet import ResBlock, ResBottleneck
 from .senet import SEInitBlock
 
@@ -446,6 +446,7 @@ def resneta152b(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -464,7 +465,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != resneta10 or weight_count == 5438024)
         assert (model != resnetabc14b or weight_count == 10084168)

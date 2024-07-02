@@ -13,7 +13,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from .preresnet import PreResInitBlock, PreResActivation
 from .densenet import TransitionBlock
-from .common import calc_net_weights
 
 
 class XConv2d(nn.Conv2d):
@@ -517,6 +516,7 @@ def xdensenet201_2(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -533,7 +533,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != xdensenet121_2 or weight_count == 7978856)
         assert (model != xdensenet161_2 or weight_count == 28681000)

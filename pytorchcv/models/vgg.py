@@ -9,7 +9,7 @@ __all__ = ['VGG', 'vgg11', 'vgg13', 'vgg16', 'vgg19', 'bn_vgg11', 'bn_vgg13', 'b
 
 import os
 import torch.nn as nn
-from .common import conv3x3_block, calc_net_weights
+from .common import conv3x3_block
 
 
 class VGGDense(nn.Module):
@@ -498,6 +498,7 @@ def bn_vgg19b(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -522,7 +523,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != vgg11 or weight_count == 132863336)
         assert (model != vgg13 or weight_count == 133047848)

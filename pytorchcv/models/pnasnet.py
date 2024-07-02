@@ -9,7 +9,7 @@ __all__ = ['PNASNet', 'pnasnet5large']
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, calc_net_weights
+from .common import conv1x1
 from .nasnet import nasnet_dual_path_sequential, nasnet_batch_norm, NasConv, NasDwsConv, NasPathBlock, NASNetInitBlock
 
 
@@ -581,6 +581,7 @@ def pnasnet5large(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -594,7 +595,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != pnasnet5large or weight_count == 86057668)
 

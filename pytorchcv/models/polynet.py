@@ -8,8 +8,7 @@ __all__ = ['PolyNet', 'polynet']
 
 import os
 import torch.nn as nn
-from .common import (ConvBlock, conv1x1_block, conv3x3_block, Concurrent, ParametricSequential, ParametricConcurrent,
-                     calc_net_weights)
+from .common import ConvBlock, conv1x1_block, conv3x3_block, Concurrent, ParametricSequential, ParametricConcurrent
 
 
 class PolyConv(nn.Module):
@@ -920,6 +919,7 @@ def polynet(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -933,7 +933,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != polynet or weight_count == 95366600)
 

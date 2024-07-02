@@ -8,8 +8,7 @@ __all__ = ['MixNet', 'mixnet_s', 'mixnet_m', 'mixnet_l']
 import os
 import torch
 import torch.nn as nn
-from .common import (round_channels, get_activation_layer, conv1x1_block, conv3x3_block, dwconv3x3_block, SEBlock,
-                     calc_net_weights)
+from .common import round_channels, get_activation_layer, conv1x1_block, conv3x3_block, dwconv3x3_block, SEBlock
 
 
 class MixConv(nn.Module):
@@ -587,6 +586,7 @@ def mixnet_l(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -602,7 +602,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != mixnet_s or weight_count == 4134606)
         assert (model != mixnet_m or weight_count == 5014382)

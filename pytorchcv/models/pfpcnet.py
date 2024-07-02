@@ -8,7 +8,7 @@ __all__ = ['PFPCNet', 'pfpcnet']
 
 import os
 import torch.nn as nn
-from .common import conv3x3_block, calc_net_weights
+from .common import conv3x3_block
 
 
 class PFPCNet(nn.Module):
@@ -149,6 +149,7 @@ def pfpcnet(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -162,7 +163,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != pfpcnet or weight_count == 9299329)
 

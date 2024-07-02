@@ -8,7 +8,7 @@ __all__ = ['DPN', 'dpn68', 'dpn68b', 'dpn98', 'dpn107', 'dpn131']
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, DualPathSequential, calc_net_weights
+from .common import conv1x1, DualPathSequential
 
 
 class GlobalAvgMaxPool2D(nn.Module):
@@ -663,6 +663,7 @@ def dpn131(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
     for_training = False
@@ -681,7 +682,7 @@ def _test():
 
         net.train()
         # net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != dpn68 or weight_count == 12611602)
         assert (model != dpn68b or weight_count == 12611602)

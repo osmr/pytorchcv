@@ -8,7 +8,7 @@ __all__ = ['HarDNet', 'hardnet39ds', 'hardnet68ds', 'hardnet68', 'hardnet85']
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv_block, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv_block
 
 
 class InvDwsConvBlock(nn.Module):
@@ -623,6 +623,7 @@ def hardnet85(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -639,7 +640,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != hardnet39ds or weight_count == 3488228)
         assert (model != hardnet68ds or weight_count == 4180602)

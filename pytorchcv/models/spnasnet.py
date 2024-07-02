@@ -8,7 +8,7 @@ __all__ = ['SPNASNet', 'spnasnet']
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block
 
 
 class SPNASUnit(nn.Module):
@@ -308,6 +308,7 @@ def spnasnet(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -321,7 +322,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != spnasnet or weight_count == 4421616)
 

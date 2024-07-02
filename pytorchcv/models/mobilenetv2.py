@@ -8,7 +8,7 @@ __all__ = ['MobileNetV2', 'mobilenetv2_w1', 'mobilenetv2_w3d4', 'mobilenetv2_wd2
 
 import os
 import torch.nn as nn
-from .common import conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block, calc_net_weights
+from .common import conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block
 
 
 class LinearBottleneck(nn.Module):
@@ -403,6 +403,7 @@ def mobilenetv2b_wd4(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -423,7 +424,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != mobilenetv2_w1 or weight_count == 3504960)
         assert (model != mobilenetv2_w3d4 or weight_count == 2627592)

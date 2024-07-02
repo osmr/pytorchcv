@@ -9,7 +9,7 @@ __all__ = ['hrnet_w18_small_v1', 'hrnet_w18_small_v2', 'hrnetv2_w18', 'hrnetv2_w
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, Identity, calc_net_weights
+from .common import conv1x1_block, conv3x3_block, Identity
 from .resnet import ResUnit
 
 
@@ -681,6 +681,7 @@ def hrnetv2_w64(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -702,7 +703,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != hrnet_w18_small_v1 or weight_count == 13187464)
         assert (model != hrnet_w18_small_v2 or weight_count == 15597464)

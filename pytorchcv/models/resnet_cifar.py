@@ -14,7 +14,7 @@ __all__ = ['CIFARResNet', 'resnet20_cifar10', 'resnet20_cifar100', 'resnet20_svh
 
 import os
 import torch.nn as nn
-from .common import conv3x3_block, calc_net_weights
+from .common import conv3x3_block
 from .resnet import ResUnit
 
 
@@ -821,6 +821,7 @@ def resnet1202_svhn(num_classes: int = 10,
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -857,7 +858,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != resnet20_cifar10 or weight_count == 272474)
         assert (model != resnet20_cifar100 or weight_count == 278324)

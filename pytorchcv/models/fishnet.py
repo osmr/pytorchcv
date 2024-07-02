@@ -9,7 +9,7 @@ __all__ = ['FishNet', 'fishnet99', 'fishnet150', 'ChannelSqueeze']
 import os
 import torch.nn as nn
 from .common import (pre_conv1x1_block, pre_conv3x3_block, conv1x1, SesquialteralHourglass, Identity,
-                     InterpolationBlock, calc_net_weights)
+                     InterpolationBlock)
 from .preresnet import PreResActivation
 from .senet import SEInitBlock
 
@@ -603,6 +603,7 @@ def fishnet150(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -617,7 +618,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != fishnet99 or weight_count == 16628904)
         assert (model != fishnet150 or weight_count == 24959400)

@@ -7,8 +7,7 @@ __all__ = ['MnasNet', 'mnasnet_b1', 'mnasnet_a1', 'mnasnet_small']
 
 import os
 import torch.nn as nn
-from .common import (round_channels, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, SEBlock,
-                     calc_net_weights)
+from .common import round_channels, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, SEBlock
 
 
 class DwsExpSEResUnit(nn.Module):
@@ -415,6 +414,7 @@ def mnasnet_small(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -430,7 +430,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != mnasnet_b1 or weight_count == 4383312)
         assert (model != mnasnet_a1 or weight_count == 3887038)

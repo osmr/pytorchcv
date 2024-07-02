@@ -2,7 +2,7 @@
     Model store which provides pretrained models.
 """
 
-__all__ = ['get_model_file', 'load_model', 'download_model', 'calc_net_weights', 'get_model_weight_count']
+__all__ = ['get_model_file', 'load_model', 'download_model', 'calc_net_weight_count', 'get_model_weight_count']
 
 import os
 import zipfile
@@ -11,19 +11,19 @@ import hashlib
 import torch.nn as nn
 
 imgclsmob_repo_url = "https://github.com/osmr/imgclsmob"
-model_stats_file_name = "model_stats.csv"
+model_metainfos_file_name = "model_metainfos.csv"
 
 
-def get_model_stats_file_path() -> str:
+def get_model_metainfos_file_path() -> str:
     """
-    Get file path for the `model_stats` file.
+    Get file path for the `model_metainfos` file.
 
     Returns
     -------
     str
         File path.
     """
-    return os.path.join(os.path.abspath(os.path.dirname(__file__)), model_stats_file_name)
+    return os.path.join(os.path.abspath(os.path.dirname(__file__)), model_metainfos_file_name)
 
 
 def load_csv(csv_file_path: str) -> list[list[str]]:
@@ -46,20 +46,40 @@ def load_csv(csv_file_path: str) -> list[list[str]]:
     return data
 
 
-def get_model_stats() -> dict[str, tuple[int, str, str, str]]:
+def get_model_metainfo_dict() -> dict[str, tuple[int, str, str, str]]:
     """
-    Get model stats from CSV file.
+    Get model metainfos from CSV file.
 
     Returns
     -------
     dict(str, tuple(str, int, str, str))
         CSV data.
     """
-    model_stats_file_path = get_model_stats_file_path()
-    model_stats_list = load_csv(model_stats_file_path)
-    assert all([len(x) == 12 for x in model_stats_list])
-    model_stats_dict = {x[0]: (int(x[1]), x[2], x[3], x[4]) for x in model_stats_list[1:]}
-    return model_stats_dict
+    model_metainfos_file_path = get_model_metainfos_file_path()
+    model_metainfos_list = load_csv(model_metainfos_file_path)
+    assert all([len(x) == 12 for x in model_metainfos_list])
+    model_metainfo_dict = {x[0]: (int(x[1]), x[2], x[3], x[4]) for x in model_metainfos_list[1:]}
+    return model_metainfo_dict
+
+
+def get_model_metainfo(model_name: str) -> tuple[int, str, str, str]:
+    """
+    Get model metainfo for particular model.
+
+    Parameters
+    ----------
+    model_name : str
+        Name of the model.
+
+    Returns
+    -------
+    tuple(int, str, str, str)
+        Trainable weight count.
+    """
+    model_metainfo_dict = get_model_metainfo_dict()
+    if model_name not in model_metainfo_dict:
+        raise ValueError("Pretrained model for {name} is not available.".format(name=model_name))
+    return model_metainfo_dict[model_name]
 
 
 def get_model_weight_count(model_name: str) -> int:
@@ -76,10 +96,7 @@ def get_model_weight_count(model_name: str) -> int:
     int
         Trainable weight count.
     """
-    model_stats_dict = get_model_stats()
-    if model_name not in model_stats_dict:
-        raise ValueError("Pretrained model for {name} is not available.".format(name=model_name))
-    net_weights, error_value, sha1_hash, repo_release_tag = model_stats_dict[model_name]
+    net_weights, error_value, sha1_hash, repo_release_tag = get_model_metainfo(model_name)
     return net_weights
 
 
@@ -97,10 +114,7 @@ def get_model_name_suffix_data(model_name: str) -> tuple[str, str, str]:
     tuple(str, str, str)
         Model name suffix strings.
     """
-    model_stats_dict = get_model_stats()
-    if model_name not in model_stats_dict:
-        raise ValueError("Pretrained model for {name} is not available.".format(name=model_name))
-    net_weights, error_value, sha1_hash, repo_release_tag = model_stats_dict[model_name]
+    net_weights, error_value, sha1_hash, repo_release_tag = get_model_metainfo(model_name)
     return error_value, sha1_hash, repo_release_tag
 
 
@@ -329,7 +343,7 @@ def download_model(net: nn.Module,
         ignore_extra=ignore_extra)
 
 
-def calc_net_weights(net: nn.Module) -> int:
+def calc_net_weight_count(net: nn.Module) -> int:
     """
     Calculate network trainable weight/parameters count.
 

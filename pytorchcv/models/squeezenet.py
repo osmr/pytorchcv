@@ -9,7 +9,6 @@ __all__ = ['SqueezeNet', 'squeezenet_v1_0', 'squeezenet_v1_1', 'squeezeresnet_v1
 import os
 import torch
 import torch.nn as nn
-from .common import calc_net_weights
 
 
 class FireConv(nn.Module):
@@ -378,6 +377,7 @@ def squeezeresnet_v1_1(**kwargs) -> nn.Module:
 
 
 def _test():
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -394,7 +394,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != squeezenet_v1_0 or weight_count == 1248424)
         assert (model != squeezenet_v1_1 or weight_count == 1235496)

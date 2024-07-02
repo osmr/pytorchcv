@@ -9,7 +9,7 @@ __all__ = ['AirNeXt', 'airnext50_32x4d_r2', 'airnext101_32x4d_r2', 'airnext101_3
 import os
 import math
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, calc_net_weights
+from .common import conv1x1_block, conv3x3_block
 from .airnet import AirBlock, AirInitBlock
 
 
@@ -362,6 +362,7 @@ def airnext101_32x4d_r16(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -377,7 +378,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != airnext50_32x4d_r2 or weight_count == 27604296)
         assert (model != airnext101_32x4d_r2 or weight_count == 54099272)

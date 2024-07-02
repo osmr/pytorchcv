@@ -9,8 +9,7 @@ __all__ = ['ContextNet', 'ctxnet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common import (conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block, dwsconv3x3_block, InterpolationBlock,
-                     calc_net_weights)
+from .common import conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block, dwsconv3x3_block, InterpolationBlock
 
 
 class CtxShallowNet(nn.Module):
@@ -410,6 +409,8 @@ def ctxnet_cityscapes(num_classes=19,
 
 
 def _test():
+    from .model_store import calc_net_weight_count
+
     pretrained = False
     aux = False
     fixed_size = True
@@ -426,7 +427,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         if aux:
             assert (model != ctxnet_cityscapes or weight_count == 914118)

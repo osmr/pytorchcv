@@ -9,7 +9,7 @@ __all__ = ['SEResNet', 'seresnet10', 'seresnet12', 'seresnet14', 'seresnet16', '
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, SEBlock, calc_net_weights
+from .common import conv1x1_block, SEBlock
 from .resnet import ResBlock, ResBottleneck, ResInitBlock
 
 
@@ -639,6 +639,7 @@ def seresnet200b(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -668,7 +669,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != seresnet10 or weight_count == 5463332)
         assert (model != seresnet12 or weight_count == 5537896)

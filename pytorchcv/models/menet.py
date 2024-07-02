@@ -10,7 +10,7 @@ __all__ = ['MENet', 'menet108_8x1_g3', 'menet128_8x1_g4', 'menet160_8x1_g8', 'me
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, conv3x3, depthwise_conv3x3, ChannelShuffle, calc_net_weights
+from .common import conv1x1, conv3x3, depthwise_conv3x3, ChannelShuffle
 
 
 class MEUnit(nn.Module):
@@ -515,6 +515,7 @@ def menet456_24x1_g3(**kwargs) -> nn.Module:
 
 def _test():
     import torch
+    from .model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -535,7 +536,7 @@ def _test():
 
         # net.train()
         net.eval()
-        weight_count = calc_net_weights(net)
+        weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
         assert (model != menet108_8x1_g3 or weight_count == 654516)
         assert (model != menet128_8x1_g4 or weight_count == 750796)
