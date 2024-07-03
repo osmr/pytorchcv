@@ -46,6 +46,23 @@ def load_csv(csv_file_path: str) -> list[list[str]]:
     return data
 
 
+def conv_str_to_int(value: str) -> int:
+    """
+    Convert string ot int.
+
+    Parameters
+    ----------
+    value : str
+        Imput value.
+
+    Returns
+    -------
+    int
+        Output value.
+    """
+    return int(value) if value != "NA" else 0
+
+
 def get_model_metainfo_dict() -> dict[str, tuple[int, str, str, str]]:
     """
     Get model metainfos from CSV file.
@@ -58,7 +75,7 @@ def get_model_metainfo_dict() -> dict[str, tuple[int, str, str, str]]:
     model_metainfos_file_path = get_model_metainfos_file_path()
     model_metainfos_list = load_csv(model_metainfos_file_path)
     assert all([len(x) == 12 for x in model_metainfos_list])
-    model_metainfo_dict = {x[0]: (int(x[1]), x[2], x[3], x[4]) for x in model_metainfos_list[1:]}
+    model_metainfo_dict = {x[0]: (conv_str_to_int(x[1]), x[2], x[3], x[4]) for x in model_metainfos_list[1:]}
     return model_metainfo_dict
 
 
