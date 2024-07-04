@@ -24,9 +24,9 @@ class SqnxtUnit(nn.Module):
         Strides of the convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int]):
         super(SqnxtUnit, self).__init__()
         if stride == 2:
             reduction_den = 1
@@ -101,8 +101,8 @@ class SqnxtInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(SqnxtInitBlock, self).__init__()
         self.conv = conv7x7_block(
             in_channels=in_channels,
@@ -141,9 +141,9 @@ class SqueezeNext(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
-                 final_block_channels,
+                 channels: list[list[int]],
+                 init_block_channels: int,
+                 final_block_channels: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -195,8 +195,8 @@ class SqueezeNext(nn.Module):
         return x
 
 
-def get_squeezenext(version,
-                    width_scale,
+def get_squeezenext(version: str,
+                    width_scale: float,
                     model_name: str | None = None,
                     pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),

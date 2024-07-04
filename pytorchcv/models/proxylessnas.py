@@ -32,12 +32,12 @@ class ProxylessBlock(nn.Module):
         Expansion ratio.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 bn_eps,
-                 expansion):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int,
+                 stride: int,
+                 bn_eps: float,
+                 expansion: int):
         super(ProxylessBlock, self).__init__()
         self.use_bc = (expansion > 1)
         mid_channels = in_channels * expansion
@@ -97,14 +97,14 @@ class ProxylessUnit(nn.Module):
         Whether to use identity branch.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 bn_eps,
-                 expansion,
-                 residual,
-                 shortcut):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int,
+                 stride: int,
+                 bn_eps: float,
+                 expansion: int,
+                 residual: bool,
+                 shortcut: bool):
         super(ProxylessUnit, self).__init__()
         assert (residual or shortcut)
         self.residual = residual
@@ -148,9 +148,9 @@ class ProxylessNAS(nn.Module):
     shortcuts : list(list(int))
         Whether to use identity branch in units.
     kernel_sizes : list(list(int))
-        Convolution window size for each units.
+        Convolution window size for each unit.
     expansions : list(list(int))
-        Expansion ratio for each units.
+        Expansion ratio for each unit.
     bn_eps : float, default 1e-3
         Small float added to variance in Batch norm.
     in_channels : int, default 3
@@ -161,14 +161,14 @@ class ProxylessNAS(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
-                 final_block_channels,
-                 residuals,
-                 shortcuts,
-                 kernel_sizes,
-                 expansions,
-                 bn_eps=1e-3,
+                 channels: list[list[int]],
+                 init_block_channels: int,
+                 final_block_channels: int,
+                 residuals: list[list[int]],
+                 shortcuts: list[list[int]],
+                 kernel_sizes: list[list[int]],
+                 expansions: list[list[int]],
+                 bn_eps: float = 1e-3,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -237,7 +237,7 @@ class ProxylessNAS(nn.Module):
         return x
 
 
-def get_proxylessnas(version,
+def get_proxylessnas(version: str,
                      model_name: str | None = None,
                      pretrained: bool = False,
                      root: str = os.path.join("~", ".torch", "models"),

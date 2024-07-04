@@ -28,10 +28,10 @@ class ResADownBlock(nn.Module):
         Dilation value for the second convolution layer in bottleneck.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 dilation=1):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 dilation: int | tuple[int, int] = 1):
         super(ResADownBlock, self).__init__()
         self.pool = nn.AvgPool2d(
             kernel_size=(stride if dilation == 1 else 1),
@@ -71,13 +71,13 @@ class ResAUnit(nn.Module):
         Whether to use stride in the first or the second convolution layer of the block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 padding=1,
-                 dilation=1,
-                 bottleneck=True,
-                 conv1_stride=False):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int] = 1,
+                 dilation: int | tuple[int, int] = 1,
+                 bottleneck: bool = True,
+                 conv1_stride: bool = False):
         super(ResAUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -138,11 +138,11 @@ class ResNetA(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
-                 bottleneck,
-                 conv1_stride,
-                 dilated=False,
+                 channels: list[list[int]],
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 conv1_stride: bool,
+                 dilated: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -196,10 +196,10 @@ class ResNetA(nn.Module):
         return x
 
 
-def get_resneta(blocks,
-                bottleneck=None,
-                conv1_stride=True,
-                width_scale=1.0,
+def get_resneta(blocks: int,
+                bottleneck: bool | None = None,
+                conv1_stride: bool = True,
+                width_scale: float = 1.0,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
@@ -211,7 +211,7 @@ def get_resneta(blocks,
     ----------
     blocks : int
         Number of blocks.
-    bottleneck : bool, default None
+    bottleneck : bool or None, default None
         Whether to use a bottleneck or simple block in units.
     conv1_stride : bool, default True
         Whether to use stride in the first or the second convolution layer in units.

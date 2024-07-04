@@ -28,10 +28,10 @@ class VocaEncoder(nn.Module):
         Number of encoder features.
     """
     def __init__(self,
-                 audio_features,
-                 audio_window_size,
-                 base_persons,
-                 encoder_features):
+                 audio_features: int,
+                 audio_window_size: int,
+                 base_persons: int,
+                 encoder_features: int):
         super(VocaEncoder, self).__init__()
         self.audio_window_size = audio_window_size
         channels = (32, 32, 64, 64)
@@ -93,11 +93,11 @@ class VOCA(nn.Module):
         Number of 3D geometry vertices.
     """
     def __init__(self,
-                 audio_features=29,
-                 audio_window_size=16,
-                 base_persons=8,
-                 encoder_features=50,
-                 vertices=5023):
+                 audio_features: int = 29,
+                 audio_window_size: int = 16,
+                 base_persons: int = 8,
+                 encoder_features: int = 50,
+                 vertices: int = 5023):
         super(VOCA, self).__init__()
         self.base_persons = base_persons
 
@@ -127,8 +127,8 @@ class VOCA(nn.Module):
         return x
 
 
-def get_voca(base_persons,
-             vertices,
+def get_voca(base_persons: int,
+             vertices: int,
              model_name: str | None = None,
              pretrained: bool = False,
              root: str = os.path.join("~", ".torch", "models"),

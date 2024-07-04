@@ -28,7 +28,7 @@ class ResNetD(nn.Module):
         Whether to use stride in the first or the second convolution layer in units.
     ordinary_init : bool, default False
         Whether to use original initial block or SENet one.
-    bends : tuple of int, default None
+    bends : list(int) or None, default None
         Numbers of bends for multiple output.
     in_channels : int, default 3
         Number of input channels.
@@ -38,12 +38,12 @@ class ResNetD(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
-                 bottleneck,
-                 conv1_stride,
-                 ordinary_init=False,
-                 bends=None,
+                 channels: list[list[int]],
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 conv1_stride: bool,
+                 ordinary_init: bool = False,
+                 bends: list[int] | None = None,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -106,9 +106,9 @@ class ResNetD(nn.Module):
             return x
 
 
-def get_resnetd(blocks,
-                conv1_stride=True,
-                width_scale=1.0,
+def get_resnetd(blocks: int,
+                conv1_stride: bool = True,
+                width_scale: float = 1.0,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
