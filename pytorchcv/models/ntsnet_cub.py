@@ -168,7 +168,7 @@ class NTSNet(nn.Module):
         self.num_cat = 4
 
         _, edge_anchors, _ = self._generate_default_anchor_maps()
-        self.edge_anchors = (edge_anchors + 224).astype(np.int)
+        self.edge_anchors = (edge_anchors + 224).astype(int)
         self.edge_anchors = np.concatenate(
             (self.edge_anchors.copy(), np.arange(0, len(self.edge_anchors)).reshape(-1, 1)), axis=1)
 
@@ -286,7 +286,7 @@ class NTSNet(nn.Module):
             aspect_ratios = anchor_info["aspect_ratio"]
 
             output_map_shape = np.ceil(input_shape.astype(np.float32) / stride)
-            output_map_shape = output_map_shape.astype(np.int)
+            output_map_shape = output_map_shape.astype(int)
             output_shape = tuple(output_map_shape) + (4, )
             ostart = stride / 2.0
             oy = np.arange(ostart, ostart + stride * output_shape[0], stride)

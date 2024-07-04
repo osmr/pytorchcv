@@ -5,11 +5,13 @@ from pytorchcv.models.model_store import get_model_metainfo_dict, calc_net_weigh
 def test_model_weight_counts(pretrained: bool = False):
     model_metainfo_dict = get_model_metainfo_dict()
     for model_name, model_metainfo in model_metainfo_dict.items():
-        print("model {}".format(model_name))
+        print("model: {} -- ".format(model_name), end="")
         net = ptcv_get_model(model_name, pretrained=pretrained)
         net.eval()
         net_weight_count = calc_net_weight_count(net)
         model_weight_count = model_metainfo[0]
         if model_weight_count == 0:
-            break
+            print("skipped")
+            continue
         assert (net_weight_count == model_weight_count)
+        print("passed")

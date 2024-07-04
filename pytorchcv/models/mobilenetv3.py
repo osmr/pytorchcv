@@ -479,7 +479,7 @@ def mobilenetv3_small_w5d4(**kwargs) -> nn.Module:
 
 def mobilenetv3_large_w7d20(**kwargs) -> nn.Module:
     """
-    MobileNetV3 Small 224/0.35 model from 'Searching for MobileNetV3,' https://arxiv.org/abs/1905.02244.
+    MobileNetV3 Large 224/0.35 model from 'Searching for MobileNetV3,' https://arxiv.org/abs/1905.02244.
 
     Parameters
     ----------
