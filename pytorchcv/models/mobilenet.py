@@ -8,7 +8,7 @@ __all__ = ['MobileNet', 'get_mobilenet', 'mobilenet_w1', 'mobilenet_w3d4', 'mobi
 
 import os
 import torch.nn as nn
-from .common import conv3x3_block, dwsconv3x3_block
+from .common import lambda_batchnorm2d, conv3x3_block, dwsconv3x3_block
 
 
 class MobileNet(nn.Module):
@@ -44,6 +44,7 @@ class MobileNet(nn.Module):
         super(MobileNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
+        dw_normalization = lambda_batchnorm2d() if dw_use_bn else None
 
         self.features = nn.Sequential()
         init_block_channels = channels[0][0]
@@ -61,6 +62,7 @@ class MobileNet(nn.Module):
                     out_channels=out_channels,
                     stride=stride,
                     dw_use_bn=dw_use_bn,
+                    dw_normalization=dw_normalization,
                     dw_activation=dw_activation))
                 in_channels = out_channels
             self.features.add_module("stage{}".format(i + 1), stage)

@@ -45,7 +45,8 @@ class AlexConv(ConvBlock):
             stride=stride,
             padding=padding,
             bias=True,
-            use_bn=False)
+            use_bn=False,
+            normalization=None)
         self.use_lrn = use_lrn
 
     def forward(self, x):

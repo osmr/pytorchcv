@@ -392,6 +392,7 @@ class IbpPass(nn.Module):
             out_channels=mid_channels,
             bias=True,
             use_bn=False,
+            normalization=None,
             activation=None)
 
         if self.merge:

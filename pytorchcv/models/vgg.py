@@ -9,7 +9,7 @@ __all__ = ['VGG', 'vgg11', 'vgg13', 'vgg16', 'vgg19', 'bn_vgg11', 'bn_vgg13', 'b
 
 import os
 import torch.nn as nn
-from .common import conv3x3_block
+from .common import lambda_batchnorm2d, conv3x3_block
 
 
 class VGGDense(nn.Module):
@@ -105,6 +105,7 @@ class VGG(nn.Module):
         super(VGG, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
+        normalization = lambda_batchnorm2d() if use_bn else None
 
         self.features = nn.Sequential()
         for i, channels_per_stage in enumerate(channels):
@@ -114,7 +115,8 @@ class VGG(nn.Module):
                     in_channels=in_channels,
                     out_channels=out_channels,
                     bias=bias,
-                    use_bn=use_bn))
+                    use_bn=use_bn,
+                    normalization=normalization))
                 in_channels = out_channels
             stage.add_module("pool{}".format(i + 1), nn.MaxPool2d(
                 kernel_size=2,

@@ -9,7 +9,8 @@ __all__ = ['EfficientNetEdge', 'efficientnet_edge_small_b', 'efficientnet_edge_m
 import os
 import math
 import torch.nn as nn
-from .common import round_channels, conv1x1_block, conv3x3_block, SEBlock
+from typing import Callable
+from .common import round_channels, lambda_batchnorm2d, conv1x1_block, conv3x3_block, SEBlock
 from .efficientnet import EffiInvResUnit, EffiInitBlock
 
 
@@ -35,6 +36,8 @@ class EffiEdgeResUnit(nn.Module):
         Whether to use skip connection.
     bn_eps : float
         Small float added to variance in Batch norm.
+    normalization : function
+        Normalization function.
     activation : str
         Name of activation function.
     """
@@ -47,6 +50,7 @@ class EffiEdgeResUnit(nn.Module):
                  mid_from_in,
                  use_skip,
                  bn_eps,
+                 normalization: Callable,
                  activation):
         super(EffiEdgeResUnit, self).__init__()
         self.residual = (in_channels == out_channels) and (stride == 1) and use_skip
@@ -57,6 +61,7 @@ class EffiEdgeResUnit(nn.Module):
             in_channels=in_channels,
             out_channels=mid_channels,
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=activation)
         if self.use_se:
             self.se = SEBlock(
@@ -68,6 +73,7 @@ class EffiEdgeResUnit(nn.Module):
             out_channels=out_channels,
             stride=stride,
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=None)
 
     def forward(self, x):
@@ -130,6 +136,7 @@ class EfficientNetEdge(nn.Module):
         super(EfficientNetEdge, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
+        normalization = lambda_batchnorm2d(eps=bn_eps)
         activation = "relu"
 
         self.features = nn.Sequential()
@@ -137,6 +144,7 @@ class EfficientNetEdge(nn.Module):
             in_channels=in_channels,
             out_channels=init_block_channels,
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=activation,
             tf_mode=tf_mode))
         in_channels = init_block_channels
@@ -160,6 +168,7 @@ class EfficientNetEdge(nn.Module):
                         mid_from_in=mid_from_in,
                         use_skip=use_skip,
                         bn_eps=bn_eps,
+                        normalization=normalization,
                         activation=activation))
                 else:
                     stage.add_module("unit{}".format(j + 1), EffiInvResUnit(
@@ -170,6 +179,7 @@ class EfficientNetEdge(nn.Module):
                         exp_factor=expansion_factor,
                         se_factor=0,
                         bn_eps=bn_eps,
+                        normalization=normalization,
                         activation=activation,
                         tf_mode=tf_mode))
                 in_channels = out_channels
@@ -178,6 +188,7 @@ class EfficientNetEdge(nn.Module):
             in_channels=in_channels,
             out_channels=final_block_channels,
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=activation))
         in_channels = final_block_channels
         self.features.add_module("final_pool", nn.AdaptiveAvgPool2d(output_size=1))

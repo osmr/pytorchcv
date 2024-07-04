@@ -145,7 +145,8 @@ class LwopEncoderFinalBlock(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             bias=True,
-            use_bn=False)
+            use_bn=False,
+            normalization=None)
         self.body = nn.Sequential()
         for i in range(3):
             self.body.add_module("block{}".format(i + 1), dwsconv3x3_block(
@@ -153,13 +154,16 @@ class LwopEncoderFinalBlock(nn.Module):
                 out_channels=out_channels,
                 dw_use_bn=False,
                 pw_use_bn=False,
+                dw_normalization=None,
+                pw_normalization=None,
                 dw_activation=(lambda: nn.ELU(inplace=True)),
                 pw_activation=(lambda: nn.ELU(inplace=True))))
         self.post_conv = conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
             bias=True,
-            use_bn=False)
+            use_bn=False,
+            normalization=None)
 
     def forward(self, x):
         x = self.pre_conv(x)
@@ -187,7 +191,8 @@ class LwopRefinementBlock(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             bias=True,
-            use_bn=False)
+            use_bn=False,
+            normalization=None)
         self.body = nn.Sequential()
         self.body.add_module("block1", conv3x3_block(
             in_channels=out_channels,
@@ -228,7 +233,8 @@ class LwopDecoderBend(nn.Module):
             in_channels=in_channels,
             out_channels=mid_channels,
             bias=True,
-            use_bn=False)
+            use_bn=False,
+            normalization=None)
         self.conv2 = conv1x1(
             in_channels=mid_channels,
             out_channels=out_channels,
@@ -265,7 +271,8 @@ class LwopDecoderInitBlock(nn.Module):
                 in_channels=in_channels,
                 out_channels=in_channels,
                 bias=True,
-                use_bn=False))
+                use_bn=False,
+                normalization=None))
         self.heatmap_bend = LwopDecoderBend(
             in_channels=in_channels,
             mid_channels=bend_mid_channels,

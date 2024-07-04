@@ -16,7 +16,9 @@ import os
 import math
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import round_channels, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, SEBlock
+from typing import Callable
+from .common import (round_channels, lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block,
+                     SEBlock)
 
 
 def calc_tf_padding(x,
@@ -65,6 +67,8 @@ class EffiDwsConvUnit(nn.Module):
         Strides of the second convolution layer.
     bn_eps : float
         Small float added to variance in Batch norm.
+    normalization : function
+        Normalization function.
     activation : str
         Name of activation function.
     tf_mode : bool
@@ -75,6 +79,7 @@ class EffiDwsConvUnit(nn.Module):
                  out_channels,
                  stride,
                  bn_eps,
+                 normalization: Callable,
                  activation,
                  tf_mode):
         super(EffiDwsConvUnit, self).__init__()
@@ -86,6 +91,7 @@ class EffiDwsConvUnit(nn.Module):
             out_channels=in_channels,
             padding=(0 if tf_mode else 1),
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=activation)
         self.se = SEBlock(
             channels=in_channels,
@@ -95,6 +101,7 @@ class EffiDwsConvUnit(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=None)
 
     def forward(self, x):
@@ -130,6 +137,8 @@ class EffiInvResUnit(nn.Module):
         SE reduction factor for each unit.
     bn_eps : float
         Small float added to variance in Batch norm.
+    normalization : function
+        Normalization function.
     activation : str
         Name of activation function.
     tf_mode : bool
@@ -143,6 +152,7 @@ class EffiInvResUnit(nn.Module):
                  exp_factor,
                  se_factor,
                  bn_eps,
+                 normalization: Callable,
                  activation,
                  tf_mode):
         super(EffiInvResUnit, self).__init__()
@@ -158,6 +168,7 @@ class EffiInvResUnit(nn.Module):
             in_channels=in_channels,
             out_channels=mid_channels,
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=activation)
         self.conv2 = dwconv_block_fn(
             in_channels=mid_channels,
@@ -165,6 +176,7 @@ class EffiInvResUnit(nn.Module):
             stride=stride,
             padding=(0 if tf_mode else (kernel_size // 2)),
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=activation)
         if self.use_se:
             self.se = SEBlock(
@@ -175,6 +187,7 @@ class EffiInvResUnit(nn.Module):
             in_channels=mid_channels,
             out_channels=out_channels,
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=None)
 
     def forward(self, x):
@@ -204,6 +217,8 @@ class EffiInitBlock(nn.Module):
         Number of output channels.
     bn_eps : float
         Small float added to variance in Batch norm.
+    normalization : function
+        Normalization function.
     activation : str
         Name of activation function.
     tf_mode : bool
@@ -214,6 +229,7 @@ class EffiInitBlock(nn.Module):
                  in_channels,
                  out_channels,
                  bn_eps,
+                 normalization: Callable,
                  activation,
                  tf_mode):
         super(EffiInitBlock, self).__init__()
@@ -225,6 +241,7 @@ class EffiInitBlock(nn.Module):
             stride=2,
             padding=(0 if tf_mode else 1),
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=activation)
 
     def forward(self, x):
@@ -282,6 +299,7 @@ class EfficientNet(nn.Module):
         super(EfficientNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
+        normalization = lambda_batchnorm2d(eps=bn_eps)
         activation = "swish"
 
         self.features = nn.Sequential()
@@ -289,6 +307,7 @@ class EfficientNet(nn.Module):
             in_channels=in_channels,
             out_channels=init_block_channels,
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=activation,
             tf_mode=tf_mode))
         in_channels = init_block_channels
@@ -306,6 +325,7 @@ class EfficientNet(nn.Module):
                         out_channels=out_channels,
                         stride=stride,
                         bn_eps=bn_eps,
+                        normalization=normalization,
                         activation=activation,
                         tf_mode=tf_mode))
                 else:
@@ -317,6 +337,7 @@ class EfficientNet(nn.Module):
                         exp_factor=expansion_factor,
                         se_factor=4,
                         bn_eps=bn_eps,
+                        normalization=normalization,
                         activation=activation,
                         tf_mode=tf_mode))
                 in_channels = out_channels
@@ -325,6 +346,7 @@ class EfficientNet(nn.Module):
             in_channels=in_channels,
             out_channels=final_block_channels,
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=activation))
         in_channels = final_block_channels
         self.features.add_module("final_pool", nn.AdaptiveAvgPool2d(output_size=1))

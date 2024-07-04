@@ -8,7 +8,8 @@ __all__ = ['InceptionResNetV2', 'inceptionresnetv2']
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, Concurrent
+from typing import Callable
+from .common import lambda_batchnorm2d, conv1x1_block, conv3x3_block, Concurrent
 from .inceptionv3 import AvgPoolBranch, Conv1x1Branch, ConvSeqBranch
 from .inceptionresnetv1 import InceptionAUnit, InceptionBUnit, InceptionCUnit, ReductionAUnit, ReductionBUnit
 
@@ -21,9 +22,12 @@ class InceptBlock5b(nn.Module):
     ----------
     bn_eps : float
         Small float added to variance in Batch norm.
+    normalization : function
+        Normalization function.
     """
     def __init__(self,
-                 bn_eps):
+                 bn_eps,
+                 normalization: Callable):
         super(InceptBlock5b, self).__init__()
         in_channels = 192
 
@@ -31,25 +35,29 @@ class InceptBlock5b(nn.Module):
         self.branches.add_module("branch1", Conv1x1Branch(
             in_channels=in_channels,
             out_channels=96,
-            bn_eps=bn_eps))
+            bn_eps=bn_eps,
+            normalization=normalization))
         self.branches.add_module("branch2", ConvSeqBranch(
             in_channels=in_channels,
             out_channels_list=(48, 64),
             kernel_size_list=(1, 5),
             strides_list=(1, 1),
             padding_list=(0, 2),
-            bn_eps=bn_eps))
+            bn_eps=bn_eps,
+            normalization=normalization))
         self.branches.add_module("branch3", ConvSeqBranch(
             in_channels=in_channels,
             out_channels_list=(64, 96, 96),
             kernel_size_list=(1, 3, 3),
             strides_list=(1, 1, 1),
             padding_list=(0, 1, 1),
-            bn_eps=bn_eps))
+            bn_eps=bn_eps,
+            normalization=normalization))
         self.branches.add_module("branch4", AvgPoolBranch(
             in_channels=in_channels,
             out_channels=64,
             bn_eps=bn_eps,
+            normalization=normalization,
             count_include_pad=False))
 
     def forward(self, x):
@@ -67,29 +75,35 @@ class InceptInitBlock(nn.Module):
         Number of input channels.
     bn_eps : float
         Small float added to variance in Batch norm.
+    normalization : function
+        Normalization function.
     """
     def __init__(self,
                  in_channels,
-                 bn_eps):
+                 bn_eps,
+                 normalization: Callable):
         super(InceptInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
             out_channels=32,
             stride=2,
             padding=0,
-            bn_eps=bn_eps)
+            bn_eps=bn_eps,
+            normalization=normalization)
         self.conv2 = conv3x3_block(
             in_channels=32,
             out_channels=32,
             stride=1,
             padding=0,
-            bn_eps=bn_eps)
+            bn_eps=bn_eps,
+            normalization=normalization)
         self.conv3 = conv3x3_block(
             in_channels=32,
             out_channels=64,
             stride=1,
             padding=1,
-            bn_eps=bn_eps)
+            bn_eps=bn_eps,
+            normalization=normalization)
         self.pool1 = nn.MaxPool2d(
             kernel_size=3,
             stride=2,
@@ -99,18 +113,22 @@ class InceptInitBlock(nn.Module):
             out_channels=80,
             stride=1,
             padding=0,
-            bn_eps=bn_eps)
+            bn_eps=bn_eps,
+            normalization=normalization)
         self.conv5 = conv3x3_block(
             in_channels=80,
             out_channels=192,
             stride=1,
             padding=0,
-            bn_eps=bn_eps)
+            bn_eps=bn_eps,
+            normalization=normalization)
         self.pool2 = nn.MaxPool2d(
             kernel_size=3,
             stride=2,
             padding=0)
-        self.block = InceptBlock5b(bn_eps=bn_eps)
+        self.block = InceptBlock5b(
+            bn_eps=bn_eps,
+            normalization=normalization)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -151,6 +169,7 @@ class InceptionResNetV2(nn.Module):
         super(InceptionResNetV2, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
+        normalization = lambda_batchnorm2d(eps=bn_eps)
         layers = [10, 21, 11]
         in_channels_list = [320, 1088, 2080]
         normal_out_channels_list = [[32, 32, 32, 32, 48, 64], [192, 128, 160, 192], [192, 192, 224, 256]]
@@ -162,7 +181,8 @@ class InceptionResNetV2(nn.Module):
         self.features = nn.Sequential()
         self.features.add_module("init_block", InceptInitBlock(
             in_channels=in_channels,
-            bn_eps=bn_eps))
+            bn_eps=bn_eps,
+            normalization=normalization))
         in_channels = in_channels_list[0]
         for i, layers_per_stage in enumerate(layers):
             stage = nn.Sequential()
@@ -181,6 +201,7 @@ class InceptionResNetV2(nn.Module):
                     in_channels=in_channels,
                     out_channels_list=out_channels_list_per_stage,
                     bn_eps=bn_eps,
+                    normalization=normalization,
                     **unit_kwargs))
                 if (j == 0) and (i != 0):
                     in_channels = in_channels_list[i]
@@ -188,7 +209,8 @@ class InceptionResNetV2(nn.Module):
         self.features.add_module("final_conv", conv1x1_block(
             in_channels=in_channels,
             out_channels=1536,
-            bn_eps=bn_eps))
+            bn_eps=bn_eps,
+            normalization=normalization))
         self.features.add_module("final_pool", nn.AvgPool2d(
             kernel_size=8,
             stride=1))

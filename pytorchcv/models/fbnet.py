@@ -8,7 +8,8 @@ __all__ = ['FBNet', 'fbnet_cb']
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block
+from typing import Callable
+from .common import lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block
 
 
 class FBNetUnit(nn.Module):
@@ -29,6 +30,8 @@ class FBNetUnit(nn.Module):
         Whether to use 3x3 (instead of 5x5) kernel.
     exp_factor : int
         Expansion factor for each unit.
+    normalization : function
+        Normalization function.
     activation : str, default 'relu'
         Activation function or name of activation function.
     """
@@ -39,6 +42,7 @@ class FBNetUnit(nn.Module):
                  bn_eps,
                  use_kernel3,
                  exp_factor,
+                 normalization: Callable,
                  activation="relu"):
         super(FBNetUnit, self).__init__()
         assert (exp_factor >= 1)
@@ -51,6 +55,7 @@ class FBNetUnit(nn.Module):
                 in_channels=in_channels,
                 out_channels=mid_channels,
                 bn_eps=bn_eps,
+                normalization=normalization,
                 activation=activation)
         if use_kernel3:
             self.conv1 = dwconv3x3_block(
@@ -58,6 +63,7 @@ class FBNetUnit(nn.Module):
                 out_channels=mid_channels,
                 stride=stride,
                 bn_eps=bn_eps,
+                normalization=normalization,
                 activation=activation)
         else:
             self.conv1 = dwconv5x5_block(
@@ -65,11 +71,13 @@ class FBNetUnit(nn.Module):
                 out_channels=mid_channels,
                 stride=stride,
                 bn_eps=bn_eps,
+                normalization=normalization,
                 activation=activation)
         self.conv2 = conv1x1_block(
             in_channels=mid_channels,
             out_channels=out_channels,
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=None)
 
     def forward(self, x):
@@ -96,24 +104,29 @@ class FBNetInitBlock(nn.Module):
         Number of output channels.
     bn_eps : float
         Small float added to variance in Batch norm.
+    normalization : function
+        Normalization function.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
-                 bn_eps):
+                 bn_eps,
+                 normalization: Callable):
         super(FBNetInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
             out_channels=out_channels,
             stride=2,
-            bn_eps=bn_eps)
+            bn_eps=bn_eps,
+            normalization=normalization)
         self.conv2 = FBNetUnit(
             in_channels=out_channels,
             out_channels=out_channels,
             stride=1,
             bn_eps=bn_eps,
             use_kernel3=True,
-            exp_factor=1)
+            exp_factor=1,
+            normalization=normalization)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -160,12 +173,14 @@ class FBNet(nn.Module):
         super(FBNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
+        normalization = lambda_batchnorm2d(eps=bn_eps)
 
         self.features = nn.Sequential()
         self.features.add_module("init_block", FBNetInitBlock(
             in_channels=in_channels,
             out_channels=init_block_channels,
-            bn_eps=bn_eps))
+            bn_eps=bn_eps,
+            normalization=normalization))
         in_channels = init_block_channels
         for i, channels_per_stage in enumerate(channels):
             stage = nn.Sequential()
@@ -179,13 +194,15 @@ class FBNet(nn.Module):
                     stride=stride,
                     bn_eps=bn_eps,
                     use_kernel3=use_kernel3,
-                    exp_factor=exp_factor))
+                    exp_factor=exp_factor,
+                    normalization=normalization))
                 in_channels = out_channels
             self.features.add_module("stage{}".format(i + 1), stage)
         self.features.add_module("final_block", conv1x1_block(
             in_channels=in_channels,
             out_channels=final_block_channels,
-            bn_eps=bn_eps))
+            bn_eps=bn_eps,
+            normalization=normalization))
         in_channels = final_block_channels
         self.features.add_module("final_pool", nn.AvgPool2d(
             kernel_size=7,
