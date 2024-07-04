@@ -244,7 +244,7 @@ def get_regnet(channels_init,
     # Generate quantized per-block channels/widths:
     channels_exps = np.round(np.log(channels_cont / channels_init) / np.log(channels_mult))
     channels = channels_init * np.power(channels_mult, channels_exps)
-    channels = (np.round(channels / divisor) * divisor).astype(np.int)
+    channels = (np.round(channels / divisor) * divisor).astype(int)
 
     # Generate per stage channels/widths and layers/depths:
     channels_per_stage, layers = np.unique(channels, return_counts=True)

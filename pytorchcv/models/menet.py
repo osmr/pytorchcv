@@ -28,7 +28,7 @@ class MEUnit(nn.Module):
     groups : int
         Number of groups in convolution layers.
     downsample : bool
-        Whether do downsample.
+        Whether to do downsample.
     ignore_group : bool
         Whether ignore group value in the first convolution layer.
     """
