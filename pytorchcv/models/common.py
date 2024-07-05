@@ -166,7 +166,7 @@ def lambda_batchnorm2d(eps: float = 1e-5) -> Callable[[int], nn.Module]:
 
 
 def create_normalization_layer(normalization: Callable | nn.Module,
-                               **kwargs) -> nn.Module:
+                               **kwargs) -> nn.Module | None:
     """
     Create normalization layer from function/module.
 
@@ -177,7 +177,7 @@ def create_normalization_layer(normalization: Callable | nn.Module,
 
     Returns
     -------
-    nn.Module
+    nn.Module or None
         Normalization layer.
     """
     if isfunction(normalization):
@@ -492,8 +492,6 @@ class ConvBlock(nn.Module):
         Whether the layer uses a bias vector.
     use_bn : bool, default True
         Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module.
     activation : function or str or nn.Module or None, default nn.ReLU(inplace=True)
@@ -509,13 +507,10 @@ class ConvBlock(nn.Module):
                  groups: int = 1,
                  bias: bool = False,
                  use_bn: bool = True,
-                 bn_eps: float = 1e-5,
                  normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))):
         super(ConvBlock, self).__init__()
         self.normalize = (normalization is not None)
-        # self.normalize = use_bn
-        assert (use_bn == (normalization is not None))
         self.activate = (activation is not None)
         self.use_pad = (isinstance(padding, (list, tuple)) and (len(padding) == 4))
 
@@ -538,8 +533,10 @@ class ConvBlock(nn.Module):
             self.bn = create_normalization_layer(
                 normalization=normalization,
                 num_features=out_channels)
-            assert isinstance(self.bn, nn.BatchNorm2d)
-            # assert (self.bn.eps == bn_eps)
+            if self.bn is None:
+                self.normalize = False
+            else:
+                assert isinstance(self.bn, nn.BatchNorm2d)
         if self.activate:
             self.activ = get_activation_layer(activation)
 
@@ -867,6 +864,8 @@ class DwsConvBlock(nn.Module):
                  dw_activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
                  pw_activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))):
         super(DwsConvBlock, self).__init__()
+        assert (dw_use_bn == (dw_normalization is not None))
+        assert (pw_use_bn == (pw_normalization is not None))
         self.dw_conv = dwconv_block(
             in_channels=in_channels,
             out_channels=in_channels,
@@ -875,14 +874,14 @@ class DwsConvBlock(nn.Module):
             padding=padding,
             dilation=dilation,
             bias=bias,
-            use_bn=dw_use_bn,
+            # use_bn=dw_use_bn,
             normalization=dw_normalization,
             activation=dw_activation)
         self.pw_conv = conv1x1_block(
             in_channels=in_channels,
             out_channels=out_channels,
             bias=bias,
-            use_bn=pw_use_bn,
+            # use_bn=pw_use_bn,
             normalization=pw_normalization,
             activation=pw_activation)
 
@@ -1777,6 +1776,7 @@ class SAConvBlock(nn.Module):
                  min_channels: int = 32,
                  use_conv: bool = True):
         super(SAConvBlock, self).__init__()
+        assert (use_bn == (normalization is not None))
         self.conv = ConvBlock(
             in_channels=in_channels,
             out_channels=(out_channels * radix),
@@ -1786,7 +1786,7 @@ class SAConvBlock(nn.Module):
             dilation=dilation,
             groups=(groups * radix),
             bias=bias,
-            use_bn=use_bn,
+            # use_bn=use_bn,
             normalization=normalization,
             activation=activation)
         self.att = SABlock(

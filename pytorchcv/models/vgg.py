@@ -115,7 +115,6 @@ class VGG(nn.Module):
                     in_channels=in_channels,
                     out_channels=out_channels,
                     bias=bias,
-                    use_bn=use_bn,
                     normalization=normalization))
                 in_channels = out_channels
             stage.add_module("pool{}".format(i + 1), nn.MaxPool2d(

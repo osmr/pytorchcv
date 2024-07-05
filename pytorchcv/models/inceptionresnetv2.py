@@ -66,14 +66,11 @@ class InceptInitBlock(nn.Module):
     ----------
     in_channels : int
         Number of input channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Normalization function.
     """
     def __init__(self,
                  in_channels,
-                 bn_eps,
                  normalization: Callable):
         super(InceptInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
@@ -81,21 +78,18 @@ class InceptInitBlock(nn.Module):
             out_channels=32,
             stride=2,
             padding=0,
-            bn_eps=bn_eps,
             normalization=normalization)
         self.conv2 = conv3x3_block(
             in_channels=32,
             out_channels=32,
             stride=1,
             padding=0,
-            bn_eps=bn_eps,
             normalization=normalization)
         self.conv3 = conv3x3_block(
             in_channels=32,
             out_channels=64,
             stride=1,
             padding=1,
-            bn_eps=bn_eps,
             normalization=normalization)
         self.pool1 = nn.MaxPool2d(
             kernel_size=3,
@@ -106,14 +100,12 @@ class InceptInitBlock(nn.Module):
             out_channels=80,
             stride=1,
             padding=0,
-            bn_eps=bn_eps,
             normalization=normalization)
         self.conv5 = conv3x3_block(
             in_channels=80,
             out_channels=192,
             stride=1,
             padding=0,
-            bn_eps=bn_eps,
             normalization=normalization)
         self.pool2 = nn.MaxPool2d(
             kernel_size=3,
@@ -172,7 +164,6 @@ class InceptionResNetV2(nn.Module):
         self.features = nn.Sequential()
         self.features.add_module("init_block", InceptInitBlock(
             in_channels=in_channels,
-            bn_eps=bn_eps,
             normalization=normalization))
         in_channels = in_channels_list[0]
         for i, layers_per_stage in enumerate(layers):
@@ -199,7 +190,6 @@ class InceptionResNetV2(nn.Module):
         self.features.add_module("final_conv", conv1x1_block(
             in_channels=in_channels,
             out_channels=1536,
-            bn_eps=bn_eps,
             normalization=normalization))
         self.features.add_module("final_pool", nn.AvgPool2d(
             kernel_size=8,

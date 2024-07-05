@@ -8,7 +8,8 @@ __all__ = ['ResNeStA', 'resnestabc14', 'resnesta18', 'resnestabc26', 'resnesta50
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, saconv3x3_block
+from typing import Callable
+from .common import lambda_batchnorm2d, conv1x1_block, conv3x3_block, saconv3x3_block
 from .senet import SEInitBlock
 
 
@@ -26,15 +27,18 @@ class ResNeStABlock(nn.Module):
         Strides of the convolution.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
+    # use_bn : bool, default True
+    #     Whether to use BatchNorm layer.
+    normalization : function or None, default lambda_batchnorm2d()
+        Normalization function.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
                  stride,
                  bias=False,
-                 use_bn=True):
+                 # use_bn=True,
+                 normalization: Callable | None = lambda_batchnorm2d()):
         super(ResNeStABlock, self).__init__()
         self.resize = (stride > 1)
 
@@ -42,7 +46,8 @@ class ResNeStABlock(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             bias=bias,
-            use_bn=use_bn)
+            # use_bn=use_bn,
+            normalization=normalization)
         if self.resize:
             self.pool = nn.AvgPool2d(
                 kernel_size=3,
@@ -52,7 +57,8 @@ class ResNeStABlock(nn.Module):
             in_channels=out_channels,
             out_channels=out_channels,
             bias=bias,
-            use_bn=use_bn,
+            # use_bn=use_bn,
+            normalization=normalization,
             activation=None)
 
     def forward(self, x):
