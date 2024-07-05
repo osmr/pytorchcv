@@ -222,10 +222,8 @@ class IbpUpBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    use_bias : bool
-        Whether the layer uses a bias vector.
-    use_bn : bool
-        Whether to use BatchNorm layer.
+    bias : bool
+        Whether some layers use a bias vector.
     normalization : function or None
         Normalization function.
     activation : function or str or None
@@ -234,8 +232,7 @@ class IbpUpBlock(nn.Module):
     def __init__(self,
                  in_channels,
                  out_channels,
-                 use_bias,
-                 use_bn,
+                 bias,
                  normalization: Callable | None,
                  activation):
         super(IbpUpBlock, self).__init__()
@@ -250,8 +247,7 @@ class IbpUpBlock(nn.Module):
         self.conv = conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
-            bias=(not use_bn),
-            # use_bn=use_bn,
+            bias=bias,
             normalization=normalization,
             activation=activation)
 
@@ -272,22 +268,21 @@ class MergeBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    use_bn : bool
-        Whether to use BatchNorm layer.
+    bias : bool
+        Whether some layers use a bias vector.
     normalization : function or None
         Normalization function.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
-                 use_bn,
+                 bias,
                  normalization: Callable | None):
         super(MergeBlock, self).__init__()
         self.conv = conv1x1_block(
             in_channels=in_channels,
             out_channels=out_channels,
-            bias=(not use_bn),
-            # use_bn=use_bn,
+            bias=bias,
             normalization=normalization,
             activation=None)
 
@@ -303,8 +298,8 @@ class IbpPreBlock(nn.Module):
     ----------
     out_channels : int
         Number of output channels.
-    use_bn : bool
-        Whether to use BatchNorm layer.
+    bias : bool
+        Whether some layers use a bias vector.
     normalization : function or None
         Normalization function.
     activation : function or str or None
@@ -312,22 +307,20 @@ class IbpPreBlock(nn.Module):
     """
     def __init__(self,
                  out_channels,
-                 use_bn,
+                 bias,
                  normalization: Callable | None,
                  activation):
         super(IbpPreBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
-            bias=(not use_bn),
-            # use_bn=use_bn,
+            bias=bias,
             normalization=normalization,
             activation=activation)
         self.conv2 = conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
-            bias=(not use_bn),
-            # use_bn=use_bn,
+            bias=bias,
             normalization=normalization,
             activation=activation)
         self.se = SEBlock(
@@ -356,10 +349,8 @@ class IbpPass(nn.Module):
         Depth of hourglass.
     growth_rate : int
         Addition for number of channel for each level.
-    use_bias : bool
-        Whether the layer uses a bias vector.
-    use_bn : bool
-        Whether to use BatchNorm layer.
+    bias : bool
+        Whether some layers use a bias vector.
     normalization : function or None
         Normalization function.
     activation : function or str or None
@@ -371,8 +362,7 @@ class IbpPass(nn.Module):
                  depth,
                  growth_rate,
                  merge,
-                 use_bias,
-                 use_bn,
+                 bias,
                  normalization: Callable | None,
                  activation):
         super(IbpPass, self).__init__()
@@ -397,7 +387,7 @@ class IbpPass(nn.Module):
                 up_seq.add_module("up{}".format(i + 1), IbpUpBlock(
                     in_channels=bottom_channels,
                     out_channels=top_channels,
-                    use_bn=use_bn,
+                    bias=bias,
                     normalization=normalization,
                     activation=activation))
             top_channels = bottom_channels
@@ -409,14 +399,13 @@ class IbpPass(nn.Module):
 
         self.pre_block = IbpPreBlock(
             out_channels=channels,
-            use_bn=use_bn,
+            bias=bias,
             normalization=normalization,
             activation=activation)
         self.post_block = conv1x1_block(
             in_channels=channels,
             out_channels=mid_channels,
             bias=True,
-            # use_bn=False,
             normalization=None,
             activation=None)
 
@@ -424,12 +413,12 @@ class IbpPass(nn.Module):
             self.pre_merge_block = MergeBlock(
                 in_channels=channels,
                 out_channels=channels,
-                use_bn=use_bn,
+                bias=bias,
                 normalization=normalization)
             self.post_merge_block = MergeBlock(
                 in_channels=mid_channels,
                 out_channels=channels,
-                use_bn=use_bn,
+                bias=bias,
                 normalization=normalization)
 
     def forward(self, x, x_prev):
@@ -478,9 +467,9 @@ class IbpPose(nn.Module):
                  in_size=(256, 256)):
         super(IbpPose, self).__init__()
         self.in_size = in_size
+        bias = (not use_bn)
         normalization = lambda_batchnorm2d() if use_bn else None
         activation = (lambda: nn.LeakyReLU(inplace=True))
-        use_bias = (not use_bn)
 
         self.backbone = IbpBackbone(
             in_channels=in_channels,
@@ -496,8 +485,7 @@ class IbpPose(nn.Module):
                 depth=depth,
                 growth_rate=growth_rate,
                 merge=merge,
-                use_bias=use_bias,
-                use_bn=use_bn,
+                bias=bias,
                 normalization=normalization,
                 activation=activation))
 

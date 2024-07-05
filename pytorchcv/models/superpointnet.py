@@ -35,7 +35,8 @@ class SPHead(nn.Module):
             in_channels=in_channels,
             out_channels=mid_channels,
             bias=True,
-            use_bn=False)
+            # use_bn=False,
+            normalization=None)
         self.conv2 = conv1x1(
             in_channels=mid_channels,
             out_channels=out_channels,
@@ -225,7 +226,8 @@ class SuperPointNet(nn.Module):
                     in_channels=in_channels,
                     out_channels=out_channels,
                     bias=True,
-                    use_bn=False))
+                    # use_bn=False,
+                    normalization=None))
                 in_channels = out_channels
             self.features.add_module("stage{}".format(i + 1), stage)
 

@@ -39,7 +39,7 @@ class ResBlock(nn.Module):
                  stride: int | tuple[int, int],
                  bias: bool = False,
                  # use_bn: bool = True,
-                 normalization: Callable | None = lambda_batchnorm2d(eps=1e-5)):
+                 normalization: Callable | None = lambda_batchnorm2d()):
         super(ResBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -136,7 +136,7 @@ class ResUnit(nn.Module):
         Whether the layer uses a bias vector.
     # use_bn : bool, default True
     #     Whether to use BatchNorm layer.
-    normalization : function or None, default lambda_batchnorm2d(eps=1e-5)
+    normalization : function or None, default lambda_batchnorm2d()
         Normalization function.
     bottleneck : bool, default True
         Whether to use a bottleneck or simple block in units.
@@ -151,7 +151,7 @@ class ResUnit(nn.Module):
                  dilation: int | tuple[int, int] = 1,
                  bias: bool = False,
                  # use_bn: bool = True,
-                 normalization: Callable | None = lambda_batchnorm2d(eps=1e-5),
+                 normalization: Callable | None = lambda_batchnorm2d(),
                  bottleneck: bool = True,
                  conv1_stride: bool = False):
         super(ResUnit, self).__init__()
