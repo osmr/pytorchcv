@@ -145,15 +145,12 @@ class LwopEncoderFinalBlock(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             bias=True,
-            # use_bn=False,
             normalization=None)
         self.body = nn.Sequential()
         for i in range(3):
             self.body.add_module("block{}".format(i + 1), dwsconv3x3_block(
                 in_channels=out_channels,
                 out_channels=out_channels,
-                dw_use_bn=False,
-                pw_use_bn=False,
                 dw_normalization=None,
                 pw_normalization=None,
                 dw_activation=(lambda: nn.ELU(inplace=True)),
@@ -162,7 +159,6 @@ class LwopEncoderFinalBlock(nn.Module):
             in_channels=out_channels,
             out_channels=out_channels,
             bias=True,
-            # use_bn=False,
             normalization=None)
 
     def forward(self, x):
@@ -271,7 +267,6 @@ class LwopDecoderInitBlock(nn.Module):
                 in_channels=in_channels,
                 out_channels=in_channels,
                 bias=True,
-                # use_bn=False,
                 normalization=None))
         self.heatmap_bend = LwopDecoderBend(
             in_channels=in_channels,

@@ -273,6 +273,7 @@ from .models.lffd import lffd20x5s320v2_widerface, lffd25x8s560v1_widerface
 from .models.pfpcnet import pfpcnet
 from .models.voca import voca8flame
 from .models.nvpattexp import nvpattexp116bazel76
+from .models.visemenet import visemenet20
 
 from .models.superpointnet import superpointnet
 
@@ -1277,6 +1278,7 @@ _models = {
     'pfpcnet': pfpcnet,
     'voca8flame': voca8flame,
     'nvpattexp116bazel76': nvpattexp116bazel76,
+    "visemenet20": visemenet20,
 
     'superpointnet': superpointnet,
 

@@ -31,8 +31,7 @@ class VisemeDenseBranch(nn.Module):
             self.branch.add_module("block{}".format(i + 1), DenseBlock(
                 in_features=in_channels,
                 out_features=out_channels,
-                bias=True,
-                use_bn=True))
+                bias=True))
             in_channels = out_channels
         self.final_fc = nn.Linear(
             in_features=in_channels,

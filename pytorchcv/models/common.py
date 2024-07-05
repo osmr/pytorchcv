@@ -3,9 +3,9 @@
 """
 
 __all__ = ['round_channels', 'Identity', 'BreakBlock', 'Swish', 'HSigmoid', 'HSwish', 'get_activation_layer',
-           'lambda_batchnorm2d', 'SelectableDense', 'DenseBlock', 'ConvBlock1d', 'conv1x1', 'conv3x3',
-           'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block', 'conv5x5_block', 'conv7x7_block',
-           'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block', 'dwsconv3x3_block', 'PreConvBlock',
+           'lambda_batchnorm1d', 'lambda_batchnorm2d', 'SelectableDense', 'DenseBlock', 'ConvBlock1d', 'conv1x1',
+           'conv3x3', 'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block', 'conv5x5_block',
+           'conv7x7_block', 'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block', 'dwsconv3x3_block', 'PreConvBlock',
            'pre_conv1x1_block', 'pre_conv3x3_block', 'AsymConvBlock', 'asym_conv3x3_block', 'DeconvBlock',
            'deconv3x3_block', 'NormActivation', 'InterpolationBlock', 'ChannelShuffle', 'ChannelShuffle2', 'SEBlock',
            'SABlock', 'SAConvBlock', 'saconv3x3_block', 'DucBlock', 'IBN', 'DualPathSequential', 'Concurrent',
@@ -146,6 +146,25 @@ def get_activation_layer(activation: Callable | nn.Module | str) -> nn.Module:
         return activation
 
 
+def lambda_batchnorm1d(eps: float = 1e-5) -> Callable[[int], nn.Module]:
+    """
+    Create lambda-function with nn.BatchNorm1d.
+
+    Parameters
+    ----------
+    eps : float, default 1e-5
+        Batch-norm epsilon.
+
+    Returns
+    -------
+    function
+        Desired function.
+    """
+    return lambda num_features: nn.BatchNorm1d(
+        num_features=num_features,
+        eps=eps)
+
+
 def lambda_batchnorm2d(eps: float = 1e-5) -> Callable[[int], nn.Module]:
     """
     Create lambda-function with nn.BatchNorm2d.
@@ -245,10 +264,8 @@ class DenseBlock(nn.Module):
         Number of output features.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
+    normalization : function or nn.Module or None, default lambda_batchnorm1d()
+        Normalization function/module.
     activation : function or str or nn.Module or None, default nn.ReLU(inplace=True)
         Activation function/module or name for activation module.
     """
@@ -256,27 +273,33 @@ class DenseBlock(nn.Module):
                  in_features: int,
                  out_features: int,
                  bias: bool = False,
-                 use_bn: bool = True,
-                 bn_eps: float = 1e-5,
+                 normalization: Callable | nn.Module | None = lambda_batchnorm1d(),
                  activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))):
         super(DenseBlock, self).__init__()
+        self.normalize = (normalization is not None)
         self.activate = (activation is not None)
-        self.use_bn = use_bn
 
         self.fc = nn.Linear(
             in_features=in_features,
             out_features=out_features,
             bias=bias)
-        if self.use_bn:
-            self.bn = nn.BatchNorm1d(
-                num_features=out_features,
-                eps=bn_eps)
+        if self.normalize:
+            # self.bn = nn.BatchNorm1d(
+            #     num_features=out_features,
+            #     eps=bn_eps)
+            self.bn = create_normalization_layer(
+                normalization=normalization,
+                num_features=out_features)
+            if self.bn is None:
+                self.normalize = False
+            else:
+                assert isinstance(self.bn, nn.BatchNorm1d)
         if self.activate:
             self.activ = get_activation_layer(activation)
 
     def forward(self, x):
         x = self.fc(x)
-        if self.use_bn:
+        if self.normalize:
             x = self.bn(x)
         if self.activate:
             x = self.activ(x)
@@ -825,10 +848,6 @@ class DwsConvBlock(nn.Module):
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    dw_use_bn : bool, default True
-        Whether to use BatchNorm layer (depthwise convolution block).
-    pw_use_bn : bool, default True
-        Whether to use BatchNorm layer (pointwise convolution block).
     dw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module for the depthwise convolution block.
     pw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
@@ -846,15 +865,11 @@ class DwsConvBlock(nn.Module):
                  padding: int | tuple[int, int] | tuple[int, int, int, int],
                  dilation: int | tuple[int, int] = 1,
                  bias: bool = False,
-                 dw_use_bn: bool = True,
-                 pw_use_bn: bool = True,
                  dw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  pw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  dw_activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
                  pw_activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))):
         super(DwsConvBlock, self).__init__()
-        assert (dw_use_bn == (dw_normalization is not None))
-        assert (pw_use_bn == (pw_normalization is not None))
         self.dw_conv = dwconv_block(
             in_channels=in_channels,
             out_channels=in_channels,
@@ -863,14 +878,12 @@ class DwsConvBlock(nn.Module):
             padding=padding,
             dilation=dilation,
             bias=bias,
-            # use_bn=dw_use_bn,
             normalization=dw_normalization,
             activation=dw_activation)
         self.pw_conv = conv1x1_block(
             in_channels=in_channels,
             out_channels=out_channels,
             bias=bias,
-            # use_bn=pw_use_bn,
             normalization=pw_normalization,
             activation=pw_activation)
 
@@ -880,16 +893,8 @@ class DwsConvBlock(nn.Module):
         return x
 
 
-def dwsconv3x3_block(in_channels: int,
-                     out_channels: int,
-                     stride: int | tuple[int, int] = 1,
+def dwsconv3x3_block(stride: int | tuple[int, int] = 1,
                      padding: int | tuple[int, int] | tuple[int, int, int, int] = 1,
-                     dilation: int | tuple[int, int] = 1,
-                     bias: bool = False,
-                     dw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                     pw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                     dw_activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
-                     pw_activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
                      **kwargs) -> nn.Module:
     """
     3x3 depthwise separable version of the standard convolution block.
@@ -923,17 +928,9 @@ def dwsconv3x3_block(in_channels: int,
         Desired module.
     """
     return DwsConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=3,
         stride=stride,
         padding=padding,
-        dilation=dilation,
-        bias=bias,
-        dw_normalization=dw_normalization,
-        pw_normalization=pw_normalization,
-        dw_activation=dw_activation,
-        pw_activation=pw_activation,
         **kwargs)
 
 
@@ -1140,15 +1137,11 @@ class AsymConvBlock(nn.Module):
                  dilation: int = 1,
                  groups: int = 1,
                  bias: bool = False,
-                 lw_use_bn: bool = True,
-                 rw_use_bn: bool = True,
                  lw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  rw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  lw_activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
                  rw_activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))):
         super(AsymConvBlock, self).__init__()
-        assert (lw_use_bn == (lw_normalization is not None))
-        assert (rw_use_bn == (rw_normalization is not None))
         self.lw_conv = ConvBlock(
             in_channels=channels,
             out_channels=channels,
@@ -1158,7 +1151,6 @@ class AsymConvBlock(nn.Module):
             dilation=(dilation, 1),
             groups=groups,
             bias=bias,
-            # use_bn=lw_use_bn,
             normalization=lw_normalization,
             activation=lw_activation)
         self.rw_conv = ConvBlock(
@@ -1170,7 +1162,6 @@ class AsymConvBlock(nn.Module):
             dilation=(1, dilation),
             groups=groups,
             bias=bias,
-            # use_bn=rw_use_bn,
             normalization=rw_normalization,
             activation=rw_activation)
 

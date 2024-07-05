@@ -61,7 +61,6 @@ class MobileNet(nn.Module):
                     in_channels=in_channels,
                     out_channels=out_channels,
                     stride=stride,
-                    dw_use_bn=dw_use_bn,
                     dw_normalization=dw_normalization,
                     dw_activation=dw_activation))
                 in_channels = out_channels

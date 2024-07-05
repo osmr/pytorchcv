@@ -52,7 +52,7 @@ class NvpAttExpEncoder(nn.Module):
                 stride=(2, 1),
                 padding=(1, 0),
                 bias=True,
-                use_bn=False,
+                normalization=None,
                 activation=(lambda: nn.LeakyReLU(negative_slope=slope, inplace=True))))
             in_channels = out_channels
 
@@ -64,7 +64,7 @@ class NvpAttExpEncoder(nn.Module):
                 in_features=in_channels,
                 out_features=out_channels,
                 bias=True,
-                use_bn=False,
+                normalization=None,
                 activation=activation))
             in_channels = out_channels
 
@@ -78,6 +78,7 @@ class NvpAttExpEncoder(nn.Module):
                 padding=1,
                 bias=True,
                 use_bn=False,
+                # normalization=None,
                 activation=(lambda: nn.LeakyReLU(negative_slope=att_conv_slopes, inplace=True))))
             in_channels = out_channels
 
@@ -85,7 +86,7 @@ class NvpAttExpEncoder(nn.Module):
             in_features=seq_len,
             out_features=seq_len,
             bias=True,
-            use_bn=False,
+            normalization=None,
             activation=(lambda: nn.Softmax(dim=1)))
 
     def forward(self, x):
