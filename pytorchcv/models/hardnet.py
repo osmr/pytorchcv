@@ -57,11 +57,13 @@ class InvDwsConvBlock(nn.Module):
                  pw_activation=(lambda: nn.ReLU(inplace=True)),
                  dw_activation=(lambda: nn.ReLU(inplace=True))):
         super(InvDwsConvBlock, self).__init__()
+        assert (use_bn == (pw_normalization is not None))
+        assert (use_bn == (dw_normalization is not None))
         self.pw_conv = conv1x1_block(
             in_channels=in_channels,
             out_channels=out_channels,
             bias=bias,
-            use_bn=use_bn,
+            # use_bn=use_bn,
             normalization=pw_normalization,
             activation=pw_activation)
         self.dw_conv = dwconv_block(
@@ -72,7 +74,7 @@ class InvDwsConvBlock(nn.Module):
             padding=padding,
             dilation=dilation,
             bias=bias,
-            use_bn=use_bn,
+            # use_bn=use_bn,
             normalization=dw_normalization,
             activation=dw_activation)
 

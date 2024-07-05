@@ -119,6 +119,9 @@ class DwsConvBlock(nn.Module):
         super(DwsConvBlock, self).__init__()
         self.use_se = (se_reduction > 0)
 
+        assert (dw_use_bn == (dw_normalization is not None))
+        assert (pw_use_bn == (pw_normalization is not None))
+
         self.dw_conv = dwconv_block(
             in_channels=in_channels,
             out_channels=in_channels,
@@ -127,7 +130,7 @@ class DwsConvBlock(nn.Module):
             padding=padding,
             dilation=dilation,
             bias=bias,
-            use_bn=dw_use_bn,
+            # use_bn=dw_use_bn,
             normalization=dw_normalization,
             activation=dw_activation)
         if self.use_se:
@@ -141,7 +144,7 @@ class DwsConvBlock(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             bias=bias,
-            use_bn=pw_use_bn,
+            # use_bn=pw_use_bn,
             normalization=pw_normalization,
             activation=pw_activation)
 
@@ -299,6 +302,8 @@ class FDWConvBlock(nn.Module):
         assert use_bn
         self.activate = (activation is not None)
 
+        assert (use_bn == (normalization is not None))
+
         self.v_conv = dwconv_block(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -307,7 +312,7 @@ class FDWConvBlock(nn.Module):
             padding=(padding, 0),
             dilation=dilation,
             bias=bias,
-            use_bn=use_bn,
+            # use_bn=use_bn,
             normalization=normalization,
             activation=None)
         self.h_conv = dwconv_block(
@@ -318,7 +323,7 @@ class FDWConvBlock(nn.Module):
             padding=(0, padding),
             dilation=dilation,
             bias=bias,
-            use_bn=use_bn,
+            # use_bn=use_bn,
             normalization=normalization,
             activation=None)
         if self.activate:
@@ -366,6 +371,7 @@ def fdwconv3x3_block(in_channels,
     activation : function or str or None, default nn.ReLU(inplace=True)
         Activation function or name of activation function.
     """
+    assert (use_bn == (normalization is not None))
     return FDWConvBlock(
         in_channels=in_channels,
         out_channels=out_channels,

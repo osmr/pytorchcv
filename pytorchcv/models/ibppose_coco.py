@@ -9,8 +9,9 @@ __all__ = ['IbpPose', 'ibppose_coco']
 import os
 import torch
 from torch import nn
-from .common import (get_activation_layer, conv1x1_block, conv3x3_block, conv7x7_block, SEBlock, Hourglass,
-                     InterpolationBlock)
+from typing import Callable
+from .common import (get_activation_layer, lambda_batchnorm2d, conv1x1_block, conv3x3_block, conv7x7_block, SEBlock,
+                     Hourglass, InterpolationBlock)
 
 
 class IbpResBottleneck(nn.Module):
@@ -221,15 +222,21 @@ class IbpUpBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
+    use_bias : bool
+        Whether the layer uses a bias vector.
     use_bn : bool
         Whether to use BatchNorm layer.
+    normalization : function or None
+        Normalization function.
     activation : function or str or None
         Activation function or name of activation function.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
+                 use_bias,
                  use_bn,
+                 normalization: Callable | None,
                  activation):
         super(IbpUpBlock, self).__init__()
         self.res = IbpResUnit(
@@ -244,7 +251,8 @@ class IbpUpBlock(nn.Module):
             in_channels=out_channels,
             out_channels=out_channels,
             bias=(not use_bn),
-            use_bn=use_bn,
+            # use_bn=use_bn,
+            normalization=normalization,
             activation=activation)
 
     def forward(self, x):
@@ -266,17 +274,21 @@ class MergeBlock(nn.Module):
         Number of output channels.
     use_bn : bool
         Whether to use BatchNorm layer.
+    normalization : function or None
+        Normalization function.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
-                 use_bn):
+                 use_bn,
+                 normalization: Callable | None):
         super(MergeBlock, self).__init__()
         self.conv = conv1x1_block(
             in_channels=in_channels,
             out_channels=out_channels,
             bias=(not use_bn),
-            use_bn=use_bn,
+            # use_bn=use_bn,
+            normalization=normalization,
             activation=None)
 
     def forward(self, x):
@@ -293,25 +305,30 @@ class IbpPreBlock(nn.Module):
         Number of output channels.
     use_bn : bool
         Whether to use BatchNorm layer.
+    normalization : function or None
+        Normalization function.
     activation : function or str or None
         Activation function or name of activation function.
     """
     def __init__(self,
                  out_channels,
                  use_bn,
+                 normalization: Callable | None,
                  activation):
         super(IbpPreBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
             bias=(not use_bn),
-            use_bn=use_bn,
+            # use_bn=use_bn,
+            normalization=normalization,
             activation=activation)
         self.conv2 = conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
             bias=(not use_bn),
-            use_bn=use_bn,
+            # use_bn=use_bn,
+            normalization=normalization,
             activation=activation)
         self.se = SEBlock(
             channels=out_channels,
@@ -339,8 +356,12 @@ class IbpPass(nn.Module):
         Depth of hourglass.
     growth_rate : int
         Addition for number of channel for each level.
+    use_bias : bool
+        Whether the layer uses a bias vector.
     use_bn : bool
         Whether to use BatchNorm layer.
+    normalization : function or None
+        Normalization function.
     activation : function or str or None
         Activation function or name of activation function.
     """
@@ -350,7 +371,9 @@ class IbpPass(nn.Module):
                  depth,
                  growth_rate,
                  merge,
+                 use_bias,
                  use_bn,
+                 normalization: Callable | None,
                  activation):
         super(IbpPass, self).__init__()
         self.merge = merge
@@ -375,6 +398,7 @@ class IbpPass(nn.Module):
                     in_channels=bottom_channels,
                     out_channels=top_channels,
                     use_bn=use_bn,
+                    normalization=normalization,
                     activation=activation))
             top_channels = bottom_channels
         self.hg = Hourglass(
@@ -386,12 +410,13 @@ class IbpPass(nn.Module):
         self.pre_block = IbpPreBlock(
             out_channels=channels,
             use_bn=use_bn,
+            normalization=normalization,
             activation=activation)
         self.post_block = conv1x1_block(
             in_channels=channels,
             out_channels=mid_channels,
             bias=True,
-            use_bn=False,
+            # use_bn=False,
             normalization=None,
             activation=None)
 
@@ -399,11 +424,13 @@ class IbpPass(nn.Module):
             self.pre_merge_block = MergeBlock(
                 in_channels=channels,
                 out_channels=channels,
-                use_bn=use_bn)
+                use_bn=use_bn,
+                normalization=normalization)
             self.post_merge_block = MergeBlock(
                 in_channels=mid_channels,
                 out_channels=channels,
-                use_bn=use_bn)
+                use_bn=use_bn,
+                normalization=normalization)
 
     def forward(self, x, x_prev):
         x = self.hg(x)
@@ -451,7 +478,9 @@ class IbpPose(nn.Module):
                  in_size=(256, 256)):
         super(IbpPose, self).__init__()
         self.in_size = in_size
+        normalization = lambda_batchnorm2d() if use_bn else None
         activation = (lambda: nn.LeakyReLU(inplace=True))
+        use_bias = (not use_bn)
 
         self.backbone = IbpBackbone(
             in_channels=in_channels,
@@ -467,7 +496,9 @@ class IbpPose(nn.Module):
                 depth=depth,
                 growth_rate=growth_rate,
                 merge=merge,
+                use_bias=use_bias,
                 use_bn=use_bn,
+                normalization=normalization,
                 activation=activation))
 
         self._initialize_weights()

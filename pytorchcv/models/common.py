@@ -506,7 +506,7 @@ class ConvBlock(nn.Module):
                  dilation: int | tuple[int, int] = 1,
                  groups: int = 1,
                  bias: bool = False,
-                 use_bn: bool = True,
+                 # use_bn: bool = True,
                  normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))):
         super(ConvBlock, self).__init__()
