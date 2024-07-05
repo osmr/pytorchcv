@@ -138,7 +138,6 @@ class EfficientNetEdge(nn.Module):
         self.features.add_module("init_block", EffiInitBlock(
             in_channels=in_channels,
             out_channels=init_block_channels,
-            bn_eps=bn_eps,
             normalization=normalization,
             activation=activation,
             tf_mode=tf_mode))
@@ -172,7 +171,6 @@ class EfficientNetEdge(nn.Module):
                         stride=stride,
                         exp_factor=expansion_factor,
                         se_factor=0,
-                        bn_eps=bn_eps,
                         normalization=normalization,
                         activation=activation,
                         tf_mode=tf_mode))

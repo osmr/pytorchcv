@@ -24,15 +24,12 @@ class InceptionAUnit(nn.Module):
         Number of input channels.
     out_channels_list : list(int)
         List for numbers of output channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Normalization function.
     """
     def __init__(self,
                  in_channels,
                  out_channels_list,
-                 bn_eps,
                  normalization: Callable):
         super(InceptionAUnit, self).__init__()
         self.scale = 0.17
@@ -41,7 +38,6 @@ class InceptionAUnit(nn.Module):
         self.branches.add_module("branch1", Conv1x1Branch(
             in_channels=in_channels,
             out_channels=out_channels_list[0],
-            bn_eps=bn_eps,
             normalization=normalization))
         self.branches.add_module("branch2", ConvSeqBranch(
             in_channels=in_channels,
@@ -49,7 +45,6 @@ class InceptionAUnit(nn.Module):
             kernel_size_list=(1, 3),
             strides_list=(1, 1),
             padding_list=(0, 1),
-            bn_eps=bn_eps,
             normalization=normalization))
         self.branches.add_module("branch3", ConvSeqBranch(
             in_channels=in_channels,
@@ -57,7 +52,6 @@ class InceptionAUnit(nn.Module):
             kernel_size_list=(1, 3, 3),
             strides_list=(1, 1, 1),
             padding_list=(0, 1, 1),
-            bn_eps=bn_eps,
             normalization=normalization))
         conv_in_channels = out_channels_list[0] + out_channels_list[2] + out_channels_list[5]
         self.conv = conv1x1(
@@ -85,15 +79,12 @@ class InceptionBUnit(nn.Module):
         Number of input channels.
     out_channels_list : list(int)
         List for numbers of output channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Normalization function.
     """
     def __init__(self,
                  in_channels,
                  out_channels_list,
-                 bn_eps,
                  normalization: Callable):
         super(InceptionBUnit, self).__init__()
         self.scale = 0.10
@@ -102,7 +93,6 @@ class InceptionBUnit(nn.Module):
         self.branches.add_module("branch1", Conv1x1Branch(
             in_channels=in_channels,
             out_channels=out_channels_list[0],
-            bn_eps=bn_eps,
             normalization=normalization))
         self.branches.add_module("branch2", ConvSeqBranch(
             in_channels=in_channels,
@@ -110,7 +100,6 @@ class InceptionBUnit(nn.Module):
             kernel_size_list=(1, (1, 7), (7, 1)),
             strides_list=(1, 1, 1),
             padding_list=(0, (0, 3), (3, 0)),
-            bn_eps=bn_eps,
             normalization=normalization))
         conv_in_channels = out_channels_list[0] + out_channels_list[3]
         self.conv = conv1x1(
@@ -138,8 +127,6 @@ class InceptionCUnit(nn.Module):
         Number of input channels.
     out_channels_list : list(int)
         List for numbers of output channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Normalization function.
     scale : float, default 0.2
@@ -150,7 +137,6 @@ class InceptionCUnit(nn.Module):
     def __init__(self,
                  in_channels,
                  out_channels_list,
-                 bn_eps,
                  normalization: Callable,
                  scale=0.2,
                  activate=True):
@@ -162,7 +148,6 @@ class InceptionCUnit(nn.Module):
         self.branches.add_module("branch1", Conv1x1Branch(
             in_channels=in_channels,
             out_channels=out_channels_list[0],
-            bn_eps=bn_eps,
             normalization=normalization))
         self.branches.add_module("branch2", ConvSeqBranch(
             in_channels=in_channels,
@@ -170,7 +155,6 @@ class InceptionCUnit(nn.Module):
             kernel_size_list=(1, (1, 3), (3, 1)),
             strides_list=(1, 1, 1),
             padding_list=(0, (0, 1), (1, 0)),
-            bn_eps=bn_eps,
             normalization=normalization))
         conv_in_channels = out_channels_list[0] + out_channels_list[3]
         self.conv = conv1x1(
@@ -200,15 +184,12 @@ class ReductionAUnit(nn.Module):
         Number of input channels.
     out_channels_list : list(int)
         List for numbers of output channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Normalization function.
     """
     def __init__(self,
                  in_channels,
                  out_channels_list,
-                 bn_eps,
                  normalization: Callable):
         super(ReductionAUnit, self).__init__()
         self.branches = Concurrent()
@@ -218,7 +199,6 @@ class ReductionAUnit(nn.Module):
             kernel_size_list=(3,),
             strides_list=(2,),
             padding_list=(0,),
-            bn_eps=bn_eps,
             normalization=normalization))
         self.branches.add_module("branch2", ConvSeqBranch(
             in_channels=in_channels,
@@ -226,7 +206,6 @@ class ReductionAUnit(nn.Module):
             kernel_size_list=(1, 3, 3),
             strides_list=(1, 1, 2),
             padding_list=(0, 1, 0),
-            bn_eps=bn_eps,
             normalization=normalization))
         self.branches.add_module("branch3", MaxPoolBranch())
 
@@ -245,15 +224,12 @@ class ReductionBUnit(nn.Module):
         Number of input channels.
     out_channels_list : list(int)
         List for numbers of output channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Normalization function.
     """
     def __init__(self,
                  in_channels,
                  out_channels_list,
-                 bn_eps,
                  normalization: Callable):
         super(ReductionBUnit, self).__init__()
         self.branches = Concurrent()
@@ -263,7 +239,6 @@ class ReductionBUnit(nn.Module):
             kernel_size_list=(1, 3),
             strides_list=(1, 2),
             padding_list=(0, 0),
-            bn_eps=bn_eps,
             normalization=normalization))
         self.branches.add_module("branch2", ConvSeqBranch(
             in_channels=in_channels,
@@ -271,7 +246,6 @@ class ReductionBUnit(nn.Module):
             kernel_size_list=(1, 3),
             strides_list=(1, 2),
             padding_list=(0, 0),
-            bn_eps=bn_eps,
             normalization=normalization))
         self.branches.add_module("branch3", ConvSeqBranch(
             in_channels=in_channels,
@@ -279,7 +253,6 @@ class ReductionBUnit(nn.Module):
             kernel_size_list=(1, 3, 3),
             strides_list=(1, 1, 2),
             padding_list=(0, 1, 0),
-            bn_eps=bn_eps,
             normalization=normalization))
         self.branches.add_module("branch4", MaxPoolBranch())
 
@@ -470,7 +443,6 @@ class InceptionResNetV1(nn.Module):
                 stage.add_module("unit{}".format(j + 1), unit(
                     in_channels=in_channels,
                     out_channels_list=out_channels_list_per_stage,
-                    bn_eps=bn_eps,
                     normalization=normalization,
                     **unit_kwargs))
                 if (j == 0) and (i != 0):

@@ -20,13 +20,10 @@ class InceptBlock5b(nn.Module):
 
     Parameters
     ----------
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Normalization function.
     """
     def __init__(self,
-                 bn_eps,
                  normalization: Callable):
         super(InceptBlock5b, self).__init__()
         in_channels = 192
@@ -35,7 +32,6 @@ class InceptBlock5b(nn.Module):
         self.branches.add_module("branch1", Conv1x1Branch(
             in_channels=in_channels,
             out_channels=96,
-            bn_eps=bn_eps,
             normalization=normalization))
         self.branches.add_module("branch2", ConvSeqBranch(
             in_channels=in_channels,
@@ -43,7 +39,6 @@ class InceptBlock5b(nn.Module):
             kernel_size_list=(1, 5),
             strides_list=(1, 1),
             padding_list=(0, 2),
-            bn_eps=bn_eps,
             normalization=normalization))
         self.branches.add_module("branch3", ConvSeqBranch(
             in_channels=in_channels,
@@ -51,12 +46,10 @@ class InceptBlock5b(nn.Module):
             kernel_size_list=(1, 3, 3),
             strides_list=(1, 1, 1),
             padding_list=(0, 1, 1),
-            bn_eps=bn_eps,
             normalization=normalization))
         self.branches.add_module("branch4", AvgPoolBranch(
             in_channels=in_channels,
             out_channels=64,
-            bn_eps=bn_eps,
             normalization=normalization,
             count_include_pad=False))
 
@@ -126,9 +119,7 @@ class InceptInitBlock(nn.Module):
             kernel_size=3,
             stride=2,
             padding=0)
-        self.block = InceptBlock5b(
-            bn_eps=bn_eps,
-            normalization=normalization)
+        self.block = InceptBlock5b(normalization=normalization)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -200,7 +191,6 @@ class InceptionResNetV2(nn.Module):
                 stage.add_module("unit{}".format(j + 1), unit(
                     in_channels=in_channels,
                     out_channels_list=out_channels_list_per_stage,
-                    bn_eps=bn_eps,
                     normalization=normalization,
                     **unit_kwargs))
                 if (j == 0) and (i != 0):

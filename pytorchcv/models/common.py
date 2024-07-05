@@ -539,7 +539,7 @@ class ConvBlock(nn.Module):
                 normalization=normalization,
                 num_features=out_channels)
             assert isinstance(self.bn, nn.BatchNorm2d)
-            assert (self.bn.eps == bn_eps)
+            # assert (self.bn.eps == bn_eps)
         if self.activate:
             self.activ = get_activation_layer(activation)
 
@@ -710,38 +710,28 @@ def conv7x7_block(padding: int | tuple[int, int] | tuple[int, int, int, int] = 3
         **kwargs)
 
 
-def dwconv_block(in_channels: int,
-                 out_channels: int,
-                 kernel_size: int | tuple[int, int],
-                 stride: int | tuple[int, int] = 1,
+def dwconv_block(out_channels: int,
                  padding: int | tuple[int, int] | tuple[int, int, int, int] = 1,
-                 dilation: int | tuple[int, int] = 1,
-                 bias: bool = False,
-                 use_bn: bool = True,
-                 normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                 activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
                  **kwargs) -> nn.Module:
     """
     Depthwise version of the standard convolution block.
 
     Parameters
     ----------
-    in_channels : int
-        Number of input channels.
     out_channels : int
         Number of output channels.
+    padding : int or tuple(int, int) or tuple(int, int, int, int), default 1
+        Padding value for convolution layer.
+    in_channels : int
+        Number of input channels.
     kernel_size : int or tuple(int, int)
         Convolution window size.
     stride : int or tuple(int, int), default 1
         Strides of the convolution.
-    padding : int or tuple(int, int) or tuple(int, int, int, int), default 1
-        Padding value for convolution layer.
     dilation : int or tuple(int, int), default 1
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
     normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module.
     activation : function or str or nn.Module or None, default nn.ReLU(inplace=True)
@@ -753,28 +743,13 @@ def dwconv_block(in_channels: int,
         Desired module.
     """
     return ConvBlock(
-        in_channels=in_channels,
         out_channels=out_channels,
-        kernel_size=kernel_size,
-        stride=stride,
         padding=padding,
-        dilation=dilation,
         groups=out_channels,
-        bias=bias,
-        use_bn=use_bn,
-        normalization=normalization,
-        activation=activation,
         **kwargs)
 
 
-def dwconv3x3_block(in_channels: int,
-                    out_channels: int,
-                    stride: int | tuple[int, int] = 1,
-                    padding: int | tuple[int, int] | tuple[int, int, int, int] = 1,
-                    dilation: int | tuple[int, int] = 1,
-                    bias: bool = False,
-                    normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                    activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
+def dwconv3x3_block(padding: int | tuple[int, int] | tuple[int, int, int, int] = 1,
                     **kwargs) -> nn.Module:
     """
     3x3 depthwise version of the standard convolution block.
@@ -804,26 +779,12 @@ def dwconv3x3_block(in_channels: int,
         Desired module.
     """
     return dwconv_block(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=3,
-        stride=stride,
         padding=padding,
-        dilation=dilation,
-        bias=bias,
-        normalization=normalization,
-        activation=activation,
         **kwargs)
 
 
-def dwconv5x5_block(in_channels: int,
-                    out_channels: int,
-                    stride: int | tuple[int, int] = 1,
-                    padding: int | tuple[int, int] | tuple[int, int, int, int] = 2,
-                    dilation: int | tuple[int, int] = 1,
-                    bias: bool = False,
-                    normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                    activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
+def dwconv5x5_block(padding: int | tuple[int, int] | tuple[int, int, int, int] = 2,
                     **kwargs) -> nn.Module:
     """
     5x5 depthwise version of the standard convolution block.
@@ -853,15 +814,9 @@ def dwconv5x5_block(in_channels: int,
         Desired module.
     """
     return dwconv_block(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=5,
-        stride=stride,
         padding=padding,
-        dilation=dilation,
-        bias=bias,
-        normalization=normalization,
-        activation=activation)
+        **kwargs)
 
 
 class DwsConvBlock(nn.Module):
