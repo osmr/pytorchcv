@@ -8,7 +8,8 @@ __all__ = ['HarDNet', 'hardnet39ds', 'hardnet68ds', 'hardnet68', 'hardnet85']
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv_block
+from typing import Callable
+from .common import lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv_block
 
 
 class InvDwsConvBlock(nn.Module):
@@ -33,8 +34,10 @@ class InvDwsConvBlock(nn.Module):
         Whether the layer uses a bias vector.
     use_bn : bool, default True
         Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
+    pw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
+        Normalization function/module for the pointwise convolution block.
+    dw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
+        Normalization function/module for the depthwise convolution block.
     pw_activation : function or str or None, default nn.ReLU(inplace=True)
         Activation function after the pointwise convolution block.
     dw_activation : function or str or None, default nn.ReLU(inplace=True)
@@ -49,7 +52,8 @@ class InvDwsConvBlock(nn.Module):
                  dilation=1,
                  bias=False,
                  use_bn=True,
-                 bn_eps=1e-5,
+                 pw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
+                 dw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  pw_activation=(lambda: nn.ReLU(inplace=True)),
                  dw_activation=(lambda: nn.ReLU(inplace=True))):
         super(InvDwsConvBlock, self).__init__()
@@ -58,7 +62,7 @@ class InvDwsConvBlock(nn.Module):
             out_channels=out_channels,
             bias=bias,
             use_bn=use_bn,
-            bn_eps=bn_eps,
+            normalization=pw_normalization,
             activation=pw_activation)
         self.dw_conv = dwconv_block(
             in_channels=out_channels,
@@ -69,7 +73,7 @@ class InvDwsConvBlock(nn.Module):
             dilation=dilation,
             bias=bias,
             use_bn=use_bn,
-            bn_eps=bn_eps,
+            normalization=dw_normalization,
             activation=dw_activation)
 
     def forward(self, x):
@@ -84,7 +88,8 @@ def invdwsconv3x3_block(in_channels,
                         padding=1,
                         dilation=1,
                         bias=False,
-                        bn_eps=1e-5,
+                        pw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
+                        dw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                         pw_activation=(lambda: nn.ReLU(inplace=True)),
                         dw_activation=(lambda: nn.ReLU(inplace=True))):
     """
@@ -104,8 +109,10 @@ def invdwsconv3x3_block(in_channels,
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
+    pw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
+        Normalization function/module for the pointwise convolution block.
+    dw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
+        Normalization function/module for the depthwise convolution block.
     pw_activation : function or str or None, default nn.ReLU(inplace=True)
         Activation function after the pointwise convolution block.
     dw_activation : function or str or None, default nn.ReLU(inplace=True)
@@ -119,7 +126,8 @@ def invdwsconv3x3_block(in_channels,
         padding=padding,
         dilation=dilation,
         bias=bias,
-        bn_eps=bn_eps,
+        pw_normalization=pw_normalization,
+        dw_normalization=dw_normalization,
         pw_activation=pw_activation,
         dw_activation=dw_activation)
 
@@ -283,7 +291,7 @@ class HarDNet(nn.Module):
         Number of output channels for the initial unit.
     unit_in_channels : list(list(list(int)))
         Number of input channels for each layer in each stage.
-    unit_out_channels : list list of of list of int
+    unit_out_channels : list(list(list(int)))
         Number of output channels for each layer in each stage.
     unit_links : list(list(list(int)))
         List of indices for each layer in each stage.

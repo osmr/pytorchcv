@@ -480,9 +480,9 @@ class ConvBlock(nn.Module):
         Number of output channels.
     kernel_size : int or tuple(int, int)
         Convolution window size.
-    stride : int or tuple(int, int)
+    stride : int or tuple(int, int), default 1
         Strides of the convolution.
-    padding : int or tuple(int, int) or tuple(int, int, int, int)
+    padding : int or tuple(int, int) or tuple(int, int, int, int), default 0
         Padding value for convolution layer.
     dilation : int or tuple(int, int), default 1
         Dilation value for convolution layer.
@@ -503,8 +503,8 @@ class ConvBlock(nn.Module):
                  in_channels: int,
                  out_channels: int,
                  kernel_size: int | tuple[int, int],
-                 stride: int | tuple[int, int],
-                 padding: int | tuple[int, int] | tuple[int, int, int, int],
+                 stride: int | tuple[int, int] = 1,
+                 padding: int | tuple[int, int] | tuple[int, int, int, int] = 0,
                  dilation: int | tuple[int, int] = 1,
                  groups: int = 1,
                  bias: bool = False,
@@ -513,8 +513,8 @@ class ConvBlock(nn.Module):
                  normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))):
         super(ConvBlock, self).__init__()
-        # self.normalize = (normalization is not None)
-        self.normalize = use_bn
+        self.normalize = (normalization is not None)
+        # self.normalize = use_bn
         assert (use_bn == (normalization is not None))
         self.activate = (activation is not None)
         self.use_pad = (isinstance(padding, (list, tuple)) and (len(padding) == 4))
@@ -554,16 +554,8 @@ class ConvBlock(nn.Module):
         return x
 
 
-def conv1x1_block(in_channels: int,
-                  out_channels: int,
-                  stride: int | tuple[int, int] = 1,
-                  padding: int | tuple[int, int] | tuple[int, int, int, int] = 0,
-                  groups: int = 1,
-                  bias: bool = False,
-                  use_bn: bool = True,
-                  bn_eps: float = 1e-5,
-                  normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                  activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))) -> nn.Module:
+def conv1x1_block(padding: int | tuple[int, int] | tuple[int, int, int, int] = 0,
+                  **kwargs) -> nn.Module:
     """
     1x1 version of the standard convolution block.
 
@@ -577,14 +569,14 @@ def conv1x1_block(in_channels: int,
         Strides of the convolution.
     padding : int or tuple(int, int) or tuple(int, int, int, int), default 0
         Padding value for convolution layer.
+    dilation : int or tuple(int, int), default 1
+        Dilation value for convolution layer.
     groups : int, default 1
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
     use_bn : bool, default True
         Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module.
     activation : function or str or nn.Module or None, default nn.ReLU(inplace=True)
@@ -596,30 +588,13 @@ def conv1x1_block(in_channels: int,
         Desired module.
     """
     return ConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=1,
-        stride=stride,
         padding=padding,
-        groups=groups,
-        bias=bias,
-        use_bn=use_bn,
-        bn_eps=bn_eps,
-        normalization=normalization,
-        activation=activation)
+        **kwargs)
 
 
-def conv3x3_block(in_channels: int,
-                  out_channels: int,
-                  stride: int | tuple[int, int] = 1,
-                  padding: int | tuple[int, int] | tuple[int, int, int, int] = 1,
-                  dilation: int | tuple[int, int] = 1,
-                  groups: int = 1,
-                  bias: bool = False,
-                  use_bn: bool = True,
-                  bn_eps: float = 1e-5,
-                  normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                  activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))) -> nn.Module:
+def conv3x3_block(padding: int | tuple[int, int] | tuple[int, int, int, int] = 1,
+                  **kwargs) -> nn.Module:
     """
     3x3 version of the standard convolution block.
 
@@ -641,8 +616,6 @@ def conv3x3_block(in_channels: int,
         Whether the layer uses a bias vector.
     use_bn : bool, default True
         Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module.
     activation : function or str or nn.Module or None, default nn.ReLU(inplace=True)
@@ -654,31 +627,13 @@ def conv3x3_block(in_channels: int,
         Desired module.
     """
     return ConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=3,
-        stride=stride,
         padding=padding,
-        dilation=dilation,
-        groups=groups,
-        bias=bias,
-        use_bn=use_bn,
-        bn_eps=bn_eps,
-        normalization=normalization,
-        activation=activation)
+        **kwargs)
 
 
-def conv5x5_block(in_channels: int,
-                  out_channels: int,
-                  stride: int | tuple[int, int] = 1,
-                  padding: int | tuple[int, int] | tuple[int, int, int, int] = 2,
-                  dilation: int | tuple[int, int] = 1,
-                  groups: int = 1,
-                  bias: bool = False,
-                  use_bn: bool = True,
-                  bn_eps: float = 1e-5,
-                  normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                  activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))) -> nn.Module:
+def conv5x5_block(padding: int | tuple[int, int] | tuple[int, int, int, int] = 2,
+                  **kwargs) -> nn.Module:
     """
     5x5 version of the standard convolution block.
 
@@ -700,8 +655,6 @@ def conv5x5_block(in_channels: int,
         Whether the layer uses a bias vector.
     use_bn : bool, default True
         Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module.
     activation : function or str or nn.Module or None, default nn.ReLU(inplace=True)
@@ -713,31 +666,13 @@ def conv5x5_block(in_channels: int,
         Desired module.
     """
     return ConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=5,
-        stride=stride,
         padding=padding,
-        dilation=dilation,
-        groups=groups,
-        bias=bias,
-        use_bn=use_bn,
-        bn_eps=bn_eps,
-        normalization=normalization,
-        activation=activation)
+        **kwargs)
 
 
-def conv7x7_block(in_channels: int,
-                  out_channels: int,
-                  stride: int | tuple[int, int] = 1,
-                  padding: int | tuple[int, int] | tuple[int, int, int, int] = 3,
-                  dilation: int | tuple[int, int] = 1,
-                  groups: int = 1,
-                  bias: bool = False,
-                  use_bn: bool = True,
-                  bn_eps: float = 1e-5,
-                  normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                  activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))) -> nn.Module:
+def conv7x7_block(padding: int | tuple[int, int] | tuple[int, int, int, int] = 3,
+                  **kwargs) -> nn.Module:
     """
     7x7 version of the standard convolution block.
 
@@ -759,8 +694,6 @@ def conv7x7_block(in_channels: int,
         Whether the layer uses a bias vector.
     use_bn : bool, default True
         Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module.
     activation : function or str or nn.Module or None, default nn.ReLU(inplace=True)
@@ -772,18 +705,9 @@ def conv7x7_block(in_channels: int,
         Desired module.
     """
     return ConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=7,
-        stride=stride,
         padding=padding,
-        dilation=dilation,
-        groups=groups,
-        bias=bias,
-        use_bn=use_bn,
-        bn_eps=bn_eps,
-        normalization=normalization,
-        activation=activation)
+        **kwargs)
 
 
 def dwconv_block(in_channels: int,
@@ -794,9 +718,9 @@ def dwconv_block(in_channels: int,
                  dilation: int | tuple[int, int] = 1,
                  bias: bool = False,
                  use_bn: bool = True,
-                 bn_eps: float = 1e-5,
                  normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                 activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))) -> nn.Module:
+                 activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
+                 **kwargs) -> nn.Module:
     """
     Depthwise version of the standard convolution block.
 
@@ -818,8 +742,6 @@ def dwconv_block(in_channels: int,
         Whether the layer uses a bias vector.
     use_bn : bool, default True
         Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module.
     activation : function or str or nn.Module or None, default nn.ReLU(inplace=True)
@@ -840,9 +762,9 @@ def dwconv_block(in_channels: int,
         groups=out_channels,
         bias=bias,
         use_bn=use_bn,
-        bn_eps=bn_eps,
         normalization=normalization,
-        activation=activation)
+        activation=activation,
+        **kwargs)
 
 
 def dwconv3x3_block(in_channels: int,
@@ -851,9 +773,9 @@ def dwconv3x3_block(in_channels: int,
                     padding: int | tuple[int, int] | tuple[int, int, int, int] = 1,
                     dilation: int | tuple[int, int] = 1,
                     bias: bool = False,
-                    bn_eps: float = 1e-5,
                     normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                    activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))) -> nn.Module:
+                    activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
+                    **kwargs) -> nn.Module:
     """
     3x3 depthwise version of the standard convolution block.
 
@@ -871,8 +793,6 @@ def dwconv3x3_block(in_channels: int,
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module.
     activation : function or str or nn.Module or None, default nn.ReLU(inplace=True)
@@ -891,9 +811,9 @@ def dwconv3x3_block(in_channels: int,
         padding=padding,
         dilation=dilation,
         bias=bias,
-        bn_eps=bn_eps,
         normalization=normalization,
-        activation=activation)
+        activation=activation,
+        **kwargs)
 
 
 def dwconv5x5_block(in_channels: int,
@@ -902,9 +822,9 @@ def dwconv5x5_block(in_channels: int,
                     padding: int | tuple[int, int] | tuple[int, int, int, int] = 2,
                     dilation: int | tuple[int, int] = 1,
                     bias: bool = False,
-                    bn_eps: float = 1e-5,
                     normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                    activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))) -> nn.Module:
+                    activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
+                    **kwargs) -> nn.Module:
     """
     5x5 depthwise version of the standard convolution block.
 
@@ -922,8 +842,6 @@ def dwconv5x5_block(in_channels: int,
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module.
     activation : function or str or nn.Module or None, default nn.ReLU(inplace=True)
@@ -942,7 +860,6 @@ def dwconv5x5_block(in_channels: int,
         padding=padding,
         dilation=dilation,
         bias=bias,
-        bn_eps=bn_eps,
         normalization=normalization,
         activation=activation)
 
@@ -971,8 +888,6 @@ class DwsConvBlock(nn.Module):
         Whether to use BatchNorm layer (depthwise convolution block).
     pw_use_bn : bool, default True
         Whether to use BatchNorm layer (pointwise convolution block).
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     dw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module for the depthwise convolution block.
     pw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
@@ -992,7 +907,6 @@ class DwsConvBlock(nn.Module):
                  bias: bool = False,
                  dw_use_bn: bool = True,
                  pw_use_bn: bool = True,
-                 bn_eps: float = 1e-5,
                  dw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  pw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  dw_activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
@@ -1007,7 +921,6 @@ class DwsConvBlock(nn.Module):
             dilation=dilation,
             bias=bias,
             use_bn=dw_use_bn,
-            bn_eps=bn_eps,
             normalization=dw_normalization,
             activation=dw_activation)
         self.pw_conv = conv1x1_block(
@@ -1015,7 +928,6 @@ class DwsConvBlock(nn.Module):
             out_channels=out_channels,
             bias=bias,
             use_bn=pw_use_bn,
-            bn_eps=bn_eps,
             normalization=pw_normalization,
             activation=pw_activation)
 
@@ -1031,7 +943,6 @@ def dwsconv3x3_block(in_channels: int,
                      padding: int | tuple[int, int] | tuple[int, int, int, int] = 1,
                      dilation: int | tuple[int, int] = 1,
                      bias: bool = False,
-                     bn_eps: float = 1e-5,
                      dw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                      pw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                      dw_activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
@@ -1054,8 +965,6 @@ def dwsconv3x3_block(in_channels: int,
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     dw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module for the depthwise convolution block.
     pw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
@@ -1078,7 +987,6 @@ def dwsconv3x3_block(in_channels: int,
         padding=padding,
         dilation=dilation,
         bias=bias,
-        bn_eps=bn_eps,
         dw_normalization=dw_normalization,
         pw_normalization=pw_normalization,
         dw_activation=dw_activation,
@@ -1273,8 +1181,6 @@ class AsymConvBlock(nn.Module):
         Whether to use BatchNorm layer (leftwise convolution block).
     rw_use_bn : bool, default True
         Whether to use BatchNorm layer (rightwise convolution block).
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     lw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module for the leftwise convolution block.
     rw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
@@ -1293,7 +1199,6 @@ class AsymConvBlock(nn.Module):
                  bias: bool = False,
                  lw_use_bn: bool = True,
                  rw_use_bn: bool = True,
-                 bn_eps: float = 1e-5,
                  lw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  rw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  lw_activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
@@ -1309,7 +1214,6 @@ class AsymConvBlock(nn.Module):
             groups=groups,
             bias=bias,
             use_bn=lw_use_bn,
-            bn_eps=bn_eps,
             normalization=lw_normalization,
             activation=lw_activation)
         self.rw_conv = ConvBlock(
@@ -1322,7 +1226,6 @@ class AsymConvBlock(nn.Module):
             groups=groups,
             bias=bias,
             use_bn=rw_use_bn,
-            bn_eps=bn_eps,
             normalization=rw_normalization,
             activation=rw_activation)
 
@@ -1353,8 +1256,6 @@ def asym_conv3x3_block(padding: int = 1,
         Whether to use BatchNorm layer (leftwise convolution block).
     rw_use_bn : bool, default True
         Whether to use BatchNorm layer (rightwise convolution block).
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     lw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module for the leftwise convolution block.
     rw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
@@ -1801,8 +1702,8 @@ class SABlock(nn.Module):
         Minimal number of squeezed channels.
     use_conv : bool, default True
         Whether to convolutional layers instead of fully-connected ones.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
+    normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
+        Normalization function/module.
     """
     def __init__(self,
                  out_channels: int,
@@ -1811,7 +1712,7 @@ class SABlock(nn.Module):
                  reduction: int = 4,
                  min_channels: int = 32,
                  use_conv: bool = True,
-                 bn_eps: float = 1e-5):
+                 normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5)):
         super(SABlock, self).__init__()
         self.groups = groups
         self.radix = radix
@@ -1829,9 +1730,12 @@ class SABlock(nn.Module):
             self.fc1 = nn.Linear(
                 in_features=out_channels,
                 out_features=mid_channels)
-        self.bn = nn.BatchNorm2d(
-            num_features=mid_channels,
-            eps=bn_eps)
+        # self.bn = nn.BatchNorm2d(
+        #     num_features=mid_channels,
+        #     eps=bn_eps)
+        self.bn = create_normalization_layer(
+            normalization=normalization,
+            num_features=mid_channels)
         self.activ = nn.ReLU(inplace=True)
         if use_conv:
             self.conv2 = conv1x1(
@@ -1888,8 +1792,8 @@ class SAConvBlock(nn.Module):
         Whether the layer uses a bias vector.
     use_bn : bool, default True
         Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
+    normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
+        Normalization function/module.
     activation : function or str or nn.Module or None, default nn.ReLU(inplace=True)
         Activation function/module or name for activation module.
     radix : int, default 2
@@ -1911,7 +1815,7 @@ class SAConvBlock(nn.Module):
                  groups: int = 1,
                  bias: bool = False,
                  use_bn: bool = True,
-                 bn_eps: float = 1e-5,
+                 normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
                  activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True)),
                  radix: int = 2,
                  reduction: int = 4,
@@ -1928,7 +1832,7 @@ class SAConvBlock(nn.Module):
             groups=(groups * radix),
             bias=bias,
             use_bn=use_bn,
-            bn_eps=bn_eps,
+            normalization=normalization,
             activation=activation)
         self.att = SABlock(
             out_channels=out_channels,
@@ -1937,7 +1841,7 @@ class SAConvBlock(nn.Module):
             reduction=reduction,
             min_channels=min_channels,
             use_conv=use_conv,
-            bn_eps=bn_eps)
+            normalization=normalization)
 
     def forward(self, x):
         x = self.conv(x)

@@ -34,8 +34,6 @@ class EffiEdgeResUnit(nn.Module):
         Whether to use input channel count for middle channel count calculation.
     use_skip : bool
         Whether to use skip connection.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Normalization function.
     activation : str
@@ -49,7 +47,6 @@ class EffiEdgeResUnit(nn.Module):
                  se_factor,
                  mid_from_in,
                  use_skip,
-                 bn_eps,
                  normalization: Callable,
                  activation):
         super(EffiEdgeResUnit, self).__init__()
@@ -60,7 +57,6 @@ class EffiEdgeResUnit(nn.Module):
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
             out_channels=mid_channels,
-            bn_eps=bn_eps,
             normalization=normalization,
             activation=activation)
         if self.use_se:
@@ -72,7 +68,6 @@ class EffiEdgeResUnit(nn.Module):
             in_channels=mid_channels,
             out_channels=out_channels,
             stride=stride,
-            bn_eps=bn_eps,
             normalization=normalization,
             activation=None)
 
@@ -167,7 +162,6 @@ class EfficientNetEdge(nn.Module):
                         se_factor=0,
                         mid_from_in=mid_from_in,
                         use_skip=use_skip,
-                        bn_eps=bn_eps,
                         normalization=normalization,
                         activation=activation))
                 else:
@@ -187,7 +181,6 @@ class EfficientNetEdge(nn.Module):
         self.features.add_module("final_block", conv1x1_block(
             in_channels=in_channels,
             out_channels=final_block_channels,
-            bn_eps=bn_eps,
             normalization=normalization,
             activation=activation))
         in_channels = final_block_channels

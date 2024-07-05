@@ -27,8 +27,6 @@ class ProxylessBlock(nn.Module):
         Convolution window size.
     stride : int
         Strides of the convolution.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Normalization function.
     expansion : int
@@ -39,7 +37,6 @@ class ProxylessBlock(nn.Module):
                  out_channels: int,
                  kernel_size: int,
                  stride: int,
-                 bn_eps: float,
                  normalization: Callable,
                  expansion: int):
         super(ProxylessBlock, self).__init__()
@@ -50,7 +47,6 @@ class ProxylessBlock(nn.Module):
             self.bc_conv = conv1x1_block(
                 in_channels=in_channels,
                 out_channels=mid_channels,
-                bn_eps=bn_eps,
                 normalization=normalization,
                 activation="relu6")
 
@@ -62,13 +58,11 @@ class ProxylessBlock(nn.Module):
             stride=stride,
             padding=padding,
             groups=mid_channels,
-            bn_eps=bn_eps,
             normalization=normalization,
             activation="relu6")
         self.pw_conv = conv1x1_block(
             in_channels=mid_channels,
             out_channels=out_channels,
-            bn_eps=bn_eps,
             normalization=normalization,
             activation=None)
 
@@ -94,8 +88,6 @@ class ProxylessUnit(nn.Module):
         Convolution window size for body block.
     stride : int
         Strides of the convolution.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Normalization function.
     expansion : int
@@ -110,7 +102,6 @@ class ProxylessUnit(nn.Module):
                  out_channels: int,
                  kernel_size: int,
                  stride: int,
-                 bn_eps: float,
                  normalization: Callable,
                  expansion: int,
                  residual: bool,
@@ -126,7 +117,6 @@ class ProxylessUnit(nn.Module):
                 out_channels=out_channels,
                 kernel_size=kernel_size,
                 stride=stride,
-                bn_eps=bn_eps,
                 normalization=normalization,
                 expansion=expansion)
 
@@ -193,7 +183,6 @@ class ProxylessNAS(nn.Module):
             in_channels=in_channels,
             out_channels=init_block_channels,
             stride=2,
-            bn_eps=bn_eps,
             normalization=normalization,
             activation="relu6"))
         in_channels = init_block_channels
@@ -214,7 +203,6 @@ class ProxylessNAS(nn.Module):
                     out_channels=out_channels,
                     kernel_size=kernel_size,
                     stride=stride,
-                    bn_eps=bn_eps,
                     normalization=normalization,
                     expansion=expansion,
                     residual=residual,
@@ -224,7 +212,6 @@ class ProxylessNAS(nn.Module):
         self.features.add_module("final_block", conv1x1_block(
             in_channels=in_channels,
             out_channels=final_block_channels,
-            bn_eps=bn_eps,
             normalization=normalization,
             activation="relu6"))
         in_channels = final_block_channels

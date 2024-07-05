@@ -24,8 +24,6 @@ class FBNetUnit(nn.Module):
         Number of output channels.
     stride : int or tuple(int, int)
         Strides of the second convolution layer.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     use_kernel3 : bool
         Whether to use 3x3 (instead of 5x5) kernel.
     exp_factor : int
@@ -39,7 +37,6 @@ class FBNetUnit(nn.Module):
                  in_channels,
                  out_channels,
                  stride,
-                 bn_eps,
                  use_kernel3,
                  exp_factor,
                  normalization: Callable,
@@ -54,7 +51,6 @@ class FBNetUnit(nn.Module):
             self.exp_conv = conv1x1_block(
                 in_channels=in_channels,
                 out_channels=mid_channels,
-                bn_eps=bn_eps,
                 normalization=normalization,
                 activation=activation)
         if use_kernel3:
@@ -62,7 +58,6 @@ class FBNetUnit(nn.Module):
                 in_channels=mid_channels,
                 out_channels=mid_channels,
                 stride=stride,
-                bn_eps=bn_eps,
                 normalization=normalization,
                 activation=activation)
         else:
@@ -70,13 +65,11 @@ class FBNetUnit(nn.Module):
                 in_channels=mid_channels,
                 out_channels=mid_channels,
                 stride=stride,
-                bn_eps=bn_eps,
                 normalization=normalization,
                 activation=activation)
         self.conv2 = conv1x1_block(
             in_channels=mid_channels,
             out_channels=out_channels,
-            bn_eps=bn_eps,
             normalization=normalization,
             activation=None)
 
@@ -102,28 +95,23 @@ class FBNetInitBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Normalization function.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
-                 bn_eps,
                  normalization: Callable):
         super(FBNetInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
             out_channels=out_channels,
             stride=2,
-            bn_eps=bn_eps,
             normalization=normalization)
         self.conv2 = FBNetUnit(
             in_channels=out_channels,
             out_channels=out_channels,
             stride=1,
-            bn_eps=bn_eps,
             use_kernel3=True,
             exp_factor=1,
             normalization=normalization)
@@ -179,7 +167,6 @@ class FBNet(nn.Module):
         self.features.add_module("init_block", FBNetInitBlock(
             in_channels=in_channels,
             out_channels=init_block_channels,
-            bn_eps=bn_eps,
             normalization=normalization))
         in_channels = init_block_channels
         for i, channels_per_stage in enumerate(channels):
@@ -192,7 +179,6 @@ class FBNet(nn.Module):
                     in_channels=in_channels,
                     out_channels=out_channels,
                     stride=stride,
-                    bn_eps=bn_eps,
                     use_kernel3=use_kernel3,
                     exp_factor=exp_factor,
                     normalization=normalization))
@@ -201,7 +187,6 @@ class FBNet(nn.Module):
         self.features.add_module("final_block", conv1x1_block(
             in_channels=in_channels,
             out_channels=final_block_channels,
-            bn_eps=bn_eps,
             normalization=normalization))
         in_channels = final_block_channels
         self.features.add_module("final_pool", nn.AvgPool2d(
