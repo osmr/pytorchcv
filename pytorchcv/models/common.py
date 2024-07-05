@@ -328,10 +328,8 @@ class ConvBlock1d(nn.Module):
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
+    normalization : function or nn.Module or None, default lambda_batchnorm1d()
+        Normalization function/module.
     activation : function or str or nn.Module or None, default nn.ReLU(inplace=True)
         Activation function/module or name for activation module.
     """
@@ -344,12 +342,11 @@ class ConvBlock1d(nn.Module):
                  dilation: int = 1,
                  groups: int = 1,
                  bias: bool = False,
-                 use_bn: bool = True,
-                 bn_eps: float = 1e-5,
+                 normalization: Callable | nn.Module | None = lambda_batchnorm1d(),
                  activation: Callable | nn.Module | str | None = (lambda: nn.ReLU(inplace=True))):
         super(ConvBlock1d, self).__init__()
+        self.normalize = (normalization is not None)
         self.activate = (activation is not None)
-        self.use_bn = use_bn
 
         self.conv = nn.Conv1d(
             in_channels=in_channels,
@@ -360,16 +357,23 @@ class ConvBlock1d(nn.Module):
             dilation=dilation,
             groups=groups,
             bias=bias)
-        if self.use_bn:
-            self.bn = nn.BatchNorm1d(
-                num_features=out_channels,
-                eps=bn_eps)
+        if self.normalize:
+            # self.bn = nn.BatchNorm1d(
+            #     num_features=out_channels,
+            #     eps=bn_eps)
+            self.bn = create_normalization_layer(
+                normalization=normalization,
+                num_features=out_channels)
+            if self.bn is None:
+                self.normalize = False
+            else:
+                assert isinstance(self.bn, nn.BatchNorm1d)
         if self.activate:
             self.activ = get_activation_layer(activation)
 
     def forward(self, x):
         x = self.conv(x)
-        if self.use_bn:
+        if self.normalize:
             x = self.bn(x)
         if self.activate:
             x = self.activ(x)
