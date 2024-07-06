@@ -32,10 +32,6 @@ class DwaConvBlock(nn.Module):
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     normalization : function or None, default lambda_batchnorm2d()
         Normalization function.
     activation : function or str or None, default nn.ReLU(inplace=True)
@@ -48,8 +44,6 @@ class DwaConvBlock(nn.Module):
                  padding,
                  dilation=1,
                  bias=False,
-                 # use_bn=True,
-                 # bn_eps=1e-5,
                  normalization: Callable | None = lambda_batchnorm2d(),
                  activation=(lambda: nn.ReLU(inplace=True))):
         super(DwaConvBlock, self).__init__()
@@ -62,8 +56,6 @@ class DwaConvBlock(nn.Module):
             dilation=(dilation, 1),
             groups=channels,
             bias=bias,
-            # use_bn=use_bn,
-            # bn_eps=bn_eps,
             normalization=normalization,
             activation=activation)
         self.conv2 = ConvBlock(
@@ -75,8 +67,6 @@ class DwaConvBlock(nn.Module):
             dilation=(1, dilation),
             groups=channels,
             bias=bias,
-            # use_bn=use_bn,
-            # bn_eps=bn_eps,
             normalization=normalization,
             activation=activation)
 
@@ -91,8 +81,6 @@ def dwa_conv3x3_block(channels,
                       padding=1,
                       dilation=1,
                       bias=False,
-                      # use_bn=True,
-                      # bn_eps=1e-5,
                       normalization: Callable | None = lambda_batchnorm2d(),
                       activation=(lambda: nn.ReLU(inplace=True))):
     """
@@ -110,10 +98,6 @@ def dwa_conv3x3_block(channels,
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     normalization : function or None, default lambda_batchnorm2d()
         Normalization function.
     activation : function or str or None, default nn.ReLU(inplace=True)
@@ -126,8 +110,6 @@ def dwa_conv3x3_block(channels,
         padding=padding,
         dilation=dilation,
         bias=bias,
-        # use_bn=use_bn,
-        # bn_eps=bn_eps,
         normalization=normalization,
         activation=activation)
 

@@ -9,6 +9,7 @@ __all__ = ['EDANet', 'edanet_cityscapes']
 import os
 import torch
 import torch.nn as nn
+from typing import Callable
 from .common import (lambda_batchnorm2d, conv1x1, conv3x3, conv1x1_block, asym_conv3x3_block, NormActivation,
                      InterpolationBlock)
 
@@ -23,13 +24,13 @@ class DownBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
-                 bn_eps):
+                 normalization: Callable[..., nn.Module]):
         super(DownBlock, self).__init__()
         self.expand = (in_channels < out_channels)
         mid_channels = out_channels - in_channels if self.expand else out_channels
@@ -45,7 +46,7 @@ class DownBlock(nn.Module):
                 stride=2)
         self.norm_activ = NormActivation(
             in_channels=out_channels,
-            normalization=lambda_batchnorm2d(bn_eps))
+            normalization=normalization)
 
     def forward(self, x):
         y = self.conv(x)
@@ -70,30 +71,34 @@ class EDABlock(nn.Module):
         Dilation value for convolution layer.
     dropout_rate : float
         Parameter of Dropout layer. Faction of the input units to drop.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  channels,
                  dilation,
                  dropout_rate,
-                 bn_eps):
+                 normalization: Callable[..., nn.Module]):
         super(EDABlock, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
 
         self.conv1 = asym_conv3x3_block(
             channels=channels,
             bias=True,
-            lw_use_bn=False,
-            bn_eps=bn_eps,
+            # lw_use_bn=False,
+            # bn_eps=bn_eps,
+            lw_normalization=None,
+            rw_normalization=normalization,
             lw_activation=None)
         self.conv2 = asym_conv3x3_block(
             channels=channels,
             padding=dilation,
             dilation=dilation,
             bias=True,
-            lw_use_bn=False,
-            bn_eps=bn_eps,
+            # lw_use_bn=False,
+            # bn_eps=bn_eps,
+            lw_normalization=None,
+            rw_normalization=normalization,
             rw_activation=None)
         if self.use_dropout:
             self.dropout = nn.Dropout(p=dropout_rate)
@@ -120,15 +125,15 @@ class EDAUnit(nn.Module):
         Dilation value for convolution layer.
     dropout_rate : float
         Parameter of Dropout layer. Faction of the input units to drop.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
                  dilation,
                  dropout_rate,
-                 bn_eps):
+                 normalization: Callable[..., nn.Module]):
         super(EDAUnit, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
         mid_channels = out_channels - in_channels
@@ -141,7 +146,7 @@ class EDAUnit(nn.Module):
             channels=mid_channels,
             dilation=dilation,
             dropout_rate=dropout_rate,
-            bn_eps=bn_eps)
+            normalization=normalization)
         self.activ = nn.ReLU(inplace=True)
 
     def forward(self, x):
@@ -198,6 +203,7 @@ class EDANet(nn.Module):
         self.in_size = in_size
         self.num_classes = num_classes
         self.fixed_size = fixed_size
+        normalization = lambda_batchnorm2d(eps=bn_eps)
         dropout_rate = 0.02
 
         self.features = nn.Sequential()
@@ -209,7 +215,7 @@ class EDANet(nn.Module):
                     stage.add_module("unit{}".format(j + 1), DownBlock(
                         in_channels=in_channels,
                         out_channels=out_channels,
-                        bn_eps=bn_eps))
+                        normalization=normalization))
                 else:
                     out_channels += growth_rate
                     stage.add_module("unit{}".format(j + 1), EDAUnit(
@@ -217,7 +223,7 @@ class EDANet(nn.Module):
                         out_channels=out_channels,
                         dilation=dilation,
                         dropout_rate=dropout_rate,
-                        bn_eps=bn_eps))
+                        normalization=normalization))
                 in_channels = out_channels
             self.features.add_module("stage{}".format(i + 1), stage)
 

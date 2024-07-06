@@ -9,8 +9,9 @@ __all__ = ['CGNet', 'cgnet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common import (lambda_batchnorm2d, NormActivation, conv1x1, conv1x1_block, conv3x3_block, depthwise_conv3x3,
-                     SEBlock, Concurrent, DualPathSequential, InterpolationBlock)
+from typing import Callable
+from .common import (lambda_batchnorm2d, lambda_prelu, NormActivation, conv1x1, conv1x1_block, conv3x3_block,
+                     depthwise_conv3x3, SEBlock, Concurrent, DualPathSequential, InterpolationBlock)
 
 
 class CGBlock(nn.Module):
@@ -29,8 +30,8 @@ class CGBlock(nn.Module):
         SE-block reduction value.
     down : bool
         Whether to downsample.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels: int,
@@ -38,7 +39,7 @@ class CGBlock(nn.Module):
                  dilation: int,
                  se_reduction: int,
                  down: bool,
-                 bn_eps: float):
+                 normalization: Callable[..., nn.Module]):
         super(CGBlock, self).__init__()
         self.down = down
         if self.down:
@@ -53,14 +54,14 @@ class CGBlock(nn.Module):
                 in_channels=in_channels,
                 out_channels=out_channels,
                 stride=2,
-                bn_eps=bn_eps,
-                activation=(lambda: nn.PReLU(out_channels)))
+                normalization=normalization,
+                activation=lambda_prelu(num_parameters=out_channels))
         else:
             self.conv1 = conv1x1_block(
                 in_channels=in_channels,
                 out_channels=mid1_channels,
-                bn_eps=bn_eps,
-                activation=(lambda: nn.PReLU(mid1_channels)))
+                normalization=normalization,
+                activation=lambda_prelu(num_parameters=mid1_channels))
 
         self.branches = Concurrent()
         self.branches.add_module("branches1", depthwise_conv3x3(channels=mid1_channels))
@@ -71,8 +72,8 @@ class CGBlock(nn.Module):
 
         self.norm_activ = NormActivation(
             in_channels=mid2_channels,
-            normalization=lambda_batchnorm2d(bn_eps),
-            activation=(lambda: nn.PReLU(mid2_channels)))
+            normalization=normalization,
+            activation=lambda_prelu(num_parameters=mid2_channels))
 
         if self.down:
             self.conv2 = conv1x1(
@@ -114,8 +115,8 @@ class CGUnit(nn.Module):
         Dilation value.
     se_reduction : int
         SE-block reduction value.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels: int,
@@ -123,7 +124,7 @@ class CGUnit(nn.Module):
                  layers: int,
                  dilation: int,
                  se_reduction: int,
-                 bn_eps: float):
+                 normalization: Callable[..., nn.Module]):
         super(CGUnit, self).__init__()
         mid_channels = out_channels // 2
 
@@ -133,7 +134,7 @@ class CGUnit(nn.Module):
             dilation=dilation,
             se_reduction=se_reduction,
             down=True,
-            bn_eps=bn_eps)
+            normalization=normalization)
         self.blocks = nn.Sequential()
         for i in range(layers - 1):
             self.blocks.add_module("block{}".format(i + 1), CGBlock(
@@ -142,7 +143,7 @@ class CGUnit(nn.Module):
                 dilation=dilation,
                 se_reduction=se_reduction,
                 down=False,
-                bn_eps=bn_eps))
+                normalization=normalization))
 
     def forward(self, x):
         x = self.down(x)
@@ -169,8 +170,8 @@ class CGStage(nn.Module):
         Dilation for blocks.
     se_reduction : int
         SE-block reduction value for blocks.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  x_channels: int,
@@ -179,7 +180,7 @@ class CGStage(nn.Module):
                  layers: int,
                  dilation: int,
                  se_reduction: int,
-                 bn_eps: float):
+                 normalization: Callable[..., nn.Module]):
         super(CGStage, self).__init__()
         self.use_x = (x_channels > 0)
         self.use_unit = (layers > 0)
@@ -197,12 +198,12 @@ class CGStage(nn.Module):
                 layers=layers,
                 dilation=dilation,
                 se_reduction=se_reduction,
-                bn_eps=bn_eps)
+                normalization=normalization)
 
         self.norm_activ = NormActivation(
             in_channels=y_out_channels,
-            normalization=lambda_batchnorm2d(bn_eps),
-            activation=(lambda: nn.PReLU(y_out_channels)))
+            normalization=normalization,
+            activation=lambda_prelu(num_parameters=y_out_channels))
 
     def forward(self, y, x=None):
         if self.use_unit:
@@ -224,30 +225,30 @@ class CGInitBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 bn_eps: float):
+                 normalization: Callable[..., nn.Module]):
         super(CGInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
             out_channels=out_channels,
             stride=2,
-            bn_eps=bn_eps,
-            activation=(lambda: nn.PReLU(out_channels)))
+            normalization=normalization,
+            activation=lambda_prelu(num_parameters=out_channels))
         self.conv2 = conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
-            bn_eps=bn_eps,
-            activation=(lambda: nn.PReLU(out_channels)))
+            normalization=normalization,
+            activation=lambda_prelu(num_parameters=out_channels))
         self.conv3 = conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
-            bn_eps=bn_eps,
-            activation=(lambda: nn.PReLU(out_channels)))
+            normalization=normalization,
+            activation=lambda_prelu(num_parameters=out_channels))
 
     def forward(self, x):
         x = self.conv1(x)
@@ -308,6 +309,7 @@ class CGNet(nn.Module):
         self.in_size = in_size
         self.num_classes = num_classes
         self.fixed_size = fixed_size
+        normalization = lambda_batchnorm2d(eps=bn_eps)
 
         self.features = DualPathSequential(
             return_two=False,
@@ -316,7 +318,7 @@ class CGNet(nn.Module):
         self.features.add_module("init_block", CGInitBlock(
             in_channels=in_channels,
             out_channels=init_block_channels,
-            bn_eps=bn_eps))
+            normalization=normalization))
         y_in_channels = init_block_channels
 
         for i, (layers_i, y_out_channels) in enumerate(zip(layers, channels)):
@@ -327,7 +329,7 @@ class CGNet(nn.Module):
                 layers=layers_i,
                 dilation=dilations[i],
                 se_reduction=se_reductions[i],
-                bn_eps=bn_eps))
+                normalization=normalization))
             y_in_channels = y_out_channels
 
         self.classifier = conv1x1(

@@ -3,8 +3,8 @@
 """
 
 __all__ = ['round_channels', 'Identity', 'BreakBlock', 'Swish', 'HSigmoid', 'HSwish', 'create_activation_layer',
-           'lambda_relu', 'lambda_batchnorm2d', 'SelectableDense', 'DenseBlock', 'ConvBlock1d', 'conv1x1',
-           'conv3x3', 'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block', 'conv5x5_block',
+           'lambda_relu', 'lambda_prelu', 'lambda_batchnorm2d', 'SelectableDense', 'DenseBlock', 'ConvBlock1d',
+           'conv1x1', 'conv3x3', 'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block', 'conv5x5_block',
            'conv7x7_block', 'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block', 'dwsconv3x3_block', 'PreConvBlock',
            'pre_conv1x1_block', 'pre_conv3x3_block', 'AsymConvBlock', 'asym_conv3x3_block', 'DeconvBlock',
            'deconv3x3_block', 'NormActivation', 'InterpolationBlock', 'ChannelShuffle', 'ChannelShuffle2', 'SEBlock',
@@ -122,6 +122,23 @@ def lambda_relu(inplace: bool = True) -> Callable[[], nn.Module]:
         Desired function.
     """
     return lambda: nn.ReLU(inplace=inplace)
+
+
+def lambda_prelu(num_parameters: int = 1) -> Callable[[], nn.Module]:
+    """
+    Create lambda-function generator for nn.PReLU activation layer.
+
+    Parameters
+    ----------
+    num_parameters : int, default 1
+        Number of `a` to learn. There is only two values are legitimate: 1, or the number of channels at input.
+
+    Returns
+    -------
+    function
+        Desired function.
+    """
+    return lambda: nn.PReLU(num_parameters=num_parameters)
 
 
 def lambda_sigmoid() -> Callable[[], nn.Module]:
