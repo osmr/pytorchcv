@@ -10,7 +10,7 @@ import os
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common import (conv1x1, get_activation_layer, lambda_batchnorm2d, conv1x1_block, conv3x3_block, round_channels,
+from .common import (conv1x1, create_activation_layer, lambda_batchnorm2d, conv1x1_block, conv3x3_block, round_channels,
                      dwconv_block, Concurrent, InterpolationBlock, ChannelShuffle)
 
 
@@ -47,11 +47,11 @@ class SEBlock(nn.Module):
             in_features=channels,
             out_features=mid_channels)
         if self.use_conv2:
-            self.activ = get_activation_layer(mid_activation)
+            self.activ = create_activation_layer(mid_activation)
             self.fc2 = nn.Linear(
                 in_features=mid_channels,
                 out_features=channels)
-        self.sigmoid = get_activation_layer(out_activation)
+        self.sigmoid = create_activation_layer(out_activation)
 
     def forward(self, x):
         w = self.pool(x)
@@ -327,7 +327,7 @@ class FDWConvBlock(nn.Module):
             normalization=normalization,
             activation=None)
         if self.activate:
-            self.act = get_activation_layer(activation)
+            self.act = create_activation_layer(activation)
 
     def forward(self, x):
         x = self.v_conv(x) + self.h_conv(x)

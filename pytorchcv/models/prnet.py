@@ -8,7 +8,8 @@ __all__ = ['PRNet', 'prnet']
 
 import os
 import torch.nn as nn
-from .common import ConvBlock, DeconvBlock, conv1x1, conv1x1_block, NormActivation
+from typing import Callable
+from .common import lambda_relu, lambda_batchnorm2d, ConvBlock, DeconvBlock, conv1x1, conv1x1_block, NormActivation
 
 
 def conv4x4_block(in_channels,
@@ -18,9 +19,8 @@ def conv4x4_block(in_channels,
                   dilation=1,
                   groups=1,
                   bias=False,
-                  use_bn=True,
-                  bn_eps=1e-5,
-                  activation=(lambda: nn.ReLU(inplace=True))):
+                  normalization: Callable[..., nn.Module | None] | nn.Module | None = lambda_batchnorm2d(),
+                  activation: Callable[..., nn.Module | None] | nn.Module | str | None = lambda_relu()):
     """
     4x4 version of the standard convolution block.
 
@@ -40,12 +40,10 @@ def conv4x4_block(in_channels,
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    normalization : function or nn.Module or None, default lambda_batchnorm2d()
+        Lambda-function generator or module for normalization layer.
+    activation : function or nn.Module or str or None, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     """
     return ConvBlock(
         in_channels=in_channels,
@@ -56,8 +54,7 @@ def conv4x4_block(in_channels,
         dilation=dilation,
         groups=groups,
         bias=bias,
-        use_bn=use_bn,
-        bn_eps=bn_eps,
+        normalization=normalization,
         activation=activation)
 
 
@@ -72,7 +69,8 @@ def deconv4x4_block(in_channels,
                     bias=False,
                     use_bn=True,
                     bn_eps=1e-5,
-                    activation=(lambda: nn.ReLU(inplace=True))):
+                    normalization: Callable[..., nn.Module | None] | nn.Module | None = lambda_batchnorm2d(),
+                    activation: Callable[..., nn.Module | None] | nn.Module | str | None = lambda_relu()):
     """
     4x4 version of the standard deconvolution block.
 
@@ -100,8 +98,10 @@ def deconv4x4_block(in_channels,
         Whether to use BatchNorm layer.
     bn_eps : float, default 1e-5
         Small float added to variance in Batch norm.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    normalization : function or nn.Module or None, default lambda_batchnorm2d()
+        Lambda-function generator or module for normalization layer.
+    activation : function or nn.Module or str or None, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     """
     return DeconvBlock(
         in_channels=in_channels,
@@ -116,6 +116,7 @@ def deconv4x4_block(in_channels,
         bias=bias,
         use_bn=use_bn,
         bn_eps=bn_eps,
+        normalization=normalization,
         activation=activation)
 
 
@@ -133,8 +134,8 @@ class PRResBottleneck(nn.Module):
         Strides of the convolution.
     padding : int or tuple(int, int)
         Padding value for the second convolution layer in bottleneck.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Normalization function.
     bottleneck_factor : int, default 2
         Bottleneck factor.
     """
@@ -143,7 +144,7 @@ class PRResBottleneck(nn.Module):
                  out_channels,
                  stride,
                  padding,
-                 bn_eps,
+                 normalization: Callable[..., nn.Module],
                  bottleneck_factor=2):
         super(PRResBottleneck, self).__init__()
         mid_channels = out_channels // bottleneck_factor
@@ -151,13 +152,13 @@ class PRResBottleneck(nn.Module):
         self.conv1 = conv1x1_block(
             in_channels=in_channels,
             out_channels=mid_channels,
-            bn_eps=bn_eps)
+            normalization=normalization)
         self.conv2 = conv4x4_block(
             in_channels=mid_channels,
             out_channels=mid_channels,
             stride=stride,
             padding=padding,
-            bn_eps=bn_eps)
+            normalization=normalization)
         self.conv3 = conv1x1(
             in_channels=mid_channels,
             out_channels=out_channels)
@@ -185,12 +186,15 @@ class PRResUnit(nn.Module):
         Padding value for the second convolution layer in bottleneck.
     bn_eps : float
         Small float added to variance in Batch norm.
+    normalization : function
+        Normalization function.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
                  padding,
                  bn_eps,
+                 normalization: Callable[..., nn.Module],
                  stride):
         super(PRResUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
@@ -203,9 +207,9 @@ class PRResUnit(nn.Module):
         self.body = PRResBottleneck(
             in_channels=in_channels,
             out_channels=out_channels,
-            bn_eps=bn_eps,
             stride=stride,
-            padding=padding)
+            padding=padding,
+            normalization=normalization)
         self.norm_activ = NormActivation(
             in_channels=out_channels,
             bn_eps=bn_eps)
@@ -233,24 +237,30 @@ class PROutputBlock(nn.Module):
         Number of output channels.
     bn_eps : float
         Small float added to variance in Batch norm.
+    normalization : function
+        Normalization function.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
-                 bn_eps):
+                 bn_eps,
+                 normalization: Callable[..., nn.Module]):
         super(PROutputBlock, self).__init__()
         self.conv1 = deconv4x4_block(
             in_channels=in_channels,
             out_channels=out_channels,
-            bn_eps=bn_eps)
+            bn_eps=bn_eps,
+            normalization=normalization)
         self.conv2 = deconv4x4_block(
             in_channels=out_channels,
             out_channels=out_channels,
-            bn_eps=bn_eps)
+            bn_eps=bn_eps,
+            normalization=normalization)
         self.conv3 = deconv4x4_block(
             in_channels=out_channels,
             out_channels=out_channels,
             bn_eps=bn_eps,
+            normalization=normalization,
             activation=nn.Sigmoid())
 
     def forward(self, x):
@@ -290,12 +300,13 @@ class PRNet(nn.Module):
         super(PRNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
+        normalization = lambda_batchnorm2d(eps=bn_eps)
 
         self.features = nn.Sequential()
         self.features.add_module("init_block", conv4x4_block(
             in_channels=in_channels,
             out_channels=init_block_channels,
-            bn_eps=bn_eps))
+            normalization=normalization))
         in_channels = init_block_channels
 
         encoder = nn.Sequential()
@@ -309,7 +320,8 @@ class PRNet(nn.Module):
                     out_channels=out_channels,
                     stride=stride,
                     padding=padding,
-                    bn_eps=bn_eps))
+                    bn_eps=bn_eps,
+                    normalization=normalization))
                 in_channels = out_channels
             encoder.add_module("stage{}".format(i + 1), stage)
         self.features.add_module("encoder", encoder)
@@ -327,7 +339,8 @@ class PRNet(nn.Module):
                     stride=stride,
                     padding=padding,
                     ext_padding=ext_padding,
-                    bn_eps=bn_eps))
+                    bn_eps=bn_eps,
+                    normalization=normalization))
                 in_channels = out_channels
             decoder.add_module("stage{}".format(i + 1), stage)
         self.features.add_module("decoder", decoder)
@@ -335,7 +348,8 @@ class PRNet(nn.Module):
         self.output = PROutputBlock(
             in_channels=in_channels,
             out_channels=num_classes,
-            bn_eps=bn_eps)
+            bn_eps=bn_eps,
+            normalization=normalization)
 
         self._init_params()
 

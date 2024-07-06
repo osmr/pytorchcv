@@ -10,7 +10,7 @@ import os
 import torch
 from torch import nn
 from typing import Callable
-from .common import (get_activation_layer, lambda_batchnorm2d, conv1x1_block, conv3x3_block, conv7x7_block, SEBlock,
+from .common import (create_activation_layer, lambda_batchnorm2d, conv1x1_block, conv3x3_block, conv7x7_block, SEBlock,
                      Hourglass, InterpolationBlock)
 
 
@@ -110,7 +110,7 @@ class IbpResUnit(nn.Module):
                 stride=stride,
                 bias=bias,
                 activation=None)
-        self.activ = get_activation_layer(activation)
+        self.activ = create_activation_layer(activation)
 
     def forward(self, x):
         if self.resize_identity:

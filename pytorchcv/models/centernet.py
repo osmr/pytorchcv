@@ -65,7 +65,8 @@ class CenterNetHeadBlock(nn.Module):
             in_channels=in_channels,
             out_channels=in_channels,
             bias=True,
-            use_bn=False)
+            # use_bn=False,
+            normalization=None)
         self.conv2 = conv1x1(
             in_channels=in_channels,
             out_channels=out_channels,

@@ -9,7 +9,8 @@ __all__ = ['ESNet', 'esnet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common import AsymConvBlock, deconv3x3_block, Concurrent
+from typing import Callable
+from .common import lambda_batchnorm2d, AsymConvBlock, deconv3x3_block, Concurrent
 from .enet import ENetMixDownBlock
 from .erfnet import FCU
 
@@ -28,15 +29,16 @@ class PFCUBranch(nn.Module):
         Dilation value for convolution layer.
     dropout_rate : float
         Parameter of Dropout layer. Faction of the input units to drop.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Normalization function.
     """
     def __init__(self,
                  channels,
                  kernel_size,
                  dilation,
                  dropout_rate,
-                 bn_eps):
+                 # bn_eps,
+                 normalization: Callable[..., nn.Module]):
         super(PFCUBranch, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
 
@@ -46,8 +48,10 @@ class PFCUBranch(nn.Module):
             padding=dilation,
             dilation=dilation,
             bias=True,
-            lw_use_bn=False,
-            bn_eps=bn_eps,
+            # lw_use_bn=False,
+            # bn_eps=bn_eps,
+            lw_normalization=None,
+            rw_normalization=normalization,
             rw_activation=None)
         if self.use_dropout:
             self.dropout = nn.Dropout(p=dropout_rate)
@@ -71,14 +75,15 @@ class PFCU(nn.Module):
         Convolution window size.
     dropout_rate : float
         Parameter of Dropout layer. Faction of the input units to drop.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Normalization function.
     """
     def __init__(self,
                  channels,
                  kernel_size,
                  dropout_rate,
-                 bn_eps):
+                 # bn_eps,
+                 normalization: Callable[..., nn.Module]):
         super(PFCU, self).__init__()
         dilations = [2, 5, 9]
         padding = (kernel_size - 1) // 2
@@ -88,8 +93,10 @@ class PFCU(nn.Module):
             kernel_size=kernel_size,
             padding=padding,
             bias=True,
-            lw_use_bn=False,
-            bn_eps=bn_eps)
+            # lw_use_bn=False,
+            # bn_eps=bn_eps,
+            lw_normalization=None,
+            rw_normalization=normalization)
         self.branches = Concurrent(merge_type="sum")
         for i, dilation in enumerate(dilations):
             self.branches.add_module("branch{}".format(i + 1), PFCUBranch(
@@ -97,7 +104,8 @@ class PFCU(nn.Module):
                 kernel_size=kernel_size,
                 dilation=dilation,
                 dropout_rate=dropout_rate,
-                bn_eps=bn_eps))
+                # bn_eps=bn_eps,
+                normalization=normalization))
         self.activ = nn.ReLU(inplace=True)
 
     def forward(self, x):
@@ -160,6 +168,7 @@ class ESNet(nn.Module):
         self.in_size = in_size
         self.num_classes = num_classes
         self.fixed_size = fixed_size
+        normalization = lambda_batchnorm2d(eps=bn_eps)
 
         self.encoder = nn.Sequential()
         for i, layers_per_stage in enumerate(layers[0]):
@@ -182,13 +191,15 @@ class ESNet(nn.Module):
                         kernel_size=kernel_size,
                         dilation=1,
                         dropout_rate=dropout_rate,
-                        bn_eps=bn_eps))
+                        # bn_eps=bn_eps,
+                        normalization=normalization))
                 else:
                     stage.add_module("unit{}".format(j + 1), PFCU(
                         channels=in_channels,
                         kernel_size=kernel_size,
                         dropout_rate=dropout_rate,
-                        bn_eps=bn_eps))
+                        # bn_eps=bn_eps,
+                        normalization=normalization))
             self.encoder.add_module("stage{}".format(i + 1), stage)
 
         self.decoder = nn.Sequential()
@@ -203,7 +214,8 @@ class ESNet(nn.Module):
                         out_channels=out_channels,
                         stride=2,
                         bias=True,
-                        bn_eps=bn_eps))
+                        bn_eps=bn_eps,
+                        normalization=normalization))
                     in_channels = out_channels
                 else:
                     stage.add_module("unit{}".format(j + 1), FCU(
@@ -211,7 +223,8 @@ class ESNet(nn.Module):
                         kernel_size=kernel_size,
                         dilation=1,
                         dropout_rate=0,
-                        bn_eps=bn_eps))
+                        # bn_eps=bn_eps,
+                        normalization=normalization))
             self.decoder.add_module("stage{}".format(i + 1), stage)
 
         self.head = nn.ConvTranspose2d(

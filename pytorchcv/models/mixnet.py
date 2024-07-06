@@ -8,7 +8,7 @@ __all__ = ['MixNet', 'mixnet_s', 'mixnet_m', 'mixnet_l']
 import os
 import torch
 import torch.nn as nn
-from .common import round_channels, get_activation_layer, conv1x1_block, conv3x3_block, dwconv3x3_block, SEBlock
+from .common import round_channels, create_activation_layer, conv1x1_block, conv3x3_block, dwconv3x3_block, SEBlock
 
 
 class MixConv(nn.Module):
@@ -143,7 +143,7 @@ class MixConvBlock(nn.Module):
                 num_features=out_channels,
                 eps=bn_eps)
         if self.activate:
-            self.activ = get_activation_layer(activation)
+            self.activ = create_activation_layer(activation)
 
     def forward(self, x):
         x = self.conv(x)

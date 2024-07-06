@@ -9,7 +9,8 @@ __all__ = ['SQNet', 'sqnet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block, deconv3x3_block, Concurrent, Hourglass
+from typing import Callable
+from .common import lambda_batchnorm2d, conv1x1_block, conv3x3_block, deconv3x3_block, Concurrent, Hourglass
 
 
 class FireBlock(nn.Module):
@@ -24,8 +25,8 @@ class FireBlock(nn.Module):
         Number of output channels.
     bias : bool
         Whether the layer uses a bias vector.
-    use_bn : bool
-        Whether to use BatchNorm layer.
+    normalization : function
+        Normalization function.
     activation : function or str or None
         Activation function or name of activation function.
     """
@@ -33,7 +34,7 @@ class FireBlock(nn.Module):
                  in_channels,
                  out_channels,
                  bias,
-                 use_bn,
+                 normalization: Callable[..., nn.Module],
                  activation):
         super(FireBlock, self).__init__()
         squeeze_channels = out_channels // 8
@@ -43,20 +44,20 @@ class FireBlock(nn.Module):
             in_channels=in_channels,
             out_channels=squeeze_channels,
             bias=bias,
-            use_bn=use_bn,
+            normalization=normalization,
             activation=activation)
         self.branches = Concurrent(merge_type="cat")
         self.branches.add_module("branch1", conv1x1_block(
             in_channels=squeeze_channels,
             out_channels=expand_channels,
             bias=bias,
-            use_bn=use_bn,
+            normalization=normalization,
             activation=None))
         self.branches.add_module("branch2", conv3x3_block(
             in_channels=squeeze_channels,
             out_channels=expand_channels,
             bias=bias,
-            use_bn=use_bn,
+            normalization=normalization,
             activation=None))
         self.activ = nn.ELU(inplace=True)
 
@@ -79,8 +80,8 @@ class ParallelDilatedConv(nn.Module):
         Number of output channels.
     bias : bool
         Whether the layer uses a bias vector.
-    use_bn : bool
-        Whether to use BatchNorm layer.
+    normalization : function
+        Normalization function.
     activation : function or str or None
         Activation function or name of activation function.
     """
@@ -88,7 +89,7 @@ class ParallelDilatedConv(nn.Module):
                  in_channels,
                  out_channels,
                  bias,
-                 use_bn,
+                 normalization: Callable[..., nn.Module],
                  activation):
         super(ParallelDilatedConv, self).__init__()
         dilations = [1, 2, 3, 4]
@@ -101,7 +102,7 @@ class ParallelDilatedConv(nn.Module):
                 padding=dilation,
                 dilation=dilation,
                 bias=bias,
-                use_bn=use_bn,
+                normalization=normalization,
                 activation=activation))
 
     def forward(self, x):
@@ -123,6 +124,8 @@ class SQNetUpStage(nn.Module):
         Whether the layer uses a bias vector.
     use_bn : bool
         Whether to use BatchNorm layer.
+    normalization : function
+        Normalization function.
     activation : function or str or None
         Activation function or name of activation function.
     use_parallel_conv : bool
@@ -133,6 +136,7 @@ class SQNetUpStage(nn.Module):
                  out_channels,
                  bias,
                  use_bn,
+                 normalization: Callable[..., nn.Module],
                  activation,
                  use_parallel_conv):
         super(SQNetUpStage, self).__init__()
@@ -142,14 +146,14 @@ class SQNetUpStage(nn.Module):
                 in_channels=in_channels,
                 out_channels=in_channels,
                 bias=bias,
-                use_bn=use_bn,
+                normalization=normalization,
                 activation=activation)
         else:
             self.conv = conv3x3_block(
                 in_channels=in_channels,
                 out_channels=in_channels,
                 bias=bias,
-                use_bn=use_bn,
+                normalization=normalization,
                 activation=activation)
         self.deconv = deconv3x3_block(
             in_channels=in_channels,
@@ -157,6 +161,7 @@ class SQNetUpStage(nn.Module):
             stride=2,
             bias=bias,
             use_bn=use_bn,
+            normalization=normalization,
             activation=activation)
 
     def forward(self, x):
@@ -207,6 +212,7 @@ class SQNet(nn.Module):
         self.fixed_size = fixed_size
         bias = True
         use_bn = False
+        normalization = lambda_batchnorm2d() if use_bn else None
         activation = (lambda: nn.ELU(inplace=True))
 
         self.stem = conv3x3_block(
@@ -214,7 +220,7 @@ class SQNet(nn.Module):
             out_channels=init_block_channels,
             stride=2,
             bias=bias,
-            use_bn=use_bn,
+            normalization=normalization,
             activation=activation)
         in_channels = init_block_channels
 
@@ -225,7 +231,7 @@ class SQNet(nn.Module):
                 in_channels=in_channels,
                 out_channels=in_channels,
                 bias=bias,
-                use_bn=use_bn,
+                normalization=normalization,
                 activation=activation))
             stage = nn.Sequential()
             stage.add_module("unit1", nn.MaxPool2d(
@@ -236,7 +242,7 @@ class SQNet(nn.Module):
                     in_channels=in_channels,
                     out_channels=out_channels,
                     bias=bias,
-                    use_bn=use_bn,
+                    normalization=normalization,
                     activation=activation))
                 in_channels = out_channels
             down_seq.add_module("down{}".format(i + 1), stage)
@@ -251,6 +257,7 @@ class SQNet(nn.Module):
                 out_channels=out_channels,
                 bias=bias,
                 use_bn=use_bn,
+                normalization=normalization,
                 activation=activation,
                 use_parallel_conv=use_parallel_conv))
             in_channels = out_channels
@@ -267,6 +274,7 @@ class SQNet(nn.Module):
             out_channels=num_classes,
             bias=bias,
             use_bn=use_bn,
+            normalization=normalization,
             activation=activation,
             use_parallel_conv=False)
 
