@@ -9,7 +9,8 @@ import os
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common import lambda_relu, lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv_block
+from .common import (lambda_relu, lambda_relu6, lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block,
+                     dwconv_block)
 
 
 class InvDwsConvBlock(nn.Module):
@@ -133,8 +134,8 @@ class HarDUnit(nn.Module):
         Whether to use dropout module.
     downsampling : bool
         Whether to downsample input.
-    activation : str
-        Name of activation function.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  in_channels_list,
@@ -143,7 +144,7 @@ class HarDUnit(nn.Module):
                  use_deptwise,
                  use_dropout,
                  downsampling,
-                 activation):
+                 activation: Callable[..., nn.Module]):
         super(HarDUnit, self).__init__()
         self.links_list = links_list
         self.use_dropout = use_dropout
@@ -224,14 +225,14 @@ class HarDInitBlock(nn.Module):
         Number of output channels.
     use_deptwise : bool
         Whether to use depthwise downsampling.
-    activation : str
-        Name of activation function.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
                  use_deptwise,
-                 activation):
+                 activation: Callable[..., nn.Module]):
         super(HarDInitBlock, self).__init__()
         mid_channels = out_channels // 2
 
@@ -305,7 +306,7 @@ class HarDNet(nn.Module):
         super(HarDNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
-        activation = "relu6"
+        activation = lambda_relu6()
 
         self.features = nn.Sequential()
         self.features.add_module("init_block", HarDInitBlock(

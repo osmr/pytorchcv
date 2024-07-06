@@ -2,17 +2,17 @@
     Common routines for models in PyTorch.
 """
 
-__all__ = ['round_channels', 'Identity', 'BreakBlock', 'Swish', 'HSigmoid', 'HSwish', 'lambda_relu', 'lambda_prelu',
-           'lambda_sigmoid', 'lambda_swish', 'lambda_batchnorm1d', 'lambda_batchnorm2d', 'create_activation_layer',
-           'create_normalization_layer', 'SelectableDense', 'DenseBlock', 'ConvBlock1d', 'conv1x1', 'conv3x3',
-           'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block', 'conv5x5_block', 'conv7x7_block',
-           'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block', 'dwsconv3x3_block', 'PreConvBlock',
-           'pre_conv1x1_block', 'pre_conv3x3_block', 'AsymConvBlock', 'asym_conv3x3_block', 'DeconvBlock',
-           'deconv3x3_block', 'NormActivation', 'InterpolationBlock', 'ChannelShuffle', 'ChannelShuffle2', 'SEBlock',
-           'SABlock', 'SAConvBlock', 'saconv3x3_block', 'DucBlock', 'IBN', 'DualPathSequential', 'Concurrent',
-           'SequentialConcurrent', 'ParametricSequential', 'ParametricConcurrent', 'Hourglass',
-           'SesquialteralHourglass', 'MultiOutputSequential', 'ParallelConcurent', 'DualPathParallelConcurent',
-           'Flatten', 'HeatmapMaxDetBlock']
+__all__ = ['round_channels', 'Identity', 'BreakBlock', 'Swish', 'HSigmoid', 'HSwish', 'lambda_relu', 'lambda_relu6',
+           'lambda_prelu', 'lambda_leakyrelu', 'lambda_sigmoid', 'lambda_swish', 'lambda_batchnorm1d',
+           'lambda_batchnorm2d', 'create_activation_layer', 'create_normalization_layer', 'SelectableDense',
+           'DenseBlock', 'ConvBlock1d', 'conv1x1', 'conv3x3', 'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block',
+           'conv3x3_block', 'conv5x5_block', 'conv7x7_block', 'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block',
+           'dwsconv3x3_block', 'PreConvBlock', 'pre_conv1x1_block', 'pre_conv3x3_block', 'AsymConvBlock',
+           'asym_conv3x3_block', 'DeconvBlock', 'deconv3x3_block', 'NormActivation', 'InterpolationBlock',
+           'ChannelShuffle', 'ChannelShuffle2', 'SEBlock', 'SABlock', 'SAConvBlock', 'saconv3x3_block', 'DucBlock',
+           'IBN', 'DualPathSequential', 'Concurrent', 'SequentialConcurrent', 'ParametricSequential',
+           'ParametricConcurrent', 'Hourglass', 'SesquialteralHourglass', 'MultiOutputSequential', 'ParallelConcurent',
+           'DualPathParallelConcurent', 'Flatten', 'HeatmapMaxDetBlock']
 
 import math
 from inspect import isfunction
@@ -125,6 +125,23 @@ def lambda_relu(inplace: bool = True) -> Callable[[], nn.Module]:
     return lambda: nn.ReLU(inplace=inplace)
 
 
+def lambda_relu6(inplace: bool = True) -> Callable[[], nn.Module]:
+    """
+    Create lambda-function generator for nn.ReLU6 activation layer.
+
+    Parameters
+    ----------
+    inplace : bool, default true
+        Whether to do the operation in-place.
+
+    Returns
+    -------
+    function
+        Desired function.
+    """
+    return lambda: nn.ReLU6(inplace=inplace)
+
+
 def lambda_prelu(num_parameters: int = 1) -> Callable[[], nn.Module]:
     """
     Create lambda-function generator for nn.PReLU activation layer.
@@ -140,6 +157,28 @@ def lambda_prelu(num_parameters: int = 1) -> Callable[[], nn.Module]:
         Desired function.
     """
     return lambda: nn.PReLU(num_parameters=num_parameters)
+
+
+def lambda_leakyrelu(negative_slope: float = 1e-2,
+                     inplace: bool = True) -> Callable[[], nn.Module]:
+    """
+    Create lambda-function generator for nn.LeakyReLU activation layer.
+
+    Parameters
+    ----------
+    negative_slope : float, default 1e-2
+        Slope coefficient controls the angle of the negative slope (which is used for negative input values).
+    inplace : bool, default true
+        Whether to do the operation in-place.
+
+    Returns
+    -------
+    function
+        Desired function.
+    """
+    return lambda: nn.LeakyReLU(
+        negative_slope=negative_slope,
+        inplace=inplace)
 
 
 def lambda_sigmoid() -> Callable[[], nn.Module]:

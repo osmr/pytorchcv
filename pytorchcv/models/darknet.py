@@ -8,13 +8,14 @@ __all__ = ['DarkNet', 'darknet_ref', 'darknet_tiny', 'darknet19']
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block
+from typing import Callable
+from .common import lambda_leakyrelu, create_activation_layer, conv1x1_block, conv3x3_block
 
 
-def dark_convYxY(in_channels,
-                 out_channels,
-                 alpha,
-                 pointwise):
+def dark_convYxY(in_channels: int,
+                 out_channels: int,
+                 activation: Callable[..., nn.Module],
+                 pointwise: bool):
     """
     DarkNet unit.
 
@@ -24,8 +25,8 @@ def dark_convYxY(in_channels,
         Number of input channels.
     out_channels : int
         Number of output channels.
-    alpha : float
-        Slope coefficient for Leaky ReLU activation.
+    activation : function
+        Lambda-function generator for activation layer.
     pointwise : bool
         Whether to use 1x1 (pointwise) convolution or 3x3 convolution.
     """
@@ -33,16 +34,12 @@ def dark_convYxY(in_channels,
         return conv1x1_block(
             in_channels=in_channels,
             out_channels=out_channels,
-            activation=nn.LeakyReLU(
-                negative_slope=alpha,
-                inplace=True))
+            activation=activation)
     else:
         return conv3x3_block(
             in_channels=in_channels,
             out_channels=out_channels,
-            activation=nn.LeakyReLU(
-                negative_slope=alpha,
-                inplace=True))
+            activation=activation)
 
 
 class DarkNet(nn.Module):
@@ -69,17 +66,18 @@ class DarkNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 odd_pointwise,
-                 avg_pool_size,
-                 cls_activ,
-                 alpha=0.1,
+                 channels: list[list[int]],
+                 odd_pointwise: bool,
+                 avg_pool_size: int,
+                 cls_activ: bool,
+                 alpha: float = 0.1,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
         super(DarkNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
+        activation = lambda_leakyrelu(negative_slope=alpha)
 
         self.features = nn.Sequential()
         for i, channels_per_stage in enumerate(channels):
@@ -88,7 +86,7 @@ class DarkNet(nn.Module):
                 stage.add_module("unit{}".format(j + 1), dark_convYxY(
                     in_channels=in_channels,
                     out_channels=out_channels,
-                    alpha=alpha,
+                    activation=activation,
                     pointwise=(len(channels_per_stage) > 1) and not (((j + 1) % 2 == 1) ^ odd_pointwise)))
                 in_channels = out_channels
             if i != len(channels) - 1:
@@ -103,9 +101,7 @@ class DarkNet(nn.Module):
             out_channels=num_classes,
             kernel_size=1))
         if cls_activ:
-            self.output.add_module("final_activ", nn.LeakyReLU(
-                negative_slope=alpha,
-                inplace=True))
+            self.output.add_module("final_activ", create_activation_layer(activation))
         self.output.add_module("final_pool", nn.AvgPool2d(
             kernel_size=avg_pool_size,
             stride=1))

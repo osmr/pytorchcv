@@ -7,7 +7,8 @@ __all__ = ['DarkNet53', 'darknet53']
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block
+from typing import Callable
+from .common import lambda_leakyrelu, conv1x1_block, conv3x3_block
 
 
 class DarkUnit(nn.Module):
@@ -20,13 +21,13 @@ class DarkUnit(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    alpha : float
-        Slope coefficient for Leaky ReLU activation.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 alpha: float):
+                 activation: Callable[..., nn.Module]):
         super(DarkUnit, self).__init__()
         assert (out_channels % 2 == 0)
         mid_channels = out_channels // 2
@@ -34,15 +35,11 @@ class DarkUnit(nn.Module):
         self.conv1 = conv1x1_block(
             in_channels=in_channels,
             out_channels=mid_channels,
-            activation=nn.LeakyReLU(
-                negative_slope=alpha,
-                inplace=True))
+            activation=activation)
         self.conv2 = conv3x3_block(
             in_channels=mid_channels,
             out_channels=out_channels,
-            activation=nn.LeakyReLU(
-                negative_slope=alpha,
-                inplace=True))
+            activation=activation)
 
     def forward(self, x):
         identity = x
@@ -80,14 +77,13 @@ class DarkNet53(nn.Module):
         super(DarkNet53, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
+        activation = lambda_leakyrelu(negative_slope=alpha)
 
         self.features = nn.Sequential()
         self.features.add_module("init_block", conv3x3_block(
             in_channels=in_channels,
             out_channels=init_block_channels,
-            activation=nn.LeakyReLU(
-                negative_slope=alpha,
-                inplace=True)))
+            activation=activation))
         in_channels = init_block_channels
         for i, channels_per_stage in enumerate(channels):
             stage = nn.Sequential()
@@ -97,14 +93,12 @@ class DarkNet53(nn.Module):
                         in_channels=in_channels,
                         out_channels=out_channels,
                         stride=2,
-                        activation=nn.LeakyReLU(
-                            negative_slope=alpha,
-                            inplace=True)))
+                        activation=activation))
                 else:
                     stage.add_module("unit{}".format(j + 1), DarkUnit(
                         in_channels=in_channels,
                         out_channels=out_channels,
-                        alpha=alpha))
+                        activation=activation))
                 in_channels = out_channels
             self.features.add_module("stage{}".format(i + 1), stage)
         self.features.add_module("final_pool", nn.AvgPool2d(
