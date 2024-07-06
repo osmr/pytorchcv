@@ -187,7 +187,6 @@ class LwopRefinementBlock(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             bias=True,
-            # use_bn=False,
             normalization=None)
         self.body = nn.Sequential()
         self.body.add_module("block1", conv3x3_block(
@@ -229,7 +228,6 @@ class LwopDecoderBend(nn.Module):
             in_channels=in_channels,
             out_channels=mid_channels,
             bias=True,
-            # use_bn=False,
             normalization=None)
         self.conv2 = conv1x1(
             in_channels=mid_channels,

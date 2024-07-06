@@ -10,8 +10,9 @@ import os
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common import (conv1x1, create_activation_layer, lambda_batchnorm2d, conv1x1_block, conv3x3_block, round_channels,
-                     dwconv_block, Concurrent, InterpolationBlock, ChannelShuffle)
+from .common import (lambda_relu, lambda_prelu, lambda_sigmoid, lambda_batchnorm2d, create_activation_layer,
+                    create_normalization_layer, conv1x1, conv1x1_block, conv3x3_block, round_channels, dwconv_block,
+                    Concurrent, InterpolationBlock, ChannelShuffle)
 
 
 class SEBlock(nn.Module):
@@ -27,17 +28,17 @@ class SEBlock(nn.Module):
         Squeeze reduction value.
     round_mid : bool, default False
         Whether to round middle channel number (make divisible by 8).
-    activation : function, or str, or nn.Module, default 'relu'
+    mid_activation : function or nn.Module or str, default lambda_relu()
         Activation function after the first convolution.
-    out_activation : function, or str, or nn.Module, default 'sigmoid'
+    out_activation : function or nn.Module or str, default lambda_sigmoid()
         Activation function after the last convolution.
     """
     def __init__(self,
                  channels,
                  reduction=16,
                  round_mid=False,
-                 mid_activation=(lambda: nn.ReLU(inplace=True)),
-                 out_activation=(lambda: nn.Sigmoid())):
+                 mid_activation: Callable[..., nn.Module] = lambda_relu(),
+                 out_activation: Callable[..., nn.Module] = lambda_sigmoid()):
         super(SEBlock, self).__init__()
         self.use_conv2 = (reduction > 1)
         mid_channels = channels // reduction if not round_mid else round_channels(float(channels) / reduction)
@@ -86,17 +87,13 @@ class DwsConvBlock(nn.Module):
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    dw_use_bn : bool, default True
-        Whether to use BatchNorm layer (depthwise convolution block).
-    pw_use_bn : bool, default True
-        Whether to use BatchNorm layer (pointwise convolution block).
-    dw_normalization : function, default lambda_batchnorm2d(eps=1e-5)
-        Normalization function for the depthwise convolution block.
-    pw_normalization : function, default lambda_batchnorm2d(eps=1e-5)
-        Normalization function for the pointwise convolution block.
-    dw_activation : function or str or None, default nn.ReLU(inplace=True)
+    dw_normalization : function, default lambda_batchnorm2d()
+        Normalization function/module for the depthwise convolution block.
+    pw_normalization : function, default lambda_batchnorm2d()
+        Normalization function/module for the pointwise convolution block.
+    dw_activation : function, default lambda_relu()
         Activation function after the depthwise convolution block.
-    pw_activation : function or str or None, default nn.ReLU(inplace=True)
+    pw_activation : function, default lambda_relu()
         Activation function after the pointwise convolution block.
     se_reduction : int, default 0
         Squeeze reduction value (0 means no-se).
@@ -109,18 +106,13 @@ class DwsConvBlock(nn.Module):
                  padding,
                  dilation=1,
                  bias=False,
-                 dw_use_bn=True,
-                 pw_use_bn=True,
-                 dw_normalization: Callable = lambda_batchnorm2d(eps=1e-5),
-                 pw_normalization: Callable = lambda_batchnorm2d(eps=1e-5),
-                 dw_activation=(lambda: nn.ReLU(inplace=True)),
-                 pw_activation=(lambda: nn.ReLU(inplace=True)),
+                 dw_normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
+                 pw_normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
+                 dw_activation: Callable[..., nn.Module] = lambda_relu(),
+                 pw_activation: Callable[..., nn.Module] = lambda_relu(),
                  se_reduction=0):
         super(DwsConvBlock, self).__init__()
         self.use_se = (se_reduction > 0)
-
-        assert (dw_use_bn == (dw_normalization is not None))
-        assert (pw_use_bn == (pw_normalization is not None))
 
         self.dw_conv = dwconv_block(
             in_channels=in_channels,
@@ -130,7 +122,6 @@ class DwsConvBlock(nn.Module):
             padding=padding,
             dilation=dilation,
             bias=bias,
-            # use_bn=dw_use_bn,
             normalization=dw_normalization,
             activation=dw_activation)
         if self.use_se:
@@ -144,7 +135,6 @@ class DwsConvBlock(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             bias=bias,
-            # use_bn=pw_use_bn,
             normalization=pw_normalization,
             activation=pw_activation)
 
@@ -162,13 +152,7 @@ def dwsconv3x3_block(in_channels,
                      padding=1,
                      dilation=1,
                      bias=False,
-                     dw_use_bn=True,
-                     pw_use_bn=True,
-                     dw_normalization: Callable | None = lambda_batchnorm2d(eps=1e-5),
-                     pw_normalization: Callable | None = lambda_batchnorm2d(eps=1e-5),
-                     dw_activation=(lambda: nn.ReLU(inplace=True)),
-                     pw_activation=(lambda: nn.ReLU(inplace=True)),
-                     se_reduction=0):
+                     **kwargs):
     """
     3x3 depthwise separable version of the standard convolution block (SINet version).
 
@@ -186,17 +170,13 @@ def dwsconv3x3_block(in_channels,
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    dw_use_bn : bool, default True
-        Whether to use BatchNorm layer (depthwise convolution block).
-    pw_use_bn : bool, default True
-        Whether to use BatchNorm layer (pointwise convolution block).
-    dw_normalization : function or None, default lambda_batchnorm2d(eps=1e-5)
-        Normalization function for the depthwise convolution block.
-    pw_normalization : function or None, default lambda_batchnorm2d(eps=1e-5)
-        Normalization function for the pointwise convolution block.
-    dw_activation : function or str or None, default nn.ReLU(inplace=True)
+    dw_normalization : function, default lambda_batchnorm2d()
+        Normalization function/module for the depthwise convolution block.
+    pw_normalization : function, default lambda_batchnorm2d()
+        Normalization function/module for the pointwise convolution block.
+    dw_activation : function, default lambda_relu()
         Activation function after the depthwise convolution block.
-    pw_activation : function or str or None, default nn.ReLU(inplace=True)
+    pw_activation : function, default lambda_relu()
         Activation function after the pointwise convolution block.
     se_reduction : int, default 0
         Squeeze reduction value (0 means no-se).
@@ -209,13 +189,7 @@ def dwsconv3x3_block(in_channels,
         padding=padding,
         dilation=dilation,
         bias=bias,
-        dw_use_bn=dw_use_bn,
-        pw_use_bn=pw_use_bn,
-        dw_normalization=dw_normalization,
-        pw_normalization=pw_normalization,
-        dw_activation=dw_activation,
-        pw_activation=pw_activation,
-        se_reduction=se_reduction)
+        **kwargs)
 
 
 def dwconv3x3_block(in_channels,
@@ -224,8 +198,8 @@ def dwconv3x3_block(in_channels,
                     padding=1,
                     dilation=1,
                     bias=False,
-                    normalization: Callable = lambda_batchnorm2d(eps=1e-5),
-                    activation=(lambda: nn.ReLU(inplace=True))):
+                    normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
+                    activation: Callable[..., nn.Module] = lambda_relu()):
     """
     3x3 depthwise version of the standard convolution block (SINet version).
 
@@ -243,10 +217,10 @@ def dwconv3x3_block(in_channels,
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    normalization : function, default lambda_batchnorm2d(eps=1e-5)
-        Normalization function.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    normalization : function, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer.
     """
     return dwconv_block(
         in_channels=in_channels,
@@ -280,12 +254,10 @@ class FDWConvBlock(nn.Module):
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    normalization : function, default lambda_batchnorm2d(eps=1e-5)
-        Normalization function.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function after the each convolution block.
+    normalization : function, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  in_channels,
@@ -295,15 +267,10 @@ class FDWConvBlock(nn.Module):
                  padding,
                  dilation=1,
                  bias=False,
-                 use_bn=True,
-                 normalization: Callable = lambda_batchnorm2d(eps=1e-5),
-                 activation=(lambda: nn.ReLU(inplace=True))):
+                 normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
+                 activation: Callable[..., nn.Module] = lambda_relu()):
         super(FDWConvBlock, self).__init__()
-        assert use_bn
         self.activate = (activation is not None)
-
-        assert (use_bn == (normalization is not None))
-
         self.v_conv = dwconv_block(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -312,7 +279,6 @@ class FDWConvBlock(nn.Module):
             padding=(padding, 0),
             dilation=dilation,
             bias=bias,
-            # use_bn=use_bn,
             normalization=normalization,
             activation=None)
         self.h_conv = dwconv_block(
@@ -323,7 +289,6 @@ class FDWConvBlock(nn.Module):
             padding=(0, padding),
             dilation=dilation,
             bias=bias,
-            # use_bn=use_bn,
             normalization=normalization,
             activation=None)
         if self.activate:
@@ -336,15 +301,11 @@ class FDWConvBlock(nn.Module):
         return x
 
 
-def fdwconv3x3_block(in_channels,
-                     out_channels,
-                     stride=1,
+def fdwconv3x3_block(stride=1,
                      padding=1,
                      dilation=1,
                      bias=False,
-                     use_bn=True,
-                     normalization: Callable = lambda_batchnorm2d(eps=1e-5),
-                     activation=(lambda: nn.ReLU(inplace=True))):
+                     **kwargs):
     """
     3x3 factorized depthwise version of the standard convolution block.
 
@@ -362,38 +323,25 @@ def fdwconv3x3_block(in_channels,
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
-    normalization : function, default lambda_batchnorm2d(eps=1e-5)
-        Normalization function.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    normalization : function, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer.
     """
-    assert (use_bn == (normalization is not None))
     return FDWConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=3,
         stride=stride,
         padding=padding,
         dilation=dilation,
         bias=bias,
-        use_bn=use_bn,
-        normalization=normalization,
-        activation=activation)
+        **kwargs)
 
 
-def fdwconv5x5_block(in_channels,
-                     out_channels,
-                     stride=1,
+def fdwconv5x5_block(stride=1,
                      padding=2,
                      dilation=1,
                      bias=False,
-                     use_bn=True,
-                     normalization: Callable = lambda_batchnorm2d(eps=1e-5),
-                     activation=(lambda: nn.ReLU(inplace=True))):
+                     **kwargs):
     """
     5x5 factorized depthwise version of the standard convolution block.
 
@@ -411,24 +359,18 @@ def fdwconv5x5_block(in_channels,
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    normalization : function, default lambda_batchnorm2d(eps=1e-5)
-        Normalization function.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    normalization : function, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer.
     """
     return FDWConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=5,
         stride=stride,
         padding=padding,
         dilation=dilation,
         bias=bias,
-        use_bn=use_bn,
-        normalization=normalization,
-        activation=activation)
+        **kwargs)
 
 
 class SBBlock(nn.Module):
@@ -445,18 +387,15 @@ class SBBlock(nn.Module):
         Convolution window size for a factorized depthwise separable convolution block.
     scale_factor : int
         Scale factor.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
                  kernel_size,
                  scale_factor,
-                 bn_eps,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(SBBlock, self).__init__()
         self.use_scale = (scale_factor > 1)
 
@@ -473,21 +412,24 @@ class SBBlock(nn.Module):
                 in_channels=in_channels,
                 out_channels=in_channels,
                 normalization=normalization,
-                activation=(lambda: nn.PReLU(in_channels)))
+                activation=lambda_prelu(num_parameters=in_channels))
         else:
             self.conv1 = dwconv3x3_block(
                 in_channels=in_channels,
                 out_channels=in_channels,
                 normalization=normalization,
-                activation=(lambda: nn.PReLU(in_channels)))
+                activation=lambda_prelu(num_parameters=in_channels))
 
         self.conv2 = conv1x1(
             in_channels=in_channels,
             out_channels=out_channels)
 
-        self.bn = nn.BatchNorm2d(
-            num_features=out_channels,
-            eps=bn_eps)
+        # self.bn = nn.BatchNorm2d(
+        #     num_features=out_channels,
+        #     eps=bn_eps)
+        self.bn = create_normalization_layer(
+            normalization=normalization,
+            num_features=out_channels)
 
     def forward(self, x):
         if self.use_scale:
@@ -511,16 +453,19 @@ class PreActivation(nn.Module):
     ----------
     in_channels : int
         Number of input channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
-                 bn_eps):
+                 normalization: Callable[..., nn.Module]):
         super(PreActivation, self).__init__()
-        self.bn = nn.BatchNorm2d(
-            num_features=in_channels,
-            eps=bn_eps)
+        # self.bn = nn.BatchNorm2d(
+        #     num_features=in_channels,
+        #     eps=bn_eps)
+        self.bn = create_normalization_layer(
+            normalization=normalization,
+            num_features=in_channels)
         self.activ = nn.PReLU(num_parameters=in_channels)
 
     def forward(self, x):
@@ -545,10 +490,8 @@ class ESPBlock(nn.Module):
         Scale factor for branches.
     use_residual : bool
         Whether to use residual connection.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
@@ -556,8 +499,7 @@ class ESPBlock(nn.Module):
                  kernel_sizes,
                  scale_factors,
                  use_residual,
-                 bn_eps,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(ESPBlock, self).__init__()
         self.use_residual = use_residual
         groups = len(kernel_sizes)
@@ -582,12 +524,11 @@ class ESPBlock(nn.Module):
                 out_channels=out_channels_i,
                 kernel_size=kernel_sizes[i],
                 scale_factor=scale_factors[i],
-                bn_eps=bn_eps,
                 normalization=normalization))
 
         self.preactiv = PreActivation(
             in_channels=out_channels,
-            bn_eps=bn_eps)
+            normalization=normalization)
 
     def forward(self, x):
         if self.use_residual:
@@ -624,10 +565,8 @@ class SBStage(nn.Module):
         List of flags for using residual in each ESP-block.
     se_reduction : int
         Squeeze reduction value (0 means no-se).
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
@@ -637,14 +576,12 @@ class SBStage(nn.Module):
                  scale_factors_list,
                  use_residual_list,
                  se_reduction,
-                 bn_eps,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(SBStage, self).__init__()
         self.down_conv = dwsconv3x3_block(
             in_channels=in_channels,
             out_channels=down_channels,
             stride=2,
-            dw_use_bn=False,
             dw_normalization=None,
             pw_normalization=normalization,
             dw_activation=None,
@@ -663,13 +600,12 @@ class SBStage(nn.Module):
                 kernel_sizes=kernel_sizes,
                 scale_factors=scale_factors,
                 use_residual=use_residual,
-                bn_eps=bn_eps,
                 normalization=normalization))
             in_channels = out_channels
 
         self.preactiv = PreActivation(
             in_channels=(down_channels + in_channels),
-            bn_eps=bn_eps)
+            normalization=normalization)
 
     def forward(self, x):
         x = self.down_conv(x)
@@ -692,13 +628,13 @@ class SBEncoderInitBlock(nn.Module):
     out_channels : int
         Number of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
                  mid_channels,
                  out_channels,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(SBEncoderInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -710,7 +646,6 @@ class SBEncoderInitBlock(nn.Module):
             in_channels=mid_channels,
             out_channels=out_channels,
             stride=2,
-            dw_use_bn=False,
             dw_normalization=None,
             pw_normalization=normalization,
             dw_activation=None,
@@ -745,10 +680,8 @@ class SBEncoder(nn.Module):
         Scale factor for each residual block.
     use_residual_list : list(list(int))
         List of flags for using residual in each residual block.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
@@ -759,8 +692,7 @@ class SBEncoder(nn.Module):
                  kernel_sizes_list,
                  scale_factors_list,
                  use_residual_list,
-                 bn_eps,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(SBEncoder, self).__init__()
         self.init_block = SBEncoderInitBlock(
             in_channels=in_channels,
@@ -777,7 +709,6 @@ class SBEncoder(nn.Module):
             scale_factors_list=scale_factors_list[0],
             use_residual_list=use_residual_list[0],
             se_reduction=1,
-            bn_eps=bn_eps,
             normalization=normalization)
 
         in_channels = down_channels_list[0] + channels_list[0][-1]
@@ -789,7 +720,6 @@ class SBEncoder(nn.Module):
             scale_factors_list=scale_factors_list[1],
             use_residual_list=use_residual_list[1],
             se_reduction=2,
-            bn_eps=bn_eps,
             normalization=normalization)
 
         in_channels = down_channels_list[1] + channels_list[1][-1]
@@ -813,19 +743,22 @@ class SBDecodeBlock(nn.Module):
     ----------
     channels : int
         Number of output classes.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  channels,
-                 bn_eps):
+                 normalization: Callable[..., nn.Module]):
         super(SBDecodeBlock, self).__init__()
         self.up = InterpolationBlock(
             scale_factor=2,
             align_corners=False)
-        self.bn = nn.BatchNorm2d(
-            num_features=channels,
-            eps=bn_eps)
+        # self.bn = nn.BatchNorm2d(
+        #     num_features=channels,
+        #     eps=bn_eps)
+        self.bn = create_normalization_layer(
+            normalization=normalization,
+            num_features=channels)
         self.conf = nn.Softmax2d()
 
     def forward(self, x, y):
@@ -847,23 +780,20 @@ class SBDecoder(nn.Module):
         Size of dimension #2.
     num_classes : int
         Number of segmentation classes.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  dim2,
                  num_classes,
-                 bn_eps,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(SBDecoder, self).__init__()
         self.decode1 = SBDecodeBlock(
             channels=num_classes,
-            bn_eps=bn_eps)
+            normalization=normalization)
         self.decode2 = SBDecodeBlock(
             channels=num_classes,
-            bn_eps=bn_eps)
+            normalization=normalization)
         self.conv3c = conv1x1_block(
             in_channels=dim2,
             out_channels=num_classes,
@@ -953,13 +883,11 @@ class SINet(nn.Module):
             kernel_sizes_list=kernel_sizes_list,
             scale_factors_list=scale_factors_list,
             use_residual_list=use_residual_list,
-            bn_eps=bn_eps,
             normalization=normalization)
 
         self.decoder = SBDecoder(
             dim2=dim2,
             num_classes=num_classes,
-            bn_eps=bn_eps,
             normalization=normalization)
 
         self._init_params()

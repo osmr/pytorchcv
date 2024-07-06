@@ -7,7 +7,9 @@ __all__ = ['LFFD', 'lffd20x5s320v2_widerface', 'lffd25x8s560v1_widerface']
 
 import os
 import torch.nn as nn
-from .common import conv3x3, conv1x1_block, conv3x3_block, Concurrent, MultiOutputSequential, ParallelConcurent
+from typing import Callable
+from .common import (lambda_batchnorm2d, conv3x3, conv1x1_block, conv3x3_block, Concurrent, MultiOutputSequential,
+                     ParallelConcurent)
 from .resnet import ResUnit
 from .preresnet import PreResUnit
 
@@ -24,25 +26,25 @@ class LffdDetectionBranch(nn.Module):
         Number of output channels.
     bias : bool
         Whether the layer uses a bias vector.
-    use_bn : bool
-        Whether to use BatchNorm layer.
+    normalization : function or None
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
                  bias,
-                 use_bn):
+                 normalization: Callable[..., nn.Module | None] | None):
         super(LffdDetectionBranch, self).__init__()
         self.conv1 = conv1x1_block(
             in_channels=in_channels,
             out_channels=in_channels,
             bias=bias,
-            use_bn=use_bn)
+            normalization=normalization)
         self.conv2 = conv1x1_block(
             in_channels=in_channels,
             out_channels=out_channels,
             bias=bias,
-            use_bn=use_bn,
+            normalization=normalization,
             activation=None)
 
     def forward(self, x):
@@ -63,31 +65,31 @@ class LffdDetectionBlock(nn.Module):
         Number of middle channels.
     bias : bool
         Whether the layer uses a bias vector.
-    use_bn : bool
-        Whether to use BatchNorm layer.
+    normalization : function or None
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
                  mid_channels,
                  bias,
-                 use_bn):
+                 normalization: Callable[..., nn.Module | None] | None):
         super(LffdDetectionBlock, self).__init__()
         self.conv = conv1x1_block(
             in_channels=in_channels,
             out_channels=mid_channels,
             bias=bias,
-            use_bn=use_bn)
+            normalization=normalization)
         self.branches = Concurrent()
         self.branches.add_module("bbox_branch", LffdDetectionBranch(
             in_channels=mid_channels,
             out_channels=4,
             bias=bias,
-            use_bn=use_bn))
+            normalization=normalization))
         self.branches.add_module("score_branch", LffdDetectionBranch(
             in_channels=mid_channels,
             out_channels=2,
             bias=bias,
-            use_bn=use_bn))
+            normalization=normalization))
 
     def forward(self, x):
         x = self.conv(x)
@@ -132,6 +134,7 @@ class LFFD(nn.Module):
         unit_class = PreResUnit if use_preresnet else ResUnit
         bias = True
         use_bn = False
+        normalization = lambda_batchnorm2d() if use_bn else None
 
         self.encoder = MultiOutputSequential(return_last=False)
         self.encoder.add_module("init_block", conv3x3_block(
@@ -140,7 +143,7 @@ class LFFD(nn.Module):
             stride=2,
             padding=0,
             bias=bias,
-            use_bn=use_bn))
+            normalization=normalization))
         in_channels = init_block_channels
         for i, channels_per_stage in enumerate(enc_channels):
             layers_per_stage = layers[i]
@@ -158,7 +161,7 @@ class LFFD(nn.Module):
                     out_channels=channels_per_stage,
                     stride=1,
                     bias=bias,
-                    use_bn=use_bn,
+                    normalization=normalization,
                     bottleneck=False)
                 if layers_per_stage - j <= int_bends_per_stage:
                     unit.do_output = True
@@ -181,13 +184,13 @@ class LFFD(nn.Module):
                         in_channels=channels_per_stage,
                         mid_channels=dec_channels,
                         bias=bias,
-                        use_bn=use_bn))
+                        normalization=normalization))
                     k += 1
             self.decoder.add_module("unit{}".format(k + 1), LffdDetectionBlock(
                 in_channels=channels_per_stage,
                 mid_channels=dec_channels,
                 bias=bias,
-                use_bn=use_bn))
+                normalization=normalization))
             k += 1
 
         self._init_params()

@@ -27,18 +27,15 @@ class ResNeStABlock(nn.Module):
         Strides of the convolution.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    # use_bn : bool, default True
-    #     Whether to use BatchNorm layer.
     normalization : function or None, default lambda_batchnorm2d()
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
                  stride,
                  bias=False,
-                 # use_bn=True,
-                 normalization: Callable | None = lambda_batchnorm2d()):
+                 normalization: Callable[..., nn.Module | None] | None = lambda_batchnorm2d()):
         super(ResNeStABlock, self).__init__()
         self.resize = (stride > 1)
 
@@ -46,7 +43,6 @@ class ResNeStABlock(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             bias=bias,
-            # use_bn=use_bn,
             normalization=normalization)
         if self.resize:
             self.pool = nn.AvgPool2d(

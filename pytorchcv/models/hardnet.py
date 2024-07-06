@@ -9,7 +9,7 @@ import os
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common import lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv_block
+from .common import lambda_relu, lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv_block
 
 
 class InvDwsConvBlock(nn.Module):
@@ -32,15 +32,13 @@ class InvDwsConvBlock(nn.Module):
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    pw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
+    pw_normalization : function or nn.Module or None, default lambda_batchnorm2d()
         Normalization function/module for the pointwise convolution block.
-    dw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
+    dw_normalization : function or nn.Module or None, default lambda_batchnorm2d()
         Normalization function/module for the depthwise convolution block.
-    pw_activation : function or str or None, default nn.ReLU(inplace=True)
+    pw_activation : function or nn.Module or str or None, default lambda_relu()
         Activation function after the pointwise convolution block.
-    dw_activation : function or str or None, default nn.ReLU(inplace=True)
+    dw_activation : function or nn.Module or str or None, default lambda_relu()
         Activation function after the depthwise convolution block.
     """
     def __init__(self,
@@ -51,19 +49,15 @@ class InvDwsConvBlock(nn.Module):
                  padding,
                  dilation=1,
                  bias=False,
-                 use_bn=True,
-                 pw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                 dw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                 pw_activation=(lambda: nn.ReLU(inplace=True)),
-                 dw_activation=(lambda: nn.ReLU(inplace=True))):
+                 pw_normalization: Callable[..., nn.Module | None] | nn.Module | None = lambda_batchnorm2d(),
+                 dw_normalization: Callable[..., nn.Module | None] | nn.Module | None = lambda_batchnorm2d(),
+                 pw_activation: Callable[..., nn.Module | None] | nn.Module | str | None = lambda_relu(),
+                 dw_activation: Callable[..., nn.Module | None] | nn.Module | str | None = lambda_relu()):
         super(InvDwsConvBlock, self).__init__()
-        assert (use_bn == (pw_normalization is not None))
-        assert (use_bn == (dw_normalization is not None))
         self.pw_conv = conv1x1_block(
             in_channels=in_channels,
             out_channels=out_channels,
             bias=bias,
-            # use_bn=use_bn,
             normalization=pw_normalization,
             activation=pw_activation)
         self.dw_conv = dwconv_block(
@@ -74,7 +68,6 @@ class InvDwsConvBlock(nn.Module):
             padding=padding,
             dilation=dilation,
             bias=bias,
-            # use_bn=use_bn,
             normalization=dw_normalization,
             activation=dw_activation)
 
@@ -84,16 +77,10 @@ class InvDwsConvBlock(nn.Module):
         return x
 
 
-def invdwsconv3x3_block(in_channels,
-                        out_channels,
-                        stride=1,
+def invdwsconv3x3_block(stride=1,
                         padding=1,
                         dilation=1,
-                        bias=False,
-                        pw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                        dw_normalization: Callable | nn.Module | None = lambda_batchnorm2d(eps=1e-5),
-                        pw_activation=(lambda: nn.ReLU(inplace=True)),
-                        dw_activation=(lambda: nn.ReLU(inplace=True))):
+                        **kwargs):
     """
     3x3 inverse depthwise separable version of the standard convolution block.
 
@@ -111,27 +98,21 @@ def invdwsconv3x3_block(in_channels,
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    pw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
+    pw_normalization : function or nn.Module or None, default lambda_batchnorm2d()
         Normalization function/module for the pointwise convolution block.
-    dw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
+    dw_normalization : function or nn.Module or None, default lambda_batchnorm2d()
         Normalization function/module for the depthwise convolution block.
-    pw_activation : function or str or None, default nn.ReLU(inplace=True)
+    pw_activation : function or nn.Module or str or None, default lambda_relu()
         Activation function after the pointwise convolution block.
-    dw_activation : function or str or None, default nn.ReLU(inplace=True)
+    dw_activation : function or nn.Module or str or None, default lambda_relu()
         Activation function after the depthwise convolution block.
     """
     return InvDwsConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=3,
         stride=stride,
         padding=padding,
         dilation=dilation,
-        bias=bias,
-        pw_normalization=pw_normalization,
-        dw_normalization=dw_normalization,
-        pw_activation=pw_activation,
-        dw_activation=dw_activation)
+        **kwargs)
 
 
 class HarDUnit(nn.Module):

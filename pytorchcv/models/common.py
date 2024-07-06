@@ -2,16 +2,17 @@
     Common routines for models in PyTorch.
 """
 
-__all__ = ['round_channels', 'Identity', 'BreakBlock', 'Swish', 'HSigmoid', 'HSwish', 'create_activation_layer',
-           'lambda_relu', 'lambda_prelu', 'lambda_batchnorm1d', 'lambda_batchnorm2d', 'SelectableDense', 'DenseBlock',
-           'ConvBlock1d', 'conv1x1', 'conv3x3', 'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block',
-           'conv5x5_block', 'conv7x7_block', 'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block', 'dwsconv3x3_block',
-           'PreConvBlock', 'pre_conv1x1_block', 'pre_conv3x3_block', 'AsymConvBlock', 'asym_conv3x3_block',
-           'DeconvBlock', 'deconv3x3_block', 'NormActivation', 'InterpolationBlock', 'ChannelShuffle',
-           'ChannelShuffle2', 'SEBlock', 'SABlock', 'SAConvBlock', 'saconv3x3_block', 'DucBlock', 'IBN',
-           'DualPathSequential', 'Concurrent', 'SequentialConcurrent', 'ParametricSequential', 'ParametricConcurrent',
-           'Hourglass', 'SesquialteralHourglass', 'MultiOutputSequential', 'ParallelConcurent',
-           'DualPathParallelConcurent', 'Flatten', 'HeatmapMaxDetBlock']
+__all__ = ['round_channels', 'Identity', 'BreakBlock', 'Swish', 'HSigmoid', 'HSwish', 'lambda_relu', 'lambda_prelu',
+           'lambda_sigmoid', 'lambda_swish', 'lambda_batchnorm1d', 'lambda_batchnorm2d', 'create_activation_layer',
+           'create_normalization_layer', 'SelectableDense', 'DenseBlock', 'ConvBlock1d', 'conv1x1', 'conv3x3',
+           'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block', 'conv5x5_block', 'conv7x7_block',
+           'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block', 'dwsconv3x3_block', 'PreConvBlock',
+           'pre_conv1x1_block', 'pre_conv3x3_block', 'AsymConvBlock', 'asym_conv3x3_block', 'DeconvBlock',
+           'deconv3x3_block', 'NormActivation', 'InterpolationBlock', 'ChannelShuffle', 'ChannelShuffle2', 'SEBlock',
+           'SABlock', 'SAConvBlock', 'saconv3x3_block', 'DucBlock', 'IBN', 'DualPathSequential', 'Concurrent',
+           'SequentialConcurrent', 'ParametricSequential', 'ParametricConcurrent', 'Hourglass',
+           'SesquialteralHourglass', 'MultiOutputSequential', 'ParallelConcurent', 'DualPathParallelConcurent',
+           'Flatten', 'HeatmapMaxDetBlock']
 
 import math
 from inspect import isfunction
@@ -156,6 +157,23 @@ def lambda_sigmoid() -> Callable[[], nn.Module]:
         Desired function.
     """
     return lambda: nn.Sigmoid()
+
+
+def lambda_swish() -> Callable[[], nn.Module]:
+    """
+    Create lambda-function generator for Swish activation layer.
+
+    Parameters
+    ----------
+    inplace : bool, default true
+        Whether to do the operation in-place.
+
+    Returns
+    -------
+    function
+        Desired function.
+    """
+    return lambda: Swish()
 
 
 def lambda_batchnorm1d(eps: float = 1e-5) -> Callable[[int], nn.Module]:
@@ -1630,9 +1648,9 @@ class SEBlock(nn.Module):
         Whether to round middle channel number (make divisible by 8).
     use_conv : bool, default True
         Whether to convolutional layers instead of fully-connected ones.
-    mid_activation : function or str or nn.Module, default lambda_relu()
+    mid_activation : function or nn.Module or str, default lambda_relu()
         Activation function after the first convolution.
-    out_activation : function or str or nn.Module, default lambda_sigmoid()
+    out_activation : function or nn.Module or str, default lambda_sigmoid()
         Activation function after the last convolution.
     """
     def __init__(self,
@@ -1641,8 +1659,8 @@ class SEBlock(nn.Module):
                  mid_channels: int | None = None,
                  round_mid: bool = False,
                  use_conv: bool = True,
-                 mid_activation: Callable | nn.Module | str = lambda_relu(),
-                 out_activation: Callable | nn.Module | str = lambda_sigmoid()):
+                 mid_activation: Callable[..., nn.Module] | nn.Module | str = lambda_relu(),
+                 out_activation: Callable[..., nn.Module] | nn.Module | str = lambda_sigmoid()):
         super(SEBlock, self).__init__()
         self.use_conv = use_conv
         if mid_channels is None:
@@ -1702,7 +1720,7 @@ class SABlock(nn.Module):
         Minimal number of squeezed channels.
     use_conv : bool, default True
         Whether to convolutional layers instead of fully-connected ones.
-    normalization : function or nn.Module or None, default lambda_batchnorm2d()
+    normalization : function or nn.Module, default lambda_batchnorm2d()
         Lambda-function generator or module for normalization layer.
     """
     def __init__(self,
@@ -1712,7 +1730,7 @@ class SABlock(nn.Module):
                  reduction: int = 4,
                  min_channels: int = 32,
                  use_conv: bool = True,
-                 normalization: Callable | nn.Module | None = lambda_batchnorm2d()):
+                 normalization: Callable[..., nn.Module] | nn.Module = lambda_batchnorm2d()):
         super(SABlock, self).__init__()
         self.groups = groups
         self.radix = radix

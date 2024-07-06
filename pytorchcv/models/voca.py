@@ -49,7 +49,7 @@ class VocaEncoder(nn.Module):
                 stride=(2, 1),
                 padding=(1, 0),
                 bias=True,
-                use_bn=False))
+                normalization=None))
             in_channels = out_channels
 
         in_channels += base_persons

@@ -8,7 +8,9 @@ __all__ = ['MixNet', 'mixnet_s', 'mixnet_m', 'mixnet_l']
 import os
 import torch
 import torch.nn as nn
-from .common import round_channels, create_activation_layer, conv1x1_block, conv3x3_block, dwconv3x3_block, SEBlock
+from typing import Callable
+from .common import (round_channels, lambda_relu, lambda_swish, lambda_batchnorm2d, create_activation_layer,
+                     create_normalization_layer, conv1x1_block, conv3x3_block, dwconv3x3_block, SEBlock)
 
 
 class MixConv(nn.Module):
@@ -104,14 +106,10 @@ class MixConvBlock(nn.Module):
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
-    activate : bool, default True
-        Whether activate the convolution block.
+    normalization : function, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  in_channels,
@@ -122,12 +120,11 @@ class MixConvBlock(nn.Module):
                  dilation=1,
                  groups=1,
                  bias=False,
-                 use_bn=True,
-                 bn_eps=1e-5,
-                 activation=(lambda: nn.ReLU(inplace=True))):
+                 normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
+                 activation: Callable[..., nn.Module] = lambda_relu()):
         super(MixConvBlock, self).__init__()
+        self.normalize = (normalization is not None)
         self.activate = (activation is not None)
-        self.use_bn = use_bn
 
         self.conv = MixConv(
             in_channels=in_channels,
@@ -138,31 +135,31 @@ class MixConvBlock(nn.Module):
             dilation=dilation,
             groups=groups,
             bias=bias)
-        if self.use_bn:
-            self.bn = nn.BatchNorm2d(
-                num_features=out_channels,
-                eps=bn_eps)
+        if self.normalize:
+            # self.bn = nn.BatchNorm2d(
+            #     num_features=out_channels,
+            #     eps=bn_eps)
+            self.bn = create_normalization_layer(
+                normalization=normalization,
+                num_features=out_channels)
+            assert isinstance(self.bn, nn.Module)
         if self.activate:
             self.activ = create_activation_layer(activation)
 
     def forward(self, x):
         x = self.conv(x)
-        if self.use_bn:
+        if self.normalize:
             x = self.bn(x)
         if self.activate:
             x = self.activ(x)
         return x
 
 
-def mixconv1x1_block(in_channels,
-                     out_channels,
-                     kernel_count,
+def mixconv1x1_block(kernel_count,
                      stride=1,
                      groups=1,
                      bias=False,
-                     use_bn=True,
-                     bn_eps=1e-5,
-                     activation=(lambda: nn.ReLU(inplace=True))):
+                     **kwargs):
     """
     1x1 version of the mixed convolution block.
 
@@ -180,24 +177,18 @@ def mixconv1x1_block(in_channels,
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
-    activation : function or str, or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    normalization : function, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer.
     """
     return MixConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=([1] * kernel_count),
         stride=stride,
         padding=([0] * kernel_count),
         groups=groups,
         bias=bias,
-        use_bn=use_bn,
-        bn_eps=bn_eps,
-        activation=activation)
+        **kwargs)
 
 
 class MixUnit(nn.Module):
@@ -224,8 +215,8 @@ class MixUnit(nn.Module):
         Expansion factor for each unit.
     se_factor : int
         SE reduction factor for each unit.
-    activation : str
-        Activation function or name of activation function.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  in_channels,
@@ -236,7 +227,7 @@ class MixUnit(nn.Module):
                  conv2_kernel_count,
                  exp_factor,
                  se_factor,
-                 activation):
+                 activation: Callable[..., nn.Module]):
         super(MixUnit, self).__init__()
         assert (exp_factor >= 1)
         assert (se_factor >= 0)
@@ -332,7 +323,7 @@ class MixInitBlock(nn.Module):
             conv2_kernel_count=1,
             exp_factor=1,
             se_factor=0,
-            activation="relu")
+            activation=lambda_relu())
 
     def forward(self, x):
         x = self.conv1(x)
@@ -399,7 +390,7 @@ class MixNet(nn.Module):
                 conv2_kernel_count = conv2_kernel_counts[i][j]
                 exp_factor = exp_factors[i][j]
                 se_factor = se_factors[i][j]
-                activation = "relu" if i == 0 else "swish"
+                activation = lambda_relu() if i == 0 else lambda_swish()
                 stage.add_module("unit{}".format(j + 1), MixUnit(
                     in_channels=in_channels,
                     out_channels=out_channels,

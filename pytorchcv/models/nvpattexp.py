@@ -77,7 +77,6 @@ class NvpAttExpEncoder(nn.Module):
                 stride=1,
                 padding=1,
                 bias=True,
-                # use_bn=False,
                 normalization=None,
                 activation=(lambda: nn.LeakyReLU(negative_slope=att_conv_slopes, inplace=True))))
             in_channels = out_channels

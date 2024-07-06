@@ -24,9 +24,9 @@ class DarkUnit(nn.Module):
         Slope coefficient for Leaky ReLU activation.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 alpha):
+                 in_channels: int,
+                 out_channels: int,
+                 alpha: float):
         super(DarkUnit, self).__init__()
         assert (out_channels % 2 == 0)
         mid_channels = out_channels // 2
@@ -71,9 +71,9 @@ class DarkNet53(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
-                 alpha=0.1,
+                 channels: list[list[int]],
+                 init_block_channels: int,
+                 alpha: float = 0.1,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):

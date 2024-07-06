@@ -10,8 +10,8 @@ import os
 import torch
 from torch import nn
 from typing import Callable
-from .common import (create_activation_layer, lambda_batchnorm2d, conv1x1_block, conv3x3_block, conv7x7_block, SEBlock,
-                     Hourglass, InterpolationBlock)
+from .common import (lambda_relu, lambda_batchnorm2d, create_activation_layer, conv1x1_block, conv3x3_block,
+                     conv7x7_block, SEBlock, Hourglass, InterpolationBlock)
 
 
 class IbpResBottleneck(nn.Module):
@@ -30,8 +30,8 @@ class IbpResBottleneck(nn.Module):
         Whether the layer uses a bias vector.
     bottleneck_factor : int, default 2
         Bottleneck factor.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  in_channels,
@@ -39,7 +39,7 @@ class IbpResBottleneck(nn.Module):
                  stride,
                  bias=False,
                  bottleneck_factor=2,
-                 activation=(lambda: nn.ReLU(inplace=True))):
+                 activation: Callable[..., nn.Module] = lambda_relu()):
         super(IbpResBottleneck, self).__init__()
         mid_channels = out_channels // bottleneck_factor
 
@@ -83,8 +83,8 @@ class IbpResUnit(nn.Module):
         Whether the layer uses a bias vector.
     bottleneck_factor : int, default 2
         Bottleneck factor.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  in_channels,
@@ -92,7 +92,7 @@ class IbpResUnit(nn.Module):
                  stride=1,
                  bias=False,
                  bottleneck_factor=2,
-                 activation=(lambda: nn.ReLU(inplace=True))):
+                 activation: Callable[..., nn.Module] = lambda_relu()):
         super(IbpResUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -133,13 +133,13 @@ class IbpBackbone(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    activation : function or str or None
-        Activation function or name of activation function.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
-                 activation):
+                 activation: Callable[..., nn.Module]):
         super(IbpBackbone, self).__init__()
         dilations = (3, 3, 4, 4, 5, 5)
         mid1_channels = out_channels // 4
@@ -190,13 +190,13 @@ class IbpDownBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    activation : function or str or None
-        Activation function or name of activation function.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
-                 activation):
+                 activation: Callable[..., nn.Module]):
         super(IbpDownBlock, self).__init__()
         self.down = nn.MaxPool2d(
             kernel_size=2,
@@ -225,16 +225,16 @@ class IbpUpBlock(nn.Module):
     bias : bool
         Whether some layers use a bias vector.
     normalization : function or None
-        Normalization function.
-    activation : function or str or None
-        Activation function or name of activation function.
+        Lambda-function generator for normalization layer.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
                  bias,
-                 normalization: Callable | None,
-                 activation):
+                 normalization: Callable[..., nn.Module] | None,
+                 activation: Callable[..., nn.Module]):
         super(IbpUpBlock, self).__init__()
         self.res = IbpResUnit(
             in_channels=in_channels,
@@ -271,13 +271,13 @@ class MergeBlock(nn.Module):
     bias : bool
         Whether some layers use a bias vector.
     normalization : function or None
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
                  bias,
-                 normalization: Callable | None):
+                 normalization: Callable[..., nn.Module] | None):
         super(MergeBlock, self).__init__()
         self.conv = conv1x1_block(
             in_channels=in_channels,
@@ -301,15 +301,15 @@ class IbpPreBlock(nn.Module):
     bias : bool
         Whether some layers use a bias vector.
     normalization : function or None
-        Normalization function.
-    activation : function or str or None
-        Activation function or name of activation function.
+        Lambda-function generator for normalization layer.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  out_channels,
                  bias,
-                 normalization: Callable | None,
-                 activation):
+                 normalization: Callable[..., nn.Module] | None,
+                 activation: Callable[..., nn.Module]):
         super(IbpPreBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=out_channels,
@@ -352,9 +352,9 @@ class IbpPass(nn.Module):
     bias : bool
         Whether some layers use a bias vector.
     normalization : function or None
-        Normalization function.
-    activation : function or str or None
-        Activation function or name of activation function.
+        Lambda-function generator for normalization layer.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  channels,
@@ -363,8 +363,8 @@ class IbpPass(nn.Module):
                  growth_rate,
                  merge,
                  bias,
-                 normalization: Callable | None,
-                 activation):
+                 normalization: Callable[..., nn.Module] | None,
+                 activation: Callable[..., nn.Module]):
         super(IbpPass, self).__init__()
         self.merge = merge
 

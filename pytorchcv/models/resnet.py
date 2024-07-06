@@ -28,31 +28,26 @@ class ResBlock(nn.Module):
         Strides of the convolution.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    # use_bn : bool, default True
-    #     Whether to use BatchNorm layer.
     normalization : function or None, default lambda_batchnorm2d()
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
                  stride: int | tuple[int, int],
                  bias: bool = False,
-                 # use_bn: bool = True,
-                 normalization: Callable | None = lambda_batchnorm2d()):
+                 normalization: Callable[..., nn.Module | None] | None = lambda_batchnorm2d()):
         super(ResBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
             out_channels=out_channels,
             stride=stride,
             bias=bias,
-            # use_bn=use_bn,
             normalization=normalization)
         self.conv2 = conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
             bias=bias,
-            # use_bn=use_bn,
             normalization=normalization,
             activation=None)
 
@@ -134,10 +129,8 @@ class ResUnit(nn.Module):
         Dilation value for the second convolution layer in bottleneck.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    # use_bn : bool, default True
-    #     Whether to use BatchNorm layer.
     normalization : function or None, default lambda_batchnorm2d()
-        Normalization function.
+        Lambda-function generator for normalization layer.
     bottleneck : bool, default True
         Whether to use a bottleneck or simple block in units.
     conv1_stride : bool, default False
@@ -150,8 +143,7 @@ class ResUnit(nn.Module):
                  padding: int | tuple[int, int] = 1,
                  dilation: int | tuple[int, int] = 1,
                  bias: bool = False,
-                 # use_bn: bool = True,
-                 normalization: Callable | None = lambda_batchnorm2d(),
+                 normalization: Callable[..., nn.Module | None] | None = lambda_batchnorm2d(),
                  bottleneck: bool = True,
                  conv1_stride: bool = False):
         super(ResUnit, self).__init__()
@@ -171,7 +163,6 @@ class ResUnit(nn.Module):
                 out_channels=out_channels,
                 stride=stride,
                 bias=bias,
-                # use_bn=use_bn,
                 normalization=normalization)
         if self.resize_identity:
             self.identity_conv = conv1x1_block(
@@ -179,7 +170,6 @@ class ResUnit(nn.Module):
                 out_channels=out_channels,
                 stride=stride,
                 bias=bias,
-                # use_bn=use_bn,
                 normalization=normalization,
                 activation=None)
         self.activ = nn.ReLU(inplace=True)

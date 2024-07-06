@@ -85,8 +85,6 @@ class EDABlock(nn.Module):
         self.conv1 = asym_conv3x3_block(
             channels=channels,
             bias=True,
-            # lw_use_bn=False,
-            # bn_eps=bn_eps,
             lw_normalization=None,
             rw_normalization=normalization,
             lw_activation=None)
@@ -95,8 +93,6 @@ class EDABlock(nn.Module):
             padding=dilation,
             dilation=dilation,
             bias=True,
-            # lw_use_bn=False,
-            # bn_eps=bn_eps,
             lw_normalization=None,
             rw_normalization=normalization,
             rw_activation=None)
