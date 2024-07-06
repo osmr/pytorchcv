@@ -1773,8 +1773,6 @@ class SAConvBlock(nn.Module):
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
     normalization : function or nn.Module or None, default lambda_batchnorm2d()
         Lambda-function generator or module for normalization layer.
     activation : function or nn.Module or str or None, default lambda_relu()
@@ -1797,7 +1795,6 @@ class SAConvBlock(nn.Module):
                  dilation: int | tuple[int, int] = 1,
                  groups: int = 1,
                  bias: bool = False,
-                 use_bn: bool = True,
                  normalization: Callable[..., nn.Module | None] | nn.Module | None = lambda_batchnorm2d(),
                  activation: Callable[..., nn.Module | None] | nn.Module | str | None = lambda_relu(),
                  radix: int = 2,
@@ -1805,7 +1802,6 @@ class SAConvBlock(nn.Module):
                  min_channels: int = 32,
                  use_conv: bool = True):
         super(SAConvBlock, self).__init__()
-        assert (use_bn == (normalization is not None))
         self.conv = ConvBlock(
             in_channels=in_channels,
             out_channels=(out_channels * radix),
@@ -1815,7 +1811,6 @@ class SAConvBlock(nn.Module):
             dilation=dilation,
             groups=(groups * radix),
             bias=bias,
-            # use_bn=use_bn,
             normalization=normalization,
             activation=activation)
         self.att = SABlock(

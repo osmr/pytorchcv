@@ -57,7 +57,6 @@ class ResNeStABlock(nn.Module):
             in_channels=out_channels,
             out_channels=out_channels,
             bias=bias,
-            # use_bn=use_bn,
             normalization=normalization,
             activation=None)
 
