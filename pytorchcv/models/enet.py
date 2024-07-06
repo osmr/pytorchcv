@@ -10,7 +10,9 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import lambda_batchnorm2d, conv3x3, ConvBlock, AsymConvBlock, DeconvBlock, NormActivation, conv1x1_block
+from typing import Callable
+from .common import (lambda_batchnorm2d, lambda_relu, lambda_prelu, conv3x3, ConvBlock, AsymConvBlock, DeconvBlock,
+                     NormActivation, conv1x1_block)
 
 
 class ENetMaxDownBlock(nn.Module):
@@ -309,10 +311,10 @@ class ENetMixDownBlock(nn.Module):
         Number of output channels.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    normalization : function
+        Lambda-function generator for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     correct_size_mistmatch : bool, default False
         Whether to correct downscaled sizes of images.
     """
@@ -320,8 +322,8 @@ class ENetMixDownBlock(nn.Module):
                  in_channels,
                  out_channels,
                  bias=False,
-                 bn_eps=1e-5,
-                 activation=(lambda: nn.ReLU(inplace=True)),
+                 normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
+                 activation: Callable[..., nn.Module] = lambda_relu(),
                  correct_size_mismatch=False):
         super(ENetMixDownBlock, self).__init__()
         self.correct_size_mismatch = correct_size_mismatch
@@ -336,7 +338,7 @@ class ENetMixDownBlock(nn.Module):
             bias=bias)
         self.norm_activ = NormActivation(
             in_channels=out_channels,
-            normalization=lambda_batchnorm2d(bn_eps),
+            normalization=normalization,
             activation=activation)
 
     def forward(self, x):
@@ -415,14 +417,15 @@ class ENet(nn.Module):
         self.num_classes = num_classes
         self.fixed_size = fixed_size
         bias = False
-        encoder_activation = (lambda: nn.PReLU(1))
-        decoder_activation = (lambda: nn.ReLU(inplace=True))
+        normalization = lambda_batchnorm2d(eps=bn_eps)
+        encoder_activation = lambda_prelu(num_parameters=1)
+        decoder_activation = lambda_relu()
 
         self.stem = ENetMixDownBlock(
             in_channels=in_channels,
             out_channels=init_block_channels,
             bias=bias,
-            bn_eps=bn_eps,
+            normalization=normalization,
             activation=encoder_activation,
             correct_size_mismatch=correct_size_mismatch)
         in_channels = init_block_channels

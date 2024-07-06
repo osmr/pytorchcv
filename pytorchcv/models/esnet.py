@@ -175,7 +175,7 @@ class ESNet(nn.Module):
                         in_channels=in_channels,
                         out_channels=out_channels,
                         bias=True,
-                        bn_eps=bn_eps,
+                        normalization=normalization,
                         correct_size_mismatch=correct_size_mismatch))
                     in_channels = out_channels
                 elif i != len(layers[0]) - 1:

@@ -11,7 +11,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import DualPathSequential, DualPathParallelConcurent
+from typing import Callable
+from .common import lambda_batchnorm1d, lambda_relu, DualPathSequential, DualPathParallelConcurent
 
 
 def outmask_fill(x, x_len, value=0.0):
@@ -475,12 +476,10 @@ class MaskConvBlock1d(nn.Module):
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    normalization : function, default lambda_batchnorm1d()
+        Lambda-function generator or module for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     dropout_rate : float, default 0.0
         Parameter of Dropout layer. Faction of the input units to drop.
     """
@@ -493,13 +492,12 @@ class MaskConvBlock1d(nn.Module):
                  dilation=1,
                  groups=1,
                  bias=False,
-                 use_bn=True,
-                 bn_eps=1e-5,
-                 activation=(lambda: nn.ReLU(inplace=True)),
+                 normalization: Callable[..., nn.Module] = lambda_batchnorm1d(),
+                 activation: Callable[..., nn.Module] = lambda_relu(),
                  dropout_rate=0.0):
         super(MaskConvBlock1d, self).__init__()
+        self.normalize = (normalization is not None)
         self.activate = (activation is not None)
-        self.use_bn = use_bn
         self.use_dropout = (dropout_rate != 0.0)
 
         self.conv = MaskConv1d(
@@ -511,10 +509,11 @@ class MaskConvBlock1d(nn.Module):
             dilation=dilation,
             groups=groups,
             bias=bias)
-        if self.use_bn:
-            self.bn = nn.BatchNorm1d(
-                num_features=out_channels,
-                eps=bn_eps)
+        if self.normalize:
+            # self.bn = nn.BatchNorm1d(
+            #     num_features=out_channels,
+            #     eps=bn_eps)
+            self.bn = normalization(num_features=out_channels)
         if self.activate:
             self.activ = activation()
         if self.use_dropout:
@@ -522,7 +521,7 @@ class MaskConvBlock1d(nn.Module):
 
     def forward(self, x, x_len):
         x, x_len = self.conv(x, x_len)
-        if self.use_bn:
+        if self.normalize:
             x = self.bn(x)
         if self.activate:
             x = self.activ(x)
@@ -615,12 +614,10 @@ class DwsConvBlock1d(nn.Module):
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    normalization : function, default lambda_batchnorm1d()
+        Lambda-function generator or module for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     dropout_rate : float, default 0.0
         Parameter of Dropout layer. Faction of the input units to drop.
     """
@@ -633,13 +630,12 @@ class DwsConvBlock1d(nn.Module):
                  dilation=1,
                  groups=1,
                  bias=False,
-                 use_bn=True,
-                 bn_eps=1e-5,
-                 activation=(lambda: nn.ReLU(inplace=True)),
+                 normalization: Callable[..., nn.Module] = lambda_batchnorm1d(),
+                 activation: Callable[..., nn.Module] = lambda_relu(),
                  dropout_rate=0.0):
         super(DwsConvBlock1d, self).__init__()
+        self.normalize = (normalization is not None)
         self.activate = (activation is not None)
-        self.use_bn = use_bn
         self.use_dropout = (dropout_rate != 0.0)
         self.use_channel_shuffle = (groups > 1)
 
@@ -661,10 +657,11 @@ class DwsConvBlock1d(nn.Module):
             self.shuffle = ChannelShuffle1d(
                 channels=out_channels,
                 groups=groups)
-        if self.use_bn:
-            self.bn = nn.BatchNorm1d(
-                num_features=out_channels,
-                eps=bn_eps)
+        if self.normalize:
+            # self.bn = nn.BatchNorm1d(
+            #     num_features=out_channels,
+            #     eps=bn_eps)
+            self.bn = normalization(num_features=out_channels)
         if self.activate:
             self.activ = activation()
         if self.use_dropout:
@@ -675,7 +672,7 @@ class DwsConvBlock1d(nn.Module):
         x, x_len = self.pw_conv(x, x_len)
         if self.use_channel_shuffle:
             x = self.shuffle(x)
-        if self.use_bn:
+        if self.normalize:
             x = self.bn(x)
         if self.activate:
             x = self.activ(x)
@@ -696,8 +693,8 @@ class JasperUnit(nn.Module):
         Number of output channels.
     kernel_size : int
         Convolution window size.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     dropout_rate : float
         Parameter of Dropout layer. Faction of the input units to drop.
     repeat : int
@@ -711,7 +708,7 @@ class JasperUnit(nn.Module):
                  in_channels,
                  out_channels,
                  kernel_size,
-                 bn_eps,
+                 normalization: Callable[..., nn.Module],
                  dropout_rate,
                  repeat,
                  use_dw,
@@ -727,7 +724,7 @@ class JasperUnit(nn.Module):
                 self.identity_block.add_module("block{}".format(i + 1), mask_conv1d1_block(
                     in_channels=dense_in_channels_i,
                     out_channels=out_channels,
-                    bn_eps=bn_eps,
+                    normalization=normalization,
                     dropout_rate=0.0,
                     activation=None))
             in_channels = in_channels[-1]
@@ -735,7 +732,7 @@ class JasperUnit(nn.Module):
             self.identity_block = mask_conv1d1_block(
                 in_channels=in_channels,
                 out_channels=out_channels,
-                bn_eps=bn_eps,
+                normalization=normalization,
                 dropout_rate=0.0,
                 activation=None)
 
@@ -749,7 +746,7 @@ class JasperUnit(nn.Module):
                 kernel_size=kernel_size,
                 stride=1,
                 padding=(kernel_size // 2),
-                bn_eps=bn_eps,
+                normalization=normalization,
                 dropout_rate=dropout_rate_i,
                 activation=activation))
             in_channels = out_channels
@@ -793,8 +790,8 @@ class JasperFinalBlock(nn.Module):
         Number of output channels for each block.
     kernel_sizes : list(int)
         Kernel sizes for each block.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     dropout_rates : list(int)
         Dropout rates for each block.
     use_dw : bool
@@ -806,7 +803,7 @@ class JasperFinalBlock(nn.Module):
                  in_channels,
                  channels,
                  kernel_sizes,
-                 bn_eps,
+                 normalization: Callable[..., nn.Module],
                  dropout_rates,
                  use_dw,
                  use_dr):
@@ -821,7 +818,7 @@ class JasperFinalBlock(nn.Module):
             stride=1,
             padding=(2 * kernel_sizes[-2] // 2 - 1),
             dilation=2,
-            bn_eps=bn_eps,
+            normalization=normalization,
             dropout_rate=dropout_rates[-2])
         self.conv2 = MaskConvBlock1d(
             in_channels=channels[-2],
@@ -829,7 +826,7 @@ class JasperFinalBlock(nn.Module):
             kernel_size=kernel_sizes[-1],
             stride=1,
             padding=(kernel_sizes[-1] // 2),
-            bn_eps=bn_eps,
+            normalization=normalization,
             dropout_rate=dropout_rates[-1])
 
     def forward(self, x, x_len):
@@ -894,6 +891,7 @@ class Jasper(nn.Module):
         self.vocabulary = vocabulary
         self.from_audio = from_audio
         self.return_text = return_text
+        normalization = lambda_batchnorm1d(eps=bn_eps)
 
         if self.from_audio:
             self.preprocessor = NemoMelSpecExtractor(dither=dither)
@@ -906,7 +904,7 @@ class Jasper(nn.Module):
             kernel_size=kernel_sizes[0],
             stride=2,
             padding=(kernel_sizes[0] // 2),
-            bn_eps=bn_eps,
+            normalization=normalization,
             dropout_rate=dropout_rates[0]))
         in_channels = channels[0]
         in_channels_list = []
@@ -917,7 +915,7 @@ class Jasper(nn.Module):
                 in_channels=(in_channels_list if use_dr else in_channels),
                 out_channels=out_channels,
                 kernel_size=kernel_size,
-                bn_eps=bn_eps,
+                normalization=normalization,
                 dropout_rate=dropout_rate,
                 repeat=repeat,
                 use_dw=use_dw,
@@ -927,7 +925,7 @@ class Jasper(nn.Module):
             in_channels=in_channels,
             channels=channels,
             kernel_sizes=kernel_sizes,
-            bn_eps=bn_eps,
+            normalization=normalization,
             dropout_rates=dropout_rates,
             use_dw=use_dw,
             use_dr=use_dr))

@@ -3,15 +3,15 @@
 """
 
 __all__ = ['round_channels', 'Identity', 'BreakBlock', 'Swish', 'HSigmoid', 'HSwish', 'create_activation_layer',
-           'lambda_relu', 'lambda_prelu', 'lambda_batchnorm2d', 'SelectableDense', 'DenseBlock', 'ConvBlock1d',
-           'conv1x1', 'conv3x3', 'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block', 'conv5x5_block',
-           'conv7x7_block', 'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block', 'dwsconv3x3_block', 'PreConvBlock',
-           'pre_conv1x1_block', 'pre_conv3x3_block', 'AsymConvBlock', 'asym_conv3x3_block', 'DeconvBlock',
-           'deconv3x3_block', 'NormActivation', 'InterpolationBlock', 'ChannelShuffle', 'ChannelShuffle2', 'SEBlock',
-           'SABlock', 'SAConvBlock', 'saconv3x3_block', 'DucBlock', 'IBN', 'DualPathSequential', 'Concurrent',
-           'SequentialConcurrent', 'ParametricSequential', 'ParametricConcurrent', 'Hourglass',
-           'SesquialteralHourglass', 'MultiOutputSequential', 'ParallelConcurent', 'DualPathParallelConcurent',
-           'Flatten', 'HeatmapMaxDetBlock']
+           'lambda_relu', 'lambda_prelu', 'lambda_batchnorm1d', 'lambda_batchnorm2d', 'SelectableDense', 'DenseBlock',
+           'ConvBlock1d', 'conv1x1', 'conv3x3', 'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block',
+           'conv5x5_block', 'conv7x7_block', 'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block', 'dwsconv3x3_block',
+           'PreConvBlock', 'pre_conv1x1_block', 'pre_conv3x3_block', 'AsymConvBlock', 'asym_conv3x3_block',
+           'DeconvBlock', 'deconv3x3_block', 'NormActivation', 'InterpolationBlock', 'ChannelShuffle',
+           'ChannelShuffle2', 'SEBlock', 'SABlock', 'SAConvBlock', 'saconv3x3_block', 'DucBlock', 'IBN',
+           'DualPathSequential', 'Concurrent', 'SequentialConcurrent', 'ParametricSequential', 'ParametricConcurrent',
+           'Hourglass', 'SesquialteralHourglass', 'MultiOutputSequential', 'ParallelConcurent',
+           'DualPathParallelConcurent', 'Flatten', 'HeatmapMaxDetBlock']
 
 import math
 from inspect import isfunction

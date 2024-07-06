@@ -143,7 +143,7 @@ class ERFNet(nn.Module):
                             in_channels=in_channels,
                             out_channels=out_channels,
                             bias=bias,
-                            bn_eps=bn_eps,
+                            normalization=normalization,
                             correct_size_mismatch=correct_size_mismatch)
                     else:
                         unit = deconv3x3_block(

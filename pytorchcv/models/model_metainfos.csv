@@ -734,3 +734,7 @@
 "sqnet_cityscapes",16262771,NA,NA,NA,"SQNet",NA,NA,NA,NA,NA,NA
 "cgnet_cityscapes",496306,NA,NA,NA,"CGNet","1811.08201",NA,NA,NA,NA,NA
 "edanet_cityscapes",689485,NA,NA,NA,"EDANet","1809.06323",NA,NA,NA,NA,NA
+"enet_cityscapes",358060,NA,NA,NA,"ENet","1606.02147",NA,NA,NA,NA,NA
+"lednet_cityscapes",922821,NA,NA,NA,"LEDNet","1905.02423",NA,NA,NA,NA,NA
+"octresnet10_ad2",5423016,NA,NA,NA,"Oct-ResNet-10 (alpha=1/2)","1904.05049",NA,NA,NA,NA,NA
+"octresnet50b_ad2",25557032,NA,NA,NA,"Oct-ResNet-50b (alpha=1/2)","1904.05049",NA,NA,NA,NA,NA

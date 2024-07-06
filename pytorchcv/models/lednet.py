@@ -9,8 +9,9 @@ __all__ = ['LEDNet', 'lednet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common import (conv1x1_block, conv3x3_block, conv5x5_block, conv7x7_block, asym_conv3x3_block, ChannelShuffle,
-                     InterpolationBlock, Hourglass, BreakBlock)
+from typing import Callable
+from .common import (lambda_batchnorm2d, conv1x1_block, conv3x3_block, conv5x5_block, conv7x7_block, asym_conv3x3_block,
+                     ChannelShuffle, InterpolationBlock, Hourglass, BreakBlock)
 from .enet import ENetMixDownBlock
 
 
@@ -26,29 +27,33 @@ class LEDBranch(nn.Module):
         Dilation value for convolution layer.
     dropout_rate : float
         Parameter of Dropout layer. Faction of the input units to drop.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  channels,
                  dilation,
                  dropout_rate,
-                 bn_eps):
+                 normalization: Callable[..., nn.Module]):
         super(LEDBranch, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
 
         self.conv1 = asym_conv3x3_block(
             channels=channels,
             bias=True,
-            lw_use_bn=False,
-            bn_eps=bn_eps)
+            # lw_use_bn=False,
+            # bn_eps=bn_eps,
+            lw_normalization=None,
+            rw_normalization=normalization)
         self.conv2 = asym_conv3x3_block(
             channels=channels,
             padding=dilation,
             dilation=dilation,
             bias=True,
-            lw_use_bn=False,
-            bn_eps=bn_eps,
+            # lw_use_bn=False,
+            # bn_eps=bn_eps,
+            lw_normalization=None,
+            rw_normalization=normalization,
             rw_activation=None)
         if self.use_dropout:
             self.dropout = nn.Dropout(p=dropout_rate)
@@ -73,14 +78,14 @@ class LEDUnit(nn.Module):
         Dilation value for convolution layer.
     dropout_rate : float
         Parameter of Dropout layer. Faction of the input units to drop.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  channels,
                  dilation,
                  dropout_rate,
-                 bn_eps):
+                 normalization: Callable[..., nn.Module]):
         super(LEDUnit, self).__init__()
         mid_channels = channels // 2
 
@@ -88,12 +93,12 @@ class LEDUnit(nn.Module):
             channels=mid_channels,
             dilation=dilation,
             dropout_rate=dropout_rate,
-            bn_eps=bn_eps)
+            normalization=normalization)
         self.right_branch = LEDBranch(
             channels=mid_channels,
             dilation=dilation,
             dropout_rate=dropout_rate,
-            bn_eps=bn_eps)
+            normalization=normalization)
         self.activ = nn.ReLU(inplace=True)
         self.shuffle = ChannelShuffle(
             channels=channels,
@@ -125,8 +130,8 @@ class PoolingBranch(nn.Module):
         Number of output channels.
     bias : bool
         Whether the layer uses a bias vector.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     in_size : tuple(int, int) or None
         Spatial size of input image.
     down_size : int
@@ -136,7 +141,7 @@ class PoolingBranch(nn.Module):
                  in_channels,
                  out_channels,
                  bias,
-                 bn_eps,
+                 normalization: Callable[..., nn.Module],
                  in_size,
                  down_size):
         super(PoolingBranch, self).__init__()
@@ -147,7 +152,7 @@ class PoolingBranch(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             bias=bias,
-            bn_eps=bn_eps)
+            normalization=normalization)
         self.up = InterpolationBlock(
             scale_factor=None,
             out_size=in_size)
@@ -170,15 +175,15 @@ class APN(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     in_size : tuple(int, int) or None
         Spatial size of input image.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
-                 bn_eps,
+                 normalization: Callable[..., nn.Module],
                  in_size):
         super(APN, self).__init__()
         self.in_size = in_size
@@ -188,7 +193,7 @@ class APN(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             bias=True,
-            bn_eps=bn_eps,
+            normalization=normalization,
             in_size=in_size,
             down_size=1)
 
@@ -196,7 +201,7 @@ class APN(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             bias=True,
-            bn_eps=bn_eps)
+            normalization=normalization)
 
         down_seq = nn.Sequential()
         down_seq.add_module("down1", conv7x7_block(
@@ -204,25 +209,25 @@ class APN(nn.Module):
             out_channels=att_out_channels,
             stride=2,
             bias=True,
-            bn_eps=bn_eps))
+            normalization=normalization))
         down_seq.add_module("down2", conv5x5_block(
             in_channels=att_out_channels,
             out_channels=att_out_channels,
             stride=2,
             bias=True,
-            bn_eps=bn_eps))
+            normalization=normalization))
         down3_subseq = nn.Sequential()
         down3_subseq.add_module("conv1", conv3x3_block(
             in_channels=att_out_channels,
             out_channels=att_out_channels,
             stride=2,
             bias=True,
-            bn_eps=bn_eps))
+            normalization=normalization))
         down3_subseq.add_module("conv2", conv3x3_block(
             in_channels=att_out_channels,
             out_channels=att_out_channels,
             bias=True,
-            bn_eps=bn_eps))
+            normalization=normalization))
         down_seq.add_module("down3", down3_subseq)
 
         up_seq = nn.Sequential()
@@ -237,12 +242,12 @@ class APN(nn.Module):
             in_channels=att_out_channels,
             out_channels=att_out_channels,
             bias=True,
-            bn_eps=bn_eps))
+            normalization=normalization))
         skip_seq.add_module("skip3", conv5x5_block(
             in_channels=att_out_channels,
             out_channels=att_out_channels,
             bias=True,
-            bn_eps=bn_eps))
+            normalization=normalization))
 
         self.hg = Hourglass(
             down_seq=down_seq,
@@ -304,6 +309,7 @@ class LEDNet(nn.Module):
         self.in_size = in_size
         self.num_classes = num_classes
         self.fixed_size = fixed_size
+        normalization = lambda_batchnorm2d(eps=bn_eps)
 
         self.encoder = nn.Sequential()
         for i, dilations_per_stage in enumerate(dilations):
@@ -316,7 +322,7 @@ class LEDNet(nn.Module):
                         in_channels=in_channels,
                         out_channels=out_channels,
                         bias=True,
-                        bn_eps=bn_eps,
+                        normalization=normalization,
                         correct_size_mismatch=correct_size_mismatch))
                     in_channels = out_channels
                 else:
@@ -324,12 +330,12 @@ class LEDNet(nn.Module):
                         channels=in_channels,
                         dilation=dilation,
                         dropout_rate=dropout_rate,
-                        bn_eps=bn_eps))
+                        normalization=normalization))
             self.encoder.add_module("stage{}".format(i + 1), stage)
         self.apn = APN(
             in_channels=in_channels,
             out_channels=num_classes,
-            bn_eps=bn_eps,
+            normalization=normalization,
             in_size=(in_size[0] // 8, in_size[1] // 8) if fixed_size else None)
         self.up = InterpolationBlock(
             scale_factor=8,

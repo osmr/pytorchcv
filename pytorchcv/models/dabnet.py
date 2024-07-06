@@ -10,8 +10,8 @@ import os
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common import (lambda_batchnorm2d, conv1x1, conv3x3, conv3x3_block, ConvBlock, NormActivation, Concurrent,
-                     InterpolationBlock, DualPathSequential)
+from .common import (lambda_batchnorm2d, lambda_relu, lambda_prelu, conv1x1, conv3x3, conv3x3_block, ConvBlock,
+                     NormActivation, Concurrent, InterpolationBlock, DualPathSequential)
 
 
 class DwaConvBlock(nn.Module):
@@ -32,10 +32,10 @@ class DwaConvBlock(nn.Module):
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    normalization : function or None, default lambda_batchnorm2d()
-        Normalization function.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    normalization : function, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     """
     def __init__(self,
                  channels,
@@ -44,8 +44,8 @@ class DwaConvBlock(nn.Module):
                  padding,
                  dilation=1,
                  bias=False,
-                 normalization: Callable | None = lambda_batchnorm2d(),
-                 activation=(lambda: nn.ReLU(inplace=True))):
+                 normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
+                 activation: Callable[..., nn.Module] = lambda_relu()):
         super(DwaConvBlock, self).__init__()
         self.conv1 = ConvBlock(
             in_channels=channels,
@@ -81,8 +81,8 @@ def dwa_conv3x3_block(channels,
                       padding=1,
                       dilation=1,
                       bias=False,
-                      normalization: Callable | None = lambda_batchnorm2d(),
-                      activation=(lambda: nn.ReLU(inplace=True))):
+                      normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
+                      activation: Callable[..., nn.Module] = lambda_relu()):
     """
     3x3 version of the depthwise asymmetric separable convolution block.
 
@@ -98,10 +98,10 @@ def dwa_conv3x3_block(channels,
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    normalization : function or None, default lambda_batchnorm2d()
-        Normalization function.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    normalization : function, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     """
     return DwaConvBlock(
         channels=channels,
@@ -124,48 +124,42 @@ class DABBlock(nn.Module):
         Number of input/output channels.
     dilation : int
         Dilation value for a dilated branch in the unit.
-    bn_eps : float
-        Small float added to variance in Batch norm.
-    normalization : function or None
-        Normalization function.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  channels,
                  dilation,
-                 bn_eps,
-                 normalization: Callable | None):
+                 normalization: Callable[..., nn.Module]):
         super(DABBlock, self).__init__()
         mid_channels = channels // 2
 
         self.norm_activ1 = NormActivation(
             in_channels=channels,
-            normalization=lambda_batchnorm2d(bn_eps),
-            activation=(lambda: nn.PReLU(channels)))
+            normalization=normalization,
+            activation=lambda_prelu(num_parameters=channels))
         self.conv1 = conv3x3_block(
             in_channels=channels,
             out_channels=mid_channels,
-            # bn_eps=bn_eps,
             normalization=normalization,
-            activation=(lambda: nn.PReLU(mid_channels)))
+            activation=lambda_prelu(num_parameters=mid_channels))
 
         self.branches = Concurrent(stack=True)
         self.branches.add_module("branches1", dwa_conv3x3_block(
             channels=mid_channels,
-            # bn_eps=bn_eps,
             normalization=normalization,
-            activation=(lambda: nn.PReLU(mid_channels))))
+            activation=lambda_prelu(num_parameters=mid_channels)))
         self.branches.add_module("branches2", dwa_conv3x3_block(
             channels=mid_channels,
             padding=dilation,
             dilation=dilation,
-            # bn_eps=bn_eps,
             normalization=normalization,
-            activation=(lambda: nn.PReLU(mid_channels))))
+            activation=lambda_prelu(num_parameters=mid_channels)))
 
         self.norm_activ2 = NormActivation(
             in_channels=mid_channels,
-            normalization=lambda_batchnorm2d(bn_eps),
-            activation=(lambda: nn.PReLU(mid_channels)))
+            normalization=normalization,
+            activation=lambda_prelu(num_parameters=mid_channels))
         self.conv2 = conv1x1(
             in_channels=mid_channels,
             out_channels=channels)
@@ -196,13 +190,13 @@ class DownBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
-                 bn_eps):
+                 normalization: Callable[..., nn.Module]):
         super(DownBlock, self).__init__()
         self.expand = (in_channels < out_channels)
         mid_channels = out_channels - in_channels if self.expand else out_channels
@@ -217,8 +211,8 @@ class DownBlock(nn.Module):
                 stride=2)
         self.norm_activ = NormActivation(
             in_channels=out_channels,
-            normalization=lambda_batchnorm2d(bn_eps),
-            activation=(lambda: nn.PReLU(out_channels)))
+            normalization=normalization,
+            activation=lambda_prelu(num_parameters=out_channels))
 
     def forward(self, x):
         y = self.conv(x)
@@ -243,30 +237,26 @@ class DABUnit(nn.Module):
         Number of output channels.
     dilations : list(int)
         Dilations for blocks.
-    bn_eps : float
-        Small float added to variance in Batch norm.
-    normalization : function or None
-        Normalization function.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
                  dilations,
-                 bn_eps,
-                 normalization: Callable | None):
+                 normalization: Callable[..., nn.Module]):
         super(DABUnit, self).__init__()
         mid_channels = out_channels // 2
 
         self.down = DownBlock(
             in_channels=in_channels,
             out_channels=mid_channels,
-            bn_eps=bn_eps)
+            normalization=normalization)
         self.blocks = nn.Sequential()
         for i, dilation in enumerate(dilations):
             self.blocks.add_module("block{}".format(i + 1), DABBlock(
                 channels=mid_channels,
                 dilation=dilation,
-                bn_eps=bn_eps,
                 normalization=normalization))
 
     def forward(self, x):
@@ -290,18 +280,15 @@ class DABStage(nn.Module):
         Number of output channels for y.
     dilations : list(int)
         Dilations for blocks.
-    bn_eps : float
-        Small float added to variance in Batch norm.
-    normalization : function or None
-        Normalization function.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  x_channels,
                  y_in_channels,
                  y_out_channels,
                  dilations,
-                 bn_eps,
-                 normalization: Callable | None):
+                 normalization: Callable[..., nn.Module]):
         super(DABStage, self).__init__()
         self.use_unit = (len(dilations) > 0)
 
@@ -315,13 +302,12 @@ class DABStage(nn.Module):
                 in_channels=y_in_channels,
                 out_channels=(y_out_channels - x_channels),
                 dilations=dilations,
-                bn_eps=bn_eps,
                 normalization=normalization)
 
         self.norm_activ = NormActivation(
             in_channels=y_out_channels,
-            normalization=lambda_batchnorm2d(bn_eps),
-            activation=(lambda: nn.PReLU(y_out_channels)))
+            normalization=normalization,
+            activation=lambda_prelu(num_parameters=y_out_channels))
 
     def forward(self, y, x):
         x = self.x_down(x)
@@ -344,34 +330,30 @@ class DABInitBlock(nn.Module):
         Number of output channels.
     bn_eps : float
         Small float added to variance in Batch norm.
-    normalization : function or None
-        Normalization function.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
-                 bn_eps,
-                 normalization: Callable | None):
+                 normalization: Callable[..., nn.Module]):
         super(DABInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
             out_channels=out_channels,
             stride=2,
-            # bn_eps=bn_eps,
             normalization=normalization,
-            activation=(lambda: nn.PReLU(out_channels)))
+            activation=lambda_prelu(num_parameters=out_channels))
         self.conv2 = conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
-            # bn_eps=bn_eps,
             normalization=normalization,
-            activation=(lambda: nn.PReLU(out_channels)))
+            activation=lambda_prelu(num_parameters=out_channels))
         self.conv3 = conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
-            # bn_eps=bn_eps,
             normalization=normalization,
-            activation=(lambda: nn.PReLU(out_channels)))
+            activation=lambda_prelu(num_parameters=out_channels))
 
     def forward(self, x):
         x = self.conv1(x)
@@ -432,7 +414,6 @@ class DABNet(nn.Module):
         self.features.add_module("init_block", DABInitBlock(
             in_channels=in_channels,
             out_channels=init_block_channels,
-            bn_eps=bn_eps,
             normalization=normalization))
         y_in_channels = init_block_channels
 
@@ -442,7 +423,6 @@ class DABNet(nn.Module):
                 y_in_channels=y_in_channels,
                 y_out_channels=y_out_channels,
                 dilations=dilations_i,
-                bn_eps=bn_eps,
                 normalization=normalization))
             y_in_channels = y_out_channels
 
