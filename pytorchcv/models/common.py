@@ -600,10 +600,13 @@ class ConvBlock(nn.Module):
                 self.normalize = False
             else:
                 assert isinstance(self.bn, nn.BatchNorm2d)
+                assert isinstance(self.bn, nn.Module)
         if self.activate:
             self.activ = create_activation_layer(activation)
             if self.activ is None:
                 self.activate = False
+            else:
+                assert isinstance(self.activ, nn.Module)
 
     def forward(self, x):
         if self.use_pad:
@@ -999,12 +1002,12 @@ class PreConvBlock(nn.Module):
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
+    normalization : function or nn.Module or None, default lambda_batchnorm2d()
+        Lambda-function generator or module for normalization layer.
+    activation : function or nn.Module or str or None, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     return_preact : bool, default False
         Whether return pre-activation. It's used by PreResNet.
-    activate : bool, default True
-        Whether activate the convolution block.
     """
     def __init__(self,
                  in_channels: int,
@@ -1014,18 +1017,31 @@ class PreConvBlock(nn.Module):
                  padding: int | tuple[int, int],
                  dilation: int | tuple[int, int] = 1,
                  bias: bool = False,
-                 use_bn: bool = True,
-                 return_preact: bool = False,
-                 activate: bool = True):
+                 normalization: Callable[..., nn.Module | None] | nn.Module | None = lambda_batchnorm2d(),
+                 activation: Callable[..., nn.Module | None] | nn.Module | str | None = lambda_relu(),
+                 return_preact: bool = False):
         super(PreConvBlock, self).__init__()
+        self.normalize = (normalization is not None)
+        self.activate = (activation is not None)
         self.return_preact = return_preact
-        self.activate = activate
-        self.use_bn = use_bn
 
-        if self.use_bn:
-            self.bn = nn.BatchNorm2d(num_features=in_channels)
+        if self.normalize:
+            # self.bn = nn.BatchNorm2d(num_features=in_channels)
+            self.bn = create_normalization_layer(
+                normalization=normalization,
+                num_features=in_channels)
+            if self.bn is None:
+                self.normalize = False
+            else:
+                assert isinstance(self.bn, nn.BatchNorm2d)
+                assert isinstance(self.bn, nn.Module)
         if self.activate:
-            self.activ = nn.ReLU(inplace=True)
+            # self.activ = nn.ReLU(inplace=True)
+            self.activ = create_activation_layer(activation)
+            if self.activ is None:
+                self.activate = False
+            else:
+                assert isinstance(self.activ, nn.Module)
         self.conv = nn.Conv2d(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -1036,7 +1052,7 @@ class PreConvBlock(nn.Module):
             bias=bias)
 
     def forward(self, x):
-        if self.use_bn:
+        if self.normalize:
             x = self.bn(x)
         if self.activate:
             x = self.activ(x)
@@ -1049,13 +1065,9 @@ class PreConvBlock(nn.Module):
             return x
 
 
-def pre_conv1x1_block(in_channels: int,
-                      out_channels: int,
-                      stride: int | tuple[int, int] = 1,
-                      bias: bool = False,
-                      use_bn: bool = True,
-                      return_preact: bool = False,
-                      activate: bool = True) -> nn.Module:
+def pre_conv1x1_block(stride: int | tuple[int, int] = 1,
+                      padding: int | tuple[int, int] = 0,
+                      **kwargs) -> nn.Module:
     """
     1x1 version of the pre-activated convolution block.
 
@@ -1067,14 +1079,18 @@ def pre_conv1x1_block(in_channels: int,
         Number of output channels.
     stride : int or tuple(int, int), default 1
         Strides of the convolution.
+    padding : int or tuple(int, int), default 0
+        Padding value for convolution layer.
+    dilation : int or tuple(int, int), default 1
+        Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
+    normalization : function or nn.Module or None, default lambda_batchnorm2d()
+        Lambda-function generator or module for normalization layer.
+    activation : function or nn.Module or str or None, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     return_preact : bool, default False
-        Whether return pre-activation.
-    activate : bool, default True
-        Whether activate the convolution block.
+        Whether return pre-activation. It's used by PreResNet.
 
     Returns
     -------
@@ -1082,26 +1098,15 @@ def pre_conv1x1_block(in_channels: int,
         Desired module.
     """
     return PreConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=1,
         stride=stride,
-        padding=0,
-        bias=bias,
-        use_bn=use_bn,
-        return_preact=return_preact,
-        activate=activate)
+        padding=padding,
+        **kwargs)
 
 
-def pre_conv3x3_block(in_channels: int,
-                      out_channels: int,
-                      stride: int | tuple[int, int] = 1,
+def pre_conv3x3_block(stride: int | tuple[int, int] = 1,
                       padding: int | tuple[int, int] = 1,
-                      dilation: int | tuple[int, int] = 1,
-                      bias: bool = False,
-                      use_bn: bool = True,
-                      return_preact: bool = False,
-                      activate: bool = True) -> nn.Module:
+                      **kwargs) -> nn.Module:
     """
     3x3 version of the pre-activated convolution block.
 
@@ -1119,12 +1124,12 @@ def pre_conv3x3_block(in_channels: int,
         Dilation value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
+    normalization : function or nn.Module or None, default lambda_batchnorm2d()
+        Lambda-function generator or module for normalization layer.
+    activation : function or nn.Module or str or None, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     return_preact : bool, default False
-        Whether return pre-activation.
-    activate : bool, default True
-        Whether activate the convolution block.
+        Whether return pre-activation. It's used by PreResNet.
 
     Returns
     -------
@@ -1132,16 +1137,10 @@ def pre_conv3x3_block(in_channels: int,
         Desired module.
     """
     return PreConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=3,
         stride=stride,
         padding=padding,
-        dilation=dilation,
-        bias=bias,
-        use_bn=use_bn,
-        return_preact=return_preact,
-        activate=activate)
+        **kwargs)
 
 
 class AsymConvBlock(nn.Module):
@@ -1162,9 +1161,6 @@ class AsymConvBlock(nn.Module):
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    lw_use_bn : bool, default True
-        Whether to use BatchNorm layer (leftwise convolution block).
-    rw_use_bn : bool, default True
         Whether to use BatchNorm layer (rightwise convolution block).
     lw_normalization : function or nn.Module or None, default lambda_batchnorm2d()
         Normalization function/module for the leftwise convolution block.
@@ -1233,10 +1229,6 @@ def asym_conv3x3_block(padding: int = 1,
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    lw_use_bn : bool, default True
-        Whether to use BatchNorm layer (leftwise convolution block).
-    rw_use_bn : bool, default True
-        Whether to use BatchNorm layer (rightwise convolution block).
     lw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
         Normalization function/module for the leftwise convolution block.
     rw_normalization : function or nn.Module or None, default lambda_batchnorm2d(eps=1e-5)
@@ -1841,9 +1833,7 @@ class SAConvBlock(nn.Module):
         return x
 
 
-def saconv3x3_block(in_channels: int,
-                    out_channels: int,
-                    stride: int | tuple[int, int] = 1,
+def saconv3x3_block(stride: int | tuple[int, int] = 1,
                     padding: int | tuple[int, int] = 1,
                     **kwargs) -> nn.Module:
     """
@@ -1866,8 +1856,6 @@ def saconv3x3_block(in_channels: int,
         Desired module.
     """
     return SAConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=3,
         stride=stride,
         padding=padding,

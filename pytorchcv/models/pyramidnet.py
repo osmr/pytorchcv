@@ -34,7 +34,7 @@ class PyrBlock(nn.Module):
             in_channels=in_channels,
             out_channels=out_channels,
             stride=stride,
-            activate=False)
+            activation=None)
         self.conv2 = pre_conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels)
@@ -68,7 +68,7 @@ class PyrBottleneck(nn.Module):
         self.conv1 = pre_conv1x1_block(
             in_channels=in_channels,
             out_channels=mid_channels,
-            activate=False)
+            activation=None)
         self.conv2 = pre_conv3x3_block(
             in_channels=mid_channels,
             out_channels=mid_channels,

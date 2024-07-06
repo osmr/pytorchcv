@@ -11,7 +11,8 @@ __all__ = ['PreResNet', 'preresnet10', 'preresnet12', 'preresnet14', 'preresnetb
 
 import os
 import torch.nn as nn
-from .common import pre_conv1x1_block, pre_conv3x3_block, conv1x1
+from typing import Callable
+from .common import lambda_batchnorm2d, pre_conv1x1_block, pre_conv3x3_block, conv1x1
 
 
 class PreResBlock(nn.Module):
@@ -28,28 +29,28 @@ class PreResBlock(nn.Module):
         Strides of the convolution.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
+    normalization : function or None, default lambda_batchnorm2d()
+        Normalization function.
     """
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
                  stride: int | tuple[int, int],
                  bias: bool = False,
-                 use_bn: bool = True):
+                 normalization: Callable | None = lambda_batchnorm2d()):
         super(PreResBlock, self).__init__()
         self.conv1 = pre_conv3x3_block(
             in_channels=in_channels,
             out_channels=out_channels,
             stride=stride,
             bias=bias,
-            use_bn=use_bn,
+            normalization=normalization,
             return_preact=True)
         self.conv2 = pre_conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
             bias=bias,
-            use_bn=use_bn)
+            normalization=normalization)
 
     def forward(self, x):
         x, x_pre_activ = self.conv1(x)
@@ -114,8 +115,8 @@ class PreResUnit(nn.Module):
         Strides of the convolution.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
+    normalization : function or None, default lambda_batchnorm2d()
+        Normalization function.
     bottleneck : bool, default True
         Whether to use a bottleneck or simple block in units.
     conv1_stride : bool, default False
@@ -126,7 +127,7 @@ class PreResUnit(nn.Module):
                  out_channels: int,
                  stride: int | tuple[int, int],
                  bias: bool = False,
-                 use_bn: bool = True,
+                 normalization: Callable | None = lambda_batchnorm2d(),
                  bottleneck: bool = True,
                  conv1_stride: bool = False):
         super(PreResUnit, self).__init__()
@@ -144,7 +145,7 @@ class PreResUnit(nn.Module):
                 out_channels=out_channels,
                 stride=stride,
                 bias=bias,
-                use_bn=use_bn)
+                normalization=normalization)
         if self.resize_identity:
             self.identity_conv = conv1x1(
                 in_channels=in_channels,
