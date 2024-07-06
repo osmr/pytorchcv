@@ -36,7 +36,6 @@ class FCU(nn.Module):
                  kernel_size,
                  dilation,
                  dropout_rate,
-                 # bn_eps,
                  normalization: Callable[..., nn.Module]):
         super(FCU, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
@@ -48,8 +47,6 @@ class FCU(nn.Module):
             kernel_size=kernel_size,
             padding=padding1,
             bias=True,
-            # lw_use_bn=False,
-            # bn_eps=bn_eps,
             lw_normalization=None,
             rw_normalization=normalization)
         self.conv2 = AsymConvBlock(
@@ -58,8 +55,6 @@ class FCU(nn.Module):
             padding=padding2,
             dilation=dilation,
             bias=True,
-            # lw_use_bn=False,
-            # bn_eps=bn_eps,
             lw_normalization=None,
             rw_normalization=normalization,
             rw_activation=None)
@@ -156,7 +151,6 @@ class ERFNet(nn.Module):
                             out_channels=out_channels,
                             stride=2,
                             bias=bias,
-                            bn_eps=bn_eps,
                             normalization=normalization)
                 else:
                     unit = FCU(

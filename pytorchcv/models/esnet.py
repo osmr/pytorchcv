@@ -37,7 +37,6 @@ class PFCUBranch(nn.Module):
                  kernel_size,
                  dilation,
                  dropout_rate,
-                 # bn_eps,
                  normalization: Callable[..., nn.Module]):
         super(PFCUBranch, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
@@ -48,8 +47,6 @@ class PFCUBranch(nn.Module):
             padding=dilation,
             dilation=dilation,
             bias=True,
-            # lw_use_bn=False,
-            # bn_eps=bn_eps,
             lw_normalization=None,
             rw_normalization=normalization,
             rw_activation=None)
@@ -82,7 +79,6 @@ class PFCU(nn.Module):
                  channels,
                  kernel_size,
                  dropout_rate,
-                 # bn_eps,
                  normalization: Callable[..., nn.Module]):
         super(PFCU, self).__init__()
         dilations = [2, 5, 9]
@@ -93,8 +89,6 @@ class PFCU(nn.Module):
             kernel_size=kernel_size,
             padding=padding,
             bias=True,
-            # lw_use_bn=False,
-            # bn_eps=bn_eps,
             lw_normalization=None,
             rw_normalization=normalization)
         self.branches = Concurrent(merge_type="sum")
@@ -104,7 +98,6 @@ class PFCU(nn.Module):
                 kernel_size=kernel_size,
                 dilation=dilation,
                 dropout_rate=dropout_rate,
-                # bn_eps=bn_eps,
                 normalization=normalization))
         self.activ = nn.ReLU(inplace=True)
 
@@ -191,14 +184,12 @@ class ESNet(nn.Module):
                         kernel_size=kernel_size,
                         dilation=1,
                         dropout_rate=dropout_rate,
-                        # bn_eps=bn_eps,
                         normalization=normalization))
                 else:
                     stage.add_module("unit{}".format(j + 1), PFCU(
                         channels=in_channels,
                         kernel_size=kernel_size,
                         dropout_rate=dropout_rate,
-                        # bn_eps=bn_eps,
                         normalization=normalization))
             self.encoder.add_module("stage{}".format(i + 1), stage)
 
@@ -214,7 +205,6 @@ class ESNet(nn.Module):
                         out_channels=out_channels,
                         stride=2,
                         bias=True,
-                        bn_eps=bn_eps,
                         normalization=normalization))
                     in_channels = out_channels
                 else:
@@ -223,7 +213,6 @@ class ESNet(nn.Module):
                         kernel_size=kernel_size,
                         dilation=1,
                         dropout_rate=0,
-                        # bn_eps=bn_eps,
                         normalization=normalization))
             self.decoder.add_module("stage{}".format(i + 1), stage)
 

@@ -157,7 +157,7 @@ class DABBlock(nn.Module):
 
         self.norm_activ1 = NormActivation(
             in_channels=channels,
-            bn_eps=bn_eps,
+            normalization=lambda_batchnorm2d(bn_eps),
             activation=(lambda: nn.PReLU(channels)))
         self.conv1 = conv3x3_block(
             in_channels=channels,
@@ -182,7 +182,7 @@ class DABBlock(nn.Module):
 
         self.norm_activ2 = NormActivation(
             in_channels=mid_channels,
-            bn_eps=bn_eps,
+            normalization=lambda_batchnorm2d(bn_eps),
             activation=(lambda: nn.PReLU(mid_channels)))
         self.conv2 = conv1x1(
             in_channels=mid_channels,
@@ -235,7 +235,7 @@ class DownBlock(nn.Module):
                 stride=2)
         self.norm_activ = NormActivation(
             in_channels=out_channels,
-            bn_eps=bn_eps,
+            normalization=lambda_batchnorm2d(bn_eps),
             activation=(lambda: nn.PReLU(out_channels)))
 
     def forward(self, x):
@@ -338,7 +338,7 @@ class DABStage(nn.Module):
 
         self.norm_activ = NormActivation(
             in_channels=y_out_channels,
-            bn_eps=bn_eps,
+            normalization=lambda_batchnorm2d(bn_eps),
             activation=(lambda: nn.PReLU(y_out_channels)))
 
     def forward(self, y, x):

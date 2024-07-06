@@ -122,8 +122,6 @@ class SQNetUpStage(nn.Module):
         Number of output channels.
     bias : bool
         Whether the layer uses a bias vector.
-    use_bn : bool
-        Whether to use BatchNorm layer.
     normalization : function
         Normalization function.
     activation : function or str or None
@@ -135,7 +133,6 @@ class SQNetUpStage(nn.Module):
                  in_channels,
                  out_channels,
                  bias,
-                 use_bn,
                  normalization: Callable[..., nn.Module],
                  activation,
                  use_parallel_conv):
@@ -160,7 +157,6 @@ class SQNetUpStage(nn.Module):
             out_channels=out_channels,
             stride=2,
             bias=bias,
-            use_bn=use_bn,
             normalization=normalization,
             activation=activation)
 
@@ -256,7 +252,6 @@ class SQNet(nn.Module):
                 in_channels=(2 * in_channels),
                 out_channels=out_channels,
                 bias=bias,
-                use_bn=use_bn,
                 normalization=normalization,
                 activation=activation,
                 use_parallel_conv=use_parallel_conv))
@@ -273,7 +268,6 @@ class SQNet(nn.Module):
             in_channels=(2 * in_channels),
             out_channels=num_classes,
             bias=bias,
-            use_bn=use_bn,
             normalization=normalization,
             activation=activation,
             use_parallel_conv=False)

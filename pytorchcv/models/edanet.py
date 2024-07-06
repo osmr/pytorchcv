@@ -9,7 +9,8 @@ __all__ = ['EDANet', 'edanet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, conv3x3, conv1x1_block, asym_conv3x3_block, NormActivation, InterpolationBlock
+from .common import (lambda_batchnorm2d, conv1x1, conv3x3, conv1x1_block, asym_conv3x3_block, NormActivation,
+                     InterpolationBlock)
 
 
 class DownBlock(nn.Module):
@@ -44,7 +45,7 @@ class DownBlock(nn.Module):
                 stride=2)
         self.norm_activ = NormActivation(
             in_channels=out_channels,
-            bn_eps=bn_eps)
+            normalization=lambda_batchnorm2d(bn_eps))
 
     def forward(self, x):
         y = self.conv(x)

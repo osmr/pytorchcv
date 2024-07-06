@@ -9,8 +9,8 @@ __all__ = ['CGNet', 'cgnet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common import (NormActivation, conv1x1, conv1x1_block, conv3x3_block, depthwise_conv3x3, SEBlock, Concurrent,
-                     DualPathSequential, InterpolationBlock)
+from .common import (lambda_batchnorm2d, NormActivation, conv1x1, conv1x1_block, conv3x3_block, depthwise_conv3x3,
+                     SEBlock, Concurrent, DualPathSequential, InterpolationBlock)
 
 
 class CGBlock(nn.Module):
@@ -71,7 +71,7 @@ class CGBlock(nn.Module):
 
         self.norm_activ = NormActivation(
             in_channels=mid2_channels,
-            bn_eps=bn_eps,
+            normalization=lambda_batchnorm2d(bn_eps),
             activation=(lambda: nn.PReLU(mid2_channels)))
 
         if self.down:
@@ -201,7 +201,7 @@ class CGStage(nn.Module):
 
         self.norm_activ = NormActivation(
             in_channels=y_out_channels,
-            bn_eps=bn_eps,
+            normalization=lambda_batchnorm2d(bn_eps),
             activation=(lambda: nn.PReLU(y_out_channels)))
 
     def forward(self, y, x=None):

@@ -67,8 +67,6 @@ def deconv4x4_block(in_channels,
                     dilation=1,
                     groups=1,
                     bias=False,
-                    use_bn=True,
-                    bn_eps=1e-5,
                     normalization: Callable[..., nn.Module | None] | nn.Module | None = lambda_batchnorm2d(),
                     activation: Callable[..., nn.Module | None] | nn.Module | str | None = lambda_relu()):
     """
@@ -94,10 +92,6 @@ def deconv4x4_block(in_channels,
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    use_bn : bool, default True
-        Whether to use BatchNorm layer.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
     normalization : function or nn.Module or None, default lambda_batchnorm2d()
         Lambda-function generator or module for normalization layer.
     activation : function or nn.Module or str or None, default lambda_relu()
@@ -114,8 +108,6 @@ def deconv4x4_block(in_channels,
         dilation=dilation,
         groups=groups,
         bias=bias,
-        use_bn=use_bn,
-        bn_eps=bn_eps,
         normalization=normalization,
         activation=activation)
 
@@ -212,7 +204,7 @@ class PRResUnit(nn.Module):
             normalization=normalization)
         self.norm_activ = NormActivation(
             in_channels=out_channels,
-            bn_eps=bn_eps)
+            normalization=lambda_batchnorm2d(bn_eps))
 
     def forward(self, x):
         if self.resize_identity:
@@ -235,31 +227,25 @@ class PROutputBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Normalization function.
     """
     def __init__(self,
                  in_channels,
                  out_channels,
-                 bn_eps,
                  normalization: Callable[..., nn.Module]):
         super(PROutputBlock, self).__init__()
         self.conv1 = deconv4x4_block(
             in_channels=in_channels,
             out_channels=out_channels,
-            bn_eps=bn_eps,
             normalization=normalization)
         self.conv2 = deconv4x4_block(
             in_channels=out_channels,
             out_channels=out_channels,
-            bn_eps=bn_eps,
             normalization=normalization)
         self.conv3 = deconv4x4_block(
             in_channels=out_channels,
             out_channels=out_channels,
-            bn_eps=bn_eps,
             normalization=normalization,
             activation=nn.Sigmoid())
 
@@ -339,7 +325,6 @@ class PRNet(nn.Module):
                     stride=stride,
                     padding=padding,
                     ext_padding=ext_padding,
-                    bn_eps=bn_eps,
                     normalization=normalization))
                 in_channels = out_channels
             decoder.add_module("stage{}".format(i + 1), stage)
@@ -348,7 +333,6 @@ class PRNet(nn.Module):
         self.output = PROutputBlock(
             in_channels=in_channels,
             out_channels=num_classes,
-            bn_eps=bn_eps,
             normalization=normalization)
 
         self._init_params()

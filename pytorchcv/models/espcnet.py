@@ -9,7 +9,8 @@ __all__ = ['ESPCNet', 'espcnet_cityscapes', 'ESPBlock']
 import os
 import torch
 import torch.nn as nn
-from .common import NormActivation, conv1x1, conv3x3, conv3x3_block, DualPathSequential, InterpolationBlock
+from .common import (lambda_batchnorm2d, NormActivation, conv1x1, conv3x3, conv3x3_block, DualPathSequential,
+                     InterpolationBlock)
 
 
 class HierarchicalConcurrent(nn.Sequential):
@@ -95,7 +96,7 @@ class ESPBlock(nn.Module):
 
         self.norm_activ = NormActivation(
             in_channels=out_channels,
-            bn_eps=bn_eps,
+            normalization=lambda_batchnorm2d(bn_eps),
             activation=(lambda: nn.PReLU(out_channels)))
 
     def forward(self, x):
@@ -194,7 +195,7 @@ class ESPStage(nn.Module):
 
         self.norm_activ = NormActivation(
             in_channels=y_out_channels,
-            bn_eps=bn_eps,
+            normalization=lambda_batchnorm2d(bn_eps),
             activation=(lambda: nn.PReLU(y_out_channels)))
 
     def forward(self, y, x=None):

@@ -10,7 +10,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import conv3x3, ConvBlock, AsymConvBlock, DeconvBlock, NormActivation, conv1x1_block
+from .common import lambda_batchnorm2d, conv3x3, ConvBlock, AsymConvBlock, DeconvBlock, NormActivation, conv1x1_block
 
 
 class ENetMaxDownBlock(nn.Module):
@@ -336,7 +336,7 @@ class ENetMixDownBlock(nn.Module):
             bias=bias)
         self.norm_activ = NormActivation(
             in_channels=out_channels,
-            bn_eps=bn_eps,
+            normalization=lambda_batchnorm2d(bn_eps),
             activation=activation)
 
     def forward(self, x):
