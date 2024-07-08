@@ -496,7 +496,7 @@ def get_dabnet(model_name: str | None = None,
     return net
 
 
-def dabnet_cityscapes(num_classes=19, **kwargs) -> nn.Module:
+def dabnet_cityscapes(num_classes: int = 19, **kwargs) -> nn.Module:
     """
     DABNet model for Cityscapes from 'DABNet: Depth-wise Asymmetric Bottleneck for Real-time Semantic Segmentation,'
     https://arxiv.org/abs/1907.11357.

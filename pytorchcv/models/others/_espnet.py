@@ -222,7 +222,7 @@ def get_espnet(model_name: str | None = None,
     return net
 
 
-def espnet_cityscapes(num_classes=19, **kwargs):
+def espnet_cityscapes(num_classes: int = 19, **kwargs):
     """
     ESPNet model for Cityscapes from 'ESPNet: Efficient Spatial Pyramid of Dilated Convolutions for Semantic
     Segmentation,' https://arxiv.org/abs/1803.06815.

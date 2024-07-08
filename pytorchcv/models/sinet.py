@@ -973,7 +973,7 @@ def get_sinet(model_name: str | None = None,
     return net
 
 
-def sinet_cityscapes(num_classes=19,
+def sinet_cityscapes(num_classes: int = 19,
                      **kwargs) -> nn.Module:
     """
     SINet model for Cityscapes from 'SINet: Extreme Lightweight Portrait Segmentation Networks with Spatial Squeeze

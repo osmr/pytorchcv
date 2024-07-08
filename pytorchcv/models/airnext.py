@@ -245,7 +245,6 @@ def get_airnext(blocks: int,
     nn.Module
         Desired module.
     """
-
     if blocks == 50:
         layers = [3, 4, 6, 3]
     elif blocks == 101:

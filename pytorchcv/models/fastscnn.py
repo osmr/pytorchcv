@@ -448,7 +448,7 @@ def get_fastscnn(model_name: str | None = None,
     return net
 
 
-def fastscnn_cityscapes(num_classes=19,
+def fastscnn_cityscapes(num_classes: int = 19,
                         aux=True,
                         **kwargs) -> nn.Module:
     """

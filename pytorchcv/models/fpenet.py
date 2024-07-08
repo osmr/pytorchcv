@@ -376,7 +376,7 @@ def get_fpenet(model_name: str | None = None,
     return net
 
 
-def fpenet_cityscapes(num_classes=19,
+def fpenet_cityscapes(num_classes: int = 19,
                       **kwargs) -> nn.Module:
     """
     FPENet model for Cityscapes from 'Feature Pyramid Encoding Network for Real-time Semantic Segmentation,'

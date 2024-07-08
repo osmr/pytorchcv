@@ -525,7 +525,7 @@ def get_enet(model_name: str | None = None,
     return net
 
 
-def enet_cityscapes(num_classes=19,
+def enet_cityscapes(num_classes: int = 19,
                     **kwargs) -> nn.Module:
     """
     ENet model for Cityscapes from 'ENet: A Deep Neural Network Architecture for Real-Time Semantic Segmentation,'

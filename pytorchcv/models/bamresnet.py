@@ -266,7 +266,7 @@ class BamResNet(nn.Module):
         return x
 
 
-def get_resnet(blocks,
+def get_resnet(blocks: int,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),

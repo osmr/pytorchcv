@@ -348,7 +348,7 @@ def get_espcnet(model_name: str | None = None,
     return net
 
 
-def espcnet_cityscapes(num_classes=19,
+def espcnet_cityscapes(num_classes: int = 19,
                        **kwargs) -> nn.Module:
     """
     ESPNet-C model for Cityscapes from 'ESPNet: Efficient Spatial Pyramid of Dilated Convolutions for Semantic

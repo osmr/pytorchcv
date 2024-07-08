@@ -28,16 +28,16 @@ class Inception3x3Branch(nn.Module):
         Strides of the second convolution.
     bias : bool, default True
         Whether the convolution layer uses a bias vector.
-    normalization : function or None, default lambda_batchnorm2d(eps=1e-5)
-        Normalization function.
+    normalization : function or None, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels,
-                 stride=1,
-                 bias=True,
-                 normalization: Callable | None = lambda_batchnorm2d(eps=1e-5)):
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int,
+                 stride: int | tuple[int, int] = 1,
+                 bias: bool = True,
+                 normalization: Callable[..., nn.Module] | None = lambda_batchnorm2d()):
         super(Inception3x3Branch, self).__init__()
         self.conv1 = conv1x1_block(
             in_channels=in_channels,
@@ -73,16 +73,16 @@ class InceptionDouble3x3Branch(nn.Module):
         Strides of the second convolution.
     bias : bool, default True
         Whether the convolution layer uses a bias vector.
-    normalization : function
-        Normalization function.
+    normalization : function or None, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels,
-                 stride=1,
-                 bias=True,
-                 normalization: Callable | None = lambda_batchnorm2d(eps=1e-5)):
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int,
+                 stride: int | tuple[int, int] = 1,
+                 bias: bool = True,
+                 normalization: Callable[..., nn.Module] | None = lambda_batchnorm2d()):
         super(InceptionDouble3x3Branch, self).__init__()
         self.conv1 = conv1x1_block(
             in_channels=in_channels,
@@ -122,15 +122,15 @@ class InceptionPoolBranch(nn.Module):
         Whether to use average pooling or max pooling.
     bias : bool
         Whether the convolution layer uses a bias vector.
-    normalization : function
-        Normalization function.
+    normalization : function or None
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 avg_pool,
-                 bias,
-                 normalization: Callable | None):
+                 in_channels: int,
+                 out_channels: int,
+                 avg_pool: bool,
+                 bias: bool,
+                 normalization: Callable[..., nn.Module] | None):
         super(InceptionPoolBranch, self).__init__()
         if avg_pool:
             self.pool = nn.AvgPool2d(
@@ -171,15 +171,15 @@ class StemBlock(nn.Module):
         Number of intermediate channels.
     bias : bool
         Whether the convolution layer uses a bias vector.
-    normalization : function
-        Normalization function.
+    normalization : function or None
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels,
-                 bias,
-                 normalization: Callable | None):
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int,
+                 bias: bool,
+                 normalization: Callable[..., nn.Module] | None):
         super(StemBlock, self).__init__()
         self.conv1 = conv7x7_block(
             in_channels=in_channels,
@@ -226,16 +226,16 @@ class InceptionBlock(nn.Module):
         Whether to use average pooling or max pooling.
     bias : bool
         Whether the convolution layer uses a bias vector.
-    normalization : function
-        Normalization function.
+    normalization : function or None
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 mid1_channels_list,
-                 mid2_channels_list,
-                 avg_pool,
-                 bias,
-                 normalization: Callable | None):
+                 in_channels: int,
+                 mid1_channels_list: list[int],
+                 mid2_channels_list: list[int],
+                 avg_pool: bool,
+                 bias: bool,
+                 normalization: Callable[..., nn.Module] | None):
         super(InceptionBlock, self).__init__()
         assert (len(mid1_channels_list) == 2)
         assert (len(mid2_channels_list) == 4)
@@ -284,15 +284,15 @@ class ReductionBlock(nn.Module):
         Number of middle channels for branches.
     bias : bool
         Whether the convolution layer uses a bias vector.
-    normalization : function
-        Normalization function.
+    normalization : function or None
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 mid1_channels_list,
-                 mid2_channels_list,
-                 bias,
-                 normalization: Callable | None):
+                 in_channels: int,
+                 mid1_channels_list: list[int],
+                 mid2_channels_list: list[int],
+                 bias: bool,
+                 normalization: Callable[..., nn.Module] | None):
         super(ReductionBlock, self).__init__()
         assert (len(mid1_channels_list) == 2)
         assert (len(mid2_channels_list) == 4)
@@ -350,12 +350,12 @@ class BNInception(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels_list,
-                 mid1_channels_list,
-                 mid2_channels_list,
-                 bias=True,
-                 use_bn=True,
+                 channels: list[list[int]],
+                 init_block_channels_list: list[int],
+                 mid1_channels_list: list[list[list[int]]],
+                 mid2_channels_list: list[list[list[int]]],
+                 bias: bool = True,
+                 use_bn: bool = True,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):

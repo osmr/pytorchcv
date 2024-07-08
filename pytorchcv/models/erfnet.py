@@ -239,7 +239,7 @@ def get_erfnet(model_name: str | None = None,
     return net
 
 
-def erfnet_cityscapes(num_classes=19,
+def erfnet_cityscapes(num_classes: int = 19,
                       **kwargs) -> nn.Module:
     """
     ERFNet model for Cityscapes from 'ERFNet: Efficient Residual Factorized ConvNet for Real-time Semantic

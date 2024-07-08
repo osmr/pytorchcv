@@ -402,7 +402,7 @@ def get_lednet(model_name: str | None = None,
     return net
 
 
-def lednet_cityscapes(num_classes=19,
+def lednet_cityscapes(num_classes: int = 19,
                       **kwargs) -> nn.Module:
     """
     LEDNet model for Cityscapes from 'LEDNet: A Lightweight Encoder-Decoder Network for Real-Time Semantic

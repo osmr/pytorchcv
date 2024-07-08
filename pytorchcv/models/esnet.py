@@ -288,7 +288,7 @@ def get_esnet(model_name: str | None = None,
     return net
 
 
-def esnet_cityscapes(num_classes=19,
+def esnet_cityscapes(num_classes: int = 19,
                      **kwargs) -> nn.Module:
     """
     ESNet model for Cityscapes from 'ESNet: An Efficient Symmetric Network for Real-time Semantic Segmentation,'

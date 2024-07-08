@@ -331,7 +331,7 @@ def get_sqnet(model_name: str | None = None,
     return net
 
 
-def sqnet_cityscapes(num_classes=19,
+def sqnet_cityscapes(num_classes: int = 19,
                      **kwargs) -> nn.Module:
     """
     SQNet model for Cityscapes from 'Speeding up Semantic Segmentation for Autonomous Driving,'

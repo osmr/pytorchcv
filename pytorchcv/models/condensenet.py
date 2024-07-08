@@ -33,12 +33,12 @@ class CondenseSimpleConv(nn.Module):
         Number of groups.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 groups):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 groups: int):
         super(CondenseSimpleConv, self).__init__()
         self.bn = nn.BatchNorm2d(num_features=in_channels)
         self.activ = nn.ReLU(inplace=True)
@@ -58,9 +58,9 @@ class CondenseSimpleConv(nn.Module):
         return x
 
 
-def condense_simple_conv3x3(in_channels,
-                            out_channels,
-                            groups):
+def condense_simple_conv3x3(in_channels: int,
+                            out_channels: int,
+                            groups: int):
     """
     3x3 version of the CondenseNet specific simple convolution block.
 
@@ -102,12 +102,12 @@ class CondenseComplexConv(nn.Module):
         Number of groups.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 groups):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 groups: int):
         super(CondenseComplexConv, self).__init__()
         self.bn = nn.BatchNorm2d(num_features=in_channels)
         self.activ = nn.ReLU(inplace=True)
@@ -134,9 +134,9 @@ class CondenseComplexConv(nn.Module):
         return x
 
 
-def condense_complex_conv1x1(in_channels,
-                             out_channels,
-                             groups):
+def condense_complex_conv1x1(in_channels: int,
+                             out_channels: int,
+                             groups: int):
     """
     1x1 version of the CondenseNet specific complex convolution block.
 
@@ -172,9 +172,9 @@ class CondenseUnit(nn.Module):
         Number of groups.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 groups):
+                 in_channels: int,
+                 out_channels: int,
+                 groups: int):
         super(CondenseUnit, self).__init__()
         bottleneck_size = 4
         inc_channels = out_channels - in_channels
@@ -226,8 +226,8 @@ class CondenseInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(CondenseInitBlock, self).__init__()
         self.conv = nn.Conv2d(
             in_channels=in_channels,
@@ -252,7 +252,7 @@ class PostActivation(nn.Module):
         Number of input channels.
     """
     def __init__(self,
-                 in_channels):
+                 in_channels: int):
         super(PostActivation, self).__init__()
         self.bn = nn.BatchNorm2d(num_features=in_channels)
         self.activ = nn.ReLU(inplace=True)
@@ -273,13 +273,13 @@ class CondenseLinear(nn.Module):
         Number of input channels.
     out_features : int
         Number of output channels.
-    drop_rate : float
+    drop_rate : float, default 0.5
         Fraction of input channels for drop.
     """
     def __init__(self,
-                 in_features,
-                 out_features,
-                 drop_rate=0.5):
+                 in_features: int,
+                 out_features: int,
+                 drop_rate: float = 0.5):
         super(CondenseLinear, self).__init__()
         drop_in_features = int(in_features * drop_rate)
         self.linear = nn.Linear(
@@ -315,9 +315,9 @@ class CondenseNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
-                 groups,
+                 channels: list[list[int]],
+                 init_block_channels: int,
+                 groups: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):

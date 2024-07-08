@@ -28,10 +28,10 @@ class CtxShallowNet(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 mid1_channels,
-                 mid2_channels,
-                 out_channels):
+                 in_channels: int,
+                 mid1_channels: int,
+                 mid2_channels: int,
+                 out_channels: int):
         super(CtxShallowNet, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -71,13 +71,13 @@ class LinearBottleneck(nn.Module):
     stride : int or tuple(int, int)
         Strides of the second convolution layer.
     expansion : bool
-        Whether do expansion of channels.
+        Whether to do expansion of channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 expansion):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 expansion: bool):
         super(LinearBottleneck, self).__init__()
         self.residual = (in_channels == out_channels) and (stride == 1)
         mid_channels = in_channels * 6 if expansion else in_channels
@@ -119,8 +119,8 @@ class CtxDeepNet(nn.Module):
         Number of channels for init block.
     """
     def __init__(self,
-                 in_channels,
-                 init_block_channels):
+                 in_channels: int,
+                 init_block_channels: int):
         super(CtxDeepNet, self).__init__()
         layers = [1, 1, 3, 3, 2, 2]
         channels_per_layers = [32, 32, 48, 64, 96, 128]
@@ -165,9 +165,9 @@ class FeatureFusion(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels_high,
-                 in_channels_low,
-                 out_channels):
+                 in_channels_high: int,
+                 in_channels_low: int,
+                 out_channels: int):
         super(FeatureFusion, self).__init__()
         self.conv_high = conv1x1_block(
             in_channels=in_channels_high,
@@ -211,8 +211,8 @@ class CtxHead(nn.Module):
         Number of output channels/classes.
     """
     def __init__(self,
-                 in_channels,
-                 num_classes):
+                 in_channels: int,
+                 num_classes: int):
         super(CtxHead, self).__init__()
         self.conv1 = dwsconv3x3_block(
             in_channels=in_channels,
@@ -242,13 +242,15 @@ class CtxAuxHead(nn.Module):
     ----------
     in_channels : int
         Number of input channels.
+    mid_channels : int
+        Number of middle channels.
     num_classes : int
         Number of output channels/classes.
     """
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 num_classes):
+                 in_channels: int,
+                 mid_channels: int,
+                 num_classes: int):
         super(CtxAuxHead, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -285,8 +287,8 @@ class ContextNet(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 aux=False,
-                 fixed_size=False,
+                 aux: bool = False,
+                 fixed_size: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (1024, 2048),
                  num_classes: int = 19):
@@ -382,7 +384,7 @@ def get_ctxnet(model_name: str | None = None,
     return net
 
 
-def ctxnet_cityscapes(num_classes=19,
+def ctxnet_cityscapes(num_classes: int = 19,
                       **kwargs) -> nn.Module:
     """
     ContextNet model for Cityscapes from 'ContextNet: Exploring Context and Detail for Semantic Segmentation in
