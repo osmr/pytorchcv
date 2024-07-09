@@ -125,7 +125,7 @@ class DarkNet(nn.Module):
         return x
 
 
-def get_darknet(version,
+def get_darknet(version: str,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),

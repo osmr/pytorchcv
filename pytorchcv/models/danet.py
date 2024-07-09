@@ -51,8 +51,8 @@ class PosAttBlock(nn.Module):
         Squeeze reduction value.
     """
     def __init__(self,
-                 channels,
-                 reduction=8):
+                 channels: int,
+                 reduction: int = 8):
         super(PosAttBlock, self).__init__()
         mid_channels = channels // reduction
 
@@ -127,9 +127,9 @@ class DANetHeadBranch(nn.Module):
         Whether to use position attention instead of channel one.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 pose_att=True):
+                 in_channels: int,
+                 out_channels: int,
+                 pose_att: bool = True):
         super(DANetHeadBranch, self).__init__()
         mid_channels = in_channels // 4
         dropout_rate = 0.1
@@ -171,8 +171,8 @@ class DANetHead(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(DANetHead, self).__init__()
         mid_channels = in_channels // 4
         dropout_rate = 0.1
@@ -222,13 +222,13 @@ class DANet(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 backbone,
-                 backbone_out_channels=2048,
-                 aux=False,
-                 fixed_size=True,
-                 in_channels=3,
-                 in_size=(480, 480),
-                 num_classes=19):
+                 backbone: nn.Sequential,
+                 backbone_out_channels: int = 2048,
+                 aux: int = False,
+                 fixed_size: int = True,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (480, 480),
+                 num_classes: int = 19):
         super(DANet, self).__init__()
         assert (in_channels > 0)
         assert ((in_size[0] % 8 == 0) and (in_size[1] % 8 == 0))
@@ -264,9 +264,9 @@ class DANet(nn.Module):
             return x
 
 
-def get_danet(backbone,
-              num_classes,
-              aux=False,
+def get_danet(backbone: nn.Sequential,
+              num_classes: int,
+              aux: bool = False,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
@@ -312,9 +312,9 @@ def get_danet(backbone,
     return net
 
 
-def danet_resnetd50b_cityscapes(pretrained_backbone=False,
-                                num_classes=19,
-                                aux=True,
+def danet_resnetd50b_cityscapes(pretrained_backbone: bool = False,
+                                num_classes: int = 19,
+                                aux: bool = True,
                                 **kwargs) -> nn.Module:
     """
     DANet model on the base of ResNet(D)-50b for Cityscapes from 'Dual Attention Network for Scene Segmentation,'
@@ -351,9 +351,9 @@ def danet_resnetd50b_cityscapes(pretrained_backbone=False,
         **kwargs)
 
 
-def danet_resnetd101b_cityscapes(pretrained_backbone=False,
-                                 num_classes=19,
-                                 aux=True,
+def danet_resnetd101b_cityscapes(pretrained_backbone: bool = False,
+                                 num_classes: int = 19,
+                                 aux: bool = True,
                                  **kwargs) -> nn.Module:
     """
     DANet model on the base of ResNet(D)-101b for Cityscapes from 'Dual Attention Network for Scene Segmentation,'

@@ -38,12 +38,12 @@ class DwaConvBlock(nn.Module):
         Lambda-function generator or module for activation layer.
     """
     def __init__(self,
-                 channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 bias=False,
+                 channels: int,
+                 kernel_size: int,
+                 stride: int | tuple[int, int],
+                 padding: int,
+                 dilation: int = 1,
+                 bias: bool = False,
                  normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
                  activation: Callable[..., nn.Module] = lambda_relu()):
         super(DwaConvBlock, self).__init__()
@@ -76,11 +76,11 @@ class DwaConvBlock(nn.Module):
         return x
 
 
-def dwa_conv3x3_block(channels,
-                      stride=1,
-                      padding=1,
-                      dilation=1,
-                      bias=False,
+def dwa_conv3x3_block(channels: int,
+                      stride: int = 1,
+                      padding: int = 1,
+                      dilation: int = 1,
+                      bias: bool = False,
                       normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
                       activation: Callable[..., nn.Module] = lambda_relu()):
     """
@@ -128,8 +128,8 @@ class DABBlock(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 channels,
-                 dilation,
+                 channels: int,
+                 dilation: int,
                  normalization: Callable[..., nn.Module]):
         super(DABBlock, self).__init__()
         mid_channels = channels // 2
@@ -194,8 +194,8 @@ class DownBlock(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
+                 in_channels: int,
+                 out_channels: int,
                  normalization: Callable[..., nn.Module]):
         super(DownBlock, self).__init__()
         self.expand = (in_channels < out_channels)
@@ -241,9 +241,9 @@ class DABUnit(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 dilations,
+                 in_channels: int,
+                 out_channels: int,
+                 dilations: list[int],
                  normalization: Callable[..., nn.Module]):
         super(DABUnit, self).__init__()
         mid_channels = out_channels // 2
@@ -284,10 +284,10 @@ class DABStage(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 x_channels,
-                 y_in_channels,
-                 y_out_channels,
-                 dilations,
+                 x_channels: int,
+                 y_in_channels: int,
+                 y_out_channels: int,
+                 dilations: list[int],
                  normalization: Callable[..., nn.Module]):
         super(DABStage, self).__init__()
         self.use_unit = (len(dilations) > 0)
@@ -328,14 +328,12 @@ class DABInitBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    bn_eps : float
-        Small float added to variance in Batch norm.
     normalization : function
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
+                 in_channels: int,
+                 out_channels: int,
                  normalization: Callable[..., nn.Module]):
         super(DABInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
@@ -389,12 +387,12 @@ class DABNet(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
-                 dilations,
-                 bn_eps=1e-5,
-                 aux=False,
-                 fixed_size=False,
+                 channels: list[int],
+                 init_block_channels: int,
+                 dilations: list[list[int]],
+                 bn_eps: float = 1e-5,
+                 aux: bool = False,
+                 fixed_size: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (1024, 2048),
                  num_classes: int = 19):
@@ -496,7 +494,8 @@ def get_dabnet(model_name: str | None = None,
     return net
 
 
-def dabnet_cityscapes(num_classes: int = 19, **kwargs) -> nn.Module:
+def dabnet_cityscapes(num_classes: int = 19,
+                      **kwargs) -> nn.Module:
     """
     DABNet model for Cityscapes from 'DABNet: Depth-wise Asymmetric Bottleneck for Real-time Semantic Segmentation,'
     https://arxiv.org/abs/1907.11357.
