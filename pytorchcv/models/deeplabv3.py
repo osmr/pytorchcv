@@ -29,9 +29,9 @@ class DeepLabv3FinalBlock(nn.Module):
         Bottleneck factor.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 bottleneck_factor=4):
+                 in_channels: int,
+                 out_channels: int,
+                 bottleneck_factor: int = 4):
         super(DeepLabv3FinalBlock, self).__init__()
         assert (in_channels % bottleneck_factor == 0)
         mid_channels = in_channels // bottleneck_factor
@@ -67,9 +67,9 @@ class ASPPAvgBranch(nn.Module):
         Spatial size of output image for the bilinear upsampling operation.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 upscale_out_size):
+                 in_channels: int,
+                 out_channels: int,
+                 upscale_out_size: tuple[int, int]):
         super(ASPPAvgBranch, self).__init__()
         self.upscale_out_size = upscale_out_size
 
@@ -98,8 +98,8 @@ class AtrousSpatialPyramidPooling(nn.Module):
         Spatial size of the input tensor for the bilinear upsampling operation.
     """
     def __init__(self,
-                 in_channels,
-                 upscale_out_size):
+                 in_channels: int,
+                 upscale_out_size: tuple[int, int]):
         super(AtrousSpatialPyramidPooling, self).__init__()
         atrous_rates = [12, 24, 36]
         assert (in_channels % 8 == 0)
@@ -155,13 +155,13 @@ class DeepLabv3(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 backbone,
-                 backbone_out_channels=2048,
-                 aux=False,
-                 fixed_size=True,
-                 in_channels=3,
-                 in_size=(480, 480),
-                 num_classes=21):
+                 backbone: nn.Sequential,
+                 backbone_out_channels: int = 2048,
+                 aux: bool = False,
+                 fixed_size: bool = True,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (480, 480),
+                 num_classes: int = 21):
         super(DeepLabv3, self).__init__()
         assert (in_channels > 0)
         self.in_size = in_size
@@ -207,9 +207,9 @@ class DeepLabv3(nn.Module):
             return x
 
 
-def get_deeplabv3(backbone,
-                  num_classes,
-                  aux=False,
+def get_deeplabv3(backbone: nn.Sequential,
+                  num_classes: int,
+                  aux: bool = False,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
@@ -255,9 +255,9 @@ def get_deeplabv3(backbone,
     return net
 
 
-def deeplabv3_resnetd50b_voc(pretrained_backbone=False,
-                             num_classes=21,
-                             aux=True,
+def deeplabv3_resnetd50b_voc(pretrained_backbone: bool = False,
+                             num_classes: int = 21,
+                             aux: bool = True,
                              **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-50b for Pascal VOC from 'Rethinking Atrous Convolution for Semantic Image
@@ -294,9 +294,9 @@ def deeplabv3_resnetd50b_voc(pretrained_backbone=False,
         **kwargs)
 
 
-def deeplabv3_resnetd101b_voc(pretrained_backbone=False,
-                              num_classes=21,
-                              aux=True,
+def deeplabv3_resnetd101b_voc(pretrained_backbone: bool = False,
+                              num_classes: int = 21,
+                              aux: bool = True,
                               **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-101b for Pascal VOC from 'Rethinking Atrous Convolution for Semantic Image
@@ -333,9 +333,9 @@ def deeplabv3_resnetd101b_voc(pretrained_backbone=False,
         **kwargs)
 
 
-def deeplabv3_resnetd152b_voc(pretrained_backbone=False,
-                              num_classes=21,
-                              aux=True,
+def deeplabv3_resnetd152b_voc(pretrained_backbone: bool = False,
+                              num_classes: int = 21,
+                              aux: bool = True,
                               **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-152b for Pascal VOC from 'Rethinking Atrous Convolution for Semantic Image
@@ -372,9 +372,9 @@ def deeplabv3_resnetd152b_voc(pretrained_backbone=False,
         **kwargs)
 
 
-def deeplabv3_resnetd50b_coco(pretrained_backbone=False,
-                              num_classes=21,
-                              aux=True,
+def deeplabv3_resnetd50b_coco(pretrained_backbone: bool = False,
+                              num_classes: int = 21,
+                              aux: bool = True,
                               **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-50b for COCO from 'Rethinking Atrous Convolution for Semantic Image
@@ -410,9 +410,9 @@ def deeplabv3_resnetd50b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def deeplabv3_resnetd101b_coco(pretrained_backbone=False,
-                               num_classes=21,
-                               aux=True,
+def deeplabv3_resnetd101b_coco(pretrained_backbone: bool = False,
+                               num_classes: int = 21,
+                               aux: bool = True,
                                **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-101b for COCO from 'Rethinking Atrous Convolution for Semantic Image
@@ -449,9 +449,9 @@ def deeplabv3_resnetd101b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def deeplabv3_resnetd152b_coco(pretrained_backbone=False,
-                               num_classes=21,
-                               aux=True,
+def deeplabv3_resnetd152b_coco(pretrained_backbone: bool = False,
+                               num_classes: int = 21,
+                               aux: bool = True,
                                **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-152b for COCO from 'Rethinking Atrous Convolution for Semantic Image
@@ -488,9 +488,9 @@ def deeplabv3_resnetd152b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def deeplabv3_resnetd50b_ade20k(pretrained_backbone=False,
-                                num_classes=150,
-                                aux=True,
+def deeplabv3_resnetd50b_ade20k(pretrained_backbone: bool = False,
+                                num_classes: int = 150,
+                                aux: bool = True,
                                 **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-50b for ADE20K from 'Rethinking Atrous Convolution for Semantic Image
@@ -527,9 +527,9 @@ def deeplabv3_resnetd50b_ade20k(pretrained_backbone=False,
         **kwargs)
 
 
-def deeplabv3_resnetd101b_ade20k(pretrained_backbone=False,
-                                 num_classes=150,
-                                 aux=True,
+def deeplabv3_resnetd101b_ade20k(pretrained_backbone: bool = False,
+                                 num_classes: int = 150,
+                                 aux: bool = True,
                                  **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-101b for ADE20K from 'Rethinking Atrous Convolution for Semantic Image
@@ -566,9 +566,9 @@ def deeplabv3_resnetd101b_ade20k(pretrained_backbone=False,
         **kwargs)
 
 
-def deeplabv3_resnetd50b_cityscapes(pretrained_backbone=False,
-                                    num_classes=19,
-                                    aux=True,
+def deeplabv3_resnetd50b_cityscapes(pretrained_backbone: bool = False,
+                                    num_classes: int = 19,
+                                    aux: bool = True,
                                     **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-50b for Cityscapes from 'Rethinking Atrous Convolution for Semantic Image
@@ -605,9 +605,9 @@ def deeplabv3_resnetd50b_cityscapes(pretrained_backbone=False,
         **kwargs)
 
 
-def deeplabv3_resnetd101b_cityscapes(pretrained_backbone=False,
-                                     num_classes=19,
-                                     aux=True,
+def deeplabv3_resnetd101b_cityscapes(pretrained_backbone: bool = False,
+                                     num_classes: int = 19,
+                                     aux: bool = True,
                                      **kwargs) -> nn.Module:
     """
     DeepLabv3 model on the base of ResNet(D)-101b for Cityscapes from 'Rethinking Atrous Convolution for Semantic Image

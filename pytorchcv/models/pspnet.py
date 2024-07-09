@@ -442,7 +442,7 @@ def pspnet_resnetd50b_ade20k(pretrained_backbone=False,
 
 def pspnet_resnetd101b_ade20k(pretrained_backbone=False,
                               num_classes=150,
-                              aux=True,
+                              aux: bool = True,
                               **kwargs) -> nn.Module:
     """
     PSPNet model on the base of ResNet(D)-101b for ADE20K from 'Pyramid Scene Parsing Network,'

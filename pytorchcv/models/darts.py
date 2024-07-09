@@ -34,13 +34,13 @@ class DwsConv(nn.Module):
         Whether the layers use a bias vector.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation,
-                 bias=False):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 dilation: int | tuple[int, int],
+                 bias: bool = False):
         super(DwsConv, self).__init__()
         self.dw_conv = nn.Conv2d(
             in_channels=in_channels,
@@ -82,12 +82,12 @@ class DartsConv(nn.Module):
         Whether activate the convolution block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 activate=True):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 activate: bool = True):
         super(DartsConv, self).__init__()
         self.activate = activate
 
@@ -110,9 +110,9 @@ class DartsConv(nn.Module):
         return x
 
 
-def darts_conv1x1(in_channels,
-                  out_channels,
-                  activate=True):
+def darts_conv1x1(in_channels: int,
+                  out_channels: int,
+                  activate: bool = True):
     """
     1x1 version of the DARTS specific convolution block.
 
@@ -134,9 +134,9 @@ def darts_conv1x1(in_channels,
         activate=activate)
 
 
-def darts_conv3x3_s2(in_channels,
-                     out_channels,
-                     activate=True):
+def darts_conv3x3_s2(in_channels: int,
+                     out_channels: int,
+                     activate: bool = True):
     """
     3x3 version of the DARTS specific convolution block with stride 2.
 
@@ -178,12 +178,12 @@ class DartsDwsConv(nn.Module):
         Dilation value for convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 dilation: int | tuple[int, int]):
         super(DartsDwsConv, self).__init__()
         self.activ = nn.ReLU(inplace=False)
         self.conv = DwsConv(
@@ -221,11 +221,11 @@ class DartsDwsBranch(nn.Module):
         Padding value for convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int]):
         super(DartsDwsBranch, self).__init__()
         mid_channels = in_channels
 
@@ -264,9 +264,9 @@ class DartsReduceBranch(nn.Module):
         Strides of the convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride=2):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int] = 2):
         super(DartsReduceBranch, self).__init__()
         assert (out_channels % 2 == 0)
         mid_channels = out_channels // 2
@@ -304,8 +304,8 @@ class Stem1Unit(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(Stem1Unit, self).__init__()
         mid_channels = out_channels // 2
 
@@ -324,8 +324,8 @@ class Stem1Unit(nn.Module):
         return x
 
 
-def stem2_unit(in_channels,
-               out_channels):
+def stem2_unit(in_channels: int,
+               out_channels: int):
     """
     DARTS Stem2 unit.
 
@@ -342,8 +342,8 @@ def stem2_unit(in_channels,
         activate=True)
 
 
-def darts_maxpool3x3(channels,
-                     stride):
+def darts_maxpool3x3(channels: int,
+                     stride: int | tuple[int, int]):
     """
     DARTS specific 3x3 Max pooling layer.
 
@@ -361,8 +361,8 @@ def darts_maxpool3x3(channels,
         padding=1)
 
 
-def darts_skip_connection(channels,
-                          stride):
+def darts_skip_connection(channels: int,
+                          stride: int | tuple[int, int]):
     """
     DARTS specific skip connection layer.
 
@@ -384,8 +384,8 @@ def darts_skip_connection(channels,
             stride=stride)
 
 
-def darts_dws_conv3x3(channels,
-                      stride):
+def darts_dws_conv3x3(channels: int,
+                      stride: int | tuple[int, int]):
     """
     3x3 version of DARTS specific dilated convolution block.
 
@@ -405,8 +405,8 @@ def darts_dws_conv3x3(channels,
         dilation=2)
 
 
-def darts_dws_branch3x3(channels,
-                        stride):
+def darts_dws_branch3x3(channels: int,
+                        stride: int | tuple[int, int]):
     """
     3x3 version of DARTS specific dilated convolution branch.
 
@@ -440,17 +440,17 @@ class DartsMainBlock(nn.Module):
 
     Parameters
     ----------
-    genotype : list of tuples (str, int)
+    genotype : list(tuple(str, int))
         List of genotype elements (operations and linked indices).
     channels : int
         Number of input/output channels.
     reduction : bool
-        Whether use reduction.
+        Whether to use reduction.
     """
     def __init__(self,
-                 genotype,
-                 channels,
-                 reduction):
+                 genotype: list[tuple[str, int]],
+                 channels: int,
+                 reduction: bool):
         super(DartsMainBlock, self).__init__()
         self.concat = [2, 3, 4, 5]
         op_names, indices = zip(*genotype)
@@ -494,20 +494,20 @@ class DartsUnit(nn.Module):
         Number of input channels in previous input.
     out_channels : int
         Number of output channels.
-    genotype : list of tuples (str, int)
+    genotype : list(tuple(str, int))
         List of genotype elements (operations and linked indices).
     reduction : bool
-        Whether use reduction.
+        Whether to use reduction.
     prev_reduction : bool
-        Whether use previous reduction.
+        Whether to use previous reduction.
     """
     def __init__(self,
-                 in_channels,
-                 prev_in_channels,
-                 out_channels,
-                 genotype,
-                 reduction,
-                 prev_reduction):
+                 in_channels: int,
+                 prev_in_channels: int,
+                 out_channels: int,
+                 genotype: list[tuple[str, int]],
+                 reduction: bool,
+                 prev_reduction: bool):
         super(DartsUnit, self).__init__()
         mid_channels = out_channels // 4
 
@@ -546,6 +546,10 @@ class DARTS(nn.Module):
         Number of output channels for each unit.
     stem_blocks_channels : int
         Number of output channels for the Stem units.
+    normal_genotype : list(tuple(str, int))
+        List of normal genotype elements (operations and linked indices).
+    reduce_genotype : list(tuple(str, int))
+        List of reduce genotype elements (operations and linked indices).
     in_channels : int, default 3
         Number of input channels.
     in_size : tuple(int, int), default (224, 224)
@@ -554,10 +558,10 @@ class DARTS(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 stem_blocks_channels,
-                 normal_genotype,
-                 reduce_genotype,
+                 channels: list[list[int]],
+                 stem_blocks_channels: int,
+                 normal_genotype: list[tuple[str, int]],
+                 reduce_genotype: list[tuple[str, int]],
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):

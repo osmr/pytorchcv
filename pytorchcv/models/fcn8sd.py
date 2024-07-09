@@ -365,7 +365,7 @@ def fcn8sd_resnetd50b_ade20k(pretrained_backbone=False,
 
 def fcn8sd_resnetd101b_ade20k(pretrained_backbone=False,
                               num_classes=150,
-                              aux=True,
+                              aux: bool = True,
                               **kwargs) -> nn.Module:
     """
     FCN-8s(d) model on the base of ResNet(D)-101b for ADE20K from 'Fully Convolutional Networks for Semantic
