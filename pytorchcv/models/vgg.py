@@ -25,8 +25,8 @@ class VGGDense(nn.Module):
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(VGGDense, self).__init__()
         self.fc = nn.Linear(
             in_features=in_channels,
@@ -53,8 +53,8 @@ class VGGOutputBlock(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 in_channels,
-                 classes):
+                 in_channels: int,
+                 classes: int):
         super(VGGOutputBlock, self).__init__()
         mid_channels = 4096
 
@@ -97,8 +97,8 @@ class VGG(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 bias=True,
-                 use_bn=False,
+                 bias: bool = True,
+                 use_bn: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -143,9 +143,9 @@ class VGG(nn.Module):
         return x
 
 
-def get_vgg(blocks,
-            bias=True,
-            use_bn=False,
+def get_vgg(blocks: int,
+            bias: bool = True,
+            use_bn: bool = False,
             model_name: str | None = None,
             pretrained: bool = False,
             root: str = os.path.join("~", ".torch", "models"),

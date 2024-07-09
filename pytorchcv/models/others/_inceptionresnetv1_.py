@@ -436,8 +436,8 @@ class InceptionResNetV1(nn.Module):
                  dropout_prob=0.6,
                  bn_eps=1e-5,
                  in_channels=3,
-                 in_size=(299, 299),
-                 num_classes=1000):
+                 in_size: tuple[int, int] = (299, 299),
+                 num_classes: int = 1000):
         super(InceptionResNetV1, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes

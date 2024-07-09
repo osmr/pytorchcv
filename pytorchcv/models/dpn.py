@@ -21,7 +21,7 @@ class GlobalAvgMaxPool2D(nn.Module):
         The target output size.
     """
     def __init__(self,
-                 output_size=1):
+                 output_size: int = 1):
         super(GlobalAvgMaxPool2D, self).__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(output_size=output_size)
         self.max_pool = nn.AdaptiveMaxPool2d(output_size=output_size)
@@ -57,7 +57,7 @@ class PreActivation(nn.Module):
         Number of channels.
     """
     def __init__(self,
-                 channels):
+                 channels: int):
         super(PreActivation, self).__init__()
         self.bn = dpn_batch_norm(channels=channels)
         self.activ = nn.ReLU(inplace=True)
@@ -88,12 +88,12 @@ class DPNConv(nn.Module):
         Number of groups.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 groups):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 groups: int):
         super(DPNConv, self).__init__()
         self.bn = dpn_batch_norm(channels=in_channels)
         self.activ = nn.ReLU(inplace=True)
@@ -113,9 +113,9 @@ class DPNConv(nn.Module):
         return x
 
 
-def dpn_conv1x1(in_channels,
-                out_channels,
-                stride=1):
+def dpn_conv1x1(in_channels: int,
+                out_channels: int,
+                stride: int | tuple[int, int] = 1):
     """
     1x1 version of the DPN specific convolution block.
 
@@ -137,10 +137,10 @@ def dpn_conv1x1(in_channels,
         groups=1)
 
 
-def dpn_conv3x3(in_channels,
-                out_channels,
-                stride,
-                groups):
+def dpn_conv3x3(in_channels: int,
+                out_channels: int,
+                stride: int | tuple[int, int],
+                groups: int):
     """
     3x3 version of the DPN specific convolution block.
 
@@ -188,14 +188,14 @@ class DPNUnit(nn.Module):
         Whether to use B-case model.
     """
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 bw,
-                 inc,
-                 groups,
-                 has_proj,
-                 key_stride,
-                 b_case=False):
+                 in_channels: int,
+                 mid_channels: int,
+                 bw: int,
+                 inc: int,
+                 groups: int,
+                 has_proj: bool,
+                 key_stride: int,
+                 b_case: bool = False):
         super(DPNUnit, self).__init__()
         self.bw = bw
         self.has_proj = has_proj
@@ -270,10 +270,10 @@ class DPNInitBlock(nn.Module):
         Padding value for convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 padding):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 padding: int | tuple[int, int]):
         super(DPNInitBlock, self).__init__()
         self.conv = nn.Conv2d(
             in_channels=in_channels,
@@ -307,7 +307,7 @@ class DPNFinalBlock(nn.Module):
         Number of channels.
     """
     def __init__(self,
-                 channels):
+                 channels: int):
         super(DPNFinalBlock, self).__init__()
         self.activ = PreActivation(channels=channels)
 
@@ -332,11 +332,11 @@ class DPN(nn.Module):
         Convolution window size for the initial unit.
     init_block_padding : int or tuple(int, int)
         Padding value for convolution layer in the initial unit.
-    rs : list f int
+    rs : list(int)
         Number of intermediate channels for each unit.
-    bws : list f int
+    bws : list(int)
         Number of residual channels for each unit.
-    incs : list f int
+    incs : list(int)
         Incrementing step for channels for each unit.
     groups : int
         Number of groups in the units.
@@ -355,16 +355,16 @@ class DPN(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 init_block_kernel_size,
-                 init_block_padding,
-                 rs,
-                 bws,
-                 incs,
-                 groups,
-                 b_case,
-                 for_training,
-                 test_time_pool,
+                 init_block_channels: int,
+                 init_block_kernel_size: int | tuple[int, int],
+                 init_block_padding: int | tuple[int, int],
+                 rs: list[int],
+                 bws: list[int],
+                 incs: list[int],
+                 groups: int,
+                 b_case: bool,
+                 for_training: bool,
+                 test_time_pool: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -436,9 +436,9 @@ class DPN(nn.Module):
         return x
 
 
-def get_dpn(num_layers,
-            b_case=False,
-            for_training=False,
+def get_dpn(num_layers: int,
+            b_case: bool = False,
+            for_training: bool = False,
             model_name: str | None = None,
             pretrained: bool = False,
             root: str = os.path.join("~", ".torch", "models"),
@@ -452,7 +452,7 @@ def get_dpn(num_layers,
         Number of layers.
     b_case : bool, default False
         Whether to use B-case model.
-    for_training : bool
+    for_training : bool, default False
         Whether to use model for training.
     model_name : str or None, default None
         Model name for loading pretrained model.

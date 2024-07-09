@@ -798,7 +798,7 @@ class PolyNet(nn.Module):
                  dropout_rate=0.2,
                  in_channels=3,
                  in_size=(331, 331),
-                 num_classes=1000):
+                 num_classes: int = 1000):
         super(PolyNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes

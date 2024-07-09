@@ -29,10 +29,10 @@ class DLABottleneck(ResBottleneck):
         Bottleneck factor.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck_factor=2):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck_factor: int = 2):
         super(DLABottleneck, self).__init__(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -58,11 +58,11 @@ class DLABottleneckX(ResNeXtBottleneck):
         Width of bottleneck block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 cardinality=32,
-                 bottleneck_width=8):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 cardinality: int = 32,
+                 bottleneck_width: int = 8):
         super(DLABottleneckX, self).__init__(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -83,17 +83,17 @@ class DLAResBlock(nn.Module):
         Number of output channels.
     stride : int or tuple(int, int)
         Strides of the convolution.
-    body_class : nn.Module, default ResBlock
+    body_class : type(nn.Module), default ResBlock
         Residual block body class.
     return_down : bool, default False
         Whether return downsample result.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 body_class=ResBlock,
-                 return_down=False):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 body_class: type[nn.Module] = ResBlock,
+                 return_down: bool = False):
         super(DLAResBlock, self).__init__()
         self.return_down = return_down
         self.downsample = (stride > 1)
@@ -142,9 +142,9 @@ class DLARoot(nn.Module):
         Whether to use residual connection.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 residual):
+                 in_channels: int,
+                 out_channels: int,
+                 residual: bool):
         super(DLARoot, self).__init__()
         self.residual = residual
 
@@ -182,7 +182,7 @@ class DLATree(nn.Module):
         Strides of the convolution in a residual block.
     root_residual : bool
         Whether to use residual connection in the root.
-    root_dim : int
+    root_dim : int, default 0
         Number of input channels in the root block.
     first_tree : bool, default False
         Is this tree stage the first stage in the net.
@@ -192,16 +192,16 @@ class DLATree(nn.Module):
         Whether return downsample result.
     """
     def __init__(self,
-                 levels,
-                 in_channels,
-                 out_channels,
-                 res_body_class,
-                 stride,
-                 root_residual,
-                 root_dim=0,
-                 first_tree=False,
-                 input_level=True,
-                 return_down=False):
+                 levels: int,
+                 in_channels: int,
+                 out_channels: int,
+                 res_body_class: type[nn.Module],
+                 stride: int | tuple[int, int],
+                 root_residual: bool,
+                 root_dim: int = 0,
+                 first_tree: bool = False,
+                 input_level: bool = True,
+                 return_down: bool = False):
         super(DLATree, self).__init__()
         self.return_down = return_down
         self.add_down = (input_level and not first_tree)
@@ -281,8 +281,8 @@ class DLAInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(DLAInitBlock, self).__init__()
         mid_channels = out_channels // 2
 
@@ -332,7 +332,7 @@ class DLA(nn.Module):
                  channels: list[int],
                  init_block_channels: int,
                  res_body_class: type[nn.Module],
-                 residual_root,
+                 residual_root: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -388,7 +388,7 @@ class DLA(nn.Module):
 def get_dla(levels: list[int],
             channels: list[int],
             res_body_class: type[nn.Module],
-            residual_root=False,
+            residual_root: bool = False,
             model_name: str | None = None,
             pretrained: bool = False,
             root: str = os.path.join("~", ".torch", "models"),
@@ -651,7 +651,10 @@ def dla102x2(**kwargs) -> nn.Module:
         Desired module.
     """
     class DLABottleneckX64(DLABottleneckX):
-        def __init__(self, in_channels, out_channels, stride):
+        def __init__(self,
+                     in_channels: int,
+                     out_channels: int,
+                     stride: int | tuple[int, int]):
             super(DLABottleneckX64, self).__init__(in_channels, out_channels, stride, cardinality=64)
 
     return get_dla(

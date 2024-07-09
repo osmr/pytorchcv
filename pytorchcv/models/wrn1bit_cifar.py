@@ -54,15 +54,15 @@ class Conv2d1bit(nn.Conv2d):
         Whether to use binarization.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding=1,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
-                 binarized=False):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int] = 1,
+                 dilation: int | tuple[int, int] = 1,
+                 groups: int = 1,
+                 bias: bool = False,
+                 binarized: bool = False):
         super(Conv2d1bit, self).__init__(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -87,12 +87,12 @@ class Conv2d1bit(nn.Conv2d):
             groups=self.groups)
 
 
-def conv1x1_1bit(in_channels,
-                 out_channels,
-                 stride=1,
-                 groups=1,
-                 bias=False,
-                 binarized=False):
+def conv1x1_1bit(in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int] = 1,
+                 groups: int = 1,
+                 bias: bool = False,
+                 binarized: bool = False):
     """
     Convolution 1x1 layer with binarization.
 
@@ -121,14 +121,14 @@ def conv1x1_1bit(in_channels,
         binarized=binarized)
 
 
-def conv3x3_1bit(in_channels,
-                 out_channels,
-                 stride=1,
-                 padding=1,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
-                 binarized=False):
+def conv3x3_1bit(in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int] = 1,
+                 padding: int | tuple[int, int] = 1,
+                 dilation: int | tuple[int, int] = 1,
+                 groups: int = 1,
+                 bias: bool = False,
+                 binarized: bool = False):
     """
     Convolution 3x3 layer with binarization.
 
@@ -142,6 +142,8 @@ def conv3x3_1bit(in_channels,
         Strides of the convolution.
     padding : int or tuple(int, int), default 1
         Padding value for convolution layer.
+    dilation : int or tuple(int, int), default 1
+        Dilation value for convolution layer.
     groups : int, default 1
         Number of groups.
     bias : bool, default False
@@ -191,17 +193,17 @@ class ConvBlock1bit(nn.Module):
         Whether to use binarization.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
-                 bn_affine=True,
-                 activate=True,
-                 binarized=False):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 dilation: int | tuple[int, int] = 1,
+                 groups: int = 1,
+                 bias: bool = False,
+                 bn_affine: bool = True,
+                 activate: bool = True,
+                 binarized: bool = False):
         super(ConvBlock1bit, self).__init__()
         self.activate = activate
 
@@ -229,15 +231,15 @@ class ConvBlock1bit(nn.Module):
         return x
 
 
-def conv1x1_block_1bit(in_channels,
-                       out_channels,
-                       stride=1,
-                       padding=0,
-                       groups=1,
-                       bias=False,
-                       bn_affine=True,
-                       activate=True,
-                       binarized=False):
+def conv1x1_block_1bit(in_channels: int,
+                       out_channels: int,
+                       stride: int | tuple[int, int] = 1,
+                       padding: int | tuple[int, int] = 0,
+                       groups: int = 1,
+                       bias: bool = False,
+                       bn_affine: bool = True,
+                       activate: bool = True,
+                       binarized: bool = False):
     """
     1x1 version of the standard convolution block with binarization.
 
@@ -305,17 +307,17 @@ class PreConvBlock1bit(nn.Module):
         Whether to use binarization.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 bias=False,
-                 bn_affine=True,
-                 return_preact=False,
-                 activate=True,
-                 binarized=False):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 dilation: int | tuple[int, int] = 1,
+                 bias: bool = False,
+                 bn_affine: bool = True,
+                 return_preact: bool = False,
+                 activate: bool = True,
+                 binarized: bool = False):
         super(PreConvBlock1bit, self).__init__()
         self.return_preact = return_preact
         self.activate = activate
@@ -348,15 +350,15 @@ class PreConvBlock1bit(nn.Module):
             return x
 
 
-def pre_conv3x3_block_1bit(in_channels,
-                           out_channels,
-                           stride=1,
-                           padding=1,
-                           dilation=1,
-                           bn_affine=True,
-                           return_preact=False,
-                           activate=True,
-                           binarized=False):
+def pre_conv3x3_block_1bit(in_channels: int,
+                           out_channels: int,
+                           stride: int | tuple[int, int] = 1,
+                           padding: int | tuple[int, int] = 1,
+                           dilation: int | tuple[int, int] = 1,
+                           bn_affine: bool = True,
+                           return_preact: bool = False,
+                           activate: bool = True,
+                           binarized: bool = False):
     """
     3x3 version of the pre-activated convolution block with binarization.
 
@@ -410,10 +412,10 @@ class PreResBlock1bit(nn.Module):
         Whether to use binarization.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 binarized=False):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 binarized: bool = False):
         super(PreResBlock1bit, self).__init__()
         self.conv1 = pre_conv3x3_block_1bit(
             in_channels=in_channels,
@@ -450,10 +452,10 @@ class PreResUnit1bit(nn.Module):
         Whether to use binarization.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 binarized=False):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 binarized: bool = False):
         super(PreResUnit1bit, self).__init__()
         self.resize_identity = (stride != 1)
 
@@ -490,8 +492,8 @@ class PreResActivation(nn.Module):
         Whether the BatchNorm layer learns affine parameters.
     """
     def __init__(self,
-                 in_channels,
-                 bn_affine=True):
+                 in_channels: int,
+                 bn_affine: bool = True):
         super(PreResActivation, self).__init__()
         self.bn = nn.BatchNorm2d(
             num_features=in_channels,
@@ -525,9 +527,9 @@ class CIFARWRN1bit(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 binarized=True,
-                 in_channels=3,
+                 init_block_channels: int,
+                 binarized: bool = True,
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (32, 32),
                  num_classes: int = 10):
         super(CIFARWRN1bit, self).__init__()
@@ -581,10 +583,10 @@ class CIFARWRN1bit(nn.Module):
         return x
 
 
-def get_wrn1bit_cifar(num_classes,
-                      blocks,
-                      width_factor,
-                      binarized=True,
+def get_wrn1bit_cifar(num_classes: int,
+                      blocks: int,
+                      width_factor: int,
+                      binarized: bool = True,
                       model_name: str | None = None,
                       pretrained: bool = False,
                       root: str = os.path.join("~", ".torch", "models"),

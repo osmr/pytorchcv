@@ -22,9 +22,9 @@ from .common import (round_channels, lambda_batchnorm2d, conv1x1_block, conv3x3_
 
 
 def calc_tf_padding(x,
-                    kernel_size,
-                    stride=1,
-                    dilation=1):
+                    kernel_size: int,
+                    stride: int = 1,
+                    dilation: int = 1):
     """
     Calculate TF-same like padding size.
 

@@ -29,12 +29,12 @@ class WRNConv(nn.Module):
         Whether activate the convolution block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 activate):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 activate: bool):
         super(WRNConv, self).__init__()
         self.activate = activate
 
@@ -55,10 +55,10 @@ class WRNConv(nn.Module):
         return x
 
 
-def wrn_conv1x1(in_channels,
-                out_channels,
-                stride,
-                activate):
+def wrn_conv1x1(in_channels: int,
+                out_channels: int,
+                stride: int | tuple[int, int],
+                activate: bool):
     """
     1x1 version of the WRN specific convolution block.
 
@@ -82,10 +82,10 @@ def wrn_conv1x1(in_channels,
         activate=activate)
 
 
-def wrn_conv3x3(in_channels,
-                out_channels,
-                stride,
-                activate):
+def wrn_conv3x3(in_channels: int,
+                out_channels: int,
+                stride: int | tuple[int, int],
+                activate: bool):
     """
     3x3 version of the WRN specific convolution block.
 
@@ -125,10 +125,10 @@ class WRNBottleneck(nn.Module):
         Wide scale factor for width of layers.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 width_factor):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 width_factor: float):
         super(WRNBottleneck, self).__init__()
         mid_channels = int(round(out_channels // 4 * width_factor))
 
@@ -171,10 +171,10 @@ class WRNUnit(nn.Module):
         Wide scale factor for width of layers.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 width_factor):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 width_factor: float):
         super(WRNUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -214,8 +214,8 @@ class WRNInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(WRNInitBlock, self).__init__()
         self.conv = WRNConv(
             in_channels=in_channels,
@@ -256,8 +256,8 @@ class WRN(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 width_factor,
+                 init_block_channels: int,
+                 width_factor: float,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -305,8 +305,8 @@ class WRN(nn.Module):
         return x
 
 
-def get_wrn(blocks,
-            width_factor,
+def get_wrn(blocks: int,
+            width_factor: float,
             model_name: str | None = None,
             pretrained: bool = False,
             root: str = os.path.join("~", ".torch", "models"),

@@ -23,8 +23,8 @@ class VisemeDenseBranch(nn.Module):
         Number of middle/output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list):
+                 in_channels: int,
+                 out_channels_list: list[int]):
         super(VisemeDenseBranch, self).__init__()
         self.branch = nn.Sequential()
         for i, out_channels in enumerate(out_channels_list[:-1]):
@@ -59,10 +59,10 @@ class VisemeRnnBranch(nn.Module):
         Dropout rate.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list,
-                 rnn_num_layers,
-                 dropout_rate):
+                 in_channels: int,
+                 out_channels_list: list[int],
+                 rnn_num_layers: int,
+                 dropout_rate: float):
         super(VisemeRnnBranch, self).__init__()
         self.rnn = nn.LSTM(
             input_size=in_channels,
@@ -104,14 +104,14 @@ class VisemeNet(nn.Module):
         Dropout rate for RNNs.
     """
     def __init__(self,
-                 audio_features=195,
-                 audio_window_size=8,
-                 stage2_window_size=64,
-                 num_face_ids=76,
-                 num_landmarks=76,
-                 num_phonemes=21,
-                 num_visemes=20,
-                 dropout_rate=0.5):
+                 audio_features: int = 195,
+                 audio_window_size: int = 8,
+                 stage2_window_size: int = 64,
+                 num_face_ids: int = 76,
+                 num_landmarks: int = 76,
+                 num_phonemes: int = 21,
+                 num_visemes: int = 20,
+                 dropout_rate: float = 0.5):
         super(VisemeNet, self).__init__()
         stage1_rnn_hidden_size = 256
         stage1_fc_mid_channels = 256

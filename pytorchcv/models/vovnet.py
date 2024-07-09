@@ -31,12 +31,12 @@ class VoVUnit(nn.Module):
         Whether to use residual block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 branch_channels,
-                 num_branches,
-                 resize,
-                 use_residual):
+                 in_channels: int,
+                 out_channels: int,
+                 branch_channels: int,
+                 num_branches: int,
+                 resize: bool,
+                 use_residual: bool):
         super(VoVUnit, self).__init__()
         self.resize = resize
         self.use_residual = use_residual
@@ -83,8 +83,8 @@ class VoVInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(VoVInitBlock, self).__init__()
         mid_channels = out_channels // 2
 
@@ -130,7 +130,7 @@ class VoVNet(nn.Module):
     def __init__(self,
                  channels: list[list[int]],
                  branch_channels: list[list[int]],
-                 num_branches,
+                 num_branches: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -185,8 +185,8 @@ class VoVNet(nn.Module):
         return x
 
 
-def get_vovnet(blocks,
-               slim=False,
+def get_vovnet(blocks: int,
+               slim: bool = False,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),

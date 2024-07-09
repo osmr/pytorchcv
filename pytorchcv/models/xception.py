@@ -28,11 +28,11 @@ class DwsConv(nn.Module):
         Padding value for convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride=1,
-                 padding=0):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int] = 1,
+                 padding: int | tuple[int, int] = 0):
         super(DwsConv, self).__init__()
         self.dw_conv = nn.Conv2d(
             in_channels=in_channels,
@@ -74,12 +74,12 @@ class DwsConvBlock(nn.Module):
         Whether activate the convolution block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 activate):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 activate: bool):
         super(DwsConvBlock, self).__init__()
         self.activate = activate
 
@@ -101,9 +101,9 @@ class DwsConvBlock(nn.Module):
         return x
 
 
-def dws_conv3x3_block(in_channels,
-                      out_channels,
-                      activate):
+def dws_conv3x3_block(in_channels: int,
+                      out_channels: int,
+                      activate: bool):
     """
     3x3 version of the depthwise separable convolution block.
 
@@ -145,12 +145,12 @@ class XceptionUnit(nn.Module):
         Whether start from growing.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 reps,
-                 start_with_relu=True,
-                 grow_first=True):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 reps: int,
+                 start_with_relu: bool = True,
+                 grow_first: bool = True):
         super(XceptionUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -204,7 +204,7 @@ class XceptionInitBlock(nn.Module):
         Number of input channels.
     """
     def __init__(self,
-                 in_channels):
+                 in_channels: int):
         super(XceptionInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -268,9 +268,9 @@ class Xception(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 in_channels=3,
-                 in_size=(299, 299),
-                 num_classes=1000):
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (299, 299),
+                 num_classes: int = 1000):
         super(Xception, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
