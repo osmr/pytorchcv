@@ -27,8 +27,8 @@ class FirstLSTMAmp(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_features,
-                 out_features):
+                 in_features: int,
+                 out_features: int):
         super(FirstLSTMAmp, self).__init__()
         mid_features = in_features // 4
 
@@ -63,10 +63,10 @@ class DIALSTMCell(nn.Module):
         Parameter of Dropout layer. Faction of the input units to drop.
     """
     def __init__(self,
-                 in_x_features,
-                 in_h_features,
-                 num_layers,
-                 dropout_rate=0.1):
+                 in_x_features: int,
+                 in_h_features: int,
+                 num_layers: int,
+                 dropout_rate: float = 0.1):
         super(DIALSTMCell, self).__init__()
         self.num_layers = num_layers
         out_features = 4 * in_h_features
@@ -118,9 +118,9 @@ class DIAAttention(nn.Module):
         Number of amplifiers.
     """
     def __init__(self,
-                 in_x_features,
-                 in_h_features,
-                 num_layers=1):
+                 in_x_features: int,
+                 in_h_features: int,
+                 num_layers: int = 1):
         super(DIAAttention, self).__init__()
         self.num_layers = num_layers
 
@@ -164,18 +164,18 @@ class DIAResUnit(nn.Module):
         Whether to use a bottleneck or simple block in units.
     conv1_stride : bool, default False
         Whether to use stride in the first or the second convolution layer of the block.
-    attention : nn.Module, default None
+    attention : nn.Module or None, default None
         Attention module.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 padding=1,
-                 dilation=1,
-                 bottleneck=True,
-                 conv1_stride=False,
-                 attention=None):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int] = 1,
+                 dilation: int | tuple[int, int] = 1,
+                 bottleneck: bool = True,
+                 conv1_stride: bool = False,
+                 attention: nn.Module | None = None):
         super(DIAResUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -236,9 +236,9 @@ class DIAResNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck,
-                 conv1_stride,
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 conv1_stride: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -291,10 +291,10 @@ class DIAResNet(nn.Module):
         return x
 
 
-def get_diaresnet(blocks,
-                  bottleneck=None,
-                  conv1_stride=True,
-                  width_scale=1.0,
+def get_diaresnet(blocks: int,
+                  bottleneck: bool = None,
+                  conv1_stride: bool = True,
+                  width_scale: float = 1.0,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),

@@ -31,16 +31,16 @@ class DIAPreResUnit(nn.Module):
         Whether to use a bottleneck or simple block in units.
     conv1_stride : bool
         Whether to use stride in the first or the second convolution layer of the block.
-    attention : nn.Module, default None
+    attention : nn.Module or None, default None
         Attention module.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck,
-                 conv1_stride,
-                 attention=None):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck: bool,
+                 conv1_stride: bool,
+                 attention: nn.Module | None = None):
         super(DIAPreResUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -95,9 +95,9 @@ class DIAPreResNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck,
-                 conv1_stride,
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 conv1_stride: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -151,10 +151,10 @@ class DIAPreResNet(nn.Module):
         return x
 
 
-def get_diapreresnet(blocks,
-                     bottleneck=None,
-                     conv1_stride=True,
-                     width_scale=1.0,
+def get_diapreresnet(blocks: int,
+                     bottleneck: bool | None = None,
+                     conv1_stride: bool = True,
+                     width_scale: float = 1.0,
                      model_name: str | None = None,
                      pretrained: bool = False,
                      root: str = os.path.join("~", ".torch", "models"),
@@ -166,7 +166,7 @@ def get_diapreresnet(blocks,
     ----------
     blocks : int
         Number of blocks.
-    bottleneck : bool, default None
+    bottleneck : bool or None, default None
         Whether to use a bottleneck or simple block in units.
     conv1_stride : bool, default True
         Whether to use stride in the first or the second convolution layer in units.

@@ -27,8 +27,8 @@ class SpatialDiceBranch(nn.Module):
         Is selected dimension height.
     """
     def __init__(self,
-                 sp_size,
-                 is_height):
+                 sp_size: int,
+                 is_height: bool):
         super(SpatialDiceBranch, self).__init__()
         self.is_height = is_height
         self.index = 2 if is_height else 3
@@ -82,8 +82,8 @@ class DiceBaseBlock(nn.Module):
         Spatial size of the expected input image.
     """
     def __init__(self,
-                 channels,
-                 in_size):
+                 channels: int,
+                 in_size: tuple[int, int]):
         super(DiceBaseBlock, self).__init__()
         mid_channels = 3 * channels
 
@@ -133,9 +133,9 @@ class DiceAttBlock(nn.Module):
         Squeeze reduction value.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 reduction=4):
+                 in_channels: int,
+                 out_channels: int,
+                 reduction: int = 4):
         super(DiceAttBlock, self).__init__()
         mid_channels = in_channels // reduction
 
@@ -174,9 +174,9 @@ class DiceBlock(nn.Module):
         Spatial size of the expected input image.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 in_size):
+                 in_channels: int,
+                 out_channels: int,
+                 in_size: tuple[int, int]):
         super(DiceBlock, self).__init__()
         proj_groups = math.gcd(in_channels, out_channels)
 
@@ -210,7 +210,7 @@ class StridedDiceLeftBranch(nn.Module):
         Number of input/output channels.
     """
     def __init__(self,
-                 channels):
+                 channels: int):
         super(StridedDiceLeftBranch, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=channels,
@@ -241,8 +241,8 @@ class StridedDiceRightBranch(nn.Module):
         Spatial size of the expected input image.
     """
     def __init__(self,
-                 channels,
-                 in_size):
+                 channels: int,
+                 in_size: tuple[int, int]):
         super(StridedDiceRightBranch, self).__init__()
         self.pool = nn.AvgPool2d(
             kernel_size=3,
@@ -278,9 +278,9 @@ class StridedDiceBlock(nn.Module):
         Spatial size of the expected input image.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 in_size):
+                 in_channels: int,
+                 out_channels: int,
+                 in_size: tuple[int, int]):
         super(StridedDiceBlock, self).__init__()
         assert (out_channels == 2 * in_channels)
 
@@ -313,9 +313,9 @@ class ShuffledDiceRightBranch(nn.Module):
         Spatial size of the expected input image.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 in_size):
+                 in_channels: int,
+                 out_channels: int,
+                 in_size: tuple[int, int]):
         super(ShuffledDiceRightBranch, self).__init__()
         self.conv = conv1x1_block(
             in_channels=in_channels,
@@ -346,9 +346,9 @@ class ShuffledDiceBlock(nn.Module):
         Spatial size of the expected input image.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 in_size):
+                 in_channels: int,
+                 out_channels: int,
+                 in_size: tuple[int, int]):
         super(ShuffledDiceBlock, self).__init__()
         self.left_part = in_channels - in_channels // 2
         right_in_channels = in_channels - self.left_part
@@ -382,8 +382,8 @@ class DiceInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(DiceInitBlock, self).__init__()
         self.conv = conv3x3_block(
             in_channels=in_channels,
@@ -411,16 +411,16 @@ class DiceClassifier(nn.Module):
         Number of input channels.
     mid_channels : int
         Number of middle channels.
-    num_classes : int, default 1000
+    num_classes : int
         Number of classification classes.
     dropout_rate : float
         Parameter of Dropout layer. Faction of the input units to drop.
     """
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 num_classes,
-                 dropout_rate):
+                 in_channels: int,
+                 mid_channels: int,
+                 num_classes: int,
+                 dropout_rate: float):
         super(DiceClassifier, self).__init__()
         self.conv1 = conv1x1(
             in_channels=in_channels,
@@ -462,9 +462,9 @@ class DiceNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 classifier_mid_channels,
-                 dropout_rate,
+                 init_block_channels: int,
+                 classifier_mid_channels: int,
+                 dropout_rate: float,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -521,7 +521,7 @@ class DiceNet(nn.Module):
         return x
 
 
-def get_dicenet(width_scale,
+def get_dicenet(width_scale: float,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
