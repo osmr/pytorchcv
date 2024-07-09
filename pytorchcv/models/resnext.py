@@ -34,12 +34,12 @@ class ResNeXtBottleneck(nn.Module):
         Bottleneck factor.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 cardinality,
-                 bottleneck_width,
-                 bottleneck_factor=4):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 cardinality: int,
+                 bottleneck_width: int,
+                 bottleneck_factor: int = 4):
         super(ResNeXtBottleneck, self).__init__()
         mid_channels = out_channels // bottleneck_factor
         D = int(math.floor(mid_channels * (bottleneck_width / 64.0)))
@@ -83,11 +83,11 @@ class ResNeXtUnit(nn.Module):
         Width of bottleneck block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 cardinality,
-                 bottleneck_width):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 cardinality: int,
+                 bottleneck_width: int):
         super(ResNeXtUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -139,9 +139,9 @@ class ResNeXt(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 cardinality,
-                 bottleneck_width,
+                 init_block_channels: int,
+                 cardinality: int,
+                 bottleneck_width: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -190,9 +190,9 @@ class ResNeXt(nn.Module):
         return x
 
 
-def get_resnext(blocks,
-                cardinality,
-                bottleneck_width,
+def get_resnext(blocks: int,
+                cardinality: int,
+                bottleneck_width: int,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),

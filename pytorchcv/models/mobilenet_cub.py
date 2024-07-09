@@ -14,7 +14,7 @@ from .mobilenet import get_mobilenet
 from .fdmobilenet import get_fdmobilenet
 
 
-def mobilenet_w1_cub(num_classes=200,
+def mobilenet_w1_cub(num_classes: int = 200,
                      **kwargs) -> nn.Module:
     """
     1.0 MobileNet-224 model for CUB-200-2011 from 'MobileNets: Efficient Convolutional Neural Networks for Mobile
@@ -41,7 +41,7 @@ def mobilenet_w1_cub(num_classes=200,
         **kwargs)
 
 
-def mobilenet_w3d4_cub(num_classes=200,
+def mobilenet_w3d4_cub(num_classes: int = 200,
                        **kwargs) -> nn.Module:
     """
     0.75 MobileNet-224 model for CUB-200-2011 from 'MobileNets: Efficient Convolutional Neural Networks for Mobile
@@ -68,7 +68,7 @@ def mobilenet_w3d4_cub(num_classes=200,
         **kwargs)
 
 
-def mobilenet_wd2_cub(num_classes=200,
+def mobilenet_wd2_cub(num_classes: int = 200,
                       **kwargs) -> nn.Module:
     """
     0.5 MobileNet-224 model for CUB-200-2011 from 'MobileNets: Efficient Convolutional Neural Networks for Mobile
@@ -95,7 +95,7 @@ def mobilenet_wd2_cub(num_classes=200,
         **kwargs)
 
 
-def mobilenet_wd4_cub(num_classes=200,
+def mobilenet_wd4_cub(num_classes: int = 200,
                       **kwargs) -> nn.Module:
     """
     0.25 MobileNet-224 model for CUB-200-2011 from 'MobileNets: Efficient Convolutional Neural Networks for Mobile
@@ -122,7 +122,7 @@ def mobilenet_wd4_cub(num_classes=200,
         **kwargs)
 
 
-def fdmobilenet_w1_cub(num_classes=200,
+def fdmobilenet_w1_cub(num_classes: int = 200,
                        **kwargs) -> nn.Module:
     """
     FD-MobileNet 1.0x model for CUB-200-2011 from 'FD-MobileNet: Improved MobileNet with A Fast Downsampling Strategy,'
@@ -149,7 +149,7 @@ def fdmobilenet_w1_cub(num_classes=200,
         **kwargs)
 
 
-def fdmobilenet_w3d4_cub(num_classes=200,
+def fdmobilenet_w3d4_cub(num_classes: int = 200,
                          **kwargs) -> nn.Module:
     """
     FD-MobileNet 0.75x model for CUB-200-2011 from 'FD-MobileNet: Improved MobileNet with A Fast Downsampling Strategy,'
@@ -176,7 +176,7 @@ def fdmobilenet_w3d4_cub(num_classes=200,
         **kwargs)
 
 
-def fdmobilenet_wd2_cub(num_classes=200,
+def fdmobilenet_wd2_cub(num_classes: int = 200,
                         **kwargs) -> nn.Module:
     """
     FD-MobileNet 0.5x model for CUB-200-2011 from 'FD-MobileNet: Improved MobileNet with A Fast Downsampling Strategy,'
@@ -203,7 +203,7 @@ def fdmobilenet_wd2_cub(num_classes=200,
         **kwargs)
 
 
-def fdmobilenet_wd4_cub(num_classes=200,
+def fdmobilenet_wd4_cub(num_classes: int = 200,
                         **kwargs) -> nn.Module:
     """
     FD-MobileNet 0.25x model for CUB-200-2011 from 'FD-MobileNet: Improved MobileNet with A Fast Downsampling Strategy,'

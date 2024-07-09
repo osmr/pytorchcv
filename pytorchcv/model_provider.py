@@ -283,6 +283,8 @@ from .models.quartznet import (quartznet5x5_en_ls, quartznet15x5_en, quartznet15
                                quartznet15x5_de, quartznet15x5_it, quartznet15x5_es, quartznet15x5_ca, quartznet15x5_pl,
                                quartznet15x5_ru, quartznet15x5_ru34)
 
+from .models.tresnet import tresnet_m, tresnet_l, tresnet_xl
+
 # from .models.others.oth_quartznet import *
 
 # from .models.others.oth_pose_resnet import *
@@ -1301,6 +1303,10 @@ _models = {
     'quartznet15x5_ru': quartznet15x5_ru,
     'quartznet15x5_ru34': quartznet15x5_ru34,
 
+    'tresnet_m': tresnet_m,
+    'tresnet_l': tresnet_l,
+    'tresnet_xl': tresnet_xl,
+
     # 'oth_quartznet5x5_en_ls': oth_quartznet5x5_en_ls,
     # 'oth_quartznet15x5_en': oth_quartznet15x5_en,
     # 'oth_quartznet15x5_en_nr': oth_quartznet15x5_en_nr,
@@ -1334,7 +1340,6 @@ _models = {
     # 'oth_bisenet': oth_bisenet,
 
     # 'oth_tresnet_m': oth_tresnet_m,
-    # 'tresnet_m': tresnet_m,
 
     # 'oth_dabnet_cityscapes': oth_dabnet_cityscapes,
 }

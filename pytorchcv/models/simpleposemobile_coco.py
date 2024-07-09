@@ -42,14 +42,14 @@ class SimplePoseMobile(nn.Module):
         Number of keypoints.
     """
     def __init__(self,
-                 backbone,
-                 backbone_out_channels,
-                 channels,
-                 decoder_init_block_channels,
-                 return_heatmap=False,
-                 in_channels=3,
-                 in_size=(256, 192),
-                 keypoints=17):
+                 backbone: nn.Sequential,
+                 backbone_out_channels: int,
+                 channels: list[int],
+                 decoder_init_block_channels: int,
+                 return_heatmap: bool = False,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (256, 192),
+                 keypoints: int = 17):
         super(SimplePoseMobile, self).__init__()
         assert (in_channels == 3)
         self.in_size = in_size
@@ -95,9 +95,9 @@ class SimplePoseMobile(nn.Module):
             return keypoints
 
 
-def get_simpleposemobile(backbone,
-                         backbone_out_channels,
-                         keypoints,
+def get_simpleposemobile(backbone: nn.Sequential,
+                         backbone_out_channels: int,
+                         keypoints: int,
                          model_name: str | None = None,
                          pretrained: bool = False,
                          root: str = os.path.join("~", ".torch", "models"),
@@ -148,8 +148,8 @@ def get_simpleposemobile(backbone,
     return net
 
 
-def simplepose_mobile_resnet18_coco(pretrained_backbone=False,
-                                    keypoints=17,
+def simplepose_mobile_resnet18_coco(pretrained_backbone: bool = False,
+                                    keypoints: int = 17,
                                     **kwargs) -> nn.Module:
     """
     SimplePose(Mobile) model on the base of ResNet-18 for COCO Keypoint from 'Simple Baselines for Human Pose Estimation
@@ -181,8 +181,8 @@ def simplepose_mobile_resnet18_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def simplepose_mobile_resnet50b_coco(pretrained_backbone=False,
-                                     keypoints=17,
+def simplepose_mobile_resnet50b_coco(pretrained_backbone: bool = False,
+                                     keypoints: int = 17,
                                      **kwargs) -> nn.Module:
     """
     SimplePose(Mobile) model on the base of ResNet-50b for COCO Keypoint from 'Simple Baselines for Human Pose
@@ -214,8 +214,8 @@ def simplepose_mobile_resnet50b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def simplepose_mobile_mobilenet_w1_coco(pretrained_backbone=False,
-                                        keypoints=17,
+def simplepose_mobile_mobilenet_w1_coco(pretrained_backbone: bool = False,
+                                        keypoints: int = 17,
                                         **kwargs) -> nn.Module:
     """
     SimplePose(Mobile) model on the base of 1.0 MobileNet-224 for COCO Keypoint from 'Simple Baselines for Human Pose
@@ -247,8 +247,8 @@ def simplepose_mobile_mobilenet_w1_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def simplepose_mobile_mobilenetv2b_w1_coco(pretrained_backbone=False,
-                                           keypoints=17,
+def simplepose_mobile_mobilenetv2b_w1_coco(pretrained_backbone: bool = False,
+                                           keypoints: int = 17,
                                            **kwargs) -> nn.Module:
     """
     SimplePose(Mobile) model on the base of 1.0 MobileNetV2b-224 for COCO Keypoint from 'Simple Baselines for Human Pose
@@ -280,8 +280,8 @@ def simplepose_mobile_mobilenetv2b_w1_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def simplepose_mobile_mobilenetv3_small_w1_coco(pretrained_backbone=False,
-                                                keypoints=17,
+def simplepose_mobile_mobilenetv3_small_w1_coco(pretrained_backbone: bool = False,
+                                                keypoints: int = 17,
                                                 **kwargs) -> nn.Module:
     """
     SimplePose(Mobile) model on the base of MobileNetV3 Small 224/1.0 for COCO Keypoint from 'Simple Baselines for Human
@@ -313,8 +313,8 @@ def simplepose_mobile_mobilenetv3_small_w1_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def simplepose_mobile_mobilenetv3_large_w1_coco(pretrained_backbone=False,
-                                                keypoints=17,
+def simplepose_mobile_mobilenetv3_large_w1_coco(pretrained_backbone: bool = False,
+                                                keypoints: int = 17,
                                                 **kwargs) -> nn.Module:
     """
     SimplePose(Mobile) model on the base of MobileNetV3 Large 224/1.0 for COCO Keypoint from 'Simple Baselines for Human

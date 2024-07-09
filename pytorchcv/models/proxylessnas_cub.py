@@ -10,7 +10,7 @@ import torch.nn as nn
 from .proxylessnas import get_proxylessnas
 
 
-def proxylessnas_cpu_cub(num_classes=200,
+def proxylessnas_cpu_cub(num_classes: int = 200,
                          **kwargs) -> nn.Module:
     """
     ProxylessNAS (CPU) model for CUB-200-2011 from 'ProxylessNAS: Direct Neural Architecture Search on Target Task and
@@ -37,7 +37,7 @@ def proxylessnas_cpu_cub(num_classes=200,
         **kwargs)
 
 
-def proxylessnas_gpu_cub(num_classes=200,
+def proxylessnas_gpu_cub(num_classes: int = 200,
                          **kwargs) -> nn.Module:
     """
     ProxylessNAS (GPU) model for CUB-200-2011 from 'ProxylessNAS: Direct Neural Architecture Search on Target Task and
@@ -64,7 +64,7 @@ def proxylessnas_gpu_cub(num_classes=200,
         **kwargs)
 
 
-def proxylessnas_mobile_cub(num_classes=200,
+def proxylessnas_mobile_cub(num_classes: int = 200,
                             **kwargs) -> nn.Module:
     """
     ProxylessNAS (Mobile) model for CUB-200-2011 from 'ProxylessNAS: Direct Neural Architecture Search on Target Task
@@ -91,7 +91,7 @@ def proxylessnas_mobile_cub(num_classes=200,
         **kwargs)
 
 
-def proxylessnas_mobile14_cub(num_classes=200,
+def proxylessnas_mobile14_cub(num_classes: int = 200,
                               **kwargs) -> nn.Module:
     """
     ProxylessNAS (Mobile-14) model for CUB-200-2011 from 'ProxylessNAS: Direct Neural Architecture Search on Target Task

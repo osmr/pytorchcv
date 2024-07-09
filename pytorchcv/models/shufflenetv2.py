@@ -30,11 +30,11 @@ class ShuffleUnit(nn.Module):
         Whether to use residual connection.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 downsample,
-                 use_se,
-                 use_residual):
+                 in_channels: int,
+                 out_channels: int,
+                 downsample: bool,
+                 use_se: bool,
+                 use_residual: bool):
         super(ShuffleUnit, self).__init__()
         self.downsample = downsample
         self.use_se = use_se
@@ -109,8 +109,8 @@ class ShuffleInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(ShuffleInitBlock, self).__init__()
 
         self.conv = conv3x3_block(
@@ -155,10 +155,10 @@ class ShuffleNetV2(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
-                 use_se=False,
-                 use_residual=False,
+                 init_block_channels: int,
+                 final_block_channels: int,
+                 use_se: bool = False,
+                 use_residual: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -211,7 +211,7 @@ class ShuffleNetV2(nn.Module):
         return x
 
 
-def get_shufflenetv2(width_scale,
+def get_shufflenetv2(width_scale: float,
                      model_name: str | None = None,
                      pretrained: bool = False,
                      root: str = os.path.join("~", ".torch", "models"),

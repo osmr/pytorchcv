@@ -81,7 +81,7 @@ class FCN8sd(nn.Module):
                  fixed_size=True,
                  in_channels=3,
                  in_size=(480, 480),
-                 num_classes=21):
+                 num_classes: int = 21):
         super(FCN8sd, self).__init__()
         assert (in_channels > 0)
         self.in_size = in_size
@@ -168,7 +168,7 @@ def get_fcn8sd(backbone,
     return net
 
 
-def fcn8sd_resnetd50b_voc(pretrained_backbone=False,
+def fcn8sd_resnetd50b_voc(pretrained_backbone: bool = False,
                           num_classes=21,
                           aux=True,
                           **kwargs) -> nn.Module:
@@ -207,7 +207,7 @@ def fcn8sd_resnetd50b_voc(pretrained_backbone=False,
         **kwargs)
 
 
-def fcn8sd_resnetd101b_voc(pretrained_backbone=False,
+def fcn8sd_resnetd101b_voc(pretrained_backbone: bool = False,
                            num_classes=21,
                            aux=True,
                            **kwargs) -> nn.Module:
@@ -246,7 +246,7 @@ def fcn8sd_resnetd101b_voc(pretrained_backbone=False,
         **kwargs)
 
 
-def fcn8sd_resnetd50b_coco(pretrained_backbone=False,
+def fcn8sd_resnetd50b_coco(pretrained_backbone: bool = False,
                            num_classes=21,
                            aux=True,
                            **kwargs) -> nn.Module:
@@ -285,7 +285,7 @@ def fcn8sd_resnetd50b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def fcn8sd_resnetd101b_coco(pretrained_backbone=False,
+def fcn8sd_resnetd101b_coco(pretrained_backbone: bool = False,
                             num_classes=21,
                             aux=True,
                             **kwargs) -> nn.Module:
@@ -324,7 +324,7 @@ def fcn8sd_resnetd101b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def fcn8sd_resnetd50b_ade20k(pretrained_backbone=False,
+def fcn8sd_resnetd50b_ade20k(pretrained_backbone: bool = False,
                              num_classes=150,
                              aux=True,
                              **kwargs) -> nn.Module:
@@ -363,7 +363,7 @@ def fcn8sd_resnetd50b_ade20k(pretrained_backbone=False,
         **kwargs)
 
 
-def fcn8sd_resnetd101b_ade20k(pretrained_backbone=False,
+def fcn8sd_resnetd101b_ade20k(pretrained_backbone: bool = False,
                               num_classes=150,
                               aux: bool = True,
                               **kwargs) -> nn.Module:
@@ -402,7 +402,7 @@ def fcn8sd_resnetd101b_ade20k(pretrained_backbone=False,
         **kwargs)
 
 
-def fcn8sd_resnetd50b_cityscapes(pretrained_backbone=False,
+def fcn8sd_resnetd50b_cityscapes(pretrained_backbone: bool = False,
                                  num_classes=19,
                                  aux=True,
                                  **kwargs) -> nn.Module:
@@ -441,7 +441,7 @@ def fcn8sd_resnetd50b_cityscapes(pretrained_backbone=False,
         **kwargs)
 
 
-def fcn8sd_resnetd101b_cityscapes(pretrained_backbone=False,
+def fcn8sd_resnetd101b_cityscapes(pretrained_backbone: bool = False,
                                   num_classes=19,
                                   aux=True,
                                   **kwargs) -> nn.Module:

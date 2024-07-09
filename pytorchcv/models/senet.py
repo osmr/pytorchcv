@@ -29,11 +29,11 @@ class SENetBottleneck(nn.Module):
         Width of bottleneck block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 cardinality,
-                 bottleneck_width):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 cardinality: int,
+                 bottleneck_width: int):
         super(SENetBottleneck, self).__init__()
         mid_channels = out_channels // 4
         D = int(math.floor(mid_channels * (bottleneck_width / 64.0)))
@@ -80,12 +80,12 @@ class SENetUnit(nn.Module):
         Whether to use 3x3 convolution in the identity link.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 cardinality,
-                 bottleneck_width,
-                 identity_conv3x3):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 cardinality: int,
+                 bottleneck_width: int,
+                 identity_conv3x3: bool):
         super(SENetUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -135,8 +135,8 @@ class SEInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(SEInitBlock, self).__init__()
         mid_channels = out_channels // 2
 
@@ -186,9 +186,9 @@ class SENet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 cardinality,
-                 bottleneck_width,
+                 init_block_channels: int,
+                 cardinality: int,
+                 bottleneck_width: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -241,7 +241,7 @@ class SENet(nn.Module):
         return x
 
 
-def get_senet(blocks,
+def get_senet(blocks: int,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),

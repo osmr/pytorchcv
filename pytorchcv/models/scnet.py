@@ -29,9 +29,9 @@ class ScDownBlock(nn.Module):
         Size of the average pooling windows.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 pool_size=2):
+                 in_channels: int,
+                 out_channels: int,
+                 pool_size: int | tuple[int, int] = 2):
         super(ScDownBlock, self).__init__()
         self.pool = nn.AvgPool2d(
             kernel_size=pool_size,
@@ -63,10 +63,10 @@ class ScConv(nn.Module):
         Scale factor.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 scale_factor):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 scale_factor: int):
         super(ScConv, self).__init__()
         self.down = ScDownBlock(
             in_channels=in_channels,
@@ -113,12 +113,12 @@ class ScBottleneck(nn.Module):
         Whether to use average downsampling.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck_factor=4,
-                 scale_factor=4,
-                 avg_downsample=False):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck_factor: int = 4,
+                 scale_factor: int = 4,
+                 avg_downsample: bool = False):
         super(ScBottleneck, self).__init__()
         self.avg_resize = (stride > 1) and avg_downsample
         mid_channels = out_channels // bottleneck_factor // 2
@@ -184,10 +184,10 @@ class ScUnit(nn.Module):
         Whether to use average downsampling.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 avg_downsample=False):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 avg_downsample: bool = False):
         super(ScUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -245,9 +245,9 @@ class SCNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 se_init_block=False,
-                 avg_downsample=False,
+                 init_block_channels: int,
+                 se_init_block: bool = False,
+                 avg_downsample: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -294,11 +294,11 @@ class SCNet(nn.Module):
         return x
 
 
-def get_scnet(blocks,
-              width_scale=1.0,
-              se_init_block=False,
-              avg_downsample=False,
-              init_block_channels_scale=1,
+def get_scnet(blocks: int,
+              width_scale: float = 1.0,
+              se_init_block: bool = False,
+              avg_downsample: bool = False,
+              init_block_channels_scale: int = 1,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),

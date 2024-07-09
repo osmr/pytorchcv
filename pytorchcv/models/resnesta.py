@@ -31,10 +31,10 @@ class ResNeStABlock(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bias=False,
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bias: bool = False,
                  normalization: Callable[..., nn.Module | None] | None = lambda_batchnorm2d()):
         super(ResNeStABlock, self).__init__()
         self.resize = (stride > 1)
@@ -80,10 +80,10 @@ class ResNeStABottleneck(nn.Module):
         Bottleneck factor.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck_factor=4):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck_factor: int = 4):
         super(ResNeStABottleneck, self).__init__()
         self.resize = (stride > 1)
         mid_channels = out_channels // bottleneck_factor
@@ -127,9 +127,9 @@ class ResNeStADownBlock(nn.Module):
         Strides of the convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int]):
         super(ResNeStADownBlock, self).__init__()
         self.pool = nn.AvgPool2d(
             kernel_size=stride,
@@ -163,10 +163,10 @@ class ResNeStAUnit(nn.Module):
         Whether to use a bottleneck or simple block in units.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck=True):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck: bool = True):
         super(ResNeStAUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -222,9 +222,9 @@ class ResNeStA(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck,
-                 dropout_rate=0.0,
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 dropout_rate: float = 0.0,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -273,9 +273,9 @@ class ResNeStA(nn.Module):
         return x
 
 
-def get_resnesta(blocks,
-                 bottleneck=None,
-                 width_scale=1.0,
+def get_resnesta(blocks: int,
+                 bottleneck: bool = None,
+                 width_scale: float = 1.0,
                  model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),

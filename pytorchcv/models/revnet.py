@@ -107,8 +107,8 @@ class ReversibleBlock(nn.Module):
         Gm-function.
     """
     def __init__(self,
-                 fm,
-                 gm):
+                 fm: nn.Module,
+                 gm: nn.Module):
         super(ReversibleBlock, self).__init__()
         self.gm = gm
         self.fm = fm
@@ -151,13 +151,13 @@ class RevResBlock(nn.Module):
     stride : int or tuple(int, int)
         Strides of the convolution.
     preactivate : bool
-        Whether use pre-activation for the first convolution block.
+        Whether to use pre-activation for the first convolution block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 preactivate):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 preactivate: bool):
         super(RevResBlock, self).__init__()
         if preactivate:
             self.conv1 = pre_conv3x3_block(
@@ -192,16 +192,16 @@ class RevResBottleneck(nn.Module):
     stride : int or tuple(int, int)
         Strides of the convolution.
     preactivate : bool
-        Whether use pre-activation for the first convolution block.
+        Whether to use pre-activation for the first convolution block.
     bottleneck_factor : int, default 4
         Bottleneck factor.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 preactivate,
-                 bottleneck_factor=4):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 preactivate: bool,
+                 bottleneck_factor: int = 4):
         super(RevResBottleneck, self).__init__()
         mid_channels = out_channels // bottleneck_factor
 
@@ -243,14 +243,14 @@ class RevUnit(nn.Module):
     bottleneck : bool
         Whether to use a bottleneck or simple block in units.
     preactivate : bool
-        Whether use pre-activation for the first convolution block.
+        Whether to use pre-activation for the first convolution block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck,
-                 preactivate):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck: bool,
+                 preactivate: bool):
         super(RevUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
         body_class = RevResBottleneck if bottleneck else RevResBlock
@@ -304,7 +304,7 @@ class RevPostActivation(nn.Module):
         Number of input channels.
     """
     def __init__(self,
-                 in_channels):
+                 in_channels: int):
         super(RevPostActivation, self).__init__()
         self.bn = nn.BatchNorm2d(num_features=in_channels)
         self.activ = nn.ReLU(inplace=True)
@@ -337,8 +337,8 @@ class RevNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck,
+                 init_block_channels: int,
+                 bottleneck: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -389,7 +389,7 @@ class RevNet(nn.Module):
         return x
 
 
-def get_revnet(blocks,
+def get_revnet(blocks: int,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),

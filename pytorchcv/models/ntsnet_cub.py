@@ -358,7 +358,7 @@ def get_ntsnet(backbone,
     return net
 
 
-def ntsnet_cub(pretrained_backbone=False,
+def ntsnet_cub(pretrained_backbone: bool = False,
                aux=True,
                **kwargs) -> nn.Module:
     """

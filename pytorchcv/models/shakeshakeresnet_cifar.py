@@ -44,9 +44,9 @@ class ShakeShakeShortcut(nn.Module):
         Strides of the convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int]):
         super(ShakeShakeShortcut, self).__init__()
         assert (out_channels % 2 == 0)
         mid_channels = out_channels // 2
@@ -91,10 +91,10 @@ class ShakeShakeResUnit(nn.Module):
         Whether to use a bottleneck or simple block in units.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck: bool):
         super(ShakeShakeResUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
         branch_class = ResBottleneck if bottleneck else ResBlock
@@ -153,9 +153,9 @@ class CIFARShakeShakeResNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck,
-                 in_channels=3,
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (32, 32),
                  num_classes: int = 10):
         super(CIFARShakeShakeResNet, self).__init__()
@@ -202,10 +202,10 @@ class CIFARShakeShakeResNet(nn.Module):
         return x
 
 
-def get_shakeshakeresnet_cifar(num_classes,
-                               blocks,
-                               bottleneck,
-                               first_stage_channels=16,
+def get_shakeshakeresnet_cifar(num_classes: int,
+                               blocks: int,
+                               bottleneck: bool,
+                               first_stage_channels: int = 16,
                                model_name: str | None = None,
                                pretrained: bool = False,
                                root: str = os.path.join("~", ".torch", "models"),

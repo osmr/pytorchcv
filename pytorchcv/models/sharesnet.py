@@ -10,7 +10,8 @@ __all__ = ['ShaResNet', 'sharesnet18', 'sharesnet34', 'sharesnet50', 'sharesnet5
 import os
 from inspect import isfunction
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block
+from typing import Callable
+from .common import lambda_relu, conv1x1_block, conv3x3_block
 from .resnet import ResInitBlock
 
 
@@ -36,25 +37,25 @@ class ShaConvBlock(nn.Module):
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    activation : function or None, default lambda_relu()
+        Lambda-function generator for activation layer.
     activate : bool, default True
         Whether activate the convolution block.
-    shared_conv : Module, default None
+    shared_conv : nn.Module or None, default None
         Shared convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
-                 activation=(lambda: nn.ReLU(inplace=True)),
-                 activate=True,
-                 shared_conv=None):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 dilation: int | tuple[int, int] = 1,
+                 groups: int = 1,
+                 bias: bool = False,
+                 activation: Callable[..., nn.Module] | None = lambda_relu(),
+                 activate: bool = True,
+                 shared_conv: nn.Module | None = None):
         super(ShaConvBlock, self).__init__()
         self.activate = activate
 
@@ -93,16 +94,16 @@ class ShaConvBlock(nn.Module):
         return x
 
 
-def sha_conv3x3_block(in_channels,
-                      out_channels,
-                      stride=1,
-                      padding=1,
-                      dilation=1,
-                      groups=1,
-                      bias=False,
-                      activation=(lambda: nn.ReLU(inplace=True)),
-                      activate=True,
-                      shared_conv=None):
+def sha_conv3x3_block(in_channels: int,
+                      out_channels: int,
+                      stride: int | tuple[int, int] = 1,
+                      padding: int | tuple[int, int] = 1,
+                      dilation: int | tuple[int, int] = 1,
+                      groups: int = 1,
+                      bias: bool = False,
+                      activation: Callable[..., nn.Module] | None = lambda_relu(),
+                      activate: bool = True,
+                      shared_conv: nn.Module | None = None):
     """
     3x3 version of the shared convolution block.
 
@@ -122,11 +123,11 @@ def sha_conv3x3_block(in_channels,
         Number of groups.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    activation : function or None, default lambda_relu()
+        Lambda-function generator for activation layer.
     activate : bool, default True
         Whether activate the convolution block.
-    shared_conv : Module, default None
+    shared_conv : nn.Module or None, default None
         Shared convolution layer.
     """
     return ShaConvBlock(
@@ -155,14 +156,14 @@ class ShaResBlock(nn.Module):
         Number of output channels.
     stride : int or tuple(int, int)
         Strides of the convolution.
-    shared_conv : Module, default None
+    shared_conv : nn.Module or None, default None
         Shared convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 shared_conv=None):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 shared_conv: nn.Module | None = None):
         super(ShaResBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -197,16 +198,16 @@ class ShaResBottleneck(nn.Module):
         Bottleneck factor.
     conv1_stride : bool, default False
         Whether to use stride in the first or the second convolution layer of the block.
-    shared_conv : Module, default None
+    shared_conv : nn.Module or None, default None
         Shared convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 conv1_stride=False,
-                 bottleneck_factor=4,
-                 shared_conv=None):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 conv1_stride: bool = False,
+                 bottleneck_factor: int = 4,
+                 shared_conv: nn.Module | None = None):
         super(ShaResBottleneck, self).__init__()
         assert (conv1_stride or not ((stride > 1) and (shared_conv is not None)))
         mid_channels = out_channels // bottleneck_factor
@@ -248,16 +249,16 @@ class ShaResUnit(nn.Module):
         Whether to use a bottleneck or simple block in units.
     conv1_stride : bool
         Whether to use stride in the first or the second convolution layer of the block.
-    shared_conv : Module, default None
+    shared_conv : nn.Module or None, default None
         Shared convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck,
-                 conv1_stride,
-                 shared_conv=None):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck: bool,
+                 conv1_stride: bool,
+                 shared_conv: nn.Module | None = None):
         super(ShaResUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -317,9 +318,9 @@ class ShaResNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck,
-                 conv1_stride,
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 conv1_stride: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):

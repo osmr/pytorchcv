@@ -31,11 +31,11 @@ class SEResUnit(nn.Module):
         Whether to use stride in the first or the second convolution layer of the block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck,
-                 conv1_stride):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck: bool,
+                 conv1_stride: bool):
         super(SEResUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -94,9 +94,9 @@ class SEResNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck,
-                 conv1_stride,
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 conv1_stride: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -145,9 +145,9 @@ class SEResNet(nn.Module):
         return x
 
 
-def get_seresnet(blocks,
-                 bottleneck=None,
-                 conv1_stride=True,
+def get_seresnet(blocks: int,
+                 bottleneck: bool = None,
+                 conv1_stride: bool = True,
                  model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),

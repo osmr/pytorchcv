@@ -30,11 +30,11 @@ class ResDropResUnit(nn.Module):
         Residual branch life probability.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck,
-                 life_prob):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck: bool,
+                 life_prob: float):
         super(ResDropResUnit, self).__init__()
         self.life_prob = life_prob
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
@@ -78,7 +78,7 @@ class CIFARResDropResNet(nn.Module):
         Number of output channels for the initial unit.
     bottleneck : bool
         Whether to use a bottleneck or simple block in units.
-    life_probs : list of float
+    life_probs : list(float)
         Residual branch life probability for each unit.
     in_channels : int, default 3
         Number of input channels.
@@ -89,10 +89,10 @@ class CIFARResDropResNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck,
-                 life_probs,
-                 in_channels=3,
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 life_probs: list[float],
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (32, 32),
                  num_classes: int = 10):
         super(CIFARResDropResNet, self).__init__()
@@ -142,9 +142,9 @@ class CIFARResDropResNet(nn.Module):
         return x
 
 
-def get_resdropresnet_cifar(num_classes,
-                            blocks,
-                            bottleneck,
+def get_resdropresnet_cifar(num_classes: int,
+                            blocks: int,
+                            bottleneck: bool,
                             model_name: str | None = None,
                             pretrained: bool = False,
                             root: str = os.path.join("~", ".torch", "models"),

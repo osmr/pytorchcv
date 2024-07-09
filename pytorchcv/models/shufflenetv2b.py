@@ -32,12 +32,12 @@ class ShuffleUnit(nn.Module):
         Whether to use channel shuffle in group first mode.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 downsample,
-                 use_se,
-                 use_residual,
-                 shuffle_group_first):
+                 in_channels: int,
+                 out_channels: int,
+                 downsample: bool,
+                 use_se: bool,
+                 use_residual: bool,
+                 shuffle_group_first: bool):
         super(ShuffleUnit, self).__init__()
         self.downsample = downsample
         self.use_se = use_se
@@ -112,8 +112,8 @@ class ShuffleInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(ShuffleInitBlock, self).__init__()
 
         self.conv = conv3x3_block(
@@ -160,11 +160,11 @@ class ShuffleNetV2b(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
-                 use_se=False,
-                 use_residual=False,
-                 shuffle_group_first=True,
+                 init_block_channels: int,
+                 final_block_channels: int,
+                 use_se: bool = False,
+                 use_residual: bool = False,
+                 shuffle_group_first: bool = True,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -218,8 +218,8 @@ class ShuffleNetV2b(nn.Module):
         return x
 
 
-def get_shufflenetv2b(width_scale,
-                      shuffle_group_first=True,
+def get_shufflenetv2b(width_scale: float,
+                      shuffle_group_first: bool = True,
                       model_name: str | None = None,
                       pretrained: bool = False,
                       root: str = os.path.join("~", ".torch", "models"),

@@ -214,7 +214,7 @@ class ICNet(nn.Module):
                  fixed_size=True,
                  in_channels=3,
                  in_size=(480, 480),
-                 num_classes=21):
+                 num_classes: int = 21):
         super(ICNet, self).__init__()
         assert (in_channels > 0)
         assert ((in_size[0] % 8 == 0) and (in_size[1] % 8 == 0))
@@ -328,7 +328,7 @@ def get_icnet(backbones,
     return net
 
 
-def icnet_resnetd50b_cityscapes(pretrained_backbone=False,
+def icnet_resnetd50b_cityscapes(pretrained_backbone: bool = False,
                                 num_classes=19,
                                 aux=True,
                                 **kwargs) -> nn.Module:

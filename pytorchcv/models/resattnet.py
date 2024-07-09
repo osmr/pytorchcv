@@ -26,9 +26,9 @@ class PreResBottleneck(nn.Module):
         Strides of the convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int]):
         super(PreResBottleneck, self).__init__()
         mid_channels = out_channels // 4
 
@@ -65,9 +65,9 @@ class ResBlock(nn.Module):
         Strides of the convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride=1):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int] = 1):
         super(ResBlock, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -100,7 +100,7 @@ class InterpolationBlock(nn.Module):
         Multiplier for spatial size.
     """
     def __init__(self,
-                 scale_factor):
+                 scale_factor: float):
         super(InterpolationBlock, self).__init__()
         self.scale_factor = scale_factor
 
@@ -124,8 +124,8 @@ class DoubleSkipBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(DoubleSkipBlock, self).__init__()
         self.skip1 = ResBlock(
             in_channels=in_channels,
@@ -150,9 +150,9 @@ class ResBlockSequence(nn.Module):
         Length of sequence.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 length):
+                 in_channels: int,
+                 out_channels: int,
+                 length: int):
         super(ResBlockSequence, self).__init__()
         self.blocks = nn.Sequential()
         for i in range(length):
@@ -179,9 +179,9 @@ class DownAttBlock(nn.Module):
         Length of residual blocks list.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 length):
+                 in_channels: int,
+                 out_channels: int,
+                 length: int):
         super(DownAttBlock, self).__init__()
         self.pool = nn.MaxPool2d(
             kernel_size=3,
@@ -214,10 +214,10 @@ class UpAttBlock(nn.Module):
         Multiplier for spatial size.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 length,
-                 scale_factor):
+                 in_channels: int,
+                 out_channels: int,
+                 length: int,
+                 scale_factor: float):
         super(UpAttBlock, self).__init__()
         self.res_blocks = ResBlockSequence(
             in_channels=in_channels,
@@ -241,7 +241,7 @@ class MiddleAttBlock(nn.Module):
         Number of input/output channels.
     """
     def __init__(self,
-                 channels):
+                 channels: int):
         super(MiddleAttBlock, self).__init__()
         self.conv1 = pre_conv1x1_block(
             in_channels=channels,
@@ -274,10 +274,10 @@ class AttBlock(nn.Module):
         Attention block specific scales.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 hourglass_depth,
-                 att_scales):
+                 in_channels: int,
+                 out_channels: int,
+                 hourglass_depth: int,
+                 att_scales: list[int]):
         super(AttBlock, self).__init__()
         assert (len(att_scales) == 3)
         scale_factor = 2
@@ -342,8 +342,8 @@ class ResAttInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(ResAttInitBlock, self).__init__()
         self.conv = conv7x7_block(
             in_channels=in_channels,
@@ -370,7 +370,7 @@ class PreActivation(nn.Module):
         Number of input channels.
     """
     def __init__(self,
-                 in_channels):
+                 in_channels: int):
         super(PreActivation, self).__init__()
         self.bn = nn.BatchNorm2d(num_features=in_channels)
         self.activ = nn.ReLU(inplace=True)
@@ -404,9 +404,9 @@ class ResAttNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
+                 init_block_channels: int,
                  attentions: list[list[int]],
-                 att_scales,
+                 att_scales: list[int],
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -462,7 +462,7 @@ class ResAttNet(nn.Module):
         return x
 
 
-def get_resattnet(blocks,
+def get_resattnet(blocks: int,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),

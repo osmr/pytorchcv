@@ -37,13 +37,13 @@ class SimplePose(nn.Module):
         Number of keypoints.
     """
     def __init__(self,
-                 backbone,
-                 backbone_out_channels,
-                 channels,
-                 return_heatmap=False,
-                 in_channels=3,
-                 in_size=(256, 192),
-                 keypoints=17):
+                 backbone: nn.Sequential,
+                 backbone_out_channels: int,
+                 channels: list[int],
+                 return_heatmap: bool = False,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (256, 192),
+                 keypoints: int = 17):
         super(SimplePose, self).__init__()
         assert (in_channels == 3)
         self.in_size = in_size
@@ -88,9 +88,9 @@ class SimplePose(nn.Module):
             return keypoints
 
 
-def get_simplepose(backbone,
-                   backbone_out_channels,
-                   keypoints,
+def get_simplepose(backbone: nn.Sequential,
+                   backbone_out_channels: int,
+                   keypoints: int,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),
@@ -139,8 +139,8 @@ def get_simplepose(backbone,
     return net
 
 
-def simplepose_resnet18_coco(pretrained_backbone=False,
-                             keypoints=17,
+def simplepose_resnet18_coco(pretrained_backbone: bool = False,
+                             keypoints: int = 17,
                              **kwargs) -> nn.Module:
     """
     SimplePose model on the base of ResNet-18 for COCO Keypoint from 'Simple Baselines for Human Pose Estimation and
@@ -172,8 +172,8 @@ def simplepose_resnet18_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def simplepose_resnet50b_coco(pretrained_backbone=False,
-                              keypoints=17,
+def simplepose_resnet50b_coco(pretrained_backbone: bool = False,
+                              keypoints: int = 17,
                               **kwargs) -> nn.Module:
     """
     SimplePose model on the base of ResNet-50b for COCO Keypoint from 'Simple Baselines for Human Pose Estimation and
@@ -205,8 +205,8 @@ def simplepose_resnet50b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def simplepose_resnet101b_coco(pretrained_backbone=False,
-                               keypoints=17,
+def simplepose_resnet101b_coco(pretrained_backbone: bool = False,
+                               keypoints: int = 17,
                                **kwargs) -> nn.Module:
     """
     SimplePose model on the base of ResNet-101b for COCO Keypoint from 'Simple Baselines for Human Pose Estimation
@@ -238,8 +238,8 @@ def simplepose_resnet101b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def simplepose_resnet152b_coco(pretrained_backbone=False,
-                               keypoints=17,
+def simplepose_resnet152b_coco(pretrained_backbone: bool = False,
+                               keypoints: int = 17,
                                **kwargs) -> nn.Module:
     """
     SimplePose model on the base of ResNet-152b for COCO Keypoint from 'Simple Baselines for Human Pose Estimation
@@ -271,8 +271,8 @@ def simplepose_resnet152b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def simplepose_resneta50b_coco(pretrained_backbone=False,
-                               keypoints=17,
+def simplepose_resneta50b_coco(pretrained_backbone: bool = False,
+                               keypoints: int = 17,
                                **kwargs) -> nn.Module:
     """
     SimplePose model on the base of ResNet(A)-50b for COCO Keypoint from 'Simple Baselines for Human Pose Estimation
@@ -304,8 +304,8 @@ def simplepose_resneta50b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def simplepose_resneta101b_coco(pretrained_backbone=False,
-                                keypoints=17,
+def simplepose_resneta101b_coco(pretrained_backbone: bool = False,
+                                keypoints: int = 17,
                                 **kwargs) -> nn.Module:
     """
     SimplePose model on the base of ResNet(A)-101b for COCO Keypoint from 'Simple Baselines for Human Pose Estimation
@@ -337,8 +337,8 @@ def simplepose_resneta101b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def simplepose_resneta152b_coco(pretrained_backbone=False,
-                                keypoints=17,
+def simplepose_resneta152b_coco(pretrained_backbone: bool = False,
+                                keypoints: int = 17,
                                 **kwargs) -> nn.Module:
     """
     SimplePose model on the base of ResNet(A)-152b for COCO Keypoint from 'Simple Baselines for Human Pose Estimation

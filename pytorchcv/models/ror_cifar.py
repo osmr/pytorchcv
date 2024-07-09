@@ -26,9 +26,9 @@ class RoRBlock(nn.Module):
         Parameter of Dropout layer. Faction of the input units to drop.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 dropout_rate):
+                 in_channels: int,
+                 out_channels: int,
+                 dropout_rate: float):
         super(RoRBlock, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
 
@@ -66,10 +66,10 @@ class RoRResUnit(nn.Module):
         Whether activate output.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 dropout_rate,
-                 last_activate=True):
+                 in_channels: int,
+                 out_channels: int,
+                 dropout_rate: float,
+                 last_activate: bool = True):
         super(RoRResUnit, self).__init__()
         self.last_activate = last_activate
         self.resize_identity = (in_channels != out_channels)
@@ -113,10 +113,10 @@ class RoRResStage(nn.Module):
         Whether downsample output.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list,
-                 dropout_rate,
-                 downsample=True):
+                 in_channels: int,
+                 out_channels_list: list[int],
+                 dropout_rate: float,
+                 downsample: bool = True):
         super(RoRResStage, self).__init__()
         self.downsample = downsample
 
@@ -164,9 +164,9 @@ class RoRResBody(nn.Module):
         Parameter of Dropout layer. Faction of the input units to drop.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_lists,
-                 dropout_rate):
+                 in_channels: int,
+                 out_channels_lists: list[list[int]],
+                 dropout_rate: float):
         super(RoRResBody, self).__init__()
         self.shortcut = conv1x1_block(
             in_channels=in_channels,
@@ -214,9 +214,9 @@ class CIFARRoR(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 dropout_rate=0.0,
-                 in_channels=3,
+                 init_block_channels: int,
+                 dropout_rate: float = 0.0,
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (32, 32),
                  num_classes: int = 10):
         super(CIFARRoR, self).__init__()
@@ -257,8 +257,8 @@ class CIFARRoR(nn.Module):
         return x
 
 
-def get_ror_cifar(num_classes,
-                  blocks,
+def get_ror_cifar(num_classes: int,
+                  blocks: int,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),

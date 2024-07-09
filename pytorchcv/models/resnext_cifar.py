@@ -41,10 +41,10 @@ class CIFARResNeXt(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 cardinality,
-                 bottleneck_width,
-                 in_channels=3,
+                 init_block_channels: int,
+                 cardinality: int,
+                 bottleneck_width: int,
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (32, 32),
                  num_classes: int = 10):
         super(CIFARResNeXt, self).__init__()
@@ -92,10 +92,10 @@ class CIFARResNeXt(nn.Module):
         return x
 
 
-def get_resnext_cifar(num_classes,
-                      blocks,
-                      cardinality,
-                      bottleneck_width,
+def get_resnext_cifar(num_classes: int,
+                      blocks: int,
+                      cardinality: int,
+                      bottleneck_width: int,
                       model_name: str | None = None,
                       pretrained: bool = False,
                       root: str = os.path.join("~", ".torch", "models"),

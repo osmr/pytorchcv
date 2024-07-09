@@ -9,7 +9,7 @@ import torch.nn as nn
 from .jasper import get_jasper
 
 
-def jasperdr10x5_en(num_classes=29,
+def jasperdr10x5_en(num_classes: int = 29,
                     **kwargs) -> nn.Module:
     """
     Jasper DR 10x5 model for English language from 'Jasper: An End-to-End Convolutional Neural Acoustic Model,'
@@ -37,7 +37,7 @@ def jasperdr10x5_en(num_classes=29,
         **kwargs)
 
 
-def jasperdr10x5_en_nr(num_classes=29,
+def jasperdr10x5_en_nr(num_classes: int = 29,
                        **kwargs) -> nn.Module:
     """
     Jasper DR 10x5 model for English language (with presence of noise) from 'Jasper: An End-to-End Convolutional Neural

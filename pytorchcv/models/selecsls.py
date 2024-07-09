@@ -24,8 +24,8 @@ class SelecSLSBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(SelecSLSBlock, self).__init__()
         mid_channels = 2 * out_channels
 
@@ -60,11 +60,11 @@ class SelecSLSUnit(nn.Module):
         Strides of the branch convolution layers.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 skip_channels,
-                 mid_channels,
-                 stride):
+                 in_channels: int,
+                 out_channels: int,
+                 skip_channels: int,
+                 mid_channels: int,
+                 stride: int | tuple[int, int]):
         super(SelecSLSUnit, self).__init__()
         self.resize = (stride == 2)
         mid2_channels = mid_channels // 2
@@ -111,7 +111,7 @@ class SelecSLS(nn.Module):
         Number of skipped channels for each unit.
     mid_channels : list(list(int))
         Number of middle channels for each unit.
-    kernels3 : list(list(int or bool))
+    kernels3 : list(list(int))
         Using 3x3 (instead of 1x1) kernel for each head unit.
     in_channels : int, default 3
         Number of input channels.
@@ -124,7 +124,7 @@ class SelecSLS(nn.Module):
                  channels: list[list[int]],
                  skip_channels: list[list[int]],
                  mid_channels: list[list[int]],
-                 kernels3,
+                 kernels3: list[list[int]],
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -190,7 +190,7 @@ class SelecSLS(nn.Module):
         return x
 
 
-def get_selecsls(version,
+def get_selecsls(version: str,
                  model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),

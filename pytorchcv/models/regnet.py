@@ -34,12 +34,12 @@ class RegNetBottleneck(nn.Module):
         Bottleneck factor.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 groups,
-                 use_se,
-                 bottleneck_factor=1):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 groups: int,
+                 use_se: bool,
+                 bottleneck_factor: int = 1):
         super(RegNetBottleneck, self).__init__()
         self.use_se = use_se
         mid_channels = out_channels // bottleneck_factor
@@ -89,11 +89,11 @@ class RegNetUnit(nn.Module):
         Whether to use SE-module.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 groups,
-                 use_se):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 groups: int,
+                 use_se: bool):
         super(RegNetUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -145,9 +145,9 @@ class RegNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 groups,
-                 use_se,
+                 init_block_channels: int,
+                 groups: list[int],
+                 use_se: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -196,12 +196,12 @@ class RegNet(nn.Module):
         return x
 
 
-def get_regnet(channels_init,
-               channels_slope,
-               channels_mult,
-               depth,
-               groups,
-               use_se=False,
+def get_regnet(channels_init: float,
+               channels_slope: float,
+               channels_mult: float,
+               depth: int,
+               groups: int,
+               use_se: bool = False,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),

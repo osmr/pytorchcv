@@ -150,7 +150,7 @@ class PSPNet(nn.Module):
                  fixed_size=True,
                  in_channels=3,
                  in_size=(480, 480),
-                 num_classes=21):
+                 num_classes: int = 21):
         super(PSPNet, self).__init__()
         assert (in_channels > 0)
         assert ((in_size[0] % 8 == 0) and (in_size[1] % 8 == 0))
@@ -245,7 +245,7 @@ def get_pspnet(backbone,
     return net
 
 
-def pspnet_resnetd50b_voc(pretrained_backbone=False,
+def pspnet_resnetd50b_voc(pretrained_backbone: bool = False,
                           num_classes=21,
                           aux=True,
                           **kwargs) -> nn.Module:
@@ -284,7 +284,7 @@ def pspnet_resnetd50b_voc(pretrained_backbone=False,
         **kwargs)
 
 
-def pspnet_resnetd101b_voc(pretrained_backbone=False,
+def pspnet_resnetd101b_voc(pretrained_backbone: bool = False,
                            num_classes=21,
                            aux=True,
                            **kwargs) -> nn.Module:
@@ -323,7 +323,7 @@ def pspnet_resnetd101b_voc(pretrained_backbone=False,
         **kwargs)
 
 
-def pspnet_resnetd50b_coco(pretrained_backbone=False,
+def pspnet_resnetd50b_coco(pretrained_backbone: bool = False,
                            num_classes=21,
                            aux=True,
                            **kwargs) -> nn.Module:
@@ -362,7 +362,7 @@ def pspnet_resnetd50b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def pspnet_resnetd101b_coco(pretrained_backbone=False,
+def pspnet_resnetd101b_coco(pretrained_backbone: bool = False,
                             num_classes=21,
                             aux=True,
                             **kwargs) -> nn.Module:
@@ -401,7 +401,7 @@ def pspnet_resnetd101b_coco(pretrained_backbone=False,
         **kwargs)
 
 
-def pspnet_resnetd50b_ade20k(pretrained_backbone=False,
+def pspnet_resnetd50b_ade20k(pretrained_backbone: bool = False,
                              num_classes=150,
                              aux=True,
                              **kwargs) -> nn.Module:
@@ -440,7 +440,7 @@ def pspnet_resnetd50b_ade20k(pretrained_backbone=False,
         **kwargs)
 
 
-def pspnet_resnetd101b_ade20k(pretrained_backbone=False,
+def pspnet_resnetd101b_ade20k(pretrained_backbone: bool = False,
                               num_classes=150,
                               aux: bool = True,
                               **kwargs) -> nn.Module:
@@ -479,7 +479,7 @@ def pspnet_resnetd101b_ade20k(pretrained_backbone=False,
         **kwargs)
 
 
-def pspnet_resnetd50b_cityscapes(pretrained_backbone=False,
+def pspnet_resnetd50b_cityscapes(pretrained_backbone: bool = False,
                                  num_classes=19,
                                  aux=True,
                                  **kwargs) -> nn.Module:
@@ -518,7 +518,7 @@ def pspnet_resnetd50b_cityscapes(pretrained_backbone=False,
         **kwargs)
 
 
-def pspnet_resnetd101b_cityscapes(pretrained_backbone=False,
+def pspnet_resnetd101b_cityscapes(pretrained_backbone: bool = False,
                                   num_classes=19,
                                   aux=True,
                                   **kwargs) -> nn.Module:

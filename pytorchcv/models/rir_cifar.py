@@ -21,7 +21,7 @@ class PostActivation(nn.Module):
         Number of input channels.
     """
     def __init__(self,
-                 in_channels):
+                 in_channels: int):
         super(PostActivation, self).__init__()
         self.bn = nn.BatchNorm2d(num_features=in_channels)
         self.activ = nn.ReLU(inplace=True)
@@ -46,9 +46,9 @@ class RiRUnit(nn.Module):
         Strides of the convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int]):
         super(RiRUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -108,8 +108,8 @@ class RiRInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(RiRInitBlock, self).__init__()
         self.res_conv = conv3x3_block(
             in_channels=in_channels,
@@ -157,9 +157,9 @@ class CIFARRiR(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
-                 in_channels=3,
+                 init_block_channels: int,
+                 final_block_channels: int,
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (32, 32),
                  num_classes: int = 10):
         super(CIFARRiR, self).__init__()
@@ -212,7 +212,7 @@ class CIFARRiR(nn.Module):
         return x
 
 
-def get_rir_cifar(num_classes,
+def get_rir_cifar(num_classes: int,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),

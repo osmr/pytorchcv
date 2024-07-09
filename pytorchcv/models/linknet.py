@@ -118,7 +118,7 @@ class LinkNet(nn.Module):
         Number of output channels for the first unit of each stage.
     dilations : list(list(int))
         Dilation values for each unit.
-    dropout_rates : list of float
+    dropout_rates : list(float)
         Parameter of dropout layer for each stage.
     downs : list(int)
         Whether to downscale or upscale in each stage.
@@ -254,7 +254,7 @@ def get_linknet(backbone,
     return net
 
 
-def linknet_cityscapes(pretrained_backbone=False,
+def linknet_cityscapes(pretrained_backbone: bool = False,
                        num_classes=19,
                        **kwargs) -> nn.Module:
     """

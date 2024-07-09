@@ -12,7 +12,7 @@ import torch.nn as nn
 from .jasper import get_jasper
 
 
-def quartznet5x5_en_ls(num_classes=29,
+def quartznet5x5_en_ls(num_classes: int = 29,
                        **kwargs) -> nn.Module:
     """
     QuartzNet 5x5 model for English language (trained on LibriSpeech dataset) from 'QuartzNet: Deep Automatic Speech
@@ -43,7 +43,7 @@ def quartznet5x5_en_ls(num_classes=29,
         **kwargs)
 
 
-def quartznet15x5_en(num_classes=29,
+def quartznet15x5_en(num_classes: int = 29,
                      **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for English language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
@@ -74,7 +74,7 @@ def quartznet15x5_en(num_classes=29,
         **kwargs)
 
 
-def quartznet15x5_en_nr(num_classes=29,
+def quartznet15x5_en_nr(num_classes: int = 29,
                         **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for English language (with presence of noise) from 'QuartzNet: Deep Automatic Speech
@@ -105,7 +105,7 @@ def quartznet15x5_en_nr(num_classes=29,
         **kwargs)
 
 
-def quartznet15x5_fr(num_classes=43,
+def quartznet15x5_fr(num_classes: int = 43,
                      **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for French language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
@@ -137,7 +137,7 @@ def quartznet15x5_fr(num_classes=43,
         **kwargs)
 
 
-def quartznet15x5_de(num_classes=32,
+def quartznet15x5_de(num_classes: int = 32,
                      **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for German language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
@@ -168,7 +168,7 @@ def quartznet15x5_de(num_classes=32,
         **kwargs)
 
 
-def quartznet15x5_it(num_classes=39,
+def quartznet15x5_it(num_classes: int = 39,
                      **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for Italian language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
@@ -199,7 +199,7 @@ def quartznet15x5_it(num_classes=39,
         **kwargs)
 
 
-def quartznet15x5_es(num_classes=36,
+def quartznet15x5_es(num_classes: int = 36,
                      **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for Spanish language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
@@ -230,7 +230,7 @@ def quartznet15x5_es(num_classes=36,
         **kwargs)
 
 
-def quartznet15x5_ca(num_classes=39,
+def quartznet15x5_ca(num_classes: int = 39,
                      **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for Spanish language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
@@ -261,7 +261,7 @@ def quartznet15x5_ca(num_classes=39,
         **kwargs)
 
 
-def quartznet15x5_pl(num_classes=34,
+def quartznet15x5_pl(num_classes: int = 34,
                      **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for Spanish language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
@@ -292,7 +292,7 @@ def quartznet15x5_pl(num_classes=34,
         **kwargs)
 
 
-def quartznet15x5_ru(num_classes=35,
+def quartznet15x5_ru(num_classes: int = 35,
                      **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for Russian language from 'QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel
@@ -323,7 +323,7 @@ def quartznet15x5_ru(num_classes=35,
         **kwargs)
 
 
-def quartznet15x5_ru34(num_classes=34,
+def quartznet15x5_ru34(num_classes: int = 34,
                        **kwargs) -> nn.Module:
     """
     QuartzNet 15x5 model for Russian language (32 graphemes) from 'QuartzNet: Deep Automatic Speech Recognition with 1D

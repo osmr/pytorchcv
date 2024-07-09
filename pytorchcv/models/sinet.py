@@ -28,15 +28,15 @@ class SEBlock(nn.Module):
         Squeeze reduction value.
     round_mid : bool, default False
         Whether to round middle channel number (make divisible by 8).
-    mid_activation : function or nn.Module or str, default lambda_relu()
+    mid_activation : function, default lambda_relu()
         Activation function after the first convolution.
-    out_activation : function or nn.Module or str, default lambda_sigmoid()
+    out_activation : function, default lambda_sigmoid()
         Activation function after the last convolution.
     """
     def __init__(self,
-                 channels,
-                 reduction=16,
-                 round_mid=False,
+                 channels: int,
+                 reduction: int = 16,
+                 round_mid: bool = False,
                  mid_activation: Callable[..., nn.Module] = lambda_relu(),
                  out_activation: Callable[..., nn.Module] = lambda_sigmoid()):
         super(SEBlock, self).__init__()
@@ -99,13 +99,13 @@ class DwsConvBlock(nn.Module):
         Squeeze reduction value (0 means no-se).
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 bias=False,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 dilation: int | tuple[int, int] = 1,
+                 bias: bool = False,
                  dw_normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
                  pw_normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
                  dw_activation: Callable[..., nn.Module] = lambda_relu(),
@@ -146,12 +146,12 @@ class DwsConvBlock(nn.Module):
         return x
 
 
-def dwsconv3x3_block(in_channels,
-                     out_channels,
-                     stride=1,
-                     padding=1,
-                     dilation=1,
-                     bias=False,
+def dwsconv3x3_block(in_channels: int,
+                     out_channels: int,
+                     stride: int | tuple[int, int] = 1,
+                     padding: int | tuple[int, int] = 1,
+                     dilation: int | tuple[int, int] = 1,
+                     bias: bool = False,
                      **kwargs):
     """
     3x3 depthwise separable version of the standard convolution block (SINet version).
@@ -192,12 +192,12 @@ def dwsconv3x3_block(in_channels,
         **kwargs)
 
 
-def dwconv3x3_block(in_channels,
-                    out_channels,
-                    stride=1,
-                    padding=1,
-                    dilation=1,
-                    bias=False,
+def dwconv3x3_block(in_channels: int,
+                    out_channels: int,
+                    stride: int | tuple[int, int] = 1,
+                    padding: int | tuple[int, int] = 1,
+                    dilation: int | tuple[int, int] = 1,
+                    bias: bool = False,
                     normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
                     activation: Callable[..., nn.Module] = lambda_relu()):
     """
@@ -260,13 +260,13 @@ class FDWConvBlock(nn.Module):
         Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 bias=False,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int,
+                 stride: int | tuple[int, int],
+                 padding: int,
+                 dilation: int | tuple[int, int] = 1,
+                 bias: bool = False,
                  normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
                  activation: Callable[..., nn.Module] = lambda_relu()):
         super(FDWConvBlock, self).__init__()
@@ -301,10 +301,10 @@ class FDWConvBlock(nn.Module):
         return x
 
 
-def fdwconv3x3_block(stride=1,
-                     padding=1,
-                     dilation=1,
-                     bias=False,
+def fdwconv3x3_block(stride: int | tuple[int, int] = 1,
+                     padding: int = 1,
+                     dilation: int | tuple[int, int] = 1,
+                     bias: bool = False,
                      **kwargs):
     """
     3x3 factorized depthwise version of the standard convolution block.
@@ -337,10 +337,10 @@ def fdwconv3x3_block(stride=1,
         **kwargs)
 
 
-def fdwconv5x5_block(stride=1,
-                     padding=2,
-                     dilation=1,
-                     bias=False,
+def fdwconv5x5_block(stride: int | tuple[int, int] = 1,
+                     padding: int = 2,
+                     dilation: int | tuple[int, int] = 1,
+                     bias: bool = False,
                      **kwargs):
     """
     5x5 factorized depthwise version of the standard convolution block.
@@ -391,10 +391,10 @@ class SBBlock(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 scale_factor,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int,
+                 scale_factor: int,
                  normalization: Callable[..., nn.Module]):
         super(SBBlock, self).__init__()
         self.use_scale = (scale_factor > 1)
@@ -457,7 +457,7 @@ class PreActivation(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
+                 in_channels: int,
                  normalization: Callable[..., nn.Module]):
         super(PreActivation, self).__init__()
         # self.bn = nn.BatchNorm2d(
@@ -494,11 +494,11 @@ class ESPBlock(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_sizes,
-                 scale_factors,
-                 use_residual,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_sizes: list[int],
+                 scale_factors: list[int],
+                 use_residual: bool,
                  normalization: Callable[..., nn.Module]):
         super(ESPBlock, self).__init__()
         self.use_residual = use_residual
@@ -557,9 +557,9 @@ class SBStage(nn.Module):
         Number of output channels for a downscale block.
     channels_list : list(int)
         Number of output channels for all residual block.
-    kernel_sizes_list : list(int)
+    kernel_sizes_list : list(list(int))
         Convolution window size for branches.
-    scale_factors_list : list(int)
+    scale_factors_list : list(list(int))
         Scale factor for branches.
     use_residual_list : list(int)
         List of flags for using residual in each ESP-block.
@@ -569,13 +569,13 @@ class SBStage(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 down_channels,
-                 channels_list,
-                 kernel_sizes_list,
-                 scale_factors_list,
-                 use_residual_list,
-                 se_reduction,
+                 in_channels: int,
+                 down_channels: int,
+                 channels_list: list[int],
+                 kernel_sizes_list: list[list[int]],
+                 scale_factors_list: list[list[int]],
+                 use_residual_list: list[int],
+                 se_reduction: int,
                  normalization: Callable[..., nn.Module]):
         super(SBStage, self).__init__()
         self.down_conv = dwsconv3x3_block(
@@ -631,9 +631,9 @@ class SBEncoderInitBlock(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 out_channels,
+                 in_channels: int,
+                 mid_channels: int,
+                 out_channels: int,
                  normalization: Callable[..., nn.Module]):
         super(SBEncoderInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
@@ -668,15 +668,15 @@ class SBEncoder(nn.Module):
         Number of input channels.
     out_channels : int
         Number of input channels.
-    init_block_channels : list int
+    init_block_channels : list(int)
         Number of output channels for convolutions in the initial block.
     down_channels_list : list(int)
         Number of downsample channels for each residual block.
     channels_list : list(list(int))
         Number of output channels for all residual block.
-    kernel_sizes_list : list(list(int))
+    kernel_sizes_list : list(list(list(int)))
         Convolution window size for each residual block.
-    scale_factors_list : list(list(int))
+    scale_factors_list : list(list(list(int)))
         Scale factor for each residual block.
     use_residual_list : list(list(int))
         List of flags for using residual in each residual block.
@@ -684,14 +684,14 @@ class SBEncoder(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 init_block_channels,
-                 down_channels_list,
-                 channels_list,
-                 kernel_sizes_list,
-                 scale_factors_list,
-                 use_residual_list,
+                 in_channels: int,
+                 out_channels: int,
+                 init_block_channels: list[int],
+                 down_channels_list: list[int],
+                 channels_list: list[list[int]],
+                 kernel_sizes_list: list[list[list[int]]],
+                 scale_factors_list: list[list[list[int]]],
+                 use_residual_list: list[list[int]],
                  normalization: Callable[..., nn.Module]):
         super(SBEncoder, self).__init__()
         self.init_block = SBEncoderInitBlock(
@@ -747,7 +747,7 @@ class SBDecodeBlock(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 channels,
+                 channels: int,
                  normalization: Callable[..., nn.Module]):
         super(SBDecodeBlock, self).__init__()
         self.up = InterpolationBlock(
@@ -784,8 +784,8 @@ class SBDecoder(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 dim2,
-                 num_classes,
+                 dim2: int,
+                 num_classes: int,
                  normalization: Callable[..., nn.Module]):
         super(SBDecoder, self).__init__()
         self.decode1 = SBDecodeBlock(
@@ -829,9 +829,9 @@ class SINet(nn.Module):
         Number of downsample channels for each residual block.
     channels_list : list(list(int))
         Number of output channels for all residual block.
-    kernel_sizes_list : list(list(int))
+    kernel_sizes_list : list(list(list(int)))
         Convolution window size for each residual block.
-    scale_factors_list : list(list(int))
+    scale_factors_list : list(list(list(int)))
         Scale factor for each residual block.
     use_residual_list : list(list(int))
         List of flags for using residual in each residual block.
@@ -851,18 +851,18 @@ class SINet(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 down_channels_list,
+                 down_channels_list: list[int],
                  channels_list: list[list[int]],
-                 kernel_sizes_list: list[list[int]],
-                 scale_factors_list: list[list[int]],
+                 kernel_sizes_list: list[list[list[int]]],
+                 scale_factors_list: list[list[list[int]]],
                  use_residual_list: list[list[int]],
-                 dim2,
-                 bn_eps,
-                 aux=False,
-                 fixed_size=False,
-                 in_channels=3,
-                 in_size=(1024, 2048),
-                 num_classes=21):
+                 dim2: int,
+                 bn_eps: float,
+                 aux: bool = False,
+                 fixed_size: bool = False,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (1024, 2048),
+                 num_classes: int = 21):
         super(SINet, self).__init__()
         assert (fixed_size is not None)
         assert (in_channels > 0)

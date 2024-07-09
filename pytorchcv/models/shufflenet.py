@@ -27,16 +27,16 @@ class ShuffleUnit(nn.Module):
     groups : int
         Number of groups in convolution layers.
     downsample : bool
-        Whether to do downsample.
+        Whether to do downsampling.
     ignore_group : bool
         Whether ignore group value in the first convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 groups,
-                 downsample,
-                 ignore_group):
+                 in_channels: int,
+                 out_channels: int,
+                 groups: int,
+                 downsample: bool,
+                 ignore_group: bool):
         super(ShuffleUnit, self).__init__()
         self.downsample = downsample
         mid_channels = out_channels // 4
@@ -96,8 +96,8 @@ class ShuffleInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(ShuffleInitBlock, self).__init__()
 
         self.conv = conv3x3(
@@ -141,8 +141,8 @@ class ShuffleNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 groups,
+                 init_block_channels: int,
+                 groups: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -192,8 +192,8 @@ class ShuffleNet(nn.Module):
         return x
 
 
-def get_shufflenet(groups,
-                   width_scale,
+def get_shufflenet(groups: int,
+                   width_scale: float,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),

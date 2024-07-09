@@ -313,7 +313,7 @@ class CIFARFractalNet(nn.Module):
         Number of output channels for each unit.
     num_columns : int
         Number of columns in each block.
-    dropout_probs : list of float
+    dropout_probs : list(float)
         Probability of dropout in each block.
     loc_drop_prob : float
         Local drop path probability.

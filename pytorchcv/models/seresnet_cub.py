@@ -12,7 +12,7 @@ import torch.nn as nn
 from .seresnet import get_seresnet
 
 
-def seresnet10_cub(num_classes=200,
+def seresnet10_cub(num_classes: int = 200,
                    **kwargs) -> nn.Module:
     """
     SE-ResNet-10 model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -39,7 +39,7 @@ def seresnet10_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet12_cub(num_classes=200,
+def seresnet12_cub(num_classes: int = 200,
                    **kwargs) -> nn.Module:
     """
     SE-ResNet-12 model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -66,7 +66,7 @@ def seresnet12_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet14_cub(num_classes=200,
+def seresnet14_cub(num_classes: int = 200,
                    **kwargs) -> nn.Module:
     """
     SE-ResNet-14 model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -93,7 +93,7 @@ def seresnet14_cub(num_classes=200,
         **kwargs)
 
 
-def seresnetbc14b_cub(num_classes=200,
+def seresnetbc14b_cub(num_classes: int = 200,
                       **kwargs) -> nn.Module:
     """
     SE-ResNet-BC-14b model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -122,7 +122,7 @@ def seresnetbc14b_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet16_cub(num_classes=200,
+def seresnet16_cub(num_classes: int = 200,
                    **kwargs) -> nn.Module:
     """
     SE-ResNet-16 model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -149,7 +149,7 @@ def seresnet16_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet18_cub(num_classes=200,
+def seresnet18_cub(num_classes: int = 200,
                    **kwargs) -> nn.Module:
     """
     SE-ResNet-18 model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -175,7 +175,7 @@ def seresnet18_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet26_cub(num_classes=200,
+def seresnet26_cub(num_classes: int = 200,
                    **kwargs) -> nn.Module:
     """
     SE-ResNet-26 model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -203,7 +203,7 @@ def seresnet26_cub(num_classes=200,
         **kwargs)
 
 
-def seresnetbc26b_cub(num_classes=200,
+def seresnetbc26b_cub(num_classes: int = 200,
                       **kwargs) -> nn.Module:
     """
     SE-ResNet-BC-26b model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -232,7 +232,7 @@ def seresnetbc26b_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet34_cub(num_classes=200,
+def seresnet34_cub(num_classes: int = 200,
                    **kwargs) -> nn.Module:
     """
     SE-ResNet-34 model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -258,7 +258,7 @@ def seresnet34_cub(num_classes=200,
         **kwargs)
 
 
-def seresnetbc38b_cub(num_classes=200,
+def seresnetbc38b_cub(num_classes: int = 200,
                       **kwargs) -> nn.Module:
     """
     SE-ResNet-BC-38b model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -287,7 +287,7 @@ def seresnetbc38b_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet50_cub(num_classes=200,
+def seresnet50_cub(num_classes: int = 200,
                    **kwargs) -> nn.Module:
     """
     SE-ResNet-50 model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -313,7 +313,7 @@ def seresnet50_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet50b_cub(num_classes=200,
+def seresnet50b_cub(num_classes: int = 200,
                     **kwargs) -> nn.Module:
     """
     SE-ResNet-50 model with stride at the second convolution in bottleneck block from 'Squeeze-and-Excitation Networks,'
@@ -341,7 +341,7 @@ def seresnet50b_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet101_cub(num_classes=200,
+def seresnet101_cub(num_classes: int = 200,
                     **kwargs) -> nn.Module:
     """
     SE-ResNet-101 model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -367,7 +367,7 @@ def seresnet101_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet101b_cub(num_classes=200,
+def seresnet101b_cub(num_classes: int = 200,
                      **kwargs) -> nn.Module:
     """
     SE-ResNet-101 model with stride at the second convolution in bottleneck block from 'Squeeze-and-Excitation
@@ -395,7 +395,7 @@ def seresnet101b_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet152_cub(num_classes=200,
+def seresnet152_cub(num_classes: int = 200,
                     **kwargs) -> nn.Module:
     """
     SE-ResNet-152 model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -421,7 +421,7 @@ def seresnet152_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet152b_cub(num_classes=200,
+def seresnet152b_cub(num_classes: int = 200,
                      **kwargs) -> nn.Module:
     """
     SE-ResNet-152 model with stride at the second convolution in bottleneck block from 'Squeeze-and-Excitation
@@ -449,7 +449,7 @@ def seresnet152b_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet200_cub(num_classes=200,
+def seresnet200_cub(num_classes: int = 200,
                     **kwargs) -> nn.Module:
     """
     SE-ResNet-200 model for CUB-200-2011 from 'Squeeze-and-Excitation Networks,' https://arxiv.org/abs/1709.01507.
@@ -476,7 +476,7 @@ def seresnet200_cub(num_classes=200,
         **kwargs)
 
 
-def seresnet200b_cub(num_classes=200,
+def seresnet200b_cub(num_classes: int = 200,
                      **kwargs) -> nn.Module:
     """
     SE-ResNet-200 model with stride at the second convolution in bottleneck block from 'Squeeze-and-Excitation
