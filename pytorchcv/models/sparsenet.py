@@ -45,9 +45,9 @@ class SparseBlock(nn.Module):
         Parameter of Dropout layer. Faction of the input units to drop.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 dropout_rate):
+                 in_channels: int,
+                 out_channels: int,
+                 dropout_rate: float):
         super(SparseBlock, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
         bn_size = 4
@@ -85,14 +85,14 @@ class SparseStage(nn.Module):
     dropout_rate : float
         Parameter of Dropout layer. Faction of the input units to drop.
     do_transition : bool
-        Whether use transition block.
+        Whether to use transition block.
     """
     def __init__(self,
-                 in_channels,
-                 channels_per_stage,
-                 growth_rate,
-                 dropout_rate,
-                 do_transition):
+                 in_channels: int,
+                 channels_per_stage: list[int],
+                 growth_rate: int,
+                 dropout_rate: float,
+                 do_transition: bool):
         super(SparseStage, self).__init__()
         self.do_transition = do_transition
 
@@ -144,9 +144,9 @@ class SparseNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 growth_rate,
-                 dropout_rate=0.0,
+                 init_block_channels: int,
+                 growth_rate: int,
+                 dropout_rate: float = 0.0,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -193,7 +193,7 @@ class SparseNet(nn.Module):
         return x
 
 
-def get_sparsenet(num_layers,
+def get_sparsenet(num_layers: int,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),

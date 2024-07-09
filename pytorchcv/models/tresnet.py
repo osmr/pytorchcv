@@ -11,6 +11,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from typing import Callable
 from .common import conv1x1_block, conv3x3_block, SEBlock
 
 
@@ -52,14 +53,14 @@ class TResBlock(nn.Module):
         Number of output channels.
     stride : int or tuple(int, int)
         Strides of the convolution.
-    activation : str
+    activation : function
         Activation function or name of activation function.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 activation):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 activation: Callable[..., nn.Module]):
         super(TResBlock, self).__init__()
         self.resize = (stride > 1)
 
@@ -98,18 +99,18 @@ class TResBottleneck(nn.Module):
         Strides of the convolution.
     use_se : bool
         Whether to use SE-module.
-    activation : str
+    activation : function
         Activation function or name of activation function.
     bottleneck_factor : int, default 4
         Bottleneck factor.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 use_se,
-                 activation,
-                 bottleneck_factor=4):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 use_se: bool,
+                 activation: Callable[..., nn.Module],
+                 bottleneck_factor: int = 4):
         super(TResBottleneck, self).__init__()
         self.use_se = use_se
         self.resize = (stride > 1)
@@ -162,9 +163,9 @@ class ResADownBlock(nn.Module):
         Strides of the convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int]):
         super(ResADownBlock, self).__init__()
         assert (stride > 1)
 
@@ -196,20 +197,20 @@ class TResUnit(nn.Module):
         Number of output channels.
     stride : int or tuple(int, int)
         Strides of the convolution.
-    bottleneck : bool, default True
-        Whether to use a bottleneck or simple block in units.
     use_se : bool
         Whether to use SE-module.
-    activation : str
+    activation : function
         Activation function or name of activation function.
+    bottleneck : bool, default True
+        Whether to use a bottleneck or simple block in units.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 use_se,
-                 activation,
-                 bottleneck=True):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 use_se: bool,
+                 activation: Callable[..., nn.Module],
+                 bottleneck: bool = True):
         super(TResUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -279,13 +280,13 @@ class TResInitBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    activation : str
+    activation : function
         Activation function or name of activation function.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 activation):
+                 in_channels: int,
+                 out_channels: int,
+                 activation: Callable[..., nn.Module]):
         super(TResInitBlock, self).__init__()
         mid_channels = in_channels * 16
 
@@ -311,7 +312,7 @@ class TResNet(nn.Module):
         Number of output channels for each unit.
     init_block_channels : int
         Number of output channels for the initial unit.
-    bottleneck : list of bool
+    bottleneck : list(bool)
         Whether to use a bottleneck or simple block in units for each stage.
     in_channels : int, default 3
         Number of input channels.
@@ -322,8 +323,8 @@ class TResNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck,
+                 init_block_channels: int,
+                 bottleneck: list[bool],
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -375,7 +376,7 @@ class TResNet(nn.Module):
         return x
 
 
-def get_tresnet(version,
+def get_tresnet(version: str,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),

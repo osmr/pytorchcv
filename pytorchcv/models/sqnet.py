@@ -26,16 +26,16 @@ class FireBlock(nn.Module):
     bias : bool
         Whether the layer uses a bias vector.
     normalization : function
-        Normalization function.
-    activation : function or str or None
-        Activation function or name of activation function.
+        Lambda-function generator for normalization layer.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 bias,
+                 in_channels: int,
+                 out_channels: int,
+                 bias: bool,
                  normalization: Callable[..., nn.Module],
-                 activation):
+                 activation: Callable[..., nn.Module]):
         super(FireBlock, self).__init__()
         squeeze_channels = out_channels // 8
         expand_channels = out_channels // 2
@@ -81,16 +81,16 @@ class ParallelDilatedConv(nn.Module):
     bias : bool
         Whether the layer uses a bias vector.
     normalization : function
-        Normalization function.
-    activation : function or str or None
-        Activation function or name of activation function.
+        Lambda-function generator for normalization layer.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 bias,
+                 in_channels: int,
+                 out_channels: int,
+                 bias: bool,
                  normalization: Callable[..., nn.Module],
-                 activation):
+                 activation: Callable[..., nn.Module]):
         super(ParallelDilatedConv, self).__init__()
         dilations = [1, 2, 3, 4]
 
@@ -123,19 +123,19 @@ class SQNetUpStage(nn.Module):
     bias : bool
         Whether the layer uses a bias vector.
     normalization : function
-        Normalization function.
-    activation : function or str or None
-        Activation function or name of activation function.
+        Lambda-function generator for normalization layer.
+    activation : function
+        Lambda-function generator for activation layer.
     use_parallel_conv : bool
         Whether to use parallel dilated convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 bias,
+                 in_channels: int,
+                 out_channels: int,
+                 bias: bool,
                  normalization: Callable[..., nn.Module],
-                 activation,
-                 use_parallel_conv):
+                 activation: Callable[..., nn.Module],
+                 use_parallel_conv: bool):
         super(SQNetUpStage, self).__init__()
 
         if use_parallel_conv:
@@ -192,10 +192,10 @@ class SQNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 layers,
-                 aux=False,
-                 fixed_size=False,
+                 init_block_channels: int,
+                 layers: list[int],
+                 aux: bool = False,
+                 fixed_size: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (1024, 2048),
                  num_classes: int = 19):

@@ -27,10 +27,10 @@ class FireConv(nn.Module):
         Padding value for convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 padding):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 padding: int | tuple[int, int]):
         super(FireConv, self).__init__()
         self.conv = nn.Conv2d(
             in_channels=in_channels,
@@ -60,14 +60,14 @@ class FireUnit(nn.Module):
     expand3x3_channels : int
         Number of output channels for expand 3x3 convolution blocks.
     residual : bool
-        Whether use residual connection.
+        Whether to use residual connection.
     """
     def __init__(self,
-                 in_channels,
-                 squeeze_channels,
-                 expand1x1_channels,
-                 expand3x3_channels,
-                 residual):
+                 in_channels: int,
+                 squeeze_channels: int,
+                 expand1x1_channels: int,
+                 expand3x3_channels: int,
+                 residual: bool):
         super(FireUnit, self).__init__()
         self.residual = residual
 
@@ -113,9 +113,9 @@ class SqueezeInitBlock(nn.Module):
         Convolution window size.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int]):
         super(SqueezeInitBlock, self).__init__()
         self.conv = nn.Conv2d(
             in_channels=in_channels,
@@ -155,8 +155,8 @@ class SqueezeNet(nn.Module):
     def __init__(self,
                  channels: list[list[int]],
                  residuals: list[list[int]] | None,
-                 init_block_kernel_size,
-                 init_block_channels,
+                 init_block_kernel_size: int | tuple[int, int],
+                 init_block_channels: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -218,8 +218,8 @@ class SqueezeNet(nn.Module):
         return x
 
 
-def get_squeezenet(version,
-                   residual=False,
+def get_squeezenet(version: str,
+                   residual: bool = False,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),

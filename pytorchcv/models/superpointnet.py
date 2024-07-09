@@ -27,9 +27,9 @@ class SPHead(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 out_channels):
+                 in_channels: int,
+                 mid_channels: int,
+                 out_channels: int):
         super(SPHead, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -67,12 +67,12 @@ class SPDetector(nn.Module):
         Feature reduction factor.
     """
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 conf_thresh=0.015,
-                 nms_dist=4,
-                 border_size=4,
-                 reduction=8):
+                 in_channels: int,
+                 mid_channels: int,
+                 conf_thresh: float = 0.015,
+                 nms_dist: int = 4,
+                 border_size: int = 4,
+                 reduction: int = 8):
         super(SPDetector, self).__init__()
         self.conf_thresh = conf_thresh
         self.nms_dist = nms_dist
@@ -153,11 +153,11 @@ class SPDescriptor(nn.Module):
         Feature reduction factor.
     """
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 descriptor_length=256,
-                 transpose_descriptors=True,
-                 reduction=8):
+                 in_channels: int,
+                 mid_channels: int,
+                 descriptor_length: int = 256,
+                 transpose_descriptors: bool = True,
+                 reduction: int = 8):
         super(SPDescriptor, self).__init__()
         self.desc_length = descriptor_length
         self.transpose_descriptors = transpose_descriptors
@@ -209,9 +209,9 @@ class SuperPointNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 final_block_channels,
-                 transpose_descriptors=True,
-                 in_channels=1):
+                 final_block_channels: int,
+                 transpose_descriptors: bool = True,
+                 in_channels: int = 1):
         super(SuperPointNet, self).__init__()
         self.features = nn.Sequential()
         for i, channels_per_stage in enumerate(channels):

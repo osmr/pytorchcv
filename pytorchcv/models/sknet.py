@@ -33,13 +33,13 @@ class SKConvBlock(nn.Module):
         Minimal number of intermediate channels (`L` parameter in the paper).
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 groups=32,
-                 num_branches=2,
-                 reduction=16,
-                 min_channels=32):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 groups: int = 32,
+                 num_branches: int = 2,
+                 reduction: int = 16,
+                 min_channels: int = 32):
         super(SKConvBlock, self).__init__()
         self.num_branches = num_branches
         self.out_channels = out_channels
@@ -98,10 +98,10 @@ class SKNetBottleneck(nn.Module):
         Bottleneck factor.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck_factor=2):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck_factor: int = 2):
         super(SKNetBottleneck, self).__init__()
         mid_channels = out_channels // bottleneck_factor
 
@@ -138,9 +138,9 @@ class SKNetUnit(nn.Module):
         Strides of the convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int]):
         super(SKNetUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -186,7 +186,7 @@ class SKNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
+                 init_block_channels: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -233,7 +233,7 @@ class SKNet(nn.Module):
         return x
 
 
-def get_sknet(blocks,
+def get_sknet(blocks: int,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
