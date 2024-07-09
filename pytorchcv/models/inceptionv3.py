@@ -536,7 +536,7 @@ class InceptionV3(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  b_mid_channels,
                  bn_eps=1e-5,

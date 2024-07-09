@@ -32,7 +32,7 @@ class PFPCNet(nn.Module):
         Number of 3D geometry vertices.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  pca_size,
                  use_bn=True,
                  in_channels=1,

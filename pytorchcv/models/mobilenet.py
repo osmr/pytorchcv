@@ -34,7 +34,7 @@ class MobileNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  first_stage_stride,
                  dw_use_bn=True,
                  dw_activation=lambda_relu(),

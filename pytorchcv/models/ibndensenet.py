@@ -176,7 +176,7 @@ class IBNDenseNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  dropout_rate=0.0,
                  in_channels: int = 3,

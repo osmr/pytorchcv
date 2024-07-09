@@ -117,8 +117,8 @@ class CIFAR10MSDNet(nn.Module):
                  use_bottleneck,
                  bottleneck_factors,
                  in_channels=3,
-                 in_size=(32, 32),
-                 num_classes=10):
+                 in_size: tuple[int, int] = (32, 32),
+                 num_classes: int = 10):
         super(CIFAR10MSDNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes

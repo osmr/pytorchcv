@@ -116,12 +116,12 @@ class EfficientNetEdge(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  final_block_channels,
-                 kernel_sizes,
+                 kernel_sizes: list[list[int]],
                  strides_per_stage,
-                 expansion_factors,
+                 expansion_factors: list[list[int]],
                  dropout_rate=0.2,
                  tf_mode=False,
                  bn_eps=1e-5,

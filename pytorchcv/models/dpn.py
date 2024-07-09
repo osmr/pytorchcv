@@ -354,7 +354,7 @@ class DPN(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  init_block_kernel_size,
                  init_block_padding,

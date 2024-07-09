@@ -111,13 +111,13 @@ class CIFARShakeDropResNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  bottleneck,
                  life_probs,
                  in_channels=3,
-                 in_size=(32, 32),
-                 num_classes=10):
+                 in_size: tuple[int, int] = (32, 32),
+                 num_classes: int = 10):
         super(CIFARShakeDropResNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
@@ -236,7 +236,7 @@ def get_shakedropresnet_cifar(num_classes,
     return net
 
 
-def shakedropresnet20_cifar10(num_classes=10,
+def shakedropresnet20_cifar10(num_classes: int = 10,
                               **kwargs) -> nn.Module:
     """
     ShakeDrop-ResNet-20 model for CIFAR-10 from 'ShakeDrop Regularization for Deep Residual Learning,'
@@ -264,7 +264,7 @@ def shakedropresnet20_cifar10(num_classes=10,
         **kwargs)
 
 
-def shakedropresnet20_cifar100(num_classes=100,
+def shakedropresnet20_cifar100(num_classes: int = 100,
                                **kwargs) -> nn.Module:
     """
     ShakeDrop-ResNet-20 model for CIFAR-100 from 'ShakeDrop Regularization for Deep Residual Learning,'
@@ -292,7 +292,7 @@ def shakedropresnet20_cifar100(num_classes=100,
         **kwargs)
 
 
-def shakedropresnet20_svhn(num_classes=10,
+def shakedropresnet20_svhn(num_classes: int = 10,
                            **kwargs) -> nn.Module:
     """
     ShakeDrop-ResNet-20 model for SVHN from 'ShakeDrop Regularization for Deep Residual Learning,'

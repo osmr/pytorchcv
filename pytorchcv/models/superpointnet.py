@@ -208,7 +208,7 @@ class SuperPointNet(nn.Module):
         Number of input channels.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  final_block_channels,
                  transpose_descriptors=True,
                  in_channels=1):

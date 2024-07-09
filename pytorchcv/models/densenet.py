@@ -26,9 +26,9 @@ class DenseUnit(nn.Module):
         Parameter of Dropout layer. Faction of the input units to drop.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 dropout_rate):
+                 in_channels: int,
+                 out_channels: int,
+                 dropout_rate: float):
         super(DenseUnit, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
         bn_size = 4
@@ -67,8 +67,8 @@ class TransitionBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(TransitionBlock, self).__init__()
         self.conv = pre_conv1x1_block(
             in_channels=in_channels,
@@ -104,9 +104,9 @@ class DenseNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
-                 dropout_rate=0.0,
+                 channels: list[list[int]],
+                 init_block_channels: int,
+                 dropout_rate: float = 0.0,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -158,7 +158,7 @@ class DenseNet(nn.Module):
         return x
 
 
-def get_densenet(blocks,
+def get_densenet(blocks: int,
                  model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),

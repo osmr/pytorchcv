@@ -779,9 +779,9 @@ class PolyNet(nn.Module):
 
     Parameters
     ----------
-    two_way_scales : list of list of floats
+    two_way_scales : list(list(float))
         Two way scale values for each normal unit.
-    poly_scales : list of list of floats
+    poly_scales : list(list(float))
         Three way scale values for each normal unit.
     dropout_rate : float, default 0.2
         Fraction of the input units to drop. Must be a number between 0 and 1.
@@ -793,7 +793,7 @@ class PolyNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 two_way_scales,
+                 two_way_scales: list[list[float]],
                  poly_scales,
                  dropout_rate=0.2,
                  in_channels=3,

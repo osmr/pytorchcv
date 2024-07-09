@@ -1059,7 +1059,7 @@ class NASNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  stem_blocks_channels,
                  final_pool_size,

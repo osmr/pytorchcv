@@ -35,12 +35,12 @@ class CIFARDIAResNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  bottleneck,
                  in_channels=3,
-                 in_size=(32, 32),
-                 num_classes=10):
+                 in_size: tuple[int, int] = (32, 32),
+                 num_classes: int = 10):
         super(CIFARDIAResNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
@@ -156,7 +156,7 @@ def get_diaresnet_cifar(num_classes,
     return net
 
 
-def diaresnet20_cifar10(num_classes=10,
+def diaresnet20_cifar10(num_classes: int = 10,
                         **kwargs) -> nn.Module:
     """
     DIA-ResNet-20 model for CIFAR-10 from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -184,7 +184,7 @@ def diaresnet20_cifar10(num_classes=10,
         **kwargs)
 
 
-def diaresnet20_cifar100(num_classes=100,
+def diaresnet20_cifar100(num_classes: int = 100,
                          **kwargs) -> nn.Module:
     """
     DIA-ResNet-20 model for CIFAR-100 from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -212,7 +212,7 @@ def diaresnet20_cifar100(num_classes=100,
         **kwargs)
 
 
-def diaresnet20_svhn(num_classes=10,
+def diaresnet20_svhn(num_classes: int = 10,
                      **kwargs) -> nn.Module:
     """
     DIA-ResNet-20 model for SVHN from 'DIANet: Dense-and-Implicit Attention Network,' https://arxiv.org/abs/1905.10671.
@@ -239,7 +239,7 @@ def diaresnet20_svhn(num_classes=10,
         **kwargs)
 
 
-def diaresnet56_cifar10(num_classes=10,
+def diaresnet56_cifar10(num_classes: int = 10,
                         **kwargs) -> nn.Module:
     """
     DIA-ResNet-56 model for CIFAR-10 from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -267,7 +267,7 @@ def diaresnet56_cifar10(num_classes=10,
         **kwargs)
 
 
-def diaresnet56_cifar100(num_classes=100,
+def diaresnet56_cifar100(num_classes: int = 100,
                          **kwargs) -> nn.Module:
     """
     DIA-ResNet-56 model for CIFAR-100 from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -295,7 +295,7 @@ def diaresnet56_cifar100(num_classes=100,
         **kwargs)
 
 
-def diaresnet56_svhn(num_classes=10,
+def diaresnet56_svhn(num_classes: int = 10,
                      **kwargs) -> nn.Module:
     """
     DIA-ResNet-56 model for SVHN from 'DIANet: Dense-and-Implicit Attention Network,' https://arxiv.org/abs/1905.10671.
@@ -322,7 +322,7 @@ def diaresnet56_svhn(num_classes=10,
         **kwargs)
 
 
-def diaresnet110_cifar10(num_classes=10,
+def diaresnet110_cifar10(num_classes: int = 10,
                          **kwargs) -> nn.Module:
     """
     DIA-ResNet-110 model for CIFAR-10 from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -350,7 +350,7 @@ def diaresnet110_cifar10(num_classes=10,
         **kwargs)
 
 
-def diaresnet110_cifar100(num_classes=100,
+def diaresnet110_cifar100(num_classes: int = 100,
                           **kwargs) -> nn.Module:
     """
     DIA-ResNet-110 model for CIFAR-100 from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -378,7 +378,7 @@ def diaresnet110_cifar100(num_classes=100,
         **kwargs)
 
 
-def diaresnet110_svhn(num_classes=10,
+def diaresnet110_svhn(num_classes: int = 10,
                       **kwargs) -> nn.Module:
     """
     DIA-ResNet-110 model for SVHN from 'DIANet: Dense-and-Implicit Attention Network,' https://arxiv.org/abs/1905.10671.
@@ -405,7 +405,7 @@ def diaresnet110_svhn(num_classes=10,
         **kwargs)
 
 
-def diaresnet164bn_cifar10(num_classes=10,
+def diaresnet164bn_cifar10(num_classes: int = 10,
                            **kwargs) -> nn.Module:
     """
     DIA-ResNet-164(BN) model for CIFAR-10 from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -433,7 +433,7 @@ def diaresnet164bn_cifar10(num_classes=10,
         **kwargs)
 
 
-def diaresnet164bn_cifar100(num_classes=100,
+def diaresnet164bn_cifar100(num_classes: int = 100,
                             **kwargs) -> nn.Module:
     """
     DIA-ResNet-164(BN) model for CIFAR-100 from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -461,7 +461,7 @@ def diaresnet164bn_cifar100(num_classes=100,
         **kwargs)
 
 
-def diaresnet164bn_svhn(num_classes=10,
+def diaresnet164bn_svhn(num_classes: int = 10,
                         **kwargs) -> nn.Module:
     """
     DIA-ResNet-164(BN) model for SVHN from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -489,7 +489,7 @@ def diaresnet164bn_svhn(num_classes=10,
         **kwargs)
 
 
-def diaresnet1001_cifar10(num_classes=10,
+def diaresnet1001_cifar10(num_classes: int = 10,
                           **kwargs) -> nn.Module:
     """
     DIA-ResNet-1001 model for CIFAR-10 from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -517,7 +517,7 @@ def diaresnet1001_cifar10(num_classes=10,
         **kwargs)
 
 
-def diaresnet1001_cifar100(num_classes=100,
+def diaresnet1001_cifar100(num_classes: int = 100,
                            **kwargs) -> nn.Module:
     """
     DIA-ResNet-1001 model for CIFAR-100 from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -545,7 +545,7 @@ def diaresnet1001_cifar100(num_classes=100,
         **kwargs)
 
 
-def diaresnet1001_svhn(num_classes=10,
+def diaresnet1001_svhn(num_classes: int = 10,
                        **kwargs) -> nn.Module:
     """
     DIA-ResNet-1001 model for SVHN from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -573,7 +573,7 @@ def diaresnet1001_svhn(num_classes=10,
         **kwargs)
 
 
-def diaresnet1202_cifar10(num_classes=10,
+def diaresnet1202_cifar10(num_classes: int = 10,
                           **kwargs) -> nn.Module:
     """
     DIA-ResNet-1202 model for CIFAR-10 from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -601,7 +601,7 @@ def diaresnet1202_cifar10(num_classes=10,
         **kwargs)
 
 
-def diaresnet1202_cifar100(num_classes=100,
+def diaresnet1202_cifar100(num_classes: int = 100,
                            **kwargs) -> nn.Module:
     """
     DIA-ResNet-1202 model for CIFAR-100 from 'DIANet: Dense-and-Implicit Attention Network,'
@@ -629,7 +629,7 @@ def diaresnet1202_cifar100(num_classes=100,
         **kwargs)
 
 
-def diaresnet1202_svhn(num_classes=10,
+def diaresnet1202_svhn(num_classes: int = 10,
                        **kwargs) -> nn.Module:
     """
     DIA-ResNet-1202 model for SVHN from 'DIANet: Dense-and-Implicit Attention Network,'

@@ -267,7 +267,7 @@ class Xception(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  in_channels=3,
                  in_size=(299, 299),
                  num_classes=1000):

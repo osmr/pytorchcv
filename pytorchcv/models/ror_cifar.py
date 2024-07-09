@@ -213,12 +213,12 @@ class CIFARRoR(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  dropout_rate=0.0,
                  in_channels=3,
-                 in_size=(32, 32),
-                 num_classes=10):
+                 in_size: tuple[int, int] = (32, 32),
+                 num_classes: int = 10):
         super(CIFARRoR, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
@@ -312,7 +312,7 @@ def get_ror_cifar(num_classes,
     return net
 
 
-def ror3_56_cifar10(num_classes=10,
+def ror3_56_cifar10(num_classes: int = 10,
                     **kwargs) -> nn.Module:
     """
     RoR-3-56 model for CIFAR-10 from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
@@ -339,7 +339,7 @@ def ror3_56_cifar10(num_classes=10,
         **kwargs)
 
 
-def ror3_56_cifar100(num_classes=100,
+def ror3_56_cifar100(num_classes: int = 100,
                      **kwargs) -> nn.Module:
     """
     RoR-3-56 model for CIFAR-100 from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
@@ -366,7 +366,7 @@ def ror3_56_cifar100(num_classes=100,
         **kwargs)
 
 
-def ror3_56_svhn(num_classes=10,
+def ror3_56_svhn(num_classes: int = 10,
                  **kwargs) -> nn.Module:
     """
     RoR-3-56 model for SVHN from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
@@ -393,7 +393,7 @@ def ror3_56_svhn(num_classes=10,
         **kwargs)
 
 
-def ror3_110_cifar10(num_classes=10,
+def ror3_110_cifar10(num_classes: int = 10,
                      **kwargs) -> nn.Module:
     """
     RoR-3-110 model for CIFAR-10 from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
@@ -420,7 +420,7 @@ def ror3_110_cifar10(num_classes=10,
         **kwargs)
 
 
-def ror3_110_cifar100(num_classes=100,
+def ror3_110_cifar100(num_classes: int = 100,
                       **kwargs) -> nn.Module:
     """
     RoR-3-110 model for CIFAR-100 from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
@@ -447,7 +447,7 @@ def ror3_110_cifar100(num_classes=100,
         **kwargs)
 
 
-def ror3_110_svhn(num_classes=10,
+def ror3_110_svhn(num_classes: int = 10,
                   **kwargs) -> nn.Module:
     """
     RoR-3-110 model for SVHN from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
@@ -474,7 +474,7 @@ def ror3_110_svhn(num_classes=10,
         **kwargs)
 
 
-def ror3_164_cifar10(num_classes=10,
+def ror3_164_cifar10(num_classes: int = 10,
                      **kwargs) -> nn.Module:
     """
     RoR-3-164 model for CIFAR-10 from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
@@ -501,7 +501,7 @@ def ror3_164_cifar10(num_classes=10,
         **kwargs)
 
 
-def ror3_164_cifar100(num_classes=100,
+def ror3_164_cifar100(num_classes: int = 100,
                       **kwargs) -> nn.Module:
     """
     RoR-3-164 model for CIFAR-100 from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'
@@ -528,7 +528,7 @@ def ror3_164_cifar100(num_classes=100,
         **kwargs)
 
 
-def ror3_164_svhn(num_classes=10,
+def ror3_164_svhn(num_classes: int = 10,
                   **kwargs) -> nn.Module:
     """
     RoR-3-164 model for SVHN from 'Residual Networks of Residual Networks: Multilevel Residual Networks,'

@@ -156,12 +156,12 @@ class CIFARRiR(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  final_block_channels,
                  in_channels=3,
-                 in_size=(32, 32),
-                 num_classes=10):
+                 in_size: tuple[int, int] = (32, 32),
+                 num_classes: int = 10):
         super(CIFARRiR, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
@@ -259,7 +259,7 @@ def get_rir_cifar(num_classes,
     return net
 
 
-def rir_cifar10(num_classes=10,
+def rir_cifar10(num_classes: int = 10,
                 **kwargs) -> nn.Module:
     """
     RiR model for CIFAR-10 from 'Resnet in Resnet: Generalizing Residual Architectures,'
@@ -285,7 +285,7 @@ def rir_cifar10(num_classes=10,
         **kwargs)
 
 
-def rir_cifar100(num_classes=100,
+def rir_cifar100(num_classes: int = 100,
                  **kwargs) -> nn.Module:
     """
     RiR model for CIFAR-100 from 'Resnet in Resnet: Generalizing Residual Architectures,'
@@ -311,7 +311,7 @@ def rir_cifar100(num_classes=100,
         **kwargs)
 
 
-def rir_svhn(num_classes=10,
+def rir_svhn(num_classes: int = 10,
              **kwargs) -> nn.Module:
     """
     RiR model for SVHN from 'Resnet in Resnet: Generalizing Residual Architectures,'

@@ -589,7 +589,7 @@ class OctResNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  bottleneck,
                  conv1_stride,

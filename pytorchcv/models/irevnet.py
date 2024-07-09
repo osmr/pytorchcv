@@ -316,7 +316,7 @@ class IRevNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  final_block_channels,
                  in_channels: int = 3,

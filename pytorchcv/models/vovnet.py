@@ -119,7 +119,7 @@ class VoVNet(nn.Module):
     branch_channels : list(list(int))
         Number of branch output channels for each unit.
     num_branches : int
-        Number of branches for the each unit.
+        Number of branches for each unit.
     in_channels : int, default 3
         Number of input channels.
     in_size : tuple(int, int), default (224, 224)
@@ -128,8 +128,8 @@ class VoVNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 branch_channels,
+                 channels: list[list[int]],
+                 branch_channels: list[list[int]],
                  num_branches,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),

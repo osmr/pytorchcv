@@ -121,9 +121,9 @@ class SelecSLS(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 skip_channels,
-                 mid_channels,
+                 channels: list[list[int]],
+                 skip_channels: list[list[int]],
+                 mid_channels: list[list[int]],
                  kernels3,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),

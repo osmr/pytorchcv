@@ -524,12 +524,12 @@ class CIFARWRN1bit(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  binarized=True,
                  in_channels=3,
-                 in_size=(32, 32),
-                 num_classes=10):
+                 in_size: tuple[int, int] = (32, 32),
+                 num_classes: int = 10):
         super(CIFARWRN1bit, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
@@ -641,7 +641,7 @@ def get_wrn1bit_cifar(num_classes,
     return net
 
 
-def wrn20_10_1bit_cifar10(num_classes=10,
+def wrn20_10_1bit_cifar10(num_classes: int = 10,
                           **kwargs) -> nn.Module:
     """
     WRN-20-10-1bit model for CIFAR-10 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
@@ -669,7 +669,7 @@ def wrn20_10_1bit_cifar10(num_classes=10,
         **kwargs)
 
 
-def wrn20_10_1bit_cifar100(num_classes=100,
+def wrn20_10_1bit_cifar100(num_classes: int = 100,
                            **kwargs) -> nn.Module:
     """
     WRN-20-10-1bit model for CIFAR-100 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
@@ -697,7 +697,7 @@ def wrn20_10_1bit_cifar100(num_classes=100,
         **kwargs)
 
 
-def wrn20_10_1bit_svhn(num_classes=10,
+def wrn20_10_1bit_svhn(num_classes: int = 10,
                        **kwargs) -> nn.Module:
     """
     WRN-20-10-1bit model for SVHN from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
@@ -725,7 +725,7 @@ def wrn20_10_1bit_svhn(num_classes=10,
         **kwargs)
 
 
-def wrn20_10_32bit_cifar10(num_classes=10,
+def wrn20_10_32bit_cifar10(num_classes: int = 10,
                            **kwargs) -> nn.Module:
     """
     WRN-20-10-32bit model for CIFAR-10 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
@@ -753,7 +753,7 @@ def wrn20_10_32bit_cifar10(num_classes=10,
         **kwargs)
 
 
-def wrn20_10_32bit_cifar100(num_classes=100,
+def wrn20_10_32bit_cifar100(num_classes: int = 100,
                             **kwargs) -> nn.Module:
     """
     WRN-20-10-32bit model for CIFAR-100 from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.
@@ -781,7 +781,7 @@ def wrn20_10_32bit_cifar100(num_classes=100,
         **kwargs)
 
 
-def wrn20_10_32bit_svhn(num_classes=10,
+def wrn20_10_32bit_svhn(num_classes: int = 10,
                         **kwargs) -> nn.Module:
     """
     WRN-20-10-32bit model for SVHN from 'Wide Residual Networks,' https://arxiv.org/abs/1605.07146.

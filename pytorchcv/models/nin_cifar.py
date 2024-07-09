@@ -67,11 +67,11 @@ class CIFARNIN(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  first_kernel_sizes,
                  in_channels=3,
-                 in_size=(32, 32),
-                 num_classes=10):
+                 in_size: tuple[int, int] = (32, 32),
+                 num_classes: int = 10):
         super(CIFARNIN, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
@@ -172,7 +172,7 @@ def get_nin_cifar(num_classes,
     return net
 
 
-def nin_cifar10(num_classes=10,
+def nin_cifar10(num_classes: int = 10,
                 **kwargs) -> nn.Module:
     """
     NIN model for CIFAR-10 from 'Network In Network,' https://arxiv.org/abs/1312.4400.
@@ -197,7 +197,7 @@ def nin_cifar10(num_classes=10,
         **kwargs)
 
 
-def nin_cifar100(num_classes=100,
+def nin_cifar100(num_classes: int = 100,
                  **kwargs) -> nn.Module:
     """
     NIN model for CIFAR-100 from 'Network In Network,' https://arxiv.org/abs/1312.4400.
@@ -222,7 +222,7 @@ def nin_cifar100(num_classes=100,
         **kwargs)
 
 
-def nin_svhn(num_classes=10,
+def nin_svhn(num_classes: int = 10,
              **kwargs) -> nn.Module:
     """
     NIN model for SVHN from 'Network In Network,' https://arxiv.org/abs/1312.4400.

@@ -244,7 +244,7 @@ class SCNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  se_init_block=False,
                  avg_downsample=False,

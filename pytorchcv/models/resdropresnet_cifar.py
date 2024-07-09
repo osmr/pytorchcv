@@ -88,13 +88,13 @@ class CIFARResDropResNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  bottleneck,
                  life_probs,
                  in_channels=3,
-                 in_size=(32, 32),
-                 num_classes=10):
+                 in_size: tuple[int, int] = (32, 32),
+                 num_classes: int = 10):
         super(CIFARResDropResNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
@@ -213,7 +213,7 @@ def get_resdropresnet_cifar(num_classes,
     return net
 
 
-def resdropresnet20_cifar10(num_classes=10,
+def resdropresnet20_cifar10(num_classes: int = 10,
                             **kwargs) -> nn.Module:
     """
     ResDrop-ResNet-20 model for CIFAR-10 from 'Deep Networks with Stochastic Depth,' https://arxiv.org/abs/1603.09382.
@@ -240,7 +240,7 @@ def resdropresnet20_cifar10(num_classes=10,
         **kwargs)
 
 
-def resdropresnet20_cifar100(num_classes=100,
+def resdropresnet20_cifar100(num_classes: int = 100,
                              **kwargs) -> nn.Module:
     """
     ResDrop-ResNet-20 model for CIFAR-100 from 'Deep Networks with Stochastic Depth,' https://arxiv.org/abs/1603.09382.
@@ -267,7 +267,7 @@ def resdropresnet20_cifar100(num_classes=100,
         **kwargs)
 
 
-def resdropresnet20_svhn(num_classes=10,
+def resdropresnet20_svhn(num_classes: int = 10,
                          **kwargs) -> nn.Module:
     """
     ResDrop-ResNet-20 model for SVHN from 'Deep Networks with Stochastic Depth,' https://arxiv.org/abs/1603.09382.

@@ -179,7 +179,7 @@ class MENet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  side_channels,
                  groups,

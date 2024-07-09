@@ -38,12 +38,12 @@ class CIFARPyramidNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  bottleneck,
                  in_channels=3,
-                 in_size=(32, 32),
-                 num_classes=10):
+                 in_size: tuple[int, int] = (32, 32),
+                 num_classes: int = 10):
         super(CIFARPyramidNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
@@ -163,7 +163,7 @@ def get_pyramidnet_cifar(num_classes,
     return net
 
 
-def pyramidnet110_a48_cifar10(num_classes=10,
+def pyramidnet110_a48_cifar10(num_classes: int = 10,
                               **kwargs) -> nn.Module:
     """
     PyramidNet-110 (a=48) model for CIFAR-10 from 'Deep Pyramidal Residual Networks,' https://arxiv.org/abs/1610.02915.
@@ -191,7 +191,7 @@ def pyramidnet110_a48_cifar10(num_classes=10,
         **kwargs)
 
 
-def pyramidnet110_a48_cifar100(num_classes=100,
+def pyramidnet110_a48_cifar100(num_classes: int = 100,
                                **kwargs) -> nn.Module:
     """
     PyramidNet-110 (a=48) model for CIFAR-100 from 'Deep Pyramidal Residual Networks,' https://arxiv.org/abs/1610.02915.
@@ -219,7 +219,7 @@ def pyramidnet110_a48_cifar100(num_classes=100,
         **kwargs)
 
 
-def pyramidnet110_a48_svhn(num_classes=10,
+def pyramidnet110_a48_svhn(num_classes: int = 10,
                            **kwargs) -> nn.Module:
     """
     PyramidNet-110 (a=48) model for SVHN from 'Deep Pyramidal Residual Networks,' https://arxiv.org/abs/1610.02915.
@@ -247,7 +247,7 @@ def pyramidnet110_a48_svhn(num_classes=10,
         **kwargs)
 
 
-def pyramidnet110_a84_cifar10(num_classes=10,
+def pyramidnet110_a84_cifar10(num_classes: int = 10,
                               **kwargs) -> nn.Module:
     """
     PyramidNet-110 (a=84) model for CIFAR-10 from 'Deep Pyramidal Residual Networks,' https://arxiv.org/abs/1610.02915.
@@ -275,7 +275,7 @@ def pyramidnet110_a84_cifar10(num_classes=10,
         **kwargs)
 
 
-def pyramidnet110_a84_cifar100(num_classes=100,
+def pyramidnet110_a84_cifar100(num_classes: int = 100,
                                **kwargs) -> nn.Module:
     """
     PyramidNet-110 (a=84) model for CIFAR-100 from 'Deep Pyramidal Residual Networks,' https://arxiv.org/abs/1610.02915.
@@ -303,7 +303,7 @@ def pyramidnet110_a84_cifar100(num_classes=100,
         **kwargs)
 
 
-def pyramidnet110_a84_svhn(num_classes=10,
+def pyramidnet110_a84_svhn(num_classes: int = 10,
                            **kwargs) -> nn.Module:
     """
     PyramidNet-110 (a=84) model for SVHN from 'Deep Pyramidal Residual Networks,' https://arxiv.org/abs/1610.02915.
@@ -331,7 +331,7 @@ def pyramidnet110_a84_svhn(num_classes=10,
         **kwargs)
 
 
-def pyramidnet110_a270_cifar10(num_classes=10,
+def pyramidnet110_a270_cifar10(num_classes: int = 10,
                                **kwargs) -> nn.Module:
     """
     PyramidNet-110 (a=270) model for CIFAR-10 from 'Deep Pyramidal Residual Networks,' https://arxiv.org/abs/1610.02915.
@@ -359,7 +359,7 @@ def pyramidnet110_a270_cifar10(num_classes=10,
         **kwargs)
 
 
-def pyramidnet110_a270_cifar100(num_classes=100,
+def pyramidnet110_a270_cifar100(num_classes: int = 100,
                                 **kwargs) -> nn.Module:
     """
     PyramidNet-110 (a=270) model for CIFAR-100 from 'Deep Pyramidal Residual Networks,'
@@ -388,7 +388,7 @@ def pyramidnet110_a270_cifar100(num_classes=100,
         **kwargs)
 
 
-def pyramidnet110_a270_svhn(num_classes=10,
+def pyramidnet110_a270_svhn(num_classes: int = 10,
                             **kwargs) -> nn.Module:
     """
     PyramidNet-110 (a=270) model for SVHN from 'Deep Pyramidal Residual Networks,' https://arxiv.org/abs/1610.02915.
@@ -416,7 +416,7 @@ def pyramidnet110_a270_svhn(num_classes=10,
         **kwargs)
 
 
-def pyramidnet164_a270_bn_cifar10(num_classes=10,
+def pyramidnet164_a270_bn_cifar10(num_classes: int = 10,
                                   **kwargs) -> nn.Module:
     """
     PyramidNet-164 (a=270, bn) model for CIFAR-10 from 'Deep Pyramidal Residual Networks,'
@@ -445,7 +445,7 @@ def pyramidnet164_a270_bn_cifar10(num_classes=10,
         **kwargs)
 
 
-def pyramidnet164_a270_bn_cifar100(num_classes=100,
+def pyramidnet164_a270_bn_cifar100(num_classes: int = 100,
                                    **kwargs) -> nn.Module:
     """
     PyramidNet-164 (a=270, bn) model for CIFAR-100 from 'Deep Pyramidal Residual Networks,'
@@ -474,7 +474,7 @@ def pyramidnet164_a270_bn_cifar100(num_classes=100,
         **kwargs)
 
 
-def pyramidnet164_a270_bn_svhn(num_classes=10,
+def pyramidnet164_a270_bn_svhn(num_classes: int = 10,
                                **kwargs) -> nn.Module:
     """
     PyramidNet-164 (a=270, bn) model for SVHN from 'Deep Pyramidal Residual Networks,'
@@ -503,7 +503,7 @@ def pyramidnet164_a270_bn_svhn(num_classes=10,
         **kwargs)
 
 
-def pyramidnet200_a240_bn_cifar10(num_classes=10,
+def pyramidnet200_a240_bn_cifar10(num_classes: int = 10,
                                   **kwargs) -> nn.Module:
     """
     PyramidNet-200 (a=240, bn) model for CIFAR-10 from 'Deep Pyramidal Residual Networks,'
@@ -532,7 +532,7 @@ def pyramidnet200_a240_bn_cifar10(num_classes=10,
         **kwargs)
 
 
-def pyramidnet200_a240_bn_cifar100(num_classes=100,
+def pyramidnet200_a240_bn_cifar100(num_classes: int = 100,
                                    **kwargs) -> nn.Module:
     """
     PyramidNet-200 (a=240, bn) model for CIFAR-100 from 'Deep Pyramidal Residual Networks,'
@@ -561,7 +561,7 @@ def pyramidnet200_a240_bn_cifar100(num_classes=100,
         **kwargs)
 
 
-def pyramidnet200_a240_bn_svhn(num_classes=10,
+def pyramidnet200_a240_bn_svhn(num_classes: int = 10,
                                **kwargs) -> nn.Module:
     """
     PyramidNet-200 (a=240, bn) model for SVHN from 'Deep Pyramidal Residual Networks,'
@@ -590,7 +590,7 @@ def pyramidnet200_a240_bn_svhn(num_classes=10,
         **kwargs)
 
 
-def pyramidnet236_a220_bn_cifar10(num_classes=10,
+def pyramidnet236_a220_bn_cifar10(num_classes: int = 10,
                                   **kwargs) -> nn.Module:
     """
     PyramidNet-236 (a=220, bn) model for CIFAR-10 from 'Deep Pyramidal Residual Networks,'
@@ -619,7 +619,7 @@ def pyramidnet236_a220_bn_cifar10(num_classes=10,
         **kwargs)
 
 
-def pyramidnet236_a220_bn_cifar100(num_classes=100,
+def pyramidnet236_a220_bn_cifar100(num_classes: int = 100,
                                    **kwargs) -> nn.Module:
     """
     PyramidNet-236 (a=220, bn) model for CIFAR-100 from 'Deep Pyramidal Residual Networks,'
@@ -648,7 +648,7 @@ def pyramidnet236_a220_bn_cifar100(num_classes=100,
         **kwargs)
 
 
-def pyramidnet236_a220_bn_svhn(num_classes=10,
+def pyramidnet236_a220_bn_svhn(num_classes: int = 10,
                                **kwargs) -> nn.Module:
     """
     PyramidNet-236 (a=220, bn) model for SVHN from 'Deep Pyramidal Residual Networks,'
@@ -677,7 +677,7 @@ def pyramidnet236_a220_bn_svhn(num_classes=10,
         **kwargs)
 
 
-def pyramidnet272_a200_bn_cifar10(num_classes=10,
+def pyramidnet272_a200_bn_cifar10(num_classes: int = 10,
                                   **kwargs) -> nn.Module:
     """
     PyramidNet-272 (a=200, bn) model for CIFAR-10 from 'Deep Pyramidal Residual Networks,'
@@ -706,7 +706,7 @@ def pyramidnet272_a200_bn_cifar10(num_classes=10,
         **kwargs)
 
 
-def pyramidnet272_a200_bn_cifar100(num_classes=100,
+def pyramidnet272_a200_bn_cifar100(num_classes: int = 100,
                                    **kwargs) -> nn.Module:
     """
     PyramidNet-272 (a=200, bn) model for CIFAR-100 from 'Deep Pyramidal Residual Networks,'
@@ -735,7 +735,7 @@ def pyramidnet272_a200_bn_cifar100(num_classes=100,
         **kwargs)
 
 
-def pyramidnet272_a200_bn_svhn(num_classes=10,
+def pyramidnet272_a200_bn_svhn(num_classes: int = 10,
                                **kwargs) -> nn.Module:
     """
     PyramidNet-272 (a=200, bn) model for SVHN from 'Deep Pyramidal Residual Networks,'

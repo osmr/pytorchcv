@@ -215,7 +215,7 @@ def get_xdensenet_cifar(num_classes: int,
     return net
 
 
-def xdensenet40_2_k24_bc_cifar10(num_classes=10,
+def xdensenet40_2_k24_bc_cifar10(num_classes: int = 10,
                                  **kwargs) -> nn.Module:
     """
     X-DenseNet-BC-40-2 (k=24) model for CIFAR-10 from 'Deep Expander Networks: Efficient Deep Networks from Graph
@@ -244,7 +244,7 @@ def xdensenet40_2_k24_bc_cifar10(num_classes=10,
         **kwargs)
 
 
-def xdensenet40_2_k24_bc_cifar100(num_classes=100,
+def xdensenet40_2_k24_bc_cifar100(num_classes: int = 100,
                                   **kwargs) -> nn.Module:
     """
     X-DenseNet-BC-40-2 (k=24) model for CIFAR-100 from 'Deep Expander Networks: Efficient Deep Networks from Graph
@@ -273,7 +273,7 @@ def xdensenet40_2_k24_bc_cifar100(num_classes=100,
         **kwargs)
 
 
-def xdensenet40_2_k24_bc_svhn(num_classes=10,
+def xdensenet40_2_k24_bc_svhn(num_classes: int = 10,
                               **kwargs) -> nn.Module:
     """
     X-DenseNet-BC-40-2 (k=24) model for SVHN from 'Deep Expander Networks: Efficient Deep Networks from Graph
@@ -302,7 +302,7 @@ def xdensenet40_2_k24_bc_svhn(num_classes=10,
         **kwargs)
 
 
-def xdensenet40_2_k36_bc_cifar10(num_classes=10,
+def xdensenet40_2_k36_bc_cifar10(num_classes: int = 10,
                                  **kwargs) -> nn.Module:
     """
     X-DenseNet-BC-40-2 (k=36) model for CIFAR-10 from 'Deep Expander Networks: Efficient Deep Networks from Graph
@@ -331,7 +331,7 @@ def xdensenet40_2_k36_bc_cifar10(num_classes=10,
         **kwargs)
 
 
-def xdensenet40_2_k36_bc_cifar100(num_classes=100,
+def xdensenet40_2_k36_bc_cifar100(num_classes: int = 100,
                                   **kwargs) -> nn.Module:
     """
     X-DenseNet-BC-40-2 (k=36) model for CIFAR-100 from 'Deep Expander Networks: Efficient Deep Networks from Graph
@@ -360,7 +360,7 @@ def xdensenet40_2_k36_bc_cifar100(num_classes=100,
         **kwargs)
 
 
-def xdensenet40_2_k36_bc_svhn(num_classes=10,
+def xdensenet40_2_k36_bc_svhn(num_classes: int = 10,
                               **kwargs) -> nn.Module:
     """
     X-DenseNet-BC-40-2 (k=36) model for SVHN from 'Deep Expander Networks: Efficient Deep Networks from Graph

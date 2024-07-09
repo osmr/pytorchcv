@@ -374,7 +374,7 @@ class ENet(nn.Module):
         Dilation values for each unit.
     use_asym_convs : list(list(int))
         Whether to use asymmetric convolution blocks for each unit.
-    dropout_rates : list of float
+    dropout_rates : list(float)
         Parameter of dropout layer for each stage.
     downs : list(int)
         Whether to downscale or upscale in each stage.
@@ -396,10 +396,10 @@ class ENet(nn.Module):
     def __init__(self,
                  channels,
                  init_block_channels,
-                 kernel_sizes,
-                 paddings,
-                 dilations,
-                 use_asym_convs,
+                 kernel_sizes: list[list[int]],
+                 paddings: list[list[int]],
+                 dilations: list[list[int]],
+                 use_asym_convs: list[list[int]],
                  dropout_rates,
                  downs,
                  correct_size_mismatch=False,

@@ -191,7 +191,7 @@ class SQNet(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  init_block_channels,
                  layers,
                  aux=False,

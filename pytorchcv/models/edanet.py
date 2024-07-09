@@ -184,7 +184,7 @@ class EDANet(nn.Module):
     """
     def __init__(self,
                  channels,
-                 dilations,
+                 dilations: list[list[int]],
                  growth_rate,
                  bn_eps=1e-5,
                  aux=False,

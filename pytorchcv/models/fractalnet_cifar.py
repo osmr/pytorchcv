@@ -333,8 +333,8 @@ class CIFARFractalNet(nn.Module):
                  loc_drop_prob,
                  glob_drop_ratio,
                  in_channels=3,
-                 in_size=(32, 32),
-                 num_classes=10):
+                 in_size: tuple[int, int] = (32, 32),
+                 num_classes: int = 10):
         super(CIFARFractalNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
@@ -426,7 +426,7 @@ def get_fractalnet_cifar(num_classes,
     return net
 
 
-def fractalnet_cifar10(num_classes=10,
+def fractalnet_cifar10(num_classes: int = 10,
                        **kwargs) -> nn.Module:
     """
     FractalNet model for CIFAR-10 from 'FractalNet: Ultra-Deep Neural Networks without Residuals,'
@@ -452,7 +452,7 @@ def fractalnet_cifar10(num_classes=10,
         **kwargs)
 
 
-def fractalnet_cifar100(num_classes=100,
+def fractalnet_cifar100(num_classes: int = 100,
                         **kwargs) -> nn.Module:
     """
     FractalNet model for CIFAR-100 from 'FractalNet: Ultra-Deep Neural Networks without Residuals,'

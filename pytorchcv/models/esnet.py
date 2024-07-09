@@ -125,7 +125,7 @@ class ESNet(nn.Module):
         Number of output channels for each in encoder and decoder.
     kernel_sizes : list(list(int))
         Kernel size for each in encoder and decoder.
-    dropout_rates : list(list(int))
+    dropout_rates : list(list(float))
         Dropout rates for each unit in encoder and decoder.
     correct_size_mistmatch : bool
         Whether to correct downscaled sizes of images in encoder.
@@ -143,10 +143,10 @@ class ESNet(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 layers,
-                 channels,
-                 kernel_sizes,
-                 dropout_rates,
+                 layers: list[list[int]],
+                 channels: list[list[int]],
+                 kernel_sizes: list[list[int]],
+                 dropout_rates: list[list[float]],
                  correct_size_mismatch=False,
                  bn_eps=1e-5,
                  aux=False,

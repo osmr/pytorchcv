@@ -153,8 +153,8 @@ class SqueezeNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 residuals,
+                 channels: list[list[int]],
+                 residuals: list[list[int]] | None,
                  init_block_kernel_size,
                  init_block_channels,
                  in_channels: int = 3,

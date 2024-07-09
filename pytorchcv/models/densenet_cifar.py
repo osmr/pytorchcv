@@ -36,9 +36,9 @@ class DenseSimpleUnit(nn.Module):
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 dropout_rate):
+                 in_channels: int,
+                 out_channels: int,
+                 dropout_rate: float):
         super(DenseSimpleUnit, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
         inc_channels = out_channels - in_channels
@@ -80,13 +80,13 @@ class CIFARDenseNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
-                 bottleneck,
-                 dropout_rate=0.0,
-                 in_channels=3,
-                 in_size=(32, 32),
-                 num_classes=10):
+                 channels: list[list[int]],
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 dropout_rate: float = 0.0,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (32, 32),
+                 num_classes: int = 10):
         super(CIFARDenseNet, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
@@ -136,10 +136,10 @@ class CIFARDenseNet(nn.Module):
         return x
 
 
-def get_densenet_cifar(num_classes,
-                       blocks,
-                       growth_rate,
-                       bottleneck,
+def get_densenet_cifar(num_classes: int,
+                       blocks: int,
+                       growth_rate: int,
+                       bottleneck: bool,
                        model_name: str | None = None,
                        pretrained: bool = False,
                        root: str = os.path.join("~", ".torch", "models"),
@@ -207,7 +207,7 @@ def get_densenet_cifar(num_classes,
     return net
 
 
-def densenet40_k12_cifar10(num_classes=10,
+def densenet40_k12_cifar10(num_classes: int = 10,
                            **kwargs) -> nn.Module:
     """
     DenseNet-40 (k=12) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
@@ -236,7 +236,7 @@ def densenet40_k12_cifar10(num_classes=10,
         **kwargs)
 
 
-def densenet40_k12_cifar100(num_classes=100,
+def densenet40_k12_cifar100(num_classes: int = 100,
                             **kwargs) -> nn.Module:
     """
     DenseNet-40 (k=12) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
@@ -265,7 +265,7 @@ def densenet40_k12_cifar100(num_classes=100,
         **kwargs)
 
 
-def densenet40_k12_svhn(num_classes=10,
+def densenet40_k12_svhn(num_classes: int = 10,
                         **kwargs) -> nn.Module:
     """
     DenseNet-40 (k=12) model for SVHN from 'Densely Connected Convolutional Networks,'
@@ -294,7 +294,7 @@ def densenet40_k12_svhn(num_classes=10,
         **kwargs)
 
 
-def densenet40_k12_bc_cifar10(num_classes=10,
+def densenet40_k12_bc_cifar10(num_classes: int = 10,
                               **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=12) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
@@ -323,7 +323,7 @@ def densenet40_k12_bc_cifar10(num_classes=10,
         **kwargs)
 
 
-def densenet40_k12_bc_cifar100(num_classes=100,
+def densenet40_k12_bc_cifar100(num_classes: int = 100,
                                **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=12) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
@@ -352,7 +352,7 @@ def densenet40_k12_bc_cifar100(num_classes=100,
         **kwargs)
 
 
-def densenet40_k12_bc_svhn(num_classes=10,
+def densenet40_k12_bc_svhn(num_classes: int = 10,
                            **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=12) model for SVHN from 'Densely Connected Convolutional Networks,'
@@ -381,7 +381,7 @@ def densenet40_k12_bc_svhn(num_classes=10,
         **kwargs)
 
 
-def densenet40_k24_bc_cifar10(num_classes=10,
+def densenet40_k24_bc_cifar10(num_classes: int = 10,
                               **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=24) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
@@ -410,7 +410,7 @@ def densenet40_k24_bc_cifar10(num_classes=10,
         **kwargs)
 
 
-def densenet40_k24_bc_cifar100(num_classes=100,
+def densenet40_k24_bc_cifar100(num_classes: int = 100,
                                **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=24) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
@@ -439,7 +439,7 @@ def densenet40_k24_bc_cifar100(num_classes=100,
         **kwargs)
 
 
-def densenet40_k24_bc_svhn(num_classes=10,
+def densenet40_k24_bc_svhn(num_classes: int = 10,
                            **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=24) model for SVHN from 'Densely Connected Convolutional Networks,'
@@ -468,7 +468,7 @@ def densenet40_k24_bc_svhn(num_classes=10,
         **kwargs)
 
 
-def densenet40_k36_bc_cifar10(num_classes=10,
+def densenet40_k36_bc_cifar10(num_classes: int = 10,
                               **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=36) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
@@ -497,7 +497,7 @@ def densenet40_k36_bc_cifar10(num_classes=10,
         **kwargs)
 
 
-def densenet40_k36_bc_cifar100(num_classes=100,
+def densenet40_k36_bc_cifar100(num_classes: int = 100,
                                **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=36) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
@@ -526,7 +526,7 @@ def densenet40_k36_bc_cifar100(num_classes=100,
         **kwargs)
 
 
-def densenet40_k36_bc_svhn(num_classes=10,
+def densenet40_k36_bc_svhn(num_classes: int = 10,
                            **kwargs) -> nn.Module:
     """
     DenseNet-BC-40 (k=36) model for SVHN from 'Densely Connected Convolutional Networks,'
@@ -555,7 +555,7 @@ def densenet40_k36_bc_svhn(num_classes=10,
         **kwargs)
 
 
-def densenet100_k12_cifar10(num_classes=10,
+def densenet100_k12_cifar10(num_classes: int = 10,
                             **kwargs) -> nn.Module:
     """
     DenseNet-100 (k=12) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
@@ -584,7 +584,7 @@ def densenet100_k12_cifar10(num_classes=10,
         **kwargs)
 
 
-def densenet100_k12_cifar100(num_classes=100,
+def densenet100_k12_cifar100(num_classes: int = 100,
                              **kwargs) -> nn.Module:
     """
     DenseNet-100 (k=12) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
@@ -613,7 +613,7 @@ def densenet100_k12_cifar100(num_classes=100,
         **kwargs)
 
 
-def densenet100_k12_svhn(num_classes=10,
+def densenet100_k12_svhn(num_classes: int = 10,
                          **kwargs) -> nn.Module:
     """
     DenseNet-100 (k=12) model for SVHN from 'Densely Connected Convolutional Networks,'
@@ -642,7 +642,7 @@ def densenet100_k12_svhn(num_classes=10,
         **kwargs)
 
 
-def densenet100_k24_cifar10(num_classes=10,
+def densenet100_k24_cifar10(num_classes: int = 10,
                             **kwargs) -> nn.Module:
     """
     DenseNet-100 (k=24) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
@@ -671,7 +671,7 @@ def densenet100_k24_cifar10(num_classes=10,
         **kwargs)
 
 
-def densenet100_k24_cifar100(num_classes=100,
+def densenet100_k24_cifar100(num_classes: int = 100,
                              **kwargs) -> nn.Module:
     """
     DenseNet-100 (k=24) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
@@ -700,7 +700,7 @@ def densenet100_k24_cifar100(num_classes=100,
         **kwargs)
 
 
-def densenet100_k24_svhn(num_classes=10,
+def densenet100_k24_svhn(num_classes: int = 10,
                          **kwargs) -> nn.Module:
     """
     DenseNet-100 (k=24) model for SVHN from 'Densely Connected Convolutional Networks,'
@@ -729,7 +729,7 @@ def densenet100_k24_svhn(num_classes=10,
         **kwargs)
 
 
-def densenet100_k12_bc_cifar10(num_classes=10,
+def densenet100_k12_bc_cifar10(num_classes: int = 10,
                                **kwargs) -> nn.Module:
     """
     DenseNet-BC-100 (k=12) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
@@ -758,7 +758,7 @@ def densenet100_k12_bc_cifar10(num_classes=10,
         **kwargs)
 
 
-def densenet100_k12_bc_cifar100(num_classes=100,
+def densenet100_k12_bc_cifar100(num_classes: int = 100,
                                 **kwargs) -> nn.Module:
     """
     DenseNet-BC-100 (k=12) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
@@ -787,7 +787,7 @@ def densenet100_k12_bc_cifar100(num_classes=100,
         **kwargs)
 
 
-def densenet100_k12_bc_svhn(num_classes=10,
+def densenet100_k12_bc_svhn(num_classes: int = 10,
                             **kwargs) -> nn.Module:
     """
     DenseNet-BC-100 (k=12) model for SVHN from 'Densely Connected Convolutional Networks,'
@@ -816,7 +816,7 @@ def densenet100_k12_bc_svhn(num_classes=10,
         **kwargs)
 
 
-def densenet190_k40_bc_cifar10(num_classes=10,
+def densenet190_k40_bc_cifar10(num_classes: int = 10,
                                **kwargs) -> nn.Module:
     """
     DenseNet-BC-190 (k=40) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
@@ -845,7 +845,7 @@ def densenet190_k40_bc_cifar10(num_classes=10,
         **kwargs)
 
 
-def densenet190_k40_bc_cifar100(num_classes=100,
+def densenet190_k40_bc_cifar100(num_classes: int = 100,
                                 **kwargs) -> nn.Module:
     """
     DenseNet-BC-190 (k=40) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
@@ -874,7 +874,7 @@ def densenet190_k40_bc_cifar100(num_classes=100,
         **kwargs)
 
 
-def densenet190_k40_bc_svhn(num_classes=10,
+def densenet190_k40_bc_svhn(num_classes: int = 10,
                             **kwargs) -> nn.Module:
     """
     DenseNet-BC-190 (k=40) model for SVHN from 'Densely Connected Convolutional Networks,'
@@ -903,7 +903,7 @@ def densenet190_k40_bc_svhn(num_classes=10,
         **kwargs)
 
 
-def densenet250_k24_bc_cifar10(num_classes=10,
+def densenet250_k24_bc_cifar10(num_classes: int = 10,
                                **kwargs) -> nn.Module:
     """
     DenseNet-BC-250 (k=24) model for CIFAR-10 from 'Densely Connected Convolutional Networks,'
@@ -932,7 +932,7 @@ def densenet250_k24_bc_cifar10(num_classes=10,
         **kwargs)
 
 
-def densenet250_k24_bc_cifar100(num_classes=100,
+def densenet250_k24_bc_cifar100(num_classes: int = 100,
                                 **kwargs) -> nn.Module:
     """
     DenseNet-BC-250 (k=24) model for CIFAR-100 from 'Densely Connected Convolutional Networks,'
@@ -961,7 +961,7 @@ def densenet250_k24_bc_cifar100(num_classes=100,
         **kwargs)
 
 
-def densenet250_k24_bc_svhn(num_classes=10,
+def densenet250_k24_bc_svhn(num_classes: int = 10,
                             **kwargs) -> nn.Module:
     """
     DenseNet-BC-250 (k=24) model for SVHN from 'Densely Connected Convolutional Networks,'

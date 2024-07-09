@@ -439,8 +439,8 @@ class LwOpenPose(nn.Module):
         Number of keypoints.
     """
     def __init__(self,
-                 encoder_channels,
-                 encoder_paddings,
+                 encoder_channels: list[list[int]],
+                 encoder_paddings: list[list[int]],
                  encoder_init_block_channels,
                  encoder_final_block_channels,
                  refinement_units,

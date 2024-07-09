@@ -96,7 +96,7 @@ class VGG(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
+                 channels: list[list[int]],
                  bias=True,
                  use_bn=False,
                  in_channels: int = 3,
