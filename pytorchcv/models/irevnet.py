@@ -460,8 +460,8 @@ def irevnet301(**kwargs) -> nn.Module:
 
 
 def _test():
-    import torch
-    from .model_store import calc_net_weight_count
+    import numpy as np
+    from model_store import calc_net_weight_count
 
     pretrained = False
 
@@ -488,7 +488,6 @@ def _test():
         x_ = net.inverse(out_bij)
         assert (tuple(x_.size()) == (2, 3, 224, 224))
 
-        import numpy as np
         assert (np.max(np.abs(x.detach().numpy() - x_.detach().numpy())) < 1e-4)
 
 

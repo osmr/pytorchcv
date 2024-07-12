@@ -888,7 +888,7 @@ def resnet200b(**kwargs) -> nn.Module:
 
 def _test():
     import torch
-    from .model_store import calc_net_weight_count
+    from model_store import calc_net_weight_count
 
     pretrained = False
 

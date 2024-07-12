@@ -41,8 +41,6 @@ class LEDBranch(nn.Module):
         self.conv1 = asym_conv3x3_block(
             channels=channels,
             bias=True,
-            # lw_use_bn=False,
-            # bn_eps=bn_eps,
             lw_normalization=None,
             rw_normalization=normalization)
         self.conv2 = asym_conv3x3_block(
@@ -50,8 +48,6 @@ class LEDBranch(nn.Module):
             padding=dilation,
             dilation=dilation,
             bias=True,
-            # lw_use_bn=False,
-            # bn_eps=bn_eps,
             lw_normalization=None,
             rw_normalization=normalization,
             rw_activation=None)
@@ -429,7 +425,7 @@ def lednet_cityscapes(num_classes: int = 19,
 
 
 def _test():
-    from .model_store import calc_net_weight_count
+    from model_store import calc_net_weight_count
 
     pretrained = False
     fixed_size = True
@@ -443,8 +439,11 @@ def _test():
 
     for model in models:
 
-        net = model(pretrained=pretrained, in_size=in_size, fixed_size=fixed_size,
-                    correct_size_mismatch=correct_size_mismatch)
+        net = model(
+            pretrained=pretrained,
+            in_size=in_size,
+            fixed_size=fixed_size,
+            correct_size_mismatch=correct_size_mismatch)
 
         # net.train()
         net.eval()

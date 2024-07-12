@@ -152,14 +152,14 @@ class LinkNet(nn.Module):
         self.fixed_size = fixed_size
         bias = False
 
-        self.stem = backbone.init_block
+        self.stem = backbone[0]  # init_block
         in_channels = backbone_out_channels
 
         down_seq = nn.Sequential()
-        down_seq.add_module("down1", backbone.stage1)
-        down_seq.add_module("down2", backbone.stage2)
-        down_seq.add_module("down3", backbone.stage3)
-        down_seq.add_module("down4", backbone.stage4)
+        down_seq.add_module("down1", backbone[1])   # stage1
+        down_seq.add_module("down2", backbone[2])   # stage2
+        down_seq.add_module("down3", backbone[3])   # stage3
+        down_seq.add_module("down4", backbone[4])   # stage4
 
         up_seq = nn.Sequential()
         skip_seq = nn.Sequential()
@@ -285,7 +285,7 @@ def linknet_cityscapes(pretrained_backbone: bool = False,
 
 
 def _test():
-    from .model_store import calc_net_weight_count
+    from model_store import calc_net_weight_count
 
     pretrained = False
     fixed_size = True

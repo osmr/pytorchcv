@@ -552,7 +552,7 @@ def enet_cityscapes(num_classes: int = 19,
 
 
 def _test():
-    from .model_store import calc_net_weight_count
+    from model_store import calc_net_weight_count
 
     pretrained = False
     fixed_size = True

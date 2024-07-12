@@ -742,6 +742,7 @@
 "prnet",13353618,NA,NA,NA,"PRNet","1803.07835",NA,NA,NA,NA,NA
 "erfnet_cityscapes",2064191,NA,NA,NA,"ERFNet",NA,NA,NA,NA,NA,NA
 "esnet_cityscapes",1660607,NA,NA,NA,"ESNet","1906.09826",NA,NA,NA,NA,NA
+"linknet_cityscapes",11535699,NA,NA,NA,"LinkNet","1707.03718",NA,NA,NA,NA,NA
 "sqnet_cityscapes",16262771,NA,NA,NA,"SQNet",NA,NA,NA,NA,NA,NA
 "cgnet_cityscapes",496306,NA,NA,NA,"CGNet","1811.08201",NA,NA,NA,NA,NA
 "edanet_cityscapes",689485,NA,NA,NA,"EDANet","1809.06323",NA,NA,NA,NA,NA
