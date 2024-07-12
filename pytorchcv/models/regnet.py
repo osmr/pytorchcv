@@ -215,7 +215,7 @@ def get_regnet(channels_init: float,
         Initial value for channels/widths.
     channels_slope : float
         Slope value for channels/widths.
-    width_mult : float
+    channels_mult : float
         Width multiplier value.
     groups : int
         Number of groups.

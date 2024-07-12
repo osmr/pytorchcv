@@ -285,6 +285,8 @@ from .models.quartznet import (quartznet5x5_en_ls, quartznet15x5_en, quartznet15
 
 from .models.tresnet import tresnet_m, tresnet_l, tresnet_xl
 
+from .models.espcnet import espcnet_cityscapes
+
 # from .models.others.oth_quartznet import *
 
 # from .models.others.oth_pose_resnet import *
@@ -1306,6 +1308,8 @@ _models = {
     'tresnet_m': tresnet_m,
     'tresnet_l': tresnet_l,
     'tresnet_xl': tresnet_xl,
+
+    "espcnet_cityscapes": espcnet_cityscapes,
 
     # 'oth_quartznet5x5_en_ls': oth_quartznet5x5_en_ls,
     # 'oth_quartznet15x5_en': oth_quartznet15x5_en,

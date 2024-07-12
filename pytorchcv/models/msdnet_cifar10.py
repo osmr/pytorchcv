@@ -21,13 +21,13 @@ class CIFAR10MSDInitLayer(nn.Module):
     ----------
     in_channels : int
         Number of input channels.
-    out_channels : list/tuple of int
+    out_channels : list(int)
         Number of output channels for each scale.
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: list[int]):
         super(CIFAR10MSDInitLayer, self).__init__()
 
         self.scale_blocks = MultiOutputSequential()
@@ -57,8 +57,8 @@ class CIFAR10MSDClassifier(nn.Module):
     """
 
     def __init__(self,
-                 in_channels,
-                 num_classes):
+                 in_channels: int,
+                 num_classes: int):
         super(CIFAR10MSDClassifier, self).__init__()
         mid_channels = 128
 
@@ -102,7 +102,7 @@ class CIFAR10MSDNet(nn.Module):
     use_bottleneck : bool
         Whether to use a bottleneck.
     bottleneck_factors : list(list(int))
-        Bottleneck factor for each layers and for each input scale.
+        Bottleneck factor for each layer and for each input scale.
     in_channels : int, default 3
         Number of input channels.
     in_size : tuple(int, int), default (32, 32)
@@ -111,12 +111,12 @@ class CIFAR10MSDNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_layer_channels,
-                 num_feature_blocks,
-                 use_bottleneck,
-                 bottleneck_factors,
-                 in_channels=3,
+                 channels: list[list[list[int]]],
+                 init_layer_channels: list[int],
+                 num_feature_blocks: int,
+                 use_bottleneck: bool,
+                 bottleneck_factors: list[list[int]],
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (32, 32),
                  num_classes: int = 10):
         super(CIFAR10MSDNet, self).__init__()
@@ -163,7 +163,7 @@ class CIFAR10MSDNet(nn.Module):
             return outs
 
 
-def get_msdnet_cifar10(blocks,
+def get_msdnet_cifar10(blocks: int,
                        model_name: str | None = None,
                        pretrained: bool = False,
                        root: str = os.path.join("~", ".torch", "models"),

@@ -27,10 +27,10 @@ class PeleeBranch1(nn.Module):
         Strides of the second convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels,
-                 stride=1):
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int,
+                 stride: int | tuple[int, int] = 1):
         super(PeleeBranch1, self).__init__()
         self.conv1 = conv1x1_block(
             in_channels=in_channels,
@@ -60,9 +60,9 @@ class PeleeBranch2(nn.Module):
         Number of intermediate channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels):
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int):
         super(PeleeBranch2, self).__init__()
         self.conv1 = conv1x1_block(
             in_channels=in_channels,
@@ -93,8 +93,8 @@ class StemBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(StemBlock, self).__init__()
         mid1_channels = out_channels // 2
         mid2_channels = out_channels * 2
@@ -140,9 +140,9 @@ class DenseBlock(nn.Module):
         Bottleneck width.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 bottleneck_size):
+                 in_channels: int,
+                 out_channels: int,
+                 bottleneck_size: int):
         super(DenseBlock, self).__init__()
         inc_channels = (out_channels - in_channels) // 2
         mid_channels = inc_channels * bottleneck_size
@@ -175,8 +175,8 @@ class TransitionBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(TransitionBlock, self).__init__()
         self.conv = conv1x1_block(
             in_channels=in_channels,
@@ -216,9 +216,9 @@ class PeleeNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck_sizes,
-                 dropout_rate=0.5,
+                 init_block_channels: int,
+                 bottleneck_sizes: list[int],
+                 dropout_rate: float = 0.5,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):

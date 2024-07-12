@@ -11,7 +11,7 @@ import torch.nn as nn
 from .mobilenet import MobileNet
 
 
-def get_fdmobilenet(width_scale,
+def get_fdmobilenet(width_scale: float,
                     model_name: str | None = None,
                     pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),

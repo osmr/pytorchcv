@@ -8,6 +8,7 @@ __all__ = ['PolyNet', 'polynet']
 
 import os
 import torch.nn as nn
+from typing import Callable
 from .common import ConvBlock, conv1x1_block, conv3x3_block, Concurrent, ParametricSequential, ParametricConcurrent
 
 
@@ -34,12 +35,12 @@ class PolyConv(nn.Module):
         Number of blocks (BatchNorm layers).
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 num_blocks):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 num_blocks: int):
         super(PolyConv, self).__init__()
         self.conv = nn.Conv2d(
             in_channels=in_channels,
@@ -60,9 +61,9 @@ class PolyConv(nn.Module):
         return x
 
 
-def poly_conv1x1(in_channels,
-                 out_channels,
-                 num_blocks):
+def poly_conv1x1(in_channels: int,
+                 out_channels: int,
+                 num_blocks: int):
     """
     1x1 version of the PolyNet specific convolution block.
 
@@ -112,8 +113,8 @@ class Conv1x1Branch(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(Conv1x1Branch, self).__init__()
         self.conv = conv1x1_block(
             in_channels=in_channels,
@@ -136,8 +137,8 @@ class Conv3x3Branch(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(Conv3x3Branch, self).__init__()
         self.conv = conv3x3_block(
             in_channels=in_channels,
@@ -158,21 +159,21 @@ class ConvSeqBranch(nn.Module):
     ----------
     in_channels : int
         Number of input channels.
-    out_channels_list : list of tuple of int
+    out_channels_list : tuple(int, ...)
         List of numbers of output channels.
-    kernel_size_list : list of tuple of int or tuple of tuple(int, int)
+    kernel_size_list : tuple(int or tuple(int, int), ...)
         List of convolution window sizes.
-    strides_list : list of tuple of int or tuple of tuple(int, int)
+    strides_list : tuple(int or tuple(int, int), ...)
         List of strides of the convolution.
-    padding_list : list of tuple of int or tuple of tuple(int, int)
+    padding_list : tuple(int or tuple(int, int), ...)
         List of padding values for convolution layers.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list,
-                 kernel_size_list,
-                 strides_list,
-                 padding_list):
+                 in_channels: int,
+                 out_channels_list: tuple[int, ...],
+                 kernel_size_list: tuple[int | tuple[int, int], ...],
+                 strides_list: tuple[int | tuple[int, int], ...],
+                 padding_list: tuple[int | tuple[int, int], ...]):
         super(ConvSeqBranch, self).__init__()
         assert (len(out_channels_list) == len(kernel_size_list))
         assert (len(out_channels_list) == len(strides_list))
@@ -202,24 +203,24 @@ class PolyConvSeqBranch(nn.Module):
     ----------
     in_channels : int
         Number of input channels.
-    out_channels_list : list of tuple of int
+    out_channels_list : tuple(int, ...)
         List of numbers of output channels.
-    kernel_size_list : list of tuple of int or tuple of tuple(int, int)
+    kernel_size_list : tuple(int or tuple(int, int), ...)
         List of convolution window sizes.
-    strides_list : list of tuple of int or tuple of tuple(int, int)
+    strides_list : tuple(int or tuple(int, int), ...)
         List of strides of the convolution.
-    padding_list : list of tuple of int or tuple of tuple(int, int)
+    padding_list : tuple(int or tuple(int, int), ...)
         List of padding values for convolution layers.
     num_blocks : int
         Number of blocks for PolyConv.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list,
-                 kernel_size_list,
-                 strides_list,
-                 padding_list,
-                 num_blocks):
+                 in_channels: int,
+                 out_channels_list: tuple[int, ...],
+                 kernel_size_list: tuple[int | tuple[int, int], ...],
+                 strides_list: tuple[int | tuple[int, int], ...],
+                 padding_list: tuple[int | tuple[int, int], ...],
+                 num_blocks: int):
         super(PolyConvSeqBranch, self).__init__()
         assert (len(out_channels_list) == len(kernel_size_list))
         assert (len(out_channels_list) == len(strides_list))
@@ -341,15 +342,11 @@ class PolyPreBBlock(nn.Module):
 
     Parameters
     ----------
-    in_channels : int
-        Number of input channels.
-    out_channels : int
-        Number of output channels.
     num_blocks : int
         Number of blocks (BatchNorm layers).
     """
     def __init__(self,
-                 num_blocks):
+                 num_blocks: int):
         super(PolyPreBBlock, self).__init__()
         in_channels = 1152
 
@@ -377,15 +374,11 @@ class PolyPreCBlock(nn.Module):
 
     Parameters
     ----------
-    in_channels : int
-        Number of input channels.
-    out_channels : int
-        Number of output channels.
     num_blocks : int
         Number of blocks (BatchNorm layers).
     """
     def __init__(self,
-                 num_blocks):
+                 num_blocks: int):
         super(PolyPreCBlock, self).__init__()
         in_channels = 2048
 
@@ -435,17 +428,17 @@ class MultiResidual(nn.Module):
 
     Parameters
     ----------
-    scale : float, default 1.0
+    scale : float
         Scale value for each residual branch.
-    res_block : Module class
+    res_block : type(nn.Module)
         Residual branch block.
     num_blocks : int
         Number of residual branches.
     """
     def __init__(self,
-                 scale,
-                 res_block,
-                 num_blocks):
+                 scale: float,
+                 res_block: type[nn.Module],
+                 num_blocks: int):
         super(MultiResidual, self).__init__()
         assert (num_blocks >= 1)
         self.scale = scale
@@ -467,20 +460,20 @@ class PolyResidual(nn.Module):
 
     Parameters
     ----------
-    scale : float, default 1.0
+    scale : float
         Scale value for each residual branch.
-    res_block : Module class
+    res_block : type(nn.Module)
         Residual branch block.
     num_blocks : int
         Number of residual branches.
-    pre_block : Module class
+    pre_block : type(nn.Module)
         Preliminary block.
     """
     def __init__(self,
-                 scale,
-                 res_block,
-                 num_blocks,
-                 pre_block):
+                 scale: float,
+                 res_block: type[nn.Module],
+                 num_blocks: int,
+                 pre_block: type[nn.Module]):
         super(PolyResidual, self).__init__()
         assert (num_blocks >= 1)
         self.scale = scale
@@ -508,21 +501,21 @@ class PolyBaseUnit(nn.Module):
     ----------
     two_way_scale : float
         Scale value for 2-way stage.
-    two_way_block : Module class
+    two_way_block : type(nn.Module)
         Residual branch block for 2-way-stage.
     poly_scale : float, default 0.0
         Scale value for 2-way stage.
-    poly_res_block : Module class, default None
+    poly_res_block : type(nn.Module) or function or None, default None
         Residual branch block for poly-stage.
-    poly_pre_block : Module class, default None
+    poly_pre_block : type(nn.Module) or function or None, default None
         Preliminary branch block for poly-stage.
     """
     def __init__(self,
-                 two_way_scale,
-                 two_way_block,
-                 poly_scale=0.0,
-                 poly_res_block=None,
-                 poly_pre_block=None):
+                 two_way_scale: float,
+                 two_way_block: type[nn.Module],
+                 poly_scale: float = 0.0,
+                 poly_res_block: type[nn.Module] | Callable[..., nn.Module] | None = None,
+                 poly_pre_block: type[nn.Module] | Callable[..., nn.Module] | None = None):
         super(PolyBaseUnit, self).__init__()
 
         if poly_res_block is not None:
@@ -561,8 +554,8 @@ class PolyAUnit(PolyBaseUnit):
         Scale value for 2-way stage.
     """
     def __init__(self,
-                 two_way_scale,
-                 poly_scale=0.0):
+                 two_way_scale: float,
+                 poly_scale: float = 0.0):
         super(PolyAUnit, self).__init__(
             two_way_scale=two_way_scale,
             two_way_block=TwoWayABlock)
@@ -581,8 +574,8 @@ class PolyBUnit(PolyBaseUnit):
         Scale value for 2-way stage.
     """
     def __init__(self,
-                 two_way_scale,
-                 poly_scale):
+                 two_way_scale: float,
+                 poly_scale: float):
         super(PolyBUnit, self).__init__(
             two_way_scale=two_way_scale,
             two_way_block=TwoWayBBlock,
@@ -603,8 +596,8 @@ class PolyCUnit(PolyBaseUnit):
         Scale value for 2-way stage.
     """
     def __init__(self,
-                 two_way_scale,
-                 poly_scale):
+                 two_way_scale: float,
+                 poly_scale: float):
         super(PolyCUnit, self).__init__(
             two_way_scale=two_way_scale,
             two_way_block=TwoWayCBlock,
@@ -744,7 +737,7 @@ class PolyInitBlock(nn.Module):
         Number of input channels.
     """
     def __init__(self,
-                 in_channels):
+                 in_channels: int):
         super(PolyInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -794,10 +787,10 @@ class PolyNet(nn.Module):
     """
     def __init__(self,
                  two_way_scales: list[list[float]],
-                 poly_scales,
-                 dropout_rate=0.2,
-                 in_channels=3,
-                 in_size=(331, 331),
+                 poly_scales: list[list[float]],
+                 dropout_rate: float = 0.2,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (331, 331),
                  num_classes: int = 1000):
         super(PolyNet, self).__init__()
         self.in_size = in_size

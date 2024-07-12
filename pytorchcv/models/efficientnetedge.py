@@ -10,7 +10,7 @@ import os
 import math
 import torch.nn as nn
 from typing import Callable
-from .common import round_channels, lambda_batchnorm2d, conv1x1_block, conv3x3_block, SEBlock
+from .common import round_channels, lambda_relu, lambda_batchnorm2d, conv1x1_block, conv3x3_block, SEBlock
 from .efficientnet import EffiInvResUnit, EffiInitBlock
 
 
@@ -35,20 +35,20 @@ class EffiEdgeResUnit(nn.Module):
     use_skip : bool
         Whether to use skip connection.
     normalization : function
-        Normalization function.
-    activation : str
-        Name of activation function.
+        Lambda-function generator for normalization layer.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 exp_factor,
-                 se_factor,
-                 mid_from_in,
-                 use_skip,
-                 normalization: Callable,
-                 activation):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 exp_factor: int,
+                 se_factor: int,
+                 mid_from_in: bool,
+                 use_skip: bool,
+                 normalization: Callable[..., nn.Module],
+                 activation: Callable[..., nn.Module]):
         super(EffiEdgeResUnit, self).__init__()
         self.residual = (in_channels == out_channels) and (stride == 1) and use_skip
         self.use_se = se_factor > 0
@@ -98,7 +98,7 @@ class EfficientNetEdge(nn.Module):
         Number of output channels for the final block of the feature extractor.
     kernel_sizes : list(list(int))
         Number of kernel sizes for each unit.
-    strides_per_stage : list int
+    strides_per_stage : list(int)
         Stride value for the first unit of each stage.
     expansion_factors : list(list(int))
         Number of expansion factors for each unit.
@@ -117,14 +117,14 @@ class EfficientNetEdge(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
+                 init_block_channels: int,
+                 final_block_channels: int,
                  kernel_sizes: list[list[int]],
-                 strides_per_stage,
+                 strides_per_stage: list[int],
                  expansion_factors: list[list[int]],
-                 dropout_rate=0.2,
-                 tf_mode=False,
-                 bn_eps=1e-5,
+                 dropout_rate: float = 0.2,
+                 tf_mode: bool = False,
+                 bn_eps: float = 1e-5,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -132,7 +132,7 @@ class EfficientNetEdge(nn.Module):
         self.in_size = in_size
         self.num_classes = num_classes
         normalization = lambda_batchnorm2d(eps=bn_eps)
-        activation = "relu"
+        activation = lambda_relu()
 
         self.features = nn.Sequential()
         self.features.add_module("init_block", EffiInitBlock(
@@ -207,10 +207,10 @@ class EfficientNetEdge(nn.Module):
         return x
 
 
-def get_efficientnet_edge(version,
-                          in_size,
-                          tf_mode=False,
-                          bn_eps=1e-5,
+def get_efficientnet_edge(version: str,
+                          in_size: tuple[int, int],
+                          tf_mode: bool = False,
+                          bn_eps: float = 1e-5,
                           model_name: str | None = None,
                           pretrained: bool = False,
                           root: str = os.path.join("~", ".torch", "models"),
@@ -313,7 +313,7 @@ def get_efficientnet_edge(version,
     return net
 
 
-def efficientnet_edge_small_b(in_size=(224, 224),
+def efficientnet_edge_small_b(in_size: tuple[int, int] = (224, 224),
                               **kwargs) -> nn.Module:
     """
     EfficientNet-Edge-Small-b model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
@@ -342,7 +342,7 @@ def efficientnet_edge_small_b(in_size=(224, 224),
         **kwargs)
 
 
-def efficientnet_edge_medium_b(in_size=(240, 240),
+def efficientnet_edge_medium_b(in_size: tuple[int, int] = (240, 240),
                                **kwargs) -> nn.Module:
     """
     EfficientNet-Edge-Medium-b model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
@@ -371,7 +371,7 @@ def efficientnet_edge_medium_b(in_size=(240, 240),
         **kwargs)
 
 
-def efficientnet_edge_large_b(in_size=(300, 300),
+def efficientnet_edge_large_b(in_size: tuple[int, int] = (300, 300),
                               **kwargs) -> nn.Module:
     """
     EfficientNet-Edge-Large-b model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'

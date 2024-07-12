@@ -8,6 +8,7 @@ __all__ = ['MobileNet', 'get_mobilenet', 'mobilenet_w1', 'mobilenet_w3d4', 'mobi
 
 import os
 import torch.nn as nn
+from typing import Callable
 from .common import lambda_relu, lambda_batchnorm2d, conv3x3_block, dwsconv3x3_block
 
 
@@ -24,7 +25,7 @@ class MobileNet(nn.Module):
         Whether stride is used at the first stage.
     dw_use_bn : bool, default True
         Whether to use BatchNorm layer (depthwise convolution block).
-    dw_activation : function or str or None, default lambda_relu()
+    dw_activation : function or None, default lambda_relu()
         Activation function after the depthwise convolution block.
     in_channels : int, default 3
         Number of input channels.
@@ -35,9 +36,9 @@ class MobileNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 first_stage_stride,
-                 dw_use_bn=True,
-                 dw_activation=lambda_relu(),
+                 first_stage_stride: bool,
+                 dw_use_bn: bool = True,
+                 dw_activation: Callable[..., nn.Module | None] | None = lambda_relu(),
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -77,15 +78,15 @@ class MobileNet(nn.Module):
 
     def _init_params(self):
         for name, module in self.named_modules():
-            if 'dw_conv.conv' in name:
-                nn.init.kaiming_normal_(module.weight, mode='fan_in')
-            elif name == 'init_block.conv' or 'pw_conv.conv' in name:
-                nn.init.kaiming_normal_(module.weight, mode='fan_out')
-            elif 'bn' in name:
+            if "dw_conv.conv" in name:
+                nn.init.kaiming_normal_(module.weight, mode="fan_in")
+            elif name == "init_block.conv" or "pw_conv.conv" in name:
+                nn.init.kaiming_normal_(module.weight, mode="fan_out")
+            elif "bn" in name:
                 nn.init.constant_(module.weight, 1)
                 nn.init.constant_(module.bias, 0)
-            elif 'output' in name:
-                nn.init.kaiming_normal_(module.weight, mode='fan_out')
+            elif "output" in name:
+                nn.init.kaiming_normal_(module.weight, mode="fan_out")
                 nn.init.constant_(module.bias, 0)
 
     def forward(self, x):
@@ -95,8 +96,8 @@ class MobileNet(nn.Module):
         return x
 
 
-def get_mobilenet(width_scale,
-                  dws_simplified=False,
+def get_mobilenet(width_scale: float,
+                  dws_simplified: bool = False,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),
@@ -133,7 +134,7 @@ def get_mobilenet(width_scale,
         dw_activation = None
     else:
         dw_use_bn = True
-        dw_activation = (lambda: nn.ReLU(inplace=True))
+        dw_activation = lambda_relu()
 
     net = MobileNet(
         channels=channels,

@@ -40,15 +40,15 @@ class AvgPoolBranch(nn.Module):
     out_channels : int
         Number of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     count_include_pad : bool, default True
         Whether to include the zero-padding in the averaging calculation.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 normalization: Callable,
-                 count_include_pad=True):
+                 in_channels: int,
+                 out_channels: int,
+                 normalization: Callable[..., nn.Module],
+                 count_include_pad: bool = True):
         super(AvgPoolBranch, self).__init__()
         self.pool = nn.AvgPool2d(
             kernel_size=3,
@@ -77,12 +77,12 @@ class Conv1x1Branch(nn.Module):
     out_channels : int
         Number of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels: int,
+                 normalization: Callable[..., nn.Module]):
         super(Conv1x1Branch, self).__init__()
         self.conv = conv1x1_block(
             in_channels=in_channels,
@@ -102,24 +102,24 @@ class ConvSeqBranch(nn.Module):
     ----------
     in_channels : int
         Number of input channels.
-    out_channels_list : list of tuple of int
+    out_channels_list : list(int) or tuple(int, ...)
         List of numbers of output channels.
-    kernel_size_list : list of tuple of int or tuple of tuple(int, int)
+    kernel_size_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
         List of convolution window sizes.
-    strides_list : list of tuple of int or tuple of tuple(int, int)
+    strides_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
         List of strides of the convolution.
-    padding_list : list of tuple of int or tuple of tuple(int, int)
+    padding_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
         List of padding values for convolution layers.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list,
-                 kernel_size_list,
-                 strides_list,
-                 padding_list,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels_list: list[int] | tuple[int, ...],
+                 kernel_size_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
+                 strides_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
+                 padding_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
+                 normalization: Callable[..., nn.Module]):
         super(ConvSeqBranch, self).__init__()
         assert (len(out_channels_list) == len(kernel_size_list))
         assert (len(out_channels_list) == len(strides_list))
@@ -150,24 +150,24 @@ class ConvSeq3x3Branch(nn.Module):
     ----------
     in_channels : int
         Number of input channels.
-    out_channels_list : list of tuple of int
+    out_channels_list : list(int) or tuple(int, ...)
         List of numbers of output channels.
-    kernel_size_list : list of tuple of int or tuple of tuple(int, int)
+    kernel_size_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
         List of convolution window sizes.
-    strides_list : list of tuple of int or tuple of tuple(int, int)
+    strides_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
         List of strides of the convolution.
-    padding_list : list of tuple of int or tuple of tuple(int, int)
+    padding_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
         List of padding values for convolution layers.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list,
-                 kernel_size_list,
-                 strides_list,
-                 padding_list,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels_list: list[int] | tuple[int, ...],
+                 kernel_size_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
+                 strides_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
+                 padding_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
+                 normalization: Callable[..., nn.Module]):
         super(ConvSeq3x3Branch, self).__init__()
         self.conv_list = nn.Sequential()
         for i, (out_channels, kernel_size, strides, padding) in enumerate(zip(
@@ -214,12 +214,12 @@ class InceptionAUnit(nn.Module):
     out_channels : int
         Number of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels: int,
+                 normalization: Callable[..., nn.Module]):
         super(InceptionAUnit, self).__init__()
         assert (out_channels > 224)
         pool_out_channels = out_channels - 224
@@ -264,12 +264,12 @@ class ReductionAUnit(nn.Module):
     out_channels : int
         Number of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels: int,
+                 normalization: Callable[..., nn.Module]):
         super(ReductionAUnit, self).__init__()
         assert (in_channels == 288)
         assert (out_channels == 768)
@@ -309,13 +309,13 @@ class InceptionBUnit(nn.Module):
     mid_channels : int
         Number of output channels in the 7x7 branches.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int,
+                 normalization: Callable[..., nn.Module]):
         super(InceptionBUnit, self).__init__()
         assert (in_channels == 768)
         assert (out_channels == 768)
@@ -360,12 +360,12 @@ class ReductionBUnit(nn.Module):
     out_channels : int
         Number of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels: int,
+                 normalization: Callable[..., nn.Module]):
         super(ReductionBUnit, self).__init__()
         assert (in_channels == 768)
         assert (out_channels == 1280)
@@ -403,12 +403,12 @@ class InceptionCUnit(nn.Module):
     out_channels : int
         Number of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels: int,
+                 normalization: Callable[..., nn.Module]):
         super(InceptionCUnit, self).__init__()
         assert (out_channels == 2048)
 
@@ -452,12 +452,12 @@ class InceptInitBlock(nn.Module):
     out_channels : int
         Number of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels: int,
+                 normalization: Callable[..., nn.Module]):
         super(InceptInitBlock, self).__init__()
         assert (out_channels == 192)
 
@@ -524,10 +524,10 @@ class InceptionV3(nn.Module):
         Number of output channels for the initial unit.
     b_mid_channels : list(int)
         Number of middle channels for each Inception-B unit.
-    dropout_rate : float, default 0.0
-        Fraction of the input units to drop. Must be a number between 0 and 1.
     bn_eps : float, default 1e-5
         Small float added to variance in Batch norm.
+    dropout_rate : float, default 0.0
+        Fraction of the input units to drop. Must be a number between 0 and 1.
     in_channels : int, default 3
         Number of input channels.
     in_size : tuple(int, int), default (299, 299)
@@ -537,11 +537,11 @@ class InceptionV3(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 b_mid_channels,
-                 bn_eps=1e-5,
-                 dropout_rate=0.5,
-                 in_channels=3,
+                 init_block_channels: int,
+                 b_mid_channels: list[int],
+                 bn_eps: float = 1e-5,
+                 dropout_rate: float = 0.5,
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (299, 299),
                  num_classes: int = 1000):
         super(InceptionV3, self).__init__()

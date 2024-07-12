@@ -30,13 +30,13 @@ class PFCUBranch(nn.Module):
     dropout_rate : float
         Parameter of Dropout layer. Faction of the input units to drop.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 channels,
-                 kernel_size,
-                 dilation,
-                 dropout_rate,
+                 channels: int,
+                 kernel_size: int,
+                 dilation: int,
+                 dropout_rate: float,
                  normalization: Callable[..., nn.Module]):
         super(PFCUBranch, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
@@ -73,12 +73,12 @@ class PFCU(nn.Module):
     dropout_rate : float
         Parameter of Dropout layer. Faction of the input units to drop.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 channels,
-                 kernel_size,
-                 dropout_rate,
+                 channels: int,
+                 kernel_size: int,
+                 dropout_rate: float,
                  normalization: Callable[..., nn.Module]):
         super(PFCU, self).__init__()
         dilations = [2, 5, 9]
@@ -147,10 +147,10 @@ class ESNet(nn.Module):
                  channels: list[list[int]],
                  kernel_sizes: list[list[int]],
                  dropout_rates: list[list[float]],
-                 correct_size_mismatch=False,
-                 bn_eps=1e-5,
-                 aux=False,
-                 fixed_size=False,
+                 correct_size_mismatch: bool = False,
+                 bn_eps: float = 1e-5,
+                 aux: bool = False,
+                 fixed_size: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (1024, 2048),
                  num_classes: int = 19):

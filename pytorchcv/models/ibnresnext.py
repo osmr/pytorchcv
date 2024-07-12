@@ -33,12 +33,12 @@ class IBNResNeXtBottleneck(nn.Module):
         Whether to use IBN normalization in the first convolution layer of the block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 cardinality,
-                 bottleneck_width,
-                 conv1_ibn):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 cardinality: int,
+                 bottleneck_width: int,
+                 conv1_ibn: bool):
         super(IBNResNeXtBottleneck, self).__init__()
         mid_channels = out_channels // 4
         D = int(math.floor(mid_channels * (bottleneck_width / 64.0)))
@@ -85,12 +85,12 @@ class IBNResNeXtUnit(nn.Module):
         Whether to use IBN normalization in the first convolution layer of the block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 cardinality,
-                 bottleneck_width,
-                 conv1_ibn):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 cardinality: int,
+                 bottleneck_width: int,
+                 conv1_ibn: bool):
         super(IBNResNeXtUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -144,9 +144,9 @@ class IBNResNeXt(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 cardinality,
-                 bottleneck_width,
+                 init_block_channels: int,
+                 cardinality: int,
+                 bottleneck_width: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -197,9 +197,9 @@ class IBNResNeXt(nn.Module):
         return x
 
 
-def get_ibnresnext(blocks,
-                   cardinality,
-                   bottleneck_width,
+def get_ibnresnext(blocks: int,
+                   cardinality: int,
+                   bottleneck_width: int,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),

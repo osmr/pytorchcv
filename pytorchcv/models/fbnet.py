@@ -9,7 +9,7 @@ __all__ = ['FBNet', 'fbnet_cb']
 import os
 import torch.nn as nn
 from typing import Callable
-from .common import lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block
+from .common import lambda_relu, lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block
 
 
 class FBNetUnit(nn.Module):
@@ -29,18 +29,18 @@ class FBNetUnit(nn.Module):
     exp_factor : int
         Expansion factor for each unit.
     normalization : function
-        Normalization function.
-    activation : str, default 'relu'
-        Activation function or name of activation function.
+        Lambda-function generator for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 use_kernel3,
-                 exp_factor,
-                 normalization: Callable,
-                 activation="relu"):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 use_kernel3: bool,
+                 exp_factor: int,
+                 normalization: Callable[..., nn.Module],
+                 activation: Callable[..., nn.Module] = lambda_relu()):
         super(FBNetUnit, self).__init__()
         assert (exp_factor >= 1)
         self.residual = (in_channels == out_channels) and (stride == 1)
@@ -96,12 +96,12 @@ class FBNetInitBlock(nn.Module):
     out_channels : int
         Number of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels: int,
+                 normalization: Callable[..., nn.Module]):
         super(FBNetInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -135,7 +135,7 @@ class FBNet(nn.Module):
         Number of output channels for the initial unit.
     final_block_channels : int
         Number of output channels for the final block of the feature extractor.
-    kernels3 : list(list(int or bool))
+    kernels3 : list(list(int))
         Using 3x3 (instead of 5x5) kernel for each unit.
     exp_factors : list(list(int))
         Expansion factor for each unit.
@@ -150,11 +150,11 @@ class FBNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
-                 kernels3,
-                 exp_factors,
-                 bn_eps=1e-5,
+                 init_block_channels: int,
+                 final_block_channels: int,
+                 kernels3: list[list[int]],
+                 exp_factors: list[list[int]],
+                 bn_eps: float = 1e-5,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -213,8 +213,8 @@ class FBNet(nn.Module):
         return x
 
 
-def get_fbnet(version,
-              bn_eps=1e-5,
+def get_fbnet(version: str,
+              bn_eps: float = 1e-5,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),

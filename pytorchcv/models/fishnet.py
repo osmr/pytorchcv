@@ -7,6 +7,7 @@
 __all__ = ['FishNet', 'fishnet99', 'fishnet150', 'ChannelSqueeze']
 
 import os
+import torch
 import torch.nn as nn
 from .common import (pre_conv1x1_block, pre_conv3x3_block, conv1x1, SesquialteralHourglass, Identity,
                      InterpolationBlock)
@@ -14,21 +15,21 @@ from .preresnet import PreResActivation
 from .senet import SEInitBlock
 
 
-def channel_squeeze(x,
-                    groups):
+def channel_squeeze(x: torch.Tensor,
+                    groups: int) -> torch.Tensor:
     """
     Channel squeeze operation.
 
     Parameters
     ----------
-    x : Tensor
+    x : torch.Tensor
         Input tensor.
     groups : int
         Number of groups.
 
     Returns
     -------
-    Tensor
+    torch.Tensor
         Resulted tensor.
     """
     batch, channels, height, width = x.size()
@@ -49,8 +50,8 @@ class ChannelSqueeze(nn.Module):
         Number of groups.
     """
     def __init__(self,
-                 channels,
-                 groups):
+                 channels: int,
+                 groups: int):
         super(ChannelSqueeze, self).__init__()
         if channels % groups != 0:
             raise ValueError("channels must be divisible by groups")
@@ -75,9 +76,9 @@ class PreSEAttBlock(nn.Module):
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 reduction=16):
+                 in_channels: int,
+                 out_channels: int,
+                 reduction: int = 16):
         super(PreSEAttBlock, self).__init__()
         mid_cannels = out_channels // reduction
 
@@ -121,10 +122,10 @@ class FishBottleneck(nn.Module):
         Dilation value for convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 dilation):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 dilation: int | tuple[int, int]):
         super(FishBottleneck, self).__init__()
         mid_channels = out_channels // 4
 
@@ -166,11 +167,11 @@ class FishBlock(nn.Module):
         Whether to use a channel squeeze operation.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride=1,
-                 dilation=1,
-                 squeeze=False):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int] = 1,
+                 dilation: int | tuple[int, int] = 1,
+                 squeeze: bool = False):
         super(FishBlock, self).__init__()
         self.squeeze = squeeze
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
@@ -215,8 +216,8 @@ class DownUnit(nn.Module):
         Number of output channels for each block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list):
+                 in_channels: int,
+                 out_channels_list: list[int]):
         super(DownUnit, self).__init__()
         self.blocks = nn.Sequential()
         for i, out_channels in enumerate(out_channels_list):
@@ -248,9 +249,9 @@ class UpUnit(nn.Module):
         Dilation value for convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list,
-                 dilation=1):
+                 in_channels: int,
+                 out_channels_list: list[int],
+                 dilation: int | tuple[int, int] = 1):
         super(UpUnit, self).__init__()
         self.blocks = nn.Sequential()
         for i, out_channels in enumerate(out_channels_list):
@@ -261,7 +262,10 @@ class UpUnit(nn.Module):
                 dilation=dilation,
                 squeeze=squeeze))
             in_channels = out_channels
-        self.upsample = InterpolationBlock(scale_factor=2, mode="nearest", align_corners=None)
+        self.upsample = InterpolationBlock(
+            scale_factor=2,
+            mode="nearest",
+            align_corners=None)
 
     def forward(self, x):
         x = self.blocks(x)
@@ -281,8 +285,8 @@ class SkipUnit(nn.Module):
         Number of output channels for each block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list):
+                 in_channels: int,
+                 out_channels_list: list[int]):
         super(SkipUnit, self).__init__()
         self.blocks = nn.Sequential()
         for i, out_channels in enumerate(out_channels_list):
@@ -308,8 +312,8 @@ class SkipAttUnit(nn.Module):
         Number of output channels for each block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list):
+                 in_channels: int,
+                 out_channels_list: list[int]):
         super(SkipAttUnit, self).__init__()
         mid_channels1 = in_channels // 2
         mid_channels2 = 2 * in_channels
@@ -353,7 +357,7 @@ class FishFinalBlock(nn.Module):
         Number of input channels.
     """
     def __init__(self,
-                 in_channels):
+                 in_channels: int):
         super(FishFinalBlock, self).__init__()
         mid_channels = in_channels // 2
 
@@ -390,9 +394,9 @@ class FishNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 direct_channels,
-                 skip_channels,
-                 init_block_channels,
+                 direct_channels: list[list[list[int]]],
+                 skip_channels: list[list[list[int]]],
+                 init_block_channels: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -494,7 +498,7 @@ class FishNet(nn.Module):
         return x
 
 
-def get_fishnet(blocks,
+def get_fishnet(blocks: int,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
@@ -602,7 +606,6 @@ def fishnet150(**kwargs) -> nn.Module:
 
 
 def _test():
-    import torch
     from .model_store import calc_net_weight_count
 
     pretrained = False

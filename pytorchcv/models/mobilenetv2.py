@@ -24,16 +24,16 @@ class LinearBottleneck(nn.Module):
     stride : int or tuple(int, int)
         Strides of the second convolution layer.
     expansion : bool
-        Whether do expansion of channels.
+        Whether to do expansion of channels.
     remove_exp_conv : bool
         Whether to remove expansion convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 expansion,
-                 remove_exp_conv):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 expansion: bool,
+                 remove_exp_conv: bool):
         super(LinearBottleneck, self).__init__()
         self.residual = (in_channels == out_channels) and (stride == 1)
         mid_channels = in_channels * 6 if expansion else in_channels
@@ -89,9 +89,9 @@ class MobileNetV2(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
-                 remove_exp_conv,
+                 init_block_channels: int,
+                 final_block_channels: int,
+                 remove_exp_conv: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -149,7 +149,7 @@ class MobileNetV2(nn.Module):
         return x
 
 
-def get_mobilenetv2(width_scale,
+def get_mobilenetv2(width_scale: float,
                     remove_exp_conv=False,
                     model_name: str | None = None,
                     pretrained: bool = False,

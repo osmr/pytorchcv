@@ -31,9 +31,9 @@ class LEDBranch(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 channels,
-                 dilation,
-                 dropout_rate,
+                 channels: int,
+                 dilation: int,
+                 dropout_rate: float,
                  normalization: Callable[..., nn.Module]):
         super(LEDBranch, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
@@ -82,9 +82,9 @@ class LEDUnit(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 channels,
-                 dilation,
-                 dropout_rate,
+                 channels: int,
+                 dilation: int,
+                 dropout_rate: float,
                  normalization: Callable[..., nn.Module]):
         super(LEDUnit, self).__init__()
         mid_channels = channels // 2
@@ -138,12 +138,12 @@ class PoolingBranch(nn.Module):
         Spatial size of downscaled image.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 bias,
+                 in_channels: int,
+                 out_channels: int,
+                 bias: bool,
                  normalization: Callable[..., nn.Module],
-                 in_size,
-                 down_size):
+                 in_size: tuple[int, int] | None,
+                 down_size: int):
         super(PoolingBranch, self).__init__()
         self.in_size = in_size
 
@@ -181,10 +181,10 @@ class APN(nn.Module):
         Spatial size of input image.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
+                 in_channels: int,
+                 out_channels: int,
                  normalization: Callable[..., nn.Module],
-                 in_size):
+                 in_size: tuple[int, int] | None):
         super(APN, self).__init__()
         self.in_size = in_size
         att_out_channels = 1
@@ -272,9 +272,9 @@ class LEDNet(nn.Module):
     ----------
     channels : list(int)
         Number of output channels for each unit.
-    dilations : list(int)
+    dilations : list(list(int))
         Dilations for units.
-    dropout_rates : list(list(int))
+    dropout_rates : list(float)
         Dropout rates for each unit in encoder.
     correct_size_mistmatch : bool
         Whether to correct downscaled sizes of images in encoder.
@@ -292,13 +292,13 @@ class LEDNet(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 channels,
-                 dilations,
-                 dropout_rates,
-                 correct_size_mismatch=False,
-                 bn_eps=1e-5,
-                 aux=False,
-                 fixed_size=False,
+                 channels: list[int],
+                 dilations: list[list[int]],
+                 dropout_rates: list[float],
+                 correct_size_mismatch: bool = False,
+                 bn_eps: float = 1e-5,
+                 aux: bool = False,
+                 fixed_size: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (1024, 2048),
                  num_classes: int = 19):

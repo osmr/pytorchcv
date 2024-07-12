@@ -7,7 +7,8 @@ __all__ = ['MnasNet', 'mnasnet_b1', 'mnasnet_a1', 'mnasnet_small']
 
 import os
 import torch.nn as nn
-from .common import round_channels, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, SEBlock
+from typing import Callable
+from .common import round_channels, lambda_relu, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, SEBlock
 
 
 class DwsExpSEResUnit(nn.Module):
@@ -30,18 +31,18 @@ class DwsExpSEResUnit(nn.Module):
         SE reduction factor for each unit.
     use_skip : bool, default True
         Whether to use skip connection.
-    activation : str, default 'relu'
-        Activation function or name of activation function.
+    activation : function or None, default lambda_relu()
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride=1,
-                 use_kernel3=True,
-                 exp_factor=1,
-                 se_factor=0,
-                 use_skip=True,
-                 activation="relu"):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int] = 1,
+                 use_kernel3: bool = True,
+                 exp_factor: int = 1,
+                 se_factor: int = 0,
+                 use_skip: bool = True,
+                 activation: Callable[..., nn.Module] | None = lambda_relu()):
         super(DwsExpSEResUnit, self).__init__()
         assert (exp_factor >= 1)
         self.residual = (in_channels == out_channels) and (stride == 1) and use_skip
@@ -101,10 +102,10 @@ class MnasInitBlock(nn.Module):
         Whether to use skip connection in the second block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels,
-                 use_skip):
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int,
+                 use_skip: bool):
         super(MnasInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -137,10 +138,10 @@ class MnasFinalBlock(nn.Module):
         Whether to use skip connection in the second block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels,
-                 use_skip):
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int,
+                 use_skip: bool):
         super(MnasFinalBlock, self).__init__()
         self.conv1 = DwsExpSEResUnit(
             in_channels=in_channels,
@@ -166,11 +167,11 @@ class MnasNet(nn.Module):
     ----------
     channels : list(list(int))
         Number of output channels for each unit.
-    init_block_channels : list of 2 int
+    init_block_channels : tuple(int, int)
         Number of output channels for the initial unit.
-    final_block_channels : list of 2 int
+    final_block_channels : tuple(int, int)
         Number of output channels for the final block of the feature extractor.
-    kernels3 : list(list(int or bool))
+    kernels3 : list(list(int))
         Using 3x3 (instead of 5x5) kernel for each unit.
     exp_factors : list(list(int))
         Expansion factor for each unit.
@@ -189,13 +190,13 @@ class MnasNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
-                 kernels3,
-                 exp_factors,
-                 se_factors,
-                 init_block_use_skip,
-                 final_block_use_skip,
+                 init_block_channels: tuple[int, int],
+                 final_block_channels: tuple[int, int],
+                 kernels3: list[list[int]],
+                 exp_factors: list[list[int]],
+                 se_factors: list[list[int]],
+                 init_block_use_skip: bool,
+                 final_block_use_skip: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -256,8 +257,8 @@ class MnasNet(nn.Module):
         return x
 
 
-def get_mnasnet(version,
-                width_scale,
+def get_mnasnet(version: str,
+                width_scale: float,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
@@ -319,8 +320,8 @@ def get_mnasnet(version,
 
     net = MnasNet(
         channels=channels,
-        init_block_channels=init_block_channels,
-        final_block_channels=final_block_channels,
+        init_block_channels=tuple[int, int](init_block_channels),
+        final_block_channels=tuple[int, int](final_block_channels),
         kernels3=kernels3,
         exp_factors=exp_factors,
         se_factors=se_factors,

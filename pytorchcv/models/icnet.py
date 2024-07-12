@@ -25,8 +25,8 @@ class ICInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(ICInitBlock, self).__init__()
         mid_channels = out_channels // 2
 
@@ -64,9 +64,9 @@ class PSPBlock(nn.Module):
         Bottleneck factor.
     """
     def __init__(self,
-                 in_channels,
-                 upscale_out_size,
-                 bottleneck_factor):
+                 in_channels: int,
+                 upscale_out_size: tuple[int, int],
+                 bottleneck_factor: int):
         super(PSPBlock, self).__init__()
         assert (in_channels % bottleneck_factor == 0)
         mid_channels = in_channels // bottleneck_factor
@@ -102,10 +102,10 @@ class CFFBlock(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 in_channels_low,
-                 in_channels_high,
-                 out_channels,
-                 num_classes):
+                 in_channels_low: int,
+                 in_channels_high: int,
+                 out_channels: int,
+                 num_classes: int):
         super(CFFBlock, self).__init__()
         self.up = InterpolationBlock(scale_factor=2)
         self.conv_low = conv3x3_block(
@@ -143,7 +143,7 @@ class ICHeadBlock(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 num_classes):
+                 num_classes: int):
         super(ICHeadBlock, self).__init__()
         self.cff_12 = CFFBlock(
             in_channels_low=128,
@@ -189,11 +189,11 @@ class ICNet(nn.Module):
 
     Parameters
     ----------
-    backbones : tuple of nn.Sequential
+    backbones : tuple(nn.Sequential, nn.Sequential)
         Feature extractors.
-    backbones_out_channels : tuple of int
+    backbones_out_channels : tuple(int, int)
         Number of output channels form each feature extractor.
-    num_classes : tuple of int
+    channels : tuple(int, int, int)
         Number of output channels for each branch.
     aux : bool, default False
         Whether to output an auxiliary result.
@@ -207,13 +207,13 @@ class ICNet(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 backbones,
-                 backbones_out_channels,
-                 channels,
-                 aux=False,
-                 fixed_size=True,
-                 in_channels=3,
-                 in_size=(480, 480),
+                 backbones: tuple[nn.Sequential, nn.Sequential],
+                 backbones_out_channels: tuple[int, int],
+                 channels: tuple[int, int, int],
+                 aux: bool = False,
+                 fixed_size: bool = True,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (480, 480),
                  num_classes: int = 21):
         super(ICNet, self).__init__()
         assert (in_channels > 0)
@@ -270,10 +270,10 @@ class ICNet(nn.Module):
             return x[0]
 
 
-def get_icnet(backbones,
-              backbones_out_channels,
-              num_classes,
-              aux=False,
+def get_icnet(backbones: tuple[nn.Sequential, nn.Sequential],
+              backbones_out_channels: tuple[int, int],
+              num_classes: int,
+              aux: bool = False,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),
@@ -329,8 +329,8 @@ def get_icnet(backbones,
 
 
 def icnet_resnetd50b_cityscapes(pretrained_backbone: bool = False,
-                                num_classes=19,
-                                aux=True,
+                                num_classes: int = 19,
+                                aux: bool = True,
                                 **kwargs) -> nn.Module:
     """
     ICNet model on the base of ResNet(D)-50b for Cityscapes from 'ICNet for Real-Time Semantic Segmentation on

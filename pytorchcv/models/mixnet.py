@@ -23,11 +23,11 @@ class MixConv(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    kernel_size : int or tuple/list of int, or tuple/list of tuple(int, int)
+    kernel_size : int or tuple(int, int) or list(int) or list(tuple(int, int))
         Convolution window size.
     stride : int or tuple(int, int)
         Strides of the convolution.
-    padding : int or tuple/list of int, or tuple/list of tuple(int, int)
+    padding : int or tuple(int, int) or list(int) or list(tuple(int, int))
         Padding value for convolution layer.
     dilation : int or tuple(int, int), default 1
         Dilation value for convolution layer.
@@ -39,15 +39,15 @@ class MixConv(nn.Module):
         The axis on which to concatenate the outputs.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
-                 axis=1):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int] | list[int] | list[tuple[int, int]],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int] | list[int] | list[tuple[int, int]],
+                 dilation: int | tuple[int, int] = 1,
+                 groups: int = 1,
+                 bias: bool = False,
+                 axis: int = 1):
         super(MixConv, self).__init__()
         kernel_size = kernel_size if isinstance(kernel_size, list) else [kernel_size]
         padding = padding if isinstance(padding, list) else [padding]
@@ -94,11 +94,11 @@ class MixConvBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    kernel_size : int or tuple/list of int, or tuple/list of tuple(int, int)
+    kernel_size : int or tuple(int, int) or list(int) or list(tuple(int, int))
         Convolution window size.
     stride : int or tuple(int, int)
         Strides of the convolution.
-    padding : int or tuple/list of int, or tuple/list of tuple(int, int)
+    padding : int or tuple(int, int) or list(int) or list(tuple(int, int))
         Padding value for convolution layer.
     dilation : int or tuple(int, int), default 1
         Dilation value for convolution layer.
@@ -112,14 +112,14 @@ class MixConvBlock(nn.Module):
         Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int] | list[int] | list[tuple[int, int]],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int] | list[int] | list[tuple[int, int]],
+                 dilation: int | tuple[int, int] = 1,
+                 groups: int = 1,
+                 bias: bool = False,
                  normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
                  activation: Callable[..., nn.Module] = lambda_relu()):
         super(MixConvBlock, self).__init__()
@@ -155,10 +155,8 @@ class MixConvBlock(nn.Module):
         return x
 
 
-def mixconv1x1_block(kernel_count,
-                     stride=1,
-                     groups=1,
-                     bias=False,
+def mixconv1x1_block(kernel_count: int,
+                     stride: int | tuple[int, int] = 1,
                      **kwargs):
     """
     1x1 version of the mixed convolution block.
@@ -186,8 +184,6 @@ def mixconv1x1_block(kernel_count,
         kernel_size=([1] * kernel_count),
         stride=stride,
         padding=([0] * kernel_count),
-        groups=groups,
-        bias=bias,
         **kwargs)
 
 
@@ -219,14 +215,14 @@ class MixUnit(nn.Module):
         Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 exp_kernel_count,
-                 conv1_kernel_count,
-                 conv2_kernel_count,
-                 exp_factor,
-                 se_factor,
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 exp_kernel_count: int,
+                 conv1_kernel_count: int,
+                 conv2_kernel_count: int,
+                 exp_factor: int,
+                 se_factor: int,
                  activation: Callable[..., nn.Module]):
         super(MixUnit, self).__init__()
         assert (exp_factor >= 1)
@@ -307,8 +303,8 @@ class MixInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(MixInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -362,13 +358,13 @@ class MixNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
-                 exp_kernel_counts,
-                 conv1_kernel_counts,
-                 conv2_kernel_counts,
-                 exp_factors,
-                 se_factors,
+                 init_block_channels: int,
+                 final_block_channels: int,
+                 exp_kernel_counts: list[list[int]],
+                 conv1_kernel_counts: list[list[int]],
+                 conv2_kernel_counts: list[list[int]],
+                 exp_factors: list[list[int]],
+                 se_factors: list[list[int]],
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -431,8 +427,8 @@ class MixNet(nn.Module):
         return x
 
 
-def get_mixnet(version,
-               width_scale,
+def get_mixnet(version: str,
+               width_scale: float,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
@@ -577,7 +573,7 @@ def mixnet_l(**kwargs) -> nn.Module:
 
 def _test():
     import torch
-    from .model_store import calc_net_weight_count
+    from model_store import calc_net_weight_count
 
     pretrained = False
 

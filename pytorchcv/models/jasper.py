@@ -15,22 +15,24 @@ from typing import Callable
 from .common import lambda_batchnorm1d, lambda_relu, DualPathSequential, DualPathParallelConcurent
 
 
-def outmask_fill(x, x_len, value=0.0):
+def outmask_fill(x: torch.Tensor,
+                 x_len: torch.Tensor,
+                 value: float = 0.0) -> torch.Tensor:
     """
     Masked fill a tensor.
 
     Parameters
     ----------
-    x : tensor
+    x : torch.Tensor
         Input tensor.
-    x_len : tensor
+    x_len : torch.Tensor
         Tensor with lengths.
     value : float, default 0.0
         Filled value.
 
     Returns
     -------
-    tensor
+    torch.Tensor
         Resulted tensor.
     """
     max_len = x.size(2)
@@ -40,20 +42,21 @@ def outmask_fill(x, x_len, value=0.0):
     return x
 
 
-def masked_normalize(x, x_len):
+def masked_normalize(x: torch.Tensor,
+                     x_len: torch.Tensor) -> torch.Tensor:
     """
     Normalize a tensor with mask.
 
     Parameters
     ----------
-    x : tensor
+    x : torch.Tensor
         Input tensor.
-    x_len : tensor
+    x_len : torch.Tensor
         Tensor with lengths.
 
     Returns
     -------
-    tensor
+    torch.Tensor
         Resulted tensor.
     """
     x = outmask_fill(x, x_len)
@@ -65,20 +68,21 @@ def masked_normalize(x, x_len):
     return x
 
 
-def masked_normalize2(x, x_len):
+def masked_normalize2(x: torch.Tensor,
+                      x_len: torch.Tensor) -> torch.Tensor:
     """
     Normalize a tensor with mask (scheme #2).
 
     Parameters
     ----------
-    x : tensor
+    x : torch.Tensor
         Input tensor.
-    x_len : tensor
+    x_len : torch.Tensor
         Tensor with lengths.
 
     Returns
     -------
-    tensor
+    torch.Tensor
         Resulted tensor.
     """
     x = outmask_fill(x, x_len)
@@ -89,20 +93,21 @@ def masked_normalize2(x, x_len):
     return x
 
 
-def masked_normalize3(x, x_len):
+def masked_normalize3(x: torch.Tensor,
+                      x_len: torch.Tensor) -> torch.Tensor:
     """
     Normalize a tensor with mask (scheme #3).
 
     Parameters
     ----------
-    x : tensor
+    x : torch.Tensor
         Input tensor.
-    x_len : tensor
+    x_len : torch.Tensor
         Tensor with lengths.
 
     Returns
     -------
-    tensor
+    torch.Tensor
         Resulted tensor.
     """
     x_eps = 1e-5
@@ -123,14 +128,14 @@ class NemoAudioReader(object):
     ----------
     desired_audio_sample_rate : int, default 16000
         Desired audio sample rate.
-    trunc_value : int or None, default None
-        Value to truncate.
     """
-    def __init__(self, desired_audio_sample_rate=16000):
+    def __init__(self,
+                 desired_audio_sample_rate: int = 16000):
         super(NemoAudioReader, self).__init__()
         self.desired_audio_sample_rate = desired_audio_sample_rate
 
-    def read_from_file(self, audio_file_path):
+    def read_from_file(self,
+                       audio_file_path: str):
         """
         Read audio from file.
 
@@ -141,7 +146,7 @@ class NemoAudioReader(object):
 
         Returns
         -------
-        np.array
+        np.ndarray
             Audio data.
         """
         from soundfile import SoundFile
@@ -159,7 +164,8 @@ class NemoAudioReader(object):
 
         return audio_data
 
-    def read_from_files(self, audio_file_paths):
+    def read_from_files(self,
+                        audio_file_paths: list[str]):
         """
         Read audios from files.
 
@@ -170,7 +176,7 @@ class NemoAudioReader(object):
 
         Returns
         -------
-        list of np.array
+        list of np.ndarray
             Audio data.
         """
         assert (type(audio_file_paths) in (list, tuple))
@@ -204,13 +210,13 @@ class NemoMelSpecExtractor(nn.Module):
         Amount of white-noise dithering.
     """
     def __init__(self,
-                 sample_rate=16000,
-                 window_size_sec=0.02,
-                 window_stride_sec=0.01,
-                 n_fft=512,
-                 n_filters=64,
-                 preemph=0.97,
-                 dither=1.0e-5):
+                 sample_rate: int = 16000,
+                 window_size_sec: float = 0.02,
+                 window_stride_sec: float = 0.01,
+                 n_fft: int = 512,
+                 n_filters: int = 64,
+                 preemph: float = 0.97,
+                 dither: float = 1.0e-5):
         super(NemoMelSpecExtractor, self).__init__()
         self.log_zero_guard_value = 2 ** -24
         win_length = int(window_size_sec * sample_rate)
@@ -248,14 +254,16 @@ class NemoMelSpecExtractor(nn.Module):
 
         Parameters
         ----------
-        xs : list of np.array
+        x : list(np.ndarray)
             Audio data.
+        x_len : np.ndarray
+            Audio data lengths.
 
         Returns
         -------
-        x : np.array
+        x : np.ndarray
             Audio data.
-        x_len : np.array
+        x_len : np.ndarray
             Audio data lengths.
         """
         x_len = torch.ceil(x_len.float() / self.hop_length).long()
@@ -295,23 +303,23 @@ class CtcDecoder(object):
 
     Parameters
     ----------
-    vocabulary : list of str
+    vocabulary : list(str)
         Vocabulary of the dataset.
     """
     def __init__(self,
-                 vocabulary):
+                 vocabulary: list[str]):
         super().__init__()
         self.blank_id = len(vocabulary)
         self.labels_map = dict([(i, vocabulary[i]) for i in range(len(vocabulary))])
 
     def __call__(self,
-                 predictions):
+                 predictions: np.ndarray | list[list[int]]):
         """
         Decode a sequence of labels to words.
 
         Parameters
         ----------
-        predictions : np.array of int or list(list(int))
+        predictions : np.ndarray or list(list(int))
             Tensor with predicted labels.
 
         Returns
@@ -332,11 +340,11 @@ class CtcDecoder(object):
         return hypotheses
 
 
-def conv1d1(in_channels,
-            out_channels,
-            stride=1,
-            groups=1,
-            bias=False):
+def conv1d1(in_channels: int,
+            out_channels: int,
+            stride: int = 1,
+            groups: int = 1,
+            bias: bool = False):
     """
     1-dim kernel version of the 1D convolution layer.
 
@@ -372,13 +380,13 @@ class MaskConv1d(nn.Conv1d):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    kernel_size : int or tuple/list of 1 int
+    kernel_size : int or tuple(int)
         Convolution window size.
-    stride : int or tuple/list of 1 int
+    stride : int or tuple(int)
         Strides of the convolution.
-    padding : int or tuple/list of 1 int, default 0
+    padding : int or tuple(int), default 0
         Padding value for convolution layer.
-    dilation : int or tuple/list of 1 int, default 1
+    dilation : int or tuple(int), default 1
         Dilation value for convolution layer.
     groups : int, default 1
         Number of groups.
@@ -388,15 +396,15 @@ class MaskConv1d(nn.Conv1d):
         Whether to use mask.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding=0,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
-                 use_mask=True):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int],
+                 stride: int | tuple[int],
+                 padding: int | tuple[int] = 0,
+                 dilation: int | tuple[int] = 1,
+                 groups: int = 1,
+                 bias: bool = False,
+                 use_mask: bool = True):
         super(MaskConv1d, self).__init__(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -424,11 +432,11 @@ class MaskConv1d(nn.Conv1d):
         return x, x_len
 
 
-def mask_conv1d1(in_channels,
-                 out_channels,
-                 stride=1,
-                 groups=1,
-                 bias=False):
+def mask_conv1d1(in_channels: int,
+                 out_channels: int,
+                 stride: int = 1,
+                 groups: int = 1,
+                 bias: bool = False):
     """
     Masked 1-dim kernel version of the 1D convolution layer.
 
@@ -484,17 +492,17 @@ class MaskConvBlock1d(nn.Module):
         Parameter of Dropout layer. Faction of the input units to drop.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int,
+                 stride: int,
+                 padding: int,
+                 dilation: int = 1,
+                 groups: int = 1,
+                 bias: bool = False,
                  normalization: Callable[..., nn.Module] = lambda_batchnorm1d(),
                  activation: Callable[..., nn.Module] = lambda_relu(),
-                 dropout_rate=0.0):
+                 dropout_rate: float = 0.0):
         super(MaskConvBlock1d, self).__init__()
         self.normalize = (normalization is not None)
         self.activate = (activation is not None)
@@ -530,10 +538,10 @@ class MaskConvBlock1d(nn.Module):
         return x, x_len
 
 
-def mask_conv1d1_block(in_channels,
-                       out_channels,
-                       stride=1,
-                       padding=0,
+def mask_conv1d1_block(in_channels: int,
+                       out_channels: int,
+                       stride: int = 1,
+                       padding: int = 0,
                        **kwargs):
     """
     1-dim kernel version of the masked 1D convolution block.
@@ -570,8 +578,8 @@ class ChannelShuffle1d(nn.Module):
         Number of groups.
     """
     def __init__(self,
-                 channels,
-                 groups):
+                 channels: int,
+                 groups: int):
         super(ChannelShuffle1d, self).__init__()
         assert (channels % groups == 0)
         self.groups = groups
@@ -622,17 +630,17 @@ class DwsConvBlock1d(nn.Module):
         Parameter of Dropout layer. Faction of the input units to drop.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int,
+                 stride: int,
+                 padding: int,
+                 dilation: int = 1,
+                 groups: int = 1,
+                 bias: bool = False,
                  normalization: Callable[..., nn.Module] = lambda_batchnorm1d(),
                  activation: Callable[..., nn.Module] = lambda_relu(),
-                 dropout_rate=0.0):
+                 dropout_rate: float = 0.0):
         super(DwsConvBlock1d, self).__init__()
         self.normalize = (normalization is not None)
         self.activate = (activation is not None)
@@ -687,7 +695,7 @@ class JasperUnit(nn.Module):
 
     Parameters
     ----------
-    in_channels : int or list of int
+    in_channels : int or list(int)
         Number of input channels.
     out_channels : int
         Number of output channels.
@@ -705,14 +713,14 @@ class JasperUnit(nn.Module):
         Whether to use dense residual scheme.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
+                 in_channels: int | list[int],
+                 out_channels: int,
+                 kernel_size: int,
                  normalization: Callable[..., nn.Module],
-                 dropout_rate,
-                 repeat,
-                 use_dw,
-                 use_dr):
+                 dropout_rate: float,
+                 repeat: int,
+                 use_dw: bool,
+                 use_dr: bool):
         super(JasperUnit, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
         self.use_dr = use_dr
@@ -792,7 +800,7 @@ class JasperFinalBlock(nn.Module):
         Kernel sizes for each block.
     normalization : function
         Lambda-function generator for normalization layer.
-    dropout_rates : list(int)
+    dropout_rates : list(float)
         Dropout rates for each block.
     use_dw : bool
         Whether to use depthwise block.
@@ -800,13 +808,13 @@ class JasperFinalBlock(nn.Module):
         Whether to use dense residual scheme.
     """
     def __init__(self,
-                 in_channels,
-                 channels,
-                 kernel_sizes,
+                 in_channels: int,
+                 channels: list[int],
+                 kernel_sizes: list[int],
                  normalization: Callable[..., nn.Module],
-                 dropout_rates,
-                 use_dw,
-                 use_dr):
+                 dropout_rates: list[float],
+                 use_dw: bool,
+                 use_dr: bool):
         super(JasperFinalBlock, self).__init__()
         self.use_dr = use_dr
         conv1_class = DwsConvBlock1d if use_dw else MaskConvBlock1d
@@ -864,7 +872,7 @@ class Jasper(nn.Module):
         Amount of white-noise dithering.
     return_text : bool, default False
         Whether to return text instead of logits.
-    vocabulary : list of str or None, default None
+    vocabulary : list(str) or None, default None
         Vocabulary of the dataset.
     in_channels : int, default 64
         Number of input channels (audio features).
@@ -872,19 +880,19 @@ class Jasper(nn.Module):
         Number of classification classes (number of graphemes).
     """
     def __init__(self,
-                 channels,
-                 kernel_sizes,
-                 bn_eps,
-                 dropout_rates,
-                 repeat,
-                 use_dw,
-                 use_dr,
-                 from_audio=True,
-                 dither=0.0,
-                 return_text=False,
-                 vocabulary=None,
-                 in_channels=64,
-                 num_classes=29):
+                 channels: list[int],
+                 kernel_sizes: list[int],
+                 bn_eps: float,
+                 dropout_rates: list[int],
+                 repeat: int,
+                 use_dw: bool,
+                 use_dr: bool,
+                 from_audio: bool = True,
+                 dither: float = 0.0,
+                 return_text: bool = False,
+                 vocabulary: list[str] | None = None,
+                 in_channels: int = 64,
+                 num_classes: int = 29):
         super(Jasper, self).__init__()
         self.in_size = in_channels
         self.num_classes = num_classes
@@ -966,11 +974,11 @@ class Jasper(nn.Module):
             return x, x_len
 
 
-def get_jasper(version,
-               use_dw=False,
-               use_dr=False,
-               bn_eps=1e-3,
-               vocabulary=None,
+def get_jasper(version: tuple[str, str],
+               use_dw: bool = False,
+               use_dr: bool = False,
+               bn_eps: float = 1e-3,
+               vocabulary: list[str] | None = None,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
@@ -980,7 +988,7 @@ def get_jasper(version,
 
     Parameters
     ----------
-    version : tuple of str
+    version : tuple(str, str)
         Model type and configuration.
     use_dw : bool, default False
         Whether to use depthwise block.
@@ -988,7 +996,7 @@ def get_jasper(version,
         Whether to use dense residual scheme.
     bn_eps : float, default 1e-3
         Small float added to variance in Batch norm.
-    vocabulary : list of str or None, default None
+    vocabulary : list(str) or None, default None
         Vocabulary of the dataset.
     model_name : str or None, default None
         Model name for loading pretrained model.

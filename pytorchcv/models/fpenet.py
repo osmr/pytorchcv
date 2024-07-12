@@ -22,7 +22,7 @@ class FPEBlock(nn.Module):
         Number of input/output channels.
     """
     def __init__(self,
-                 channels):
+                 channels: int):
         super(FPEBlock, self).__init__()
         dilations = [1, 2, 4, 8]
         assert (channels % len(dilations) == 0)
@@ -67,11 +67,11 @@ class FPEUnit(nn.Module):
         Whether to use SE-module.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck_factor,
-                 use_se):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck_factor: int,
+                 use_se: bool):
         super(FPEUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
         self.use_se = use_se
@@ -127,10 +127,10 @@ class FPEStage(nn.Module):
         Whether to use SE-module.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 layers,
-                 use_se):
+                 in_channels: int,
+                 out_channels: int,
+                 layers: int,
+                 use_se: bool):
         super(FPEStage, self).__init__()
         self.use_block = (layers > 1)
 
@@ -179,9 +179,9 @@ class MEUBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels_high,
-                 in_channels_low,
-                 out_channels):
+                 in_channels_high: int,
+                 in_channels_low: int,
+                 out_channels: int):
         super(MEUBlock, self).__init__()
         self.conv_high = conv1x1_block(
             in_channels=in_channels_high,
@@ -255,13 +255,13 @@ class FPENet(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 layers,
-                 channels,
-                 init_block_channels,
-                 meu_channels,
-                 use_se,
-                 aux=False,
-                 fixed_size=False,
+                 layers: list[int],
+                 channels: list[int],
+                 init_block_channels: int,
+                 meu_channels: list[int],
+                 use_se: bool,
+                 aux: bool = False,
+                 fixed_size: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (1024, 2048),
                  num_classes: int = 19):

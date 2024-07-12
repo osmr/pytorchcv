@@ -23,7 +23,7 @@ class PreActivation(nn.Module):
         Number of input channels.
     """
     def __init__(self,
-                 in_channels):
+                 in_channels: int):
         super(PreActivation, self).__init__()
         self.bn = nn.BatchNorm2d(num_features=in_channels)
         self.activ = nn.PReLU(num_parameters=in_channels)
@@ -46,8 +46,8 @@ class ShortcutBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(ShortcutBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -73,7 +73,8 @@ class HierarchicalConcurrent(nn.Sequential):
     axis : int, default 1
         The axis on which to concatenate the outputs.
     """
-    def __init__(self, axis=1):
+    def __init__(self,
+                 axis: int = 1):
         super(HierarchicalConcurrent, self).__init__()
         self.axis = axis
 
@@ -106,10 +107,10 @@ class ESPBlock(nn.Module):
         Dilation values for branches.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 dilations):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 dilations: list[int]):
         super(ESPBlock, self).__init__()
         num_branches = len(dilations)
         assert (out_channels % num_branches == 0)
@@ -168,10 +169,10 @@ class DownsampleBlock(nn.Module):
         Dilation values for branches in EESP block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 x0_channels,
-                 dilations):
+                 in_channels: int,
+                 out_channels: int,
+                 x0_channels: int,
+                 dilations: list[int]):
         super(DownsampleBlock, self).__init__()
         inc_channels = out_channels - in_channels
 
@@ -212,8 +213,8 @@ class ESPInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(ESPInitBlock, self).__init__()
         self.conv = conv3x3_block(
             in_channels=in_channels,
@@ -245,9 +246,9 @@ class ESPFinalBlock(nn.Module):
         Number of groups in the last convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 final_groups):
+                 in_channels: int,
+                 out_channels: int,
+                 final_groups: int):
         super(ESPFinalBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -294,11 +295,11 @@ class ESPNetv2(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
-                 final_block_groups,
-                 dilations,
-                 dropout_rate=0.2,
+                 init_block_channels: int,
+                 final_block_channels: int,
+                 final_block_groups: int,
+                 dilations: list[list[list[int]]],
+                 dropout_rate: float = 0.2,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -364,7 +365,7 @@ class ESPNetv2(nn.Module):
         return x
 
 
-def get_espnetv2(width_scale,
+def get_espnetv2(width_scale: float,
                  model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),

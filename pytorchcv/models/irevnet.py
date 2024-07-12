@@ -32,12 +32,12 @@ class IRevDualPathSequential(DualPathSequential):
         Number of the final modules skipped during inverse.
     """
     def __init__(self,
-                 return_two=True,
-                 first_ordinals=0,
-                 last_ordinals=0,
+                 return_two: bool = True,
+                 first_ordinals: int = 0,
+                 last_ordinals: int = 0,
                  dual_path_scheme=(lambda module, x1, x2: module(x1, x2)),
                  dual_path_scheme_ordinal=(lambda module, x1, x2: (module(x1), x2)),
-                 last_noninvertible=0):
+                 last_noninvertible: int = 0):
         super(IRevDualPathSequential, self).__init__(
             return_two=return_two,
             first_ordinals=first_ordinals,
@@ -70,7 +70,8 @@ class IRevDownscale(nn.Module):
     scale : int
         Scale (downscale) value.
     """
-    def __init__(self, scale):
+    def __init__(self,
+                 scale: int):
         super(IRevDownscale, self).__init__()
         self.scale = scale
 
@@ -114,7 +115,8 @@ class IRevInjectivePad(nn.Module):
     padding : int
         Size of the padding.
     """
-    def __init__(self, padding):
+    def __init__(self,
+                 padding: int):
         super(IRevInjectivePad, self).__init__()
         self.padding = padding
         self.pad = nn.ZeroPad2d(padding=(0, 0, 0, padding))
@@ -173,13 +175,13 @@ class IRevBottleneck(nn.Module):
     stride : int or tuple(int, int)
         Strides of the branch convolution layers.
     preactivate : bool
-        Whether use pre-activation for the first convolution block.
+        Whether to use pre-activation for the first convolution block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 preactivate):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 preactivate: bool):
         super(IRevBottleneck, self).__init__()
         mid_channels = out_channels // 4
 
@@ -220,13 +222,13 @@ class IRevUnit(nn.Module):
     stride : int or tuple(int, int)
         Strides of the branch convolution layers.
     preactivate : bool
-        Whether use pre-activation for the first convolution block.
+        Whether to use pre-activation for the first convolution block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 preactivate):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 preactivate: bool):
         super(IRevUnit, self).__init__()
         if not preactivate:
             in_channels = in_channels // 2
@@ -281,7 +283,7 @@ class IRevPostActivation(nn.Module):
         Number of input channels.
     """
     def __init__(self,
-                 in_channels):
+                 in_channels: int):
         super(IRevPostActivation, self).__init__()
         self.bn = nn.BatchNorm2d(
             num_features=in_channels,
@@ -317,8 +319,8 @@ class IRevNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
+                 init_block_channels: int,
+                 final_block_channels: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -380,7 +382,7 @@ class IRevNet(nn.Module):
         return x
 
 
-def get_irevnet(blocks,
+def get_irevnet(blocks: int,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),

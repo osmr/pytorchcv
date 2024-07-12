@@ -27,10 +27,10 @@ class InvResUnit(nn.Module):
         Whether to do expansion of channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 expansion):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 expansion: bool):
         super(InvResUnit, self).__init__()
         self.residual = (in_channels == out_channels) and (stride == 1)
         mid_channels = in_channels * 6 if expansion else in_channels
@@ -89,8 +89,8 @@ class IGCV3(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
+                 init_block_channels: int,
+                 final_block_channels: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -146,7 +146,7 @@ class IGCV3(nn.Module):
         return x
 
 
-def get_igcv3(width_scale,
+def get_igcv3(width_scale: float,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),

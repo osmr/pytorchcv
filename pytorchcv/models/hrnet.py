@@ -27,9 +27,9 @@ class UpSamplingBlock(nn.Module):
         Multiplier for spatial size.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 scale_factor):
+                 in_channels: int,
+                 out_channels: int,
+                 scale_factor: int):
         super(UpSamplingBlock, self).__init__()
         self.conv = conv1x1_block(
             in_channels=in_channels,
@@ -62,10 +62,10 @@ class HRBlock(nn.Module):
         Number of subblock.
     """
     def __init__(self,
-                 in_channels_list,
-                 out_channels_list,
-                 num_branches,
-                 num_subblocks):
+                 in_channels_list: list[int],
+                 out_channels_list: list[int],
+                 num_branches: int,
+                 num_subblocks: list[int]):
         super(HRBlock, self).__init__()
         self.in_channels_list = in_channels_list
         self.num_branches = num_branches
@@ -153,11 +153,11 @@ class HRStage(nn.Module):
         Number of subblocks.
     """
     def __init__(self,
-                 in_channels_list,
-                 out_channels_list,
-                 num_modules,
-                 num_branches,
-                 num_subblocks):
+                 in_channels_list: list[int],
+                 out_channels_list: list[int],
+                 num_modules: int,
+                 num_branches: int,
+                 num_subblocks: list[int]):
         super(HRStage, self).__init__()
         self.branches = num_branches
         self.in_channels_list = out_channels_list
@@ -222,10 +222,10 @@ class HRInitBlock(nn.Module):
         Number of subblocks.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels,
-                 num_subblocks):
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int,
+                 num_subblocks: int):
         super(HRInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -264,8 +264,8 @@ class HRFinalBlock(nn.Module):
         Number of output channels per stage.
     """
     def __init__(self,
-                 in_channels_list,
-                 out_channels_list):
+                 in_channels_list: list[int],
+                 out_channels_list: list[int]):
         super(HRFinalBlock, self).__init__()
         self.inc_blocks = nn.Sequential()
         for i, in_channels_i in enumerate(in_channels_list):
@@ -302,15 +302,15 @@ class HRNet(nn.Module):
 
     Parameters
     ----------
-    channels : list(int)
+    channels : list(list(int))
         Number of output channels for each unit.
     init_block_channels : int
         Number of output channels for the initial unit.
     init_num_subblocks : int
         Number of subblocks in the initial unit.
-    num_modules : int
+    num_modules : list(int)
         Number of modules per stage.
-    num_subblocks : list(int)
+    num_subblocks : list(list(int))
         Number of subblocks per stage.
     in_channels : int, default 3
         Number of input channels.
@@ -320,11 +320,11 @@ class HRNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
-                 init_num_subblocks,
-                 num_modules,
-                 num_subblocks,
+                 channels: list[list[int]],
+                 init_block_channels: int,
+                 init_num_subblocks: int,
+                 num_modules: list[int],
+                 num_subblocks: list[list[int]],
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -378,7 +378,7 @@ class HRNet(nn.Module):
         return x
 
 
-def get_hrnet(version,
+def get_hrnet(version: str,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),

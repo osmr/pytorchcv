@@ -41,16 +41,16 @@ class IBNConvBlock(nn.Module):
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
-                 use_ibn=False,
-                 activate=True):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 dilation: int | tuple[int, int] = 1,
+                 groups: int = 1,
+                 bias: bool = False,
+                 use_ibn: bool = False,
+                 activate: bool = True):
         super(IBNConvBlock, self).__init__()
         self.activate = activate
         self.use_ibn = use_ibn
@@ -82,13 +82,13 @@ class IBNConvBlock(nn.Module):
         return x
 
 
-def ibn_conv1x1_block(in_channels,
-                      out_channels,
-                      stride=1,
-                      groups=1,
-                      bias=False,
-                      use_ibn=False,
-                      activate=True):
+def ibn_conv1x1_block(in_channels: int,
+                      out_channels: int,
+                      stride: int | tuple[int, int] = 1,
+                      groups: int = 1,
+                      bias: bool = False,
+                      use_ibn: bool = False,
+                      activate: bool = True):
     """
     1x1 version of the IBN-Net specific convolution block.
 
@@ -105,7 +105,7 @@ def ibn_conv1x1_block(in_channels,
     bias : bool, default False
         Whether the layer uses a bias vector.
     use_ibn : bool, default False
-        Whether use Instance-Batch Normalization.
+        Whether to use Instance-Batch Normalization.
     activate : bool, default True
         Whether activate the convolution block.
     """
@@ -137,10 +137,10 @@ class IBNResBottleneck(nn.Module):
         Whether to use IBN normalization in the first convolution layer of the block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 conv1_ibn):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 conv1_ibn: bool):
         super(IBNResBottleneck, self).__init__()
         mid_channels = out_channels // 4
 
@@ -180,10 +180,10 @@ class IBNResUnit(nn.Module):
         Whether to use IBN normalization in the first convolution layer of the block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 conv1_ibn):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 conv1_ibn: bool):
         super(IBNResUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -231,7 +231,7 @@ class IBNResNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
+                 init_block_channels: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -280,7 +280,7 @@ class IBNResNet(nn.Module):
         return x
 
 
-def get_ibnresnet(blocks,
+def get_ibnresnet(blocks: int,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),

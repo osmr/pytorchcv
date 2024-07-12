@@ -26,9 +26,9 @@ class PyrBlock(nn.Module):
         Strides of the convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int]):
         super(PyrBlock, self).__init__()
         self.conv1 = pre_conv3x3_block(
             in_channels=in_channels,
@@ -59,9 +59,9 @@ class PyrBottleneck(nn.Module):
         Strides of the convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int]):
         super(PyrBottleneck, self).__init__()
         mid_channels = out_channels // 4
 
@@ -100,10 +100,10 @@ class PyrUnit(nn.Module):
         Whether to use a bottleneck or simple block in units.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bottleneck):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bottleneck: bool):
         super(PyrUnit, self).__init__()
         assert (out_channels >= in_channels)
         self.resize_identity = (stride != 1)
@@ -149,8 +149,8 @@ class PyrInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(PyrInitBlock, self).__init__()
         self.conv = nn.Conv2d(
             in_channels=in_channels,
@@ -195,8 +195,8 @@ class PyramidNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck,
+                 init_block_channels: int,
+                 bottleneck: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -245,8 +245,8 @@ class PyramidNet(nn.Module):
         return x
 
 
-def get_pyramidnet(blocks,
-                   alpha,
+def get_pyramidnet(blocks: int,
+                   alpha: int,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),

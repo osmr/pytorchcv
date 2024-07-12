@@ -43,13 +43,13 @@ class InvDwsConvBlock(nn.Module):
         Activation function after the depthwise convolution block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 bias=False,
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 dilation: int | tuple[int, int] = 1,
+                 bias: bool = False,
                  pw_normalization: Callable[..., nn.Module | None] | nn.Module | None = lambda_batchnorm2d(),
                  dw_normalization: Callable[..., nn.Module | None] | nn.Module | None = lambda_batchnorm2d(),
                  pw_activation: Callable[..., nn.Module | None] | nn.Module | str | None = lambda_relu(),
@@ -78,9 +78,9 @@ class InvDwsConvBlock(nn.Module):
         return x
 
 
-def invdwsconv3x3_block(stride=1,
-                        padding=1,
-                        dilation=1,
+def invdwsconv3x3_block(stride: int | tuple[int, int] = 1,
+                        padding: int | tuple[int, int] = 1,
+                        dilation: int | tuple[int, int] = 1,
                         **kwargs):
     """
     3x3 inverse depthwise separable version of the standard convolution block.
@@ -138,12 +138,12 @@ class HarDUnit(nn.Module):
         Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels_list,
-                 out_channels_list,
-                 links_list,
-                 use_deptwise,
-                 use_dropout,
-                 downsampling,
+                 in_channels_list: list[int],
+                 out_channels_list: list[int],
+                 links_list: list[list[int]],
+                 use_deptwise: bool,
+                 use_dropout: bool,
+                 downsampling: bool,
                  activation: Callable[..., nn.Module]):
         super(HarDUnit, self).__init__()
         self.links_list = links_list
@@ -229,9 +229,9 @@ class HarDInitBlock(nn.Module):
         Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 use_deptwise,
+                 in_channels: int,
+                 out_channels: int,
+                 use_deptwise: bool,
                  activation: Callable[..., nn.Module]):
         super(HarDInitBlock, self).__init__()
         mid_channels = out_channels // 2
@@ -293,13 +293,13 @@ class HarDNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 init_block_channels,
-                 unit_in_channels,
-                 unit_out_channels,
-                 unit_links,
-                 use_deptwise,
-                 use_last_dropout,
-                 output_dropout_rate,
+                 init_block_channels: int,
+                 unit_in_channels: list[list[list[int]]],
+                 unit_out_channels: list[list[list[int]]],
+                 unit_links: list[list[list[int]]],
+                 use_deptwise: bool,
+                 use_last_dropout: bool,
+                 output_dropout_rate: float,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -360,8 +360,8 @@ class HarDNet(nn.Module):
         return x
 
 
-def get_hardnet(blocks,
-                use_deptwise=True,
+def get_hardnet(blocks: int,
+                use_deptwise: bool = True,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
@@ -373,7 +373,7 @@ def get_hardnet(blocks,
     ----------
     blocks : int
         Number of blocks.
-    use_deepwise : bool, default True
+    use_deptwise : bool, default True
         Whether to use depthwise separable version of the model.
     model_name : str or None, default None
         Model name for loading pretrained model.

@@ -48,7 +48,7 @@ class NewtonSchulzSqrt(torch.autograd.Function):
 
     Parameters
     ----------
-    x : Tensor
+    x : torch.Tensor
         Input tensor (batch * cols * rows).
     n : int
         Number of iterations (n > 1).
@@ -148,7 +148,7 @@ class iSQRTCOVPool(nn.Module):
         Number of iterations (num_iter > 1).
     """
     def __init__(self,
-                 num_iter=5):
+                 num_iter: int = 5):
         super(iSQRTCOVPool, self).__init__()
         self.num_iter = num_iter
         self.cov_pool = CovPool.apply
@@ -188,10 +188,10 @@ class iSQRTCOVResNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
-                 bottleneck,
-                 conv1_stride,
+                 init_block_channels: int,
+                 final_block_channels: int,
+                 bottleneck: bool,
+                 conv1_stride: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -243,8 +243,8 @@ class iSQRTCOVResNet(nn.Module):
         return x
 
 
-def get_isqrtcovresnet(blocks,
-                       conv1_stride=True,
+def get_isqrtcovresnet(blocks: int,
+                       conv1_stride: bool = True,
                        model_name: str | None = None,
                        pretrained: bool = False,
                        root: str = os.path.join("~", ".torch", "models"),

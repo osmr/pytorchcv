@@ -48,7 +48,7 @@ class NasDualPathScheme(object):
     def __call__(self,
                  module: nn.Module,
                  x: torch.Tensor,
-                 x_prev: torch.Tensor):
+                 x_prev: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         x_next = module(x, x_prev)
         if isinstance(x_next, tuple):
             x_next, x = x_next
@@ -59,7 +59,7 @@ class NasDualPathScheme(object):
 
 def nasnet_dual_path_scheme_ordinal(module: nn.Module,
                                     x: torch.Tensor,
-                                    _):
+                                    _) -> tuple[torch.Tensor, torch.Tensor]:
     """
     NASNet specific scheme of dual path response for an ordinal module with dual inputs/outputs in a DualPathSequential
     module.
@@ -81,10 +81,10 @@ def nasnet_dual_path_scheme_ordinal(module: nn.Module,
     return module(x), x
 
 
-def nasnet_dual_path_sequential(return_two=True,
-                                first_ordinals=0,
-                                last_ordinals=0,
-                                can_skip_input=False):
+def nasnet_dual_path_sequential(return_two: bool = True,
+                                first_ordinals: int = 0,
+                                last_ordinals: int = 0,
+                                can_skip_input: bool = False):
     """
     NASNet specific dual path sequential container.
 
@@ -111,7 +111,7 @@ def nasnet_dual_path_sequential(return_two=True,
         dual_path_scheme_ordinal=nasnet_dual_path_scheme_ordinal)
 
 
-def nasnet_batch_norm(channels):
+def nasnet_batch_norm(channels: int):
     """
     NASNet specific Batch normalization layer.
 
@@ -169,7 +169,7 @@ class NasMaxPoolBlock(nn.Module):
         Whether to use extra padding.
     """
     def __init__(self,
-                 extra_padding=False):
+                 extra_padding: bool = False):
         super(NasMaxPoolBlock, self).__init__()
         self.extra_padding = extra_padding
 
@@ -199,7 +199,7 @@ class NasAvgPoolBlock(nn.Module):
         Whether to use extra padding.
     """
     def __init__(self,
-                 extra_padding=False):
+                 extra_padding: bool = False):
         super(NasAvgPoolBlock, self).__init__()
         self.extra_padding = extra_padding
 
@@ -240,12 +240,12 @@ class NasConv(nn.Module):
         Number of groups.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 groups):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 groups: int):
         super(NasConv, self).__init__()
         self.activ = nn.ReLU()
         self.conv = nn.Conv2d(
@@ -265,8 +265,8 @@ class NasConv(nn.Module):
         return x
 
 
-def nas_conv1x1(in_channels,
-                out_channels):
+def nas_conv1x1(in_channels: int,
+                out_channels: int):
     """
     1x1 version of the NASNet specific convolution block.
 
@@ -306,12 +306,12 @@ class DwsConv(nn.Module):
         Whether the layers use a bias vector.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 bias=False):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 bias: bool = False):
         super(DwsConv, self).__init__()
         self.dw_conv = nn.Conv2d(
             in_channels=in_channels,
@@ -352,12 +352,12 @@ class NasDwsConv(nn.Module):
         Whether to use extra padding.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 extra_padding=False):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 extra_padding: bool = False):
         super(NasDwsConv, self).__init__()
         self.extra_padding = extra_padding
 
@@ -406,13 +406,13 @@ class DwsBranch(nn.Module):
         Whether to use squeeze reduction if False.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 extra_padding=False,
-                 stem=False):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 extra_padding: bool = False,
+                 stem: bool = False):
         super(DwsBranch, self).__init__()
         assert (not stem) or (not extra_padding)
         mid_channels = out_channels if stem else in_channels
@@ -437,9 +437,9 @@ class DwsBranch(nn.Module):
         return x
 
 
-def dws_branch_k3_s1_p1(in_channels,
-                        out_channels,
-                        extra_padding=False):
+def dws_branch_k3_s1_p1(in_channels: int,
+                        out_channels: int,
+                        extra_padding: bool = False):
     """
     3x3/1/1 version of the NASNet specific depthwise separable convolution branch.
 
@@ -461,9 +461,9 @@ def dws_branch_k3_s1_p1(in_channels,
         extra_padding=extra_padding)
 
 
-def dws_branch_k5_s1_p2(in_channels,
-                        out_channels,
-                        extra_padding=False):
+def dws_branch_k5_s1_p2(in_channels: int,
+                        out_channels: int,
+                        extra_padding: bool = False):
     """
     5x5/1/2 version of the NASNet specific depthwise separable convolution branch.
 
@@ -485,10 +485,10 @@ def dws_branch_k5_s1_p2(in_channels,
         extra_padding=extra_padding)
 
 
-def dws_branch_k5_s2_p2(in_channels,
-                        out_channels,
-                        extra_padding=False,
-                        stem=False):
+def dws_branch_k5_s2_p2(in_channels: int,
+                        out_channels: int,
+                        extra_padding: bool = False,
+                        stem: bool = False):
     """
     5x5/2/2 version of the NASNet specific depthwise separable convolution branch.
 
@@ -513,10 +513,10 @@ def dws_branch_k5_s2_p2(in_channels,
         stem=stem)
 
 
-def dws_branch_k7_s2_p3(in_channels,
-                        out_channels,
-                        extra_padding=False,
-                        stem=False):
+def dws_branch_k7_s2_p3(in_channels: int,
+                        out_channels: int,
+                        extra_padding: bool = False,
+                        stem: bool = False):
     """
     7x7/2/3 version of the NASNet specific depthwise separable convolution branch.
 
@@ -555,9 +555,9 @@ class NasPathBranch(nn.Module):
         Whether to use extra padding.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 extra_padding=False):
+                 in_channels: int,
+                 out_channels: int,
+                 extra_padding: bool = False):
         super(NasPathBranch, self).__init__()
         self.extra_padding = extra_padding
 
@@ -589,8 +589,8 @@ class NasPathBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(NasPathBlock, self).__init__()
         mid_channels = out_channels // 2
 
@@ -625,8 +625,8 @@ class Stem1Unit(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(Stem1Unit, self).__init__()
         mid_channels = out_channels // 4
 
@@ -691,10 +691,10 @@ class Stem2Unit(nn.Module):
         Whether to use extra padding.
     """
     def __init__(self,
-                 in_channels,
-                 prev_in_channels,
-                 out_channels,
-                 extra_padding):
+                 in_channels: int,
+                 prev_in_channels: int,
+                 out_channels: int,
+                 extra_padding: bool):
         super(Stem2Unit, self).__init__()
         mid_channels = out_channels // 4
 
@@ -762,9 +762,9 @@ class FirstUnit(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 prev_in_channels,
-                 out_channels):
+                 in_channels: int,
+                 prev_in_channels: int,
+                 out_channels: int):
         super(FirstUnit, self).__init__()
         mid_channels = out_channels // 6
 
@@ -827,9 +827,9 @@ class NormalUnit(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 prev_in_channels,
-                 out_channels):
+                 in_channels: int,
+                 prev_in_channels: int,
+                 out_channels: int):
         super(NormalUnit, self).__init__()
         mid_channels = out_channels // 6
 
@@ -893,10 +893,10 @@ class ReductionBaseUnit(nn.Module):
         Whether to use extra padding.
     """
     def __init__(self,
-                 in_channels,
-                 prev_in_channels,
-                 out_channels,
-                 extra_padding=True):
+                 in_channels: int,
+                 prev_in_channels: int,
+                 out_channels: int,
+                 extra_padding: bool = True):
         super(ReductionBaseUnit, self).__init__()
         self.skip_input = True
         mid_channels = out_channels // 4
@@ -965,9 +965,9 @@ class Reduction1Unit(ReductionBaseUnit):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 prev_in_channels,
-                 out_channels):
+                 in_channels: int,
+                 prev_in_channels: int,
+                 out_channels: int):
         super(Reduction1Unit, self).__init__(
             in_channels=in_channels,
             prev_in_channels=prev_in_channels,
@@ -991,10 +991,10 @@ class Reduction2Unit(ReductionBaseUnit):
         Whether to use extra padding.
     """
     def __init__(self,
-                 in_channels,
-                 prev_in_channels,
-                 out_channels,
-                 extra_padding):
+                 in_channels: int,
+                 prev_in_channels: int,
+                 out_channels: int,
+                 extra_padding: bool):
         super(Reduction2Unit, self).__init__(
             in_channels=in_channels,
             prev_in_channels=prev_in_channels,
@@ -1014,8 +1014,8 @@ class NASNetInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(NASNetInitBlock, self).__init__()
         self.conv = nn.Conv2d(
             in_channels=in_channels,
@@ -1043,7 +1043,7 @@ class NASNet(nn.Module):
         Number of output channels for each unit.
     init_block_channels : int
         Number of output channels for the initial unit.
-    stem_blocks_channels : list of 2 int
+    stem_blocks_channels : tuple(int, int)
         Number of output channels for the Stem units.
     final_pool_size : int
         Size of the pooling windows for final pool.
@@ -1060,11 +1060,11 @@ class NASNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 stem_blocks_channels,
-                 final_pool_size,
-                 extra_padding,
-                 skip_reduction_layer_input,
+                 init_block_channels: int,
+                 stem_blocks_channels: tuple[int, int],
+                 final_pool_size: int,
+                 extra_padding: bool,
+                 skip_reduction_layer_input: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -1149,13 +1149,13 @@ class NASNet(nn.Module):
         return x
 
 
-def get_nasnet(repeat,
-               penultimate_filters,
-               init_block_channels,
-               final_pool_size,
-               extra_padding,
-               skip_reduction_layer_input,
-               in_size,
+def get_nasnet(repeat: int,
+               penultimate_filters: int,
+               init_block_channels: int,
+               final_pool_size: int,
+               extra_padding: bool,
+               skip_reduction_layer_input: bool,
+               in_size: tuple[int, int],
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
@@ -1204,7 +1204,7 @@ def get_nasnet(repeat,
     net = NASNet(
         channels=channels,
         init_block_channels=init_block_channels,
-        stem_blocks_channels=stem_blocks_channels,
+        stem_blocks_channels=tuple[int, int](stem_blocks_channels),
         final_pool_size=final_pool_size,
         extra_padding=extra_padding,
         skip_reduction_layer_input=skip_reduction_layer_input,

@@ -15,18 +15,18 @@ from typing import Callable
 from .common import conv1x1_block, conv3x3_block, SEBlock
 
 
-def anti_aliased_downsample(x):
+def anti_aliased_downsample(x: torch.Tensor) -> torch.Tensor:
     """
     Anti-Aliased Downsample operation.
 
     Parameters
     ----------
-    x : Tensor
+    x : torch.Tensor
         Input tensor.
 
     Returns
     -------
-    Tensor
+    torch.Tensor
         Resulted tensor.
     """
     channels = x.shape[1]
@@ -245,18 +245,18 @@ class TResUnit(nn.Module):
         return x
 
 
-def space_to_depth(x):
+def space_to_depth(x: torch.Tensor) -> torch.Tensor:
     """
     Space-to-Depth operation.
 
     Parameters
     ----------
-    x : Tensor
+    x : torch.Tensor
         Input tensor.
 
     Returns
     -------
-    Tensor
+    torch.Tensor
         Resulted tensor.
     """
     k = 4

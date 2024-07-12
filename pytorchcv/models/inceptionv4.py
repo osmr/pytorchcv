@@ -25,12 +25,12 @@ class Conv3x3Branch(nn.Module):
     out_channels : int
         Number of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels: int,
+                 normalization: Callable[..., nn.Module]):
         super(Conv3x3Branch, self).__init__()
         self.conv = conv3x3_block(
             in_channels=in_channels,
@@ -54,25 +54,25 @@ class ConvSeq3x3Branch(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    mid_channels_list : list of tuple of int
+    mid_channels_list : list(int) or tuple(int, ...)
         List of numbers of output channels for middle layers.
-    kernel_size_list : list of tuple of int or tuple of tuple(int, int)
+    kernel_size_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
         List of convolution window sizes.
-    strides_list : list of tuple of int or tuple of tuple(int, int)
+    strides_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
         List of strides of the convolution.
-    padding_list : list of tuple of int or tuple of tuple(int, int)
+    padding_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
         List of padding values for convolution layers.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels_list,
-                 kernel_size_list,
-                 strides_list,
-                 padding_list,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels_list: list[int] | tuple[int, ...],
+                 kernel_size_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
+                 strides_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
+                 padding_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
+                 normalization: Callable[..., nn.Module]):
         super(ConvSeq3x3Branch, self).__init__()
         self.conv_list = nn.Sequential()
         for i, (mid_channels, kernel_size, strides, padding) in enumerate(zip(
@@ -115,10 +115,10 @@ class InceptionAUnit(nn.Module):
     Parameters
     ----------
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(InceptionAUnit, self).__init__()
         in_channels = 384
 
@@ -159,10 +159,10 @@ class ReductionAUnit(nn.Module):
     Parameters
     ----------
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(ReductionAUnit, self).__init__()
         in_channels = 384
 
@@ -195,10 +195,10 @@ class InceptionBUnit(nn.Module):
     Parameters
     ----------
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(InceptionBUnit, self).__init__()
         in_channels = 1024
 
@@ -239,10 +239,10 @@ class ReductionBUnit(nn.Module):
     Parameters
     ----------
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(ReductionBUnit, self).__init__()
         in_channels = 1024
 
@@ -275,10 +275,10 @@ class InceptionCUnit(nn.Module):
     Parameters
     ----------
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(InceptionCUnit, self).__init__()
         in_channels = 1536
 
@@ -321,10 +321,10 @@ class InceptBlock3a(nn.Module):
     Parameters
     ----------
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(InceptBlock3a, self).__init__()
         self.branches = Concurrent()
         self.branches.add_module("branch1", MaxPoolBranch())
@@ -345,10 +345,10 @@ class InceptBlock4a(nn.Module):
     Parameters
     ----------
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(InceptBlock4a, self).__init__()
         self.branches = Concurrent()
         self.branches.add_module("branch1", ConvSeqBranch(
@@ -378,10 +378,10 @@ class InceptBlock5a(nn.Module):
     Parameters
     ----------
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(InceptBlock5a, self).__init__()
         self.branches = Concurrent()
         self.branches.add_module("branch1", Conv3x3Branch(
@@ -404,11 +404,11 @@ class InceptInitBlock(nn.Module):
     in_channels : int
         Number of input channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 normalization: Callable):
+                 in_channels: int,
+                 normalization: Callable[..., nn.Module]):
         super(InceptInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -461,9 +461,9 @@ class InceptionV4(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 dropout_rate=0.0,
-                 bn_eps=1e-5,
-                 in_channels=3,
+                 dropout_rate: float = 0.0,
+                 bn_eps: float = 1e-5,
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (299, 299),
                  num_classes: int = 1000):
         super(InceptionV4, self).__init__()
@@ -591,7 +591,7 @@ def _test():
         # net.train()
         weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
-        assert (model != InceptionV4 or weight_count == 42679816)
+        assert (model != inceptionv4 or weight_count == 42679816)
 
         x = torch.randn(1, 3, 299, 299)
         y = net(x)

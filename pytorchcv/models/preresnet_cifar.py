@@ -39,9 +39,9 @@ class CIFARPreResNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck,
-                 in_channels=3,
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (32, 32),
                  num_classes: int = 10):
         super(CIFARPreResNet, self).__init__()
@@ -90,9 +90,9 @@ class CIFARPreResNet(nn.Module):
         return x
 
 
-def get_preresnet_cifar(num_classes,
-                        blocks,
-                        bottleneck,
+def get_preresnet_cifar(num_classes: int,
+                        blocks: int,
+                        bottleneck: bool,
                         model_name: str | None = None,
                         pretrained: bool = False,
                         root: str = os.path.join("~", ".torch", "models"),

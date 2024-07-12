@@ -14,23 +14,24 @@ __all__ = ['EfficientNet', 'calc_tf_padding', 'EffiInvResUnit', 'EffiInitBlock',
 
 import os
 import math
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Callable
-from .common import (round_channels, lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block,
-                     SEBlock)
+from .common import (round_channels, lambda_swish, lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block,
+                     dwconv5x5_block, SEBlock)
 
 
-def calc_tf_padding(x,
+def calc_tf_padding(x: torch.Tensor,
                     kernel_size: int,
                     stride: int = 1,
-                    dilation: int = 1):
+                    dilation: int = 1) -> tuple[int, int, int, int]:
     """
     Calculate TF-same like padding size.
 
     Parameters
     ----------
-    x : tensor
+    x : torch.Tensor
         Input tensor.
     kernel_size : int
         Convolution window size.
@@ -41,7 +42,7 @@ def calc_tf_padding(x,
 
     Returns
     -------
-    tuple of 4 int
+    tuple(int, int, int, int)
         The size of the padding.
     """
     height, width = x.size()[2:]
@@ -66,19 +67,19 @@ class EffiDwsConvUnit(nn.Module):
     stride : int or tuple(int, int)
         Strides of the second convolution layer.
     normalization : function
-        Normalization function.
-    activation : str
-        Name of activation function.
+        Lambda-function generator for normalization layer.
+    activation : function
+        Lambda-function generator for activation layer.
     tf_mode : bool
         Whether to use TF-like mode.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 normalization: Callable,
-                 activation,
-                 tf_mode):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 normalization: Callable[..., nn.Module],
+                 activation: Callable[..., nn.Module],
+                 tf_mode: bool):
         super(EffiDwsConvUnit, self).__init__()
         self.tf_mode = tf_mode
         self.residual = (in_channels == out_channels) and (stride == 1)
@@ -131,22 +132,22 @@ class EffiInvResUnit(nn.Module):
     se_factor : int
         SE reduction factor for each unit.
     normalization : function
-        Normalization function.
-    activation : str
-        Name of activation function.
+        Lambda-function generator for normalization layer.
+    activation : function
+        Lambda-function generator for activation layer.
     tf_mode : bool
         Whether to use TF-like mode.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 exp_factor,
-                 se_factor,
-                 normalization: Callable,
-                 activation,
-                 tf_mode):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 exp_factor: int,
+                 se_factor: int,
+                 normalization: Callable[..., nn.Module],
+                 activation: Callable[..., nn.Module],
+                 tf_mode: bool):
         super(EffiInvResUnit, self).__init__()
         self.kernel_size = kernel_size
         self.stride = stride
@@ -205,19 +206,19 @@ class EffiInitBlock(nn.Module):
     out_channels : int
         Number of output channels.
     normalization : function
-        Normalization function.
-    activation : str
-        Name of activation function.
+        Lambda-function generator for normalization layer.
+    activation : function
+        Lambda-function generator for activation layer.
     tf_mode : bool
         Whether to use TF-like mode.
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 normalization: Callable,
-                 activation,
-                 tf_mode):
+                 in_channels: int,
+                 out_channels: int,
+                 normalization: Callable[..., nn.Module],
+                 activation: Callable[..., nn.Module],
+                 tf_mode: bool):
         super(EffiInitBlock, self).__init__()
         self.tf_mode = tf_mode
 
@@ -251,7 +252,7 @@ class EfficientNet(nn.Module):
         Number of output channels for the final block of the feature extractor.
     kernel_sizes : list(list(int))
         Number of kernel sizes for each unit.
-    strides_per_stage : list int
+    strides_per_stage : list(int)
         Stride value for the first unit of each stage.
     expansion_factors : list(list(int))
         Number of expansion factors for each unit.
@@ -270,14 +271,14 @@ class EfficientNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
+                 init_block_channels: int,
+                 final_block_channels: int,
                  kernel_sizes: list[list[int]],
-                 strides_per_stage,
+                 strides_per_stage: list[int],
                  expansion_factors: list[list[int]],
-                 dropout_rate=0.2,
-                 tf_mode=False,
-                 bn_eps=1e-5,
+                 dropout_rate: float = 0.2,
+                 tf_mode: bool = False,
+                 bn_eps: float = 1e-5,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -285,7 +286,7 @@ class EfficientNet(nn.Module):
         self.in_size = in_size
         self.num_classes = num_classes
         normalization = lambda_batchnorm2d(eps=bn_eps)
-        activation = "swish"
+        activation = lambda_swish()
 
         self.features = nn.Sequential()
         self.features.add_module("init_block", EffiInitBlock(
@@ -355,10 +356,10 @@ class EfficientNet(nn.Module):
         return x
 
 
-def get_efficientnet(version,
-                     in_size,
-                     tf_mode=False,
-                     bn_eps=1e-5,
+def get_efficientnet(version: str,
+                     in_size: tuple[int, int],
+                     tf_mode: bool = False,
+                     bn_eps: float = 1e-5,
                      model_name: str | None = None,
                      pretrained: bool = False,
                      root: str = os.path.join("~", ".torch", "models"),
@@ -490,7 +491,7 @@ def get_efficientnet(version,
     return net
 
 
-def efficientnet_b0(in_size=(224, 224),
+def efficientnet_b0(in_size: tuple[int, int] = (224, 224),
                     **kwargs) -> nn.Module:
     """
     EfficientNet-B0 model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
@@ -517,7 +518,7 @@ def efficientnet_b0(in_size=(224, 224),
         **kwargs)
 
 
-def efficientnet_b1(in_size=(240, 240),
+def efficientnet_b1(in_size: tuple[int, int] = (240, 240),
                     **kwargs) -> nn.Module:
     """
     EfficientNet-B1 model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
@@ -544,7 +545,7 @@ def efficientnet_b1(in_size=(240, 240),
         **kwargs)
 
 
-def efficientnet_b2(in_size=(260, 260),
+def efficientnet_b2(in_size: tuple[int, int] = (260, 260),
                     **kwargs) -> nn.Module:
     """
     EfficientNet-B2 model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
@@ -571,7 +572,7 @@ def efficientnet_b2(in_size=(260, 260),
         **kwargs)
 
 
-def efficientnet_b3(in_size=(300, 300),
+def efficientnet_b3(in_size: tuple[int, int] = (300, 300),
                     **kwargs) -> nn.Module:
     """
     EfficientNet-B3 model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
@@ -598,7 +599,7 @@ def efficientnet_b3(in_size=(300, 300),
         **kwargs)
 
 
-def efficientnet_b4(in_size=(380, 380),
+def efficientnet_b4(in_size: tuple[int, int] = (380, 380),
                     **kwargs) -> nn.Module:
     """
     EfficientNet-B4 model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
@@ -625,7 +626,7 @@ def efficientnet_b4(in_size=(380, 380),
         **kwargs)
 
 
-def efficientnet_b5(in_size=(456, 456),
+def efficientnet_b5(in_size: tuple[int, int] = (456, 456),
                     **kwargs) -> nn.Module:
     """
     EfficientNet-B5 model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
@@ -652,7 +653,7 @@ def efficientnet_b5(in_size=(456, 456),
         **kwargs)
 
 
-def efficientnet_b6(in_size=(528, 528),
+def efficientnet_b6(in_size: tuple[int, int] = (528, 528),
                     **kwargs) -> nn.Module:
     """
     EfficientNet-B6 model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
@@ -679,7 +680,7 @@ def efficientnet_b6(in_size=(528, 528),
         **kwargs)
 
 
-def efficientnet_b7(in_size=(600, 600),
+def efficientnet_b7(in_size: tuple[int, int] = (600, 600),
                     **kwargs) -> nn.Module:
     """
     EfficientNet-B7 model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
@@ -706,7 +707,7 @@ def efficientnet_b7(in_size=(600, 600),
         **kwargs)
 
 
-def efficientnet_b8(in_size=(672, 672),
+def efficientnet_b8(in_size: tuple[int, int] = (672, 672),
                     **kwargs) -> nn.Module:
     """
     EfficientNet-B8 model from 'EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'
@@ -733,7 +734,7 @@ def efficientnet_b8(in_size=(672, 672),
         **kwargs)
 
 
-def efficientnet_b0b(in_size=(224, 224),
+def efficientnet_b0b(in_size: tuple[int, int] = (224, 224),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B0-b (like TF-implementation) model from 'EfficientNet: Rethinking Model Scaling for Convolutional
@@ -762,7 +763,7 @@ def efficientnet_b0b(in_size=(224, 224),
         **kwargs)
 
 
-def efficientnet_b1b(in_size=(240, 240),
+def efficientnet_b1b(in_size: tuple[int, int] = (240, 240),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B1-b (like TF-implementation) model from 'EfficientNet: Rethinking Model Scaling for Convolutional
@@ -791,7 +792,7 @@ def efficientnet_b1b(in_size=(240, 240),
         **kwargs)
 
 
-def efficientnet_b2b(in_size=(260, 260),
+def efficientnet_b2b(in_size: tuple[int, int] = (260, 260),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B2-b (like TF-implementation) model from 'EfficientNet: Rethinking Model Scaling for Convolutional
@@ -820,7 +821,7 @@ def efficientnet_b2b(in_size=(260, 260),
         **kwargs)
 
 
-def efficientnet_b3b(in_size=(300, 300),
+def efficientnet_b3b(in_size: tuple[int, int] = (300, 300),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B3-b (like TF-implementation) model from 'EfficientNet: Rethinking Model Scaling for Convolutional
@@ -849,7 +850,7 @@ def efficientnet_b3b(in_size=(300, 300),
         **kwargs)
 
 
-def efficientnet_b4b(in_size=(380, 380),
+def efficientnet_b4b(in_size: tuple[int, int] = (380, 380),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B4-b (like TF-implementation) model from 'EfficientNet: Rethinking Model Scaling for Convolutional
@@ -878,7 +879,7 @@ def efficientnet_b4b(in_size=(380, 380),
         **kwargs)
 
 
-def efficientnet_b5b(in_size=(456, 456),
+def efficientnet_b5b(in_size: tuple[int, int] = (456, 456),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B5-b (like TF-implementation) model from 'EfficientNet: Rethinking Model Scaling for Convolutional
@@ -907,7 +908,7 @@ def efficientnet_b5b(in_size=(456, 456),
         **kwargs)
 
 
-def efficientnet_b6b(in_size=(528, 528),
+def efficientnet_b6b(in_size: tuple[int, int] = (528, 528),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B6-b (like TF-implementation) model from 'EfficientNet: Rethinking Model Scaling for Convolutional
@@ -936,7 +937,7 @@ def efficientnet_b6b(in_size=(528, 528),
         **kwargs)
 
 
-def efficientnet_b7b(in_size=(600, 600),
+def efficientnet_b7b(in_size: tuple[int, int] = (600, 600),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B7-b (like TF-implementation) model from 'EfficientNet: Rethinking Model Scaling for Convolutional
@@ -965,7 +966,7 @@ def efficientnet_b7b(in_size=(600, 600),
         **kwargs)
 
 
-def efficientnet_b0c(in_size=(224, 224),
+def efficientnet_b0c(in_size: tuple[int, int] = (224, 224),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B0-c (like TF-implementation, trained with AdvProp) model from 'EfficientNet: Rethinking Model Scaling
@@ -994,7 +995,7 @@ def efficientnet_b0c(in_size=(224, 224),
         **kwargs)
 
 
-def efficientnet_b1c(in_size=(240, 240),
+def efficientnet_b1c(in_size: tuple[int, int] = (240, 240),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B1-c (like TF-implementation, trained with AdvProp) model from 'EfficientNet: Rethinking Model Scaling
@@ -1023,7 +1024,7 @@ def efficientnet_b1c(in_size=(240, 240),
         **kwargs)
 
 
-def efficientnet_b2c(in_size=(260, 260),
+def efficientnet_b2c(in_size: tuple[int, int] = (260, 260),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B2-c (like TF-implementation, trained with AdvProp) model from 'EfficientNet: Rethinking Model Scaling
@@ -1052,7 +1053,7 @@ def efficientnet_b2c(in_size=(260, 260),
         **kwargs)
 
 
-def efficientnet_b3c(in_size=(300, 300),
+def efficientnet_b3c(in_size: tuple[int, int] = (300, 300),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B3-c (like TF-implementation, trained with AdvProp) model from 'EfficientNet: Rethinking Model Scaling
@@ -1081,7 +1082,7 @@ def efficientnet_b3c(in_size=(300, 300),
         **kwargs)
 
 
-def efficientnet_b4c(in_size=(380, 380),
+def efficientnet_b4c(in_size: tuple[int, int] = (380, 380),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B4-c (like TF-implementation, trained with AdvProp) model from 'EfficientNet: Rethinking Model Scaling
@@ -1110,7 +1111,7 @@ def efficientnet_b4c(in_size=(380, 380),
         **kwargs)
 
 
-def efficientnet_b5c(in_size=(456, 456),
+def efficientnet_b5c(in_size: tuple[int, int] = (456, 456),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B5-c (like TF-implementation, trained with AdvProp) model from 'EfficientNet: Rethinking Model Scaling
@@ -1139,7 +1140,7 @@ def efficientnet_b5c(in_size=(456, 456),
         **kwargs)
 
 
-def efficientnet_b6c(in_size=(528, 528),
+def efficientnet_b6c(in_size: tuple[int, int] = (528, 528),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B6-c (like TF-implementation, trained with AdvProp) model from 'EfficientNet: Rethinking Model Scaling
@@ -1168,7 +1169,7 @@ def efficientnet_b6c(in_size=(528, 528),
         **kwargs)
 
 
-def efficientnet_b7c(in_size=(600, 600),
+def efficientnet_b7c(in_size: tuple[int, int] = (600, 600),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B7-c (like TF-implementation, trained with AdvProp) model from 'EfficientNet: Rethinking Model Scaling
@@ -1197,7 +1198,7 @@ def efficientnet_b7c(in_size=(600, 600),
         **kwargs)
 
 
-def efficientnet_b8c(in_size=(672, 672),
+def efficientnet_b8c(in_size: tuple[int, int] = (672, 672),
                      **kwargs) -> nn.Module:
     """
     EfficientNet-B8-c (like TF-implementation, trained with AdvProp) model from 'EfficientNet: Rethinking Model Scaling
@@ -1227,7 +1228,6 @@ def efficientnet_b8c(in_size=(672, 672),
 
 
 def _test():
-    import torch
     from .model_store import calc_net_weight_count
 
     pretrained = False

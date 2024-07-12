@@ -25,8 +25,8 @@ class PnasMaxPoolBlock(nn.Module):
         Whether to use extra padding.
     """
     def __init__(self,
-                 stride=2,
-                 extra_padding=False):
+                 stride: int | tuple[int, int] = 2,
+                 extra_padding: bool = False):
         super(PnasMaxPoolBlock, self).__init__()
         self.extra_padding = extra_padding
 
@@ -46,9 +46,9 @@ class PnasMaxPoolBlock(nn.Module):
         return x
 
 
-def pnas_conv1x1(in_channels,
-                 out_channels,
-                 stride=1):
+def pnas_conv1x1(in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int] = 1):
     """
     1x1 version of the PNASNet specific convolution block.
 
@@ -90,12 +90,12 @@ class DwsBranch(nn.Module):
         Whether to use squeeze reduction if False.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 extra_padding=False,
-                 stem=False):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 extra_padding: bool = False,
+                 stem: bool = False):
         super(DwsBranch, self).__init__()
         assert (not stem) or (not extra_padding)
         mid_channels = out_channels if stem else in_channels
@@ -121,11 +121,11 @@ class DwsBranch(nn.Module):
         return x
 
 
-def dws_branch_k3(in_channels,
-                  out_channels,
-                  stride=2,
-                  extra_padding=False,
-                  stem=False):
+def dws_branch_k3(in_channels: int,
+                  out_channels: int,
+                  stride: int | tuple[int, int] = 2,
+                  extra_padding: bool = False,
+                  stem: bool = False):
     """
     3x3 version of the PNASNet specific depthwise separable convolution branch.
 
@@ -151,11 +151,11 @@ def dws_branch_k3(in_channels,
         stem=stem)
 
 
-def dws_branch_k5(in_channels,
-                  out_channels,
-                  stride=2,
-                  extra_padding=False,
-                  stem=False):
+def dws_branch_k5(in_channels: int,
+                  out_channels: int,
+                  stride: int | tuple[int, int] = 2,
+                  extra_padding: bool = False,
+                  stem: bool = False):
     """
     5x5 version of the PNASNet specific depthwise separable convolution branch.
 
@@ -181,10 +181,10 @@ def dws_branch_k5(in_channels,
         stem=stem)
 
 
-def dws_branch_k7(in_channels,
-                  out_channels,
-                  stride=2,
-                  extra_padding=False):
+def dws_branch_k7(in_channels: int,
+                  out_channels: int,
+                  stride: int | tuple[int, int] = 2,
+                  extra_padding: bool = False):
     """
     7x7 version of the PNASNet specific depthwise separable convolution branch.
 
@@ -220,8 +220,8 @@ class PnasMaxPathBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(PnasMaxPathBlock, self).__init__()
         self.maxpool = PnasMaxPoolBlock()
         self.conv = conv1x1(
@@ -244,7 +244,7 @@ class PnasBaseUnit(nn.Module):
         super(PnasBaseUnit, self).__init__()
 
     def cell_forward(self, x, x_prev):
-        assert (hasattr(self, 'comb0_left'))
+        assert (hasattr(self, "comb0_left"))
         x_left = x_prev
         x_right = x
 
@@ -270,8 +270,8 @@ class Stem1Unit(PnasBaseUnit):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(Stem1Unit, self).__init__()
         mid_channels = out_channels // 5
 
@@ -341,12 +341,12 @@ class PnasUnit(PnasBaseUnit):
         Whether to match previous layer dimensions.
     """
     def __init__(self,
-                 in_channels,
-                 prev_in_channels,
-                 out_channels,
-                 reduction=False,
-                 extra_padding=False,
-                 match_prev_layer_dimensions=False):
+                 in_channels: int,
+                 prev_in_channels: int,
+                 out_channels: int,
+                 reduction: bool = False,
+                 extra_padding: bool = False,
+                 match_prev_layer_dimensions: bool = False):
         super(PnasUnit, self).__init__()
         mid_channels = out_channels // 5
         stride = 2 if reduction else 1
@@ -432,7 +432,7 @@ class PNASNet(nn.Module):
         Number of output channels for each unit.
     init_block_channels : int
         Number of output channels for the initial unit.
-    stem1_blocks_channels : list of 2 int
+    stem1_blocks_channels : int
         Number of output channels for the Stem1 unit.
     in_channels : int, default 3
         Number of input channels.
@@ -443,10 +443,10 @@ class PNASNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 stem1_blocks_channels,
-                 in_channels=3,
-                 in_size=(331, 331),
+                 init_block_channels: int,
+                 stem1_blocks_channels: int,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (331, 331),
                  num_classes: int = 1000):
         super(PNASNet, self).__init__()
         self.in_size = in_size

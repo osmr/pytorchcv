@@ -21,16 +21,16 @@ class NvpAttExpEncoder(nn.Module):
         Number of audio features (characters/sounds).
     audio_window_size : int
         Size of audio window (for time related audio features).
-    seq_len : int, default
+    seq_len : int
         Size of feature window.
     encoder_features : int
         Number of encoder features.
     """
     def __init__(self,
-                 audio_features,
-                 audio_window_size,
-                 seq_len,
-                 encoder_features):
+                 audio_features: int,
+                 audio_window_size: int,
+                 seq_len: int,
+                 encoder_features: int):
         super(NvpAttExpEncoder, self).__init__()
         self.audio_features = audio_features
         self.audio_window_size = audio_window_size
@@ -133,12 +133,12 @@ class NvpAttExp(nn.Module):
         Number of encoder features.
     """
     def __init__(self,
-                 audio_features=29,
-                 audio_window_size=16,
-                 seq_len=8,
-                 base_persons=116,
-                 blendshapes=76,
-                 encoder_features=32):
+                 audio_features: int = 29,
+                 audio_window_size: int = 16,
+                 seq_len: int = 8,
+                 base_persons: int = 116,
+                 blendshapes: int = 76,
+                 encoder_features: int = 32):
         super(NvpAttExp, self).__init__()
         self.base_persons = base_persons
 
@@ -169,8 +169,8 @@ class NvpAttExp(nn.Module):
         return x, y
 
 
-def get_nvpattexp(base_persons,
-                  blendshapes,
+def get_nvpattexp(base_persons: int,
+                  blendshapes: int,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),

@@ -9,8 +9,9 @@ __all__ = ['ESPCNet', 'espcnet_cityscapes', 'ESPBlock']
 import os
 import torch
 import torch.nn as nn
-from .common import (lambda_batchnorm2d, NormActivation, conv1x1, conv3x3, conv3x3_block, DualPathSequential,
-                     InterpolationBlock)
+from typing import Callable
+from .common import (lambda_prelu, lambda_batchnorm2d, NormActivation, conv1x1, conv3x3, conv3x3_block,
+                     DualPathSequential, InterpolationBlock)
 
 
 class HierarchicalConcurrent(nn.Sequential):
@@ -25,8 +26,8 @@ class HierarchicalConcurrent(nn.Sequential):
         The axis on which to concatenate the outputs.
     """
     def __init__(self,
-                 exclude_first=False,
-                 axis=1):
+                 exclude_first: bool = False,
+                 axis: int = 1):
         super(HierarchicalConcurrent, self).__init__()
         self.exclude_first = exclude_first
         self.axis = axis
@@ -59,15 +60,15 @@ class ESPBlock(nn.Module):
         Whether to downsample image.
     residual : bool
         Whether to use residual connection.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 downsample,
-                 residual,
-                 bn_eps):
+                 in_channels: int,
+                 out_channels: int,
+                 downsample: bool,
+                 residual: bool,
+                 normalization: Callable[..., nn.Module]):
         super(ESPBlock, self).__init__()
         self.residual = residual
         dilations = [1, 2, 4, 8, 16]
@@ -96,8 +97,8 @@ class ESPBlock(nn.Module):
 
         self.norm_activ = NormActivation(
             in_channels=out_channels,
-            normalization=lambda_batchnorm2d(bn_eps),
-            activation=(lambda: nn.PReLU(out_channels)))
+            normalization=normalization,
+            activation=lambda_prelu(num_parameters=out_channels))
 
     def forward(self, x):
         y = self.reduce_conv(x)
@@ -120,14 +121,14 @@ class ESPUnit(nn.Module):
         Number of output channels.
     layers : int
         Number of layers.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 layers,
-                 bn_eps):
+                 in_channels: int,
+                 out_channels: int,
+                 layers: int,
+                 normalization: Callable[..., nn.Module]):
         super(ESPUnit, self).__init__()
         mid_channels = out_channels // 2
 
@@ -136,7 +137,7 @@ class ESPUnit(nn.Module):
             out_channels=mid_channels,
             downsample=True,
             residual=False,
-            bn_eps=bn_eps)
+            normalization=normalization)
         self.blocks = nn.Sequential()
         for i in range(layers - 1):
             self.blocks.add_module("block{}".format(i + 1), ESPBlock(
@@ -144,7 +145,7 @@ class ESPUnit(nn.Module):
                 out_channels=mid_channels,
                 downsample=False,
                 residual=True,
-                bn_eps=bn_eps))
+                normalization=normalization))
 
     def forward(self, x):
         x = self.down(x)
@@ -167,15 +168,15 @@ class ESPStage(nn.Module):
         Number of output channels for y.
     layers : int
         Number of layers in the unit.
-    bn_eps : float
-        Small float added to variance in Batch norm.
+    normalization : function
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 x_channels,
-                 y_in_channels,
-                 y_out_channels,
-                 layers,
-                 bn_eps):
+                 x_channels: int,
+                 y_in_channels: int,
+                 y_out_channels: int,
+                 layers: int,
+                 normalization: Callable[..., nn.Module]):
         super(ESPStage, self).__init__()
         self.use_x = (x_channels > 0)
         self.use_unit = (layers > 0)
@@ -191,12 +192,12 @@ class ESPStage(nn.Module):
                 in_channels=y_in_channels,
                 out_channels=(y_out_channels - x_channels),
                 layers=layers,
-                bn_eps=bn_eps)
+                normalization=normalization)
 
         self.norm_activ = NormActivation(
             in_channels=y_out_channels,
-            normalization=lambda_batchnorm2d(bn_eps),
-            activation=(lambda: nn.PReLU(y_out_channels)))
+            normalization=normalization,
+            activation=lambda_prelu(num_parameters=y_out_channels))
 
     def forward(self, y, x=None):
         if self.use_unit:
@@ -237,13 +238,13 @@ class ESPCNet(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 layers,
-                 channels,
-                 init_block_channels,
-                 cut_x,
-                 bn_eps=1e-5,
-                 aux=False,
-                 fixed_size=False,
+                 layers: list[int],
+                 channels: list[int],
+                 init_block_channels: int,
+                 cut_x: list[int],
+                 bn_eps: bool = 1e-5,
+                 aux: bool = False,
+                 fixed_size: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (1024, 2048),
                  num_classes: int = 19):
@@ -254,6 +255,7 @@ class ESPCNet(nn.Module):
         self.in_size = in_size
         self.num_classes = num_classes
         self.fixed_size = fixed_size
+        normalization = lambda_batchnorm2d(bn_eps)
 
         self.features = DualPathSequential(
             return_two=False,
@@ -263,8 +265,8 @@ class ESPCNet(nn.Module):
             in_channels=in_channels,
             out_channels=init_block_channels,
             stride=2,
-            bn_eps=bn_eps,
-            activation=(lambda: nn.PReLU(init_block_channels))))
+            normalization=normalization,
+            activation=lambda_prelu(num_parameters=init_block_channels)))
         y_in_channels = init_block_channels
 
         for i, (layers_i, y_out_channels) in enumerate(zip(layers, channels)):
@@ -273,7 +275,7 @@ class ESPCNet(nn.Module):
                 y_in_channels=y_in_channels,
                 y_out_channels=y_out_channels,
                 layers=layers_i,
-                bn_eps=bn_eps))
+                normalization=normalization))
             y_in_channels = y_out_channels
 
         self.head = conv1x1(

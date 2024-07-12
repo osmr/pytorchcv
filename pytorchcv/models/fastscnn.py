@@ -19,12 +19,12 @@ class Stem(nn.Module):
     ----------
     in_channels : int
         Number of input channels.
-    channels : tuple/list of 3 int
+    channels : tuple(int, int, int)
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 channels):
+                 in_channels: int,
+                 channels: tuple[int, int, int]):
         super(Stem, self).__init__()
         assert (len(channels) == 3)
 
@@ -63,9 +63,9 @@ class LinearBottleneck(nn.Module):
         Strides of the second convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int]):
         super(LinearBottleneck, self).__init__()
         self.residual = (in_channels == out_channels) and (stride == 1)
         mid_channels = in_channels * 6
@@ -105,8 +105,8 @@ class FeatureExtractor(nn.Module):
         Number of output channels for each unit.
     """
     def __init__(self,
-                 in_channels,
-                 channels):
+                 in_channels: int,
+                 channels: list[list[int]]):
         super(FeatureExtractor, self).__init__()
         self.features = nn.Sequential()
         for i, channels_per_stage in enumerate(channels):
@@ -141,10 +141,10 @@ class PoolingBranch(nn.Module):
         Spatial size of downscaled image.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 in_size,
-                 down_size):
+                 in_channels: int,
+                 out_channels: int,
+                 in_size: tuple[int, int] | None,
+                 down_size: int):
         super(PoolingBranch, self).__init__()
         self.in_size = in_size
 
@@ -178,9 +178,9 @@ class FastPyramidPooling(nn.Module):
         Spatial size of input image.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 in_size):
+                 in_channels: int,
+                 out_channels: int,
+                 in_size: tuple[int, int] | None):
         super(FastPyramidPooling, self).__init__()
         down_sizes = [1, 2, 3, 6]
         mid_channels = in_channels // 4
@@ -219,10 +219,10 @@ class FeatureFusion(nn.Module):
         Spatial size of high resolution (x) input image.
     """
     def __init__(self,
-                 x_in_channels,
-                 y_in_channels,
-                 out_channels,
-                 x_in_size):
+                 x_in_channels: int,
+                 y_in_channels: int,
+                 out_channels: int,
+                 x_in_size: tuple[int, int] | None):
         super(FeatureFusion, self).__init__()
         self.x_in_size = x_in_size
 
@@ -266,8 +266,8 @@ class Head(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 in_channels,
-                 num_classes):
+                 in_channels: int,
+                 num_classes: int):
         super(Head, self).__init__()
         self.conv1 = dwsconv3x3_block(
             in_channels=in_channels,
@@ -303,9 +303,9 @@ class AuxHead(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 num_classes):
+                 in_channels: int,
+                 mid_channels: int,
+                 num_classes: int):
         super(AuxHead, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -341,11 +341,11 @@ class FastSCNN(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 aux=False,
-                 fixed_size=True,
-                 in_channels=3,
-                 in_size=(1024, 1024),
-                 num_classes=19):
+                 aux: bool = False,
+                 fixed_size: bool = True,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (1024, 1024),
+                 num_classes: int = 19):
         super(FastSCNN, self).__init__()
         assert (in_channels > 0)
         assert ((in_size[0] % 32 == 0) and (in_size[1] % 32 == 0))
@@ -354,7 +354,7 @@ class FastSCNN(nn.Module):
         self.aux = aux
         self.fixed_size = fixed_size
 
-        steam_channels = [32, 48, 64]
+        steam_channels = (32, 48, 64)
         self.stem = Stem(
             in_channels=in_channels,
             channels=steam_channels)
@@ -449,7 +449,7 @@ def get_fastscnn(model_name: str | None = None,
 
 
 def fastscnn_cityscapes(num_classes: int = 19,
-                        aux=True,
+                        aux: bool = True,
                         **kwargs) -> nn.Module:
     """
     Fast-SCNN model for Cityscapes from 'Fast-SCNN: Fast Semantic Segmentation Network,'

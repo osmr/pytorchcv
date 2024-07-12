@@ -39,15 +39,15 @@ class IBNbConvBlock(nn.Module):
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
-                 activate=True):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 dilation: int | tuple[int, int] = 1,
+                 groups: int = 1,
+                 bias: bool = False,
+                 activate: bool = True):
         super(IBNbConvBlock, self).__init__()
         self.activate = activate
 
@@ -74,12 +74,12 @@ class IBNbConvBlock(nn.Module):
         return x
 
 
-def ibnb_conv7x7_block(in_channels,
-                       out_channels,
-                       stride=1,
-                       padding=3,
-                       bias=False,
-                       activate=True):
+def ibnb_conv7x7_block(in_channels: int,
+                       out_channels: int,
+                       stride: int | tuple[int, int] = 1,
+                       padding: int | tuple[int, int] = 3,
+                       bias: bool = False,
+                       activate: bool = True):
     """
     7x7 version of the IBN(b)-ResNet specific convolution block.
 
@@ -124,10 +124,10 @@ class IBNbResUnit(nn.Module):
         Whether to use instance normalization.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 use_inst_norm):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 use_inst_norm: bool):
         super(IBNbResUnit, self).__init__()
         self.use_inst_norm = use_inst_norm
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
@@ -174,8 +174,8 @@ class IBNbResInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(IBNbResInitBlock, self).__init__()
         self.conv = ibnb_conv7x7_block(
             in_channels=in_channels,
@@ -212,7 +212,7 @@ class IBNbResNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
+                 init_block_channels: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -261,7 +261,7 @@ class IBNbResNet(nn.Module):
         return x
 
 
-def get_ibnbresnet(blocks,
+def get_ibnbresnet(blocks: int,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),

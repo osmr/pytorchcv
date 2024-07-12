@@ -16,7 +16,7 @@ from .resnet import resnet50b
 
 def hard_nms(cdds: np.ndarray,
              top_n: int = 10,
-             iou_thresh: float = 0.25):
+             iou_thresh: float = 0.25) -> np.ndarray:
     """
     Hard Non-Maximum Suppression.
 
@@ -78,9 +78,9 @@ class NavigatorBranch(nn.Module):
         Strides of the convolution.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int]):
         super(NavigatorBranch, self).__init__()
         mid_channels = 128
 
@@ -150,12 +150,12 @@ class NTSNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 backbone,
-                 aux=False,
-                 top_n=4,
-                 in_channels=3,
-                 in_size=(448, 448),
-                 num_classes=200):
+                 backbone: nn.Sequential,
+                 aux: bool = False,
+                 top_n: int = 4,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (448, 448),
+                 num_classes: int = 200):
         super(NTSNet, self).__init__()
         assert (in_channels > 0)
         self.in_size = in_size
@@ -246,7 +246,7 @@ class NTSNet(nn.Module):
             return concat_logits
 
     @staticmethod
-    def _generate_default_anchor_maps(input_shape=(448, 448)):
+    def _generate_default_anchor_maps(input_shape: tuple[int, int] = (448, 448)):
         """
         Generate default anchor maps.
 
@@ -257,11 +257,11 @@ class NTSNet(nn.Module):
 
         Returns
         -------
-        center_anchors : np.array
+        center_anchors : np.ndarray
             anchors * 4 (oy, ox, h, w).
-        edge_anchors : np.array
+        edge_anchors : np.ndarray
             anchors * 4 (y0, x0, y1, x1).
-        anchor_area : np.array
+        anchor_area : np.ndarray
             anchors * 1 (area).
         """
         anchor_scale = [2 ** (1.0 / 3.0), 2 ** (2.0 / 3.0)]
@@ -314,8 +314,8 @@ class NTSNet(nn.Module):
         return center_anchors, edge_anchors, anchor_areas
 
 
-def get_ntsnet(backbone,
-               aux=False,
+def get_ntsnet(backbone: nn.Sequential,
+               aux: bool = False,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),
@@ -359,7 +359,7 @@ def get_ntsnet(backbone,
 
 
 def ntsnet_cub(pretrained_backbone: bool = False,
-               aux=True,
+               aux: bool = True,
                **kwargs) -> nn.Module:
     """
     NTS-Net model from 'Learning to Navigate for Fine-grained Classification,' https://arxiv.org/abs/1809.00287.

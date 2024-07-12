@@ -3,16 +3,16 @@
 """
 
 __all__ = ['round_channels', 'Identity', 'BreakBlock', 'Swish', 'HSigmoid', 'HSwish', 'lambda_relu', 'lambda_relu6',
-           'lambda_prelu', 'lambda_leakyrelu', 'lambda_sigmoid', 'lambda_swish', 'lambda_batchnorm1d',
-           'lambda_batchnorm2d', 'create_activation_layer', 'create_normalization_layer', 'SelectableDense',
-           'DenseBlock', 'ConvBlock1d', 'conv1x1', 'conv3x3', 'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block',
-           'conv3x3_block', 'conv5x5_block', 'conv7x7_block', 'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block',
-           'dwsconv3x3_block', 'PreConvBlock', 'pre_conv1x1_block', 'pre_conv3x3_block', 'AsymConvBlock',
-           'asym_conv3x3_block', 'DeconvBlock', 'deconv3x3_block', 'NormActivation', 'InterpolationBlock',
-           'ChannelShuffle', 'ChannelShuffle2', 'SEBlock', 'SABlock', 'SAConvBlock', 'saconv3x3_block', 'DucBlock',
-           'IBN', 'DualPathSequential', 'Concurrent', 'SequentialConcurrent', 'ParametricSequential',
-           'ParametricConcurrent', 'Hourglass', 'SesquialteralHourglass', 'MultiOutputSequential', 'ParallelConcurent',
-           'DualPathParallelConcurent', 'Flatten', 'HeatmapMaxDetBlock']
+           'lambda_prelu', 'lambda_leakyrelu', 'lambda_sigmoid', 'lambda_hsigmoid', 'lambda_swish', 'lambda_hswish',
+           'lambda_batchnorm1d', 'lambda_batchnorm2d', 'create_activation_layer', 'create_normalization_layer',
+           'SelectableDense', 'DenseBlock', 'ConvBlock1d', 'conv1x1', 'conv3x3', 'depthwise_conv3x3', 'ConvBlock',
+           'conv1x1_block', 'conv3x3_block', 'conv5x5_block', 'conv7x7_block', 'dwconv_block', 'dwconv3x3_block',
+           'dwconv5x5_block', 'dwsconv3x3_block', 'PreConvBlock', 'pre_conv1x1_block', 'pre_conv3x3_block',
+           'AsymConvBlock', 'asym_conv3x3_block', 'DeconvBlock', 'deconv3x3_block', 'NormActivation',
+           'InterpolationBlock', 'ChannelShuffle', 'ChannelShuffle2', 'SEBlock', 'SABlock', 'SAConvBlock',
+           'saconv3x3_block', 'DucBlock', 'IBN', 'DualPathSequential', 'Concurrent', 'SequentialConcurrent',
+           'ParametricSequential', 'ParametricConcurrent', 'Hourglass', 'SesquialteralHourglass',
+           'MultiOutputSequential', 'ParallelConcurent', 'DualPathParallelConcurent', 'Flatten', 'HeatmapMaxDetBlock']
 
 import math
 from inspect import isfunction
@@ -185,11 +185,6 @@ def lambda_sigmoid() -> Callable[[], nn.Module]:
     """
     Create lambda-function generator for nn.Sigmoid activation layer.
 
-    Parameters
-    ----------
-    inplace : bool, default true
-        Whether to do the operation in-place.
-
     Returns
     -------
     function
@@ -198,9 +193,33 @@ def lambda_sigmoid() -> Callable[[], nn.Module]:
     return lambda: nn.Sigmoid()
 
 
+def lambda_hsigmoid() -> Callable[[], nn.Module]:
+    """
+    Create lambda-function generator for HSigmoid activation layer.
+
+    Returns
+    -------
+    function
+        Desired function.
+    """
+    return lambda: HSigmoid()
+
+
 def lambda_swish() -> Callable[[], nn.Module]:
     """
     Create lambda-function generator for Swish activation layer.
+
+    Returns
+    -------
+    function
+        Desired function.
+    """
+    return lambda: Swish()
+
+
+def lambda_hswish(inplace: bool = True) -> Callable[[], nn.Module]:
+    """
+    Create lambda-function generator for HSwish activation layer.
 
     Parameters
     ----------
@@ -212,7 +231,7 @@ def lambda_swish() -> Callable[[], nn.Module]:
     function
         Desired function.
     """
-    return lambda: Swish()
+    return lambda: HSwish(inplace=inplace)
 
 
 def lambda_batchnorm1d(eps: float = 1e-5) -> Callable[[int], nn.Module]:
@@ -253,29 +272,6 @@ def lambda_batchnorm2d(eps: float = 1e-5) -> Callable[[int], nn.Module]:
         eps=eps)
 
 
-def create_normalization_layer(normalization: Callable[..., nn.Module | None] | nn.Module,
-                               **kwargs) -> nn.Module | None:
-    """
-    Create normalization layer from lambda-function generator or module.
-
-    Parameters
-    ----------
-    normalization : function or nn.Module
-        Lambda-function generator or module for normalization layer.
-
-    Returns
-    -------
-    nn.Module or None
-        Normalization layer.
-    """
-    assert (normalization is not None)
-    if isfunction(normalization):
-        return normalization(**kwargs)
-    else:
-        assert isinstance(normalization, nn.Module)
-        return normalization
-
-
 def create_activation_layer(activation: Callable[..., nn.Module | None] | nn.Module | str) -> nn.Module | None:
     """
     Create activation layer from lambda-function generator or module.
@@ -313,6 +309,29 @@ def create_activation_layer(activation: Callable[..., nn.Module | None] | nn.Mod
     else:
         assert isinstance(activation, nn.Module)
         return activation
+
+
+def create_normalization_layer(normalization: Callable[..., nn.Module | None] | nn.Module,
+                               **kwargs) -> nn.Module | None:
+    """
+    Create normalization layer from lambda-function generator or module.
+
+    Parameters
+    ----------
+    normalization : function or nn.Module
+        Lambda-function generator or module for normalization layer.
+
+    Returns
+    -------
+    nn.Module or None
+        Normalization layer.
+    """
+    assert (normalization is not None)
+    if isfunction(normalization):
+        return normalization(**kwargs)
+    else:
+        assert isinstance(normalization, nn.Module)
+        return normalization
 
 
 class SelectableDense(nn.Module):
@@ -1495,22 +1514,22 @@ class InterpolationBlock(nn.Module):
 
     Parameters
     ----------
-    scale_factor : int
+    scale_factor : int or None
         Multiplier for spatial size.
     out_size : tuple(int, int) or None, default None
         Spatial size of the output tensor for the bilinear interpolation operation.
     mode : str, default 'bilinear'
         Algorithm used for upsampling.
-    align_corners : bool, default True
+    align_corners : bool or None, default True
         Whether to align the corner pixels of the input and output tensors.
     up : bool, default True
         Whether to upsample or downsample.
     """
     def __init__(self,
-                 scale_factor: int,
+                 scale_factor: int | None,
                  out_size: tuple[int, int] | None = None,
                  mode: str = "bilinear",
-                 align_corners: bool = True,
+                 align_corners: bool | None = True,
                  up: bool = True):
         super(InterpolationBlock, self).__init__()
         self.scale_factor = scale_factor

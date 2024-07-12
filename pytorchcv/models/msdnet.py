@@ -65,11 +65,11 @@ class MSDBaseBlock(nn.Module):
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 use_bottleneck,
-                 bottleneck_factor):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 use_bottleneck: bool,
+                 bottleneck_factor: int):
         super(MSDBaseBlock, self).__init__()
         self.use_bottleneck = use_bottleneck
         mid_channels = min(in_channels, bottleneck_factor * out_channels) if use_bottleneck else in_channels
@@ -107,10 +107,10 @@ class MSDFirstScaleBlock(nn.Module):
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 use_bottleneck,
-                 bottleneck_factor):
+                 in_channels: int,
+                 out_channels: int,
+                 use_bottleneck: bool,
+                 bottleneck_factor: int):
         super(MSDFirstScaleBlock, self).__init__()
         assert (out_channels > in_channels)
         inc_channels = out_channels - in_channels
@@ -149,12 +149,12 @@ class MSDScaleBlock(nn.Module):
     """
 
     def __init__(self,
-                 in_channels_prev,
-                 in_channels,
-                 out_channels,
-                 use_bottleneck,
-                 bottleneck_factor_prev,
-                 bottleneck_factor):
+                 in_channels_prev: int,
+                 in_channels: int,
+                 out_channels: int,
+                 use_bottleneck: bool,
+                 bottleneck_factor_prev: int,
+                 bottleneck_factor: int):
         super(MSDScaleBlock, self).__init__()
         assert (out_channels > in_channels)
         assert (out_channels % 2 == 0)
@@ -189,13 +189,13 @@ class MSDInitLayer(nn.Module):
     ----------
     in_channels : int
         Number of input channels.
-    out_channels : list/tuple of int
+    out_channels : list(int)
         Number of output channels for each scale.
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: list[int]):
         super(MSDInitLayer, self).__init__()
         self.scale_blocks = MultiOutputSequential()
         for i, out_channels_per_scale in enumerate(out_channels):
@@ -221,21 +221,21 @@ class MSDLayer(nn.Module):
 
     Parameters
     ----------
-    in_channels : list/tuple of int
+    in_channels : list(int)
         Number of input channels for each input scale.
-    out_channels : list/tuple of int
+    out_channels : list(int)
         Number of output channels for each output scale.
     use_bottleneck : bool
         Whether to use a bottleneck.
-    bottleneck_factors : list/tuple of int
+    bottleneck_factors : list(int)
         Bottleneck factor for each input scale.
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 use_bottleneck,
-                 bottleneck_factors):
+                 in_channels: list[int],
+                 out_channels: list[int],
+                 use_bottleneck: bool,
+                 bottleneck_factors: list[int]):
         super(MSDLayer, self).__init__()
         in_scales = len(in_channels)
         out_scales = len(out_channels)
@@ -278,15 +278,15 @@ class MSDTransitionLayer(nn.Module):
 
     Parameters
     ----------
-    in_channels : list/tuple of int
+    in_channels : list(int)
         Number of input channels for each scale.
-    out_channels : list/tuple of int
+    out_channels : list(int)
         Number of output channels for each scale.
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: list[int],
+                 out_channels: list[int]):
         super(MSDTransitionLayer, self).__init__()
         assert (len(in_channels) == len(out_channels))
 
@@ -307,7 +307,7 @@ class MSDFeatureBlock(nn.Module):
 
     Parameters
     ----------
-    in_channels : list(list(int))
+    in_channels : list(int)
         Number of input channels for each layer and for each input scale.
     out_channels : list(list(int))
         Number of output channels for each layer and for each output scale.
@@ -318,10 +318,10 @@ class MSDFeatureBlock(nn.Module):
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 use_bottleneck,
-                 bottleneck_factors):
+                 in_channels: list[int],
+                 out_channels: list[list[int]],
+                 use_bottleneck: bool,
+                 bottleneck_factors: list[list[int]]):
         super(MSDFeatureBlock, self).__init__()
         self.blocks = nn.Sequential()
         for i, out_channels_per_layer in enumerate(out_channels):
@@ -355,8 +355,8 @@ class MSDClassifier(nn.Module):
     """
 
     def __init__(self,
-                 in_channels,
-                 num_classes):
+                 in_channels: int,
+                 num_classes: int):
         super(MSDClassifier, self).__init__()
         self.features = nn.Sequential()
         self.features.add_module("conv1", conv3x3_block(
@@ -397,8 +397,8 @@ class MSDNet(nn.Module):
         Number of subnets.
     use_bottleneck : bool
         Whether to use a bottleneck.
-    bottleneck_factors : list(list(int))
-        Bottleneck factor for each layers and for each input scale.
+    bottleneck_factors : list(list(list(int)))
+        Bottleneck factor for each layer and for each input scale.
     in_channels : int, default 3
         Number of input channels.
     in_size : tuple(int, int), default (224, 224)
@@ -407,11 +407,11 @@ class MSDNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 init_layer_channels,
-                 num_feature_blocks,
-                 use_bottleneck,
-                 bottleneck_factors,
+                 channels: list[list[list[int]]],
+                 init_layer_channels: list[int],
+                 num_feature_blocks: int,
+                 use_bottleneck: bool,
+                 bottleneck_factors: list[list[list[int]]],
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -459,7 +459,7 @@ class MSDNet(nn.Module):
             return outs
 
 
-def get_msdnet(blocks,
+def get_msdnet(blocks: int,
                model_name: str | None = None,
                pretrained: bool = False,
                root: str = os.path.join("~", ".torch", "models"),

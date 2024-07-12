@@ -28,11 +28,11 @@ class NINConv(nn.Module):
     """
 
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride=1,
-                 padding=0):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int] = 1,
+                 padding: int | tuple[int, int] = 0):
         super(NINConv, self).__init__()
         self.conv = nn.Conv2d(
             in_channels=in_channels,
@@ -68,8 +68,8 @@ class CIFARNIN(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 first_kernel_sizes,
-                 in_channels=3,
+                 first_kernel_sizes: list[int],
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (32, 32),
                  num_classes: int = 10):
         super(CIFARNIN, self).__init__()
@@ -127,7 +127,7 @@ class CIFARNIN(nn.Module):
         return x
 
 
-def get_nin_cifar(num_classes,
+def get_nin_cifar(num_classes: int,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),

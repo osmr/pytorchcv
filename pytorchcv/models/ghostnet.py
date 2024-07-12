@@ -9,8 +9,9 @@ import os
 import math
 import torch
 import torch.nn as nn
-from .common import (round_channels, conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block,
-                     dwsconv3x3_block, SEBlock)
+from typing import Callable
+from .common import (round_channels, lambda_relu, conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block,
+                     dwconv5x5_block, dwsconv3x3_block, SEBlock)
 
 
 class GhostHSigmoid(nn.Module):
@@ -32,13 +33,13 @@ class GhostConvBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
+    activation : function or None, default lambda_relu()
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 activation=(lambda: nn.ReLU(inplace=True))):
+                 in_channels: int,
+                 out_channels: int,
+                 activation: Callable[..., nn.Module] | None = lambda_relu()):
         super(GhostConvBlock, self).__init__()
         main_out_channels = math.ceil(0.5 * out_channels)
         cheap_out_channels = out_channels - main_out_channels
@@ -78,12 +79,12 @@ class GhostExpBlock(nn.Module):
         Whether to use SE-module.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 use_kernel3,
-                 exp_factor,
-                 use_se):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 use_kernel3: bool,
+                 exp_factor: float,
+                 use_se: bool):
         super(GhostExpBlock, self).__init__()
         self.use_dw_conv = (stride != 1)
         self.use_se = use_se
@@ -139,12 +140,12 @@ class GhostUnit(nn.Module):
         Whether to use SE-module.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 use_kernel3,
-                 exp_factor,
-                 use_se):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 use_kernel3: bool,
+                 exp_factor: float,
+                 use_se: bool):
         super(GhostUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -186,9 +187,9 @@ class GhostClassifier(nn.Module):
         Number of middle channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels):
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int):
         super(GhostClassifier, self).__init__()
         self.conv1 = conv1x1_block(
             in_channels=in_channels,
@@ -218,11 +219,11 @@ class GhostNet(nn.Module):
         Number of output channels for the final block of the feature extractor.
     classifier_mid_channels : int
         Number of middle channels for classifier.
-    kernels3 : list(list(int))/bool
+    kernels3 : list(list(int))
         Using 3x3 (instead of 5x5) kernel for each unit.
     exp_factors : list(list(int))
         Expansion factor for each unit.
-    use_se : list(list(int))/bool
+    use_se : list(list(int))
         Using SE-block flag for each unit.
     first_stride : bool
         Whether to use stride for the first stage.
@@ -235,13 +236,13 @@ class GhostNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
-                 classifier_mid_channels,
-                 kernels3,
-                 exp_factors,
-                 use_se,
-                 first_stride,
+                 init_block_channels: int,
+                 final_block_channels: int,
+                 classifier_mid_channels: int,
+                 kernels3: list[list[int]],
+                 exp_factors: list[list[int]],
+                 use_se: list[list[int]],
+                 first_stride: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -300,7 +301,7 @@ class GhostNet(nn.Module):
         return x
 
 
-def get_ghostnet(width_scale=1.0,
+def get_ghostnet(width_scale: float = 1.0,
                  model_name: str | None = None,
                  pretrained: bool = False,
                  root: str = os.path.join("~", ".torch", "models"),

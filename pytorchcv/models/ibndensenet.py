@@ -36,13 +36,13 @@ class IBNPreConvBlock(nn.Module):
         Whether return pre-activation. It's used by PreResNet.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 use_ibn=False,
-                 return_preact=False):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 use_ibn: bool = False,
+                 return_preact: bool = False):
         super(IBNPreConvBlock, self).__init__()
         self.use_ibn = use_ibn
         self.return_preact = return_preact
@@ -78,11 +78,11 @@ class IBNPreConvBlock(nn.Module):
             return x
 
 
-def ibn_pre_conv1x1_block(in_channels,
-                          out_channels,
-                          stride=1,
-                          use_ibn=False,
-                          return_preact=False):
+def ibn_pre_conv1x1_block(in_channels: int,
+                          out_channels: int,
+                          stride: int | tuple[int, int] = 1,
+                          use_ibn: bool = False,
+                          return_preact: bool = False):
     """
     1x1 version of the IBN-Net specific pre-activated convolution block.
 
@@ -95,7 +95,7 @@ def ibn_pre_conv1x1_block(in_channels,
     stride : int or tuple(int, int), default 1
         Strides of the convolution.
     use_ibn : bool, default False
-        Whether use Instance-Batch Normalization.
+        Whether to use Instance-Batch Normalization.
     return_preact : bool, default False
         Whether return pre-activation.
     """
@@ -125,10 +125,10 @@ class IBNDenseUnit(nn.Module):
         Whether to use IBN normalization in the first convolution layer of the block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 dropout_rate,
-                 conv1_ibn):
+                 in_channels: int,
+                 out_channels: int,
+                 dropout_rate: float,
+                 conv1_ibn: bool):
         super(IBNDenseUnit, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
         bn_size = 4
@@ -177,8 +177,8 @@ class IBNDenseNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 dropout_rate=0.0,
+                 init_block_channels: int,
+                 dropout_rate: float = 0.0,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -232,7 +232,7 @@ class IBNDenseNet(nn.Module):
         return x
 
 
-def get_ibndensenet(num_layers,
+def get_ibndensenet(num_layers: int,
                     model_name: str | None = None,
                     pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),

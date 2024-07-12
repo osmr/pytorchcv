@@ -28,7 +28,7 @@ class ProxylessBlock(nn.Module):
     stride : int
         Strides of the convolution.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     expansion : int
         Expansion ratio.
     """
@@ -37,7 +37,7 @@ class ProxylessBlock(nn.Module):
                  out_channels: int,
                  kernel_size: int,
                  stride: int,
-                 normalization: Callable,
+                 normalization: Callable[..., nn.Module],
                  expansion: int):
         super(ProxylessBlock, self).__init__()
         self.use_bc = (expansion > 1)
@@ -89,7 +89,7 @@ class ProxylessUnit(nn.Module):
     stride : int
         Strides of the convolution.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     expansion : int
         Expansion ratio for body block.
     residual : bool
@@ -102,7 +102,7 @@ class ProxylessUnit(nn.Module):
                  out_channels: int,
                  kernel_size: int,
                  stride: int,
-                 normalization: Callable,
+                 normalization: Callable[..., nn.Module],
                  expansion: int,
                  residual: bool,
                  shortcut: bool):

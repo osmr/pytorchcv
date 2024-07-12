@@ -10,8 +10,8 @@ import os
 import torch
 from torch import nn
 from typing import Callable
-from .common import (lambda_relu, lambda_batchnorm2d, create_activation_layer, conv1x1_block, conv3x3_block,
-                     conv7x7_block, SEBlock, Hourglass, InterpolationBlock)
+from .common import (lambda_relu, lambda_leakyrelu, lambda_batchnorm2d, create_activation_layer, conv1x1_block,
+                     conv3x3_block, conv7x7_block, SEBlock, Hourglass, InterpolationBlock)
 
 
 class IbpResBottleneck(nn.Module):
@@ -34,11 +34,11 @@ class IbpResBottleneck(nn.Module):
         Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bias=False,
-                 bottleneck_factor=2,
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bias: bool = False,
+                 bottleneck_factor: int = 2,
                  activation: Callable[..., nn.Module] = lambda_relu()):
         super(IbpResBottleneck, self).__init__()
         mid_channels = out_channels // bottleneck_factor
@@ -87,11 +87,11 @@ class IbpResUnit(nn.Module):
         Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride=1,
-                 bias=False,
-                 bottleneck_factor=2,
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int] = 1,
+                 bias: bool = False,
+                 bottleneck_factor: int = 2,
                  activation: Callable[..., nn.Module] = lambda_relu()):
         super(IbpResUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
@@ -137,8 +137,8 @@ class IbpBackbone(nn.Module):
         Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
+                 in_channels: int,
+                 out_channels: int,
                  activation: Callable[..., nn.Module]):
         super(IbpBackbone, self).__init__()
         dilations = (3, 3, 4, 4, 5, 5)
@@ -194,8 +194,8 @@ class IbpDownBlock(nn.Module):
         Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
+                 in_channels: int,
+                 out_channels: int,
                  activation: Callable[..., nn.Module]):
         super(IbpDownBlock, self).__init__()
         self.down = nn.MaxPool2d(
@@ -230,9 +230,9 @@ class IbpUpBlock(nn.Module):
         Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 bias,
+                 in_channels: int,
+                 out_channels: int,
+                 bias: bool,
                  normalization: Callable[..., nn.Module] | None,
                  activation: Callable[..., nn.Module]):
         super(IbpUpBlock, self).__init__()
@@ -274,9 +274,9 @@ class MergeBlock(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 bias,
+                 in_channels: int,
+                 out_channels: int,
+                 bias: bool,
                  normalization: Callable[..., nn.Module] | None):
         super(MergeBlock, self).__init__()
         self.conv = conv1x1_block(
@@ -306,8 +306,8 @@ class IbpPreBlock(nn.Module):
         Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 out_channels,
-                 bias,
+                 out_channels: int,
+                 bias: bool,
                  normalization: Callable[..., nn.Module] | None,
                  activation: Callable[..., nn.Module]):
         super(IbpPreBlock, self).__init__()
@@ -357,12 +357,12 @@ class IbpPass(nn.Module):
         Lambda-function generator for activation layer.
     """
     def __init__(self,
-                 channels,
-                 mid_channels,
-                 depth,
-                 growth_rate,
-                 merge,
-                 bias,
+                 channels: int,
+                 mid_channels: int,
+                 depth: int,
+                 growth_rate: int,
+                 merge: int,
+                 bias: bool,
                  normalization: Callable[..., nn.Module] | None,
                  activation: Callable[..., nn.Module]):
         super(IbpPass, self).__init__()
@@ -457,19 +457,19 @@ class IbpPose(nn.Module):
         Spatial size of the expected input image.
     """
     def __init__(self,
-                 passes,
-                 backbone_out_channels,
-                 outs_channels,
-                 depth,
-                 growth_rate,
-                 use_bn,
-                 in_channels=3,
-                 in_size=(256, 256)):
+                 passes: int,
+                 backbone_out_channels: int,
+                 outs_channels: int,
+                 depth: int,
+                 growth_rate: int,
+                 use_bn: bool,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (256, 256)):
         super(IbpPose, self).__init__()
         self.in_size = in_size
         bias = (not use_bn)
         normalization = lambda_batchnorm2d() if use_bn else None
-        activation = (lambda: nn.LeakyReLU(inplace=True))
+        activation = lambda_leakyrelu()
 
         self.backbone = IbpBackbone(
             in_channels=in_channels,

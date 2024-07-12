@@ -33,12 +33,12 @@ class LwopResBottleneck(nn.Module):
         Whether to squeeze the output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 bias=True,
-                 bottleneck_factor=2,
-                 squeeze_out=False):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 bias: bool = True,
+                 bottleneck_factor: int = 2,
+                 squeeze_out: bool = False):
         super(LwopResBottleneck, self).__init__()
         mid_channels = out_channels // bottleneck_factor if squeeze_out else in_channels // bottleneck_factor
 
@@ -86,13 +86,13 @@ class LwopResUnit(nn.Module):
         Whether to activate the sum.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride=1,
-                 bias=True,
-                 bottleneck_factor=2,
-                 squeeze_out=False,
-                 activate=False):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int] = 1,
+                 bias: bool = True,
+                 bottleneck_factor: int = 2,
+                 squeeze_out: bool = False,
+                 activate: bool = False):
         super(LwopResUnit, self).__init__()
         self.activate = activate
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
@@ -138,8 +138,8 @@ class LwopEncoderFinalBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(LwopEncoderFinalBlock, self).__init__()
         self.pre_conv = conv1x1_block(
             in_channels=in_channels,
@@ -180,8 +180,8 @@ class LwopRefinementBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(LwopRefinementBlock, self).__init__()
         self.pre_conv = conv1x1_block(
             in_channels=in_channels,
@@ -220,9 +220,9 @@ class LwopDecoderBend(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 out_channels):
+                 in_channels: int,
+                 mid_channels: int,
+                 out_channels: int):
         super(LwopDecoderBend, self).__init__()
         self.conv1 = conv1x1_block(
             in_channels=in_channels,
@@ -252,8 +252,8 @@ class LwopDecoderInitBlock(nn.Module):
         Number of keypoints.
     """
     def __init__(self,
-                 in_channels,
-                 keypoints):
+                 in_channels: int,
+                 keypoints: int):
         super(LwopDecoderInitBlock, self).__init__()
         num_heatmap = keypoints
         num_paf = 2 * keypoints
@@ -295,8 +295,8 @@ class LwopDecoderUnit(nn.Module):
         Number of keypoints.
     """
     def __init__(self,
-                 in_channels,
-                 keypoints):
+                 in_channels: int,
+                 keypoints: int):
         super(LwopDecoderUnit, self).__init__()
         num_heatmap = keypoints
         num_paf = 2 * keypoints
@@ -340,9 +340,9 @@ class LwopDecoderFeaturesBend(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 out_channels):
+                 in_channels: int,
+                 mid_channels: int,
+                 out_channels: int):
         super(LwopDecoderFeaturesBend, self).__init__()
         self.body = nn.Sequential()
         for i in range(2):
@@ -377,10 +377,10 @@ class LwopDecoderFinalBlock(nn.Module):
         Whether to calculate 3D features.
     """
     def __init__(self,
-                 in_channels,
-                 keypoints,
-                 bottleneck_factor,
-                 calc_3d_features):
+                 in_channels: int,
+                 keypoints: int,
+                 bottleneck_factor: int,
+                 calc_3d_features: bool):
         super(LwopDecoderFinalBlock, self).__init__()
         self.num_heatmap_paf = 3 * keypoints
         self.calc_3d_features = calc_3d_features
@@ -441,14 +441,14 @@ class LwOpenPose(nn.Module):
     def __init__(self,
                  encoder_channels: list[list[int]],
                  encoder_paddings: list[list[int]],
-                 encoder_init_block_channels,
-                 encoder_final_block_channels,
-                 refinement_units,
-                 calc_3d_features,
-                 return_heatmap=True,
-                 in_channels=3,
-                 in_size=(368, 368),
-                 keypoints=19):
+                 encoder_init_block_channels: int,
+                 encoder_final_block_channels: int,
+                 refinement_units: int,
+                 calc_3d_features: bool,
+                 return_heatmap: bool = True,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (368, 368),
+                 keypoints: int = 19):
         super(LwOpenPose, self).__init__()
         assert (in_channels == 3)
         self.in_size = in_size
@@ -516,8 +516,8 @@ class LwOpenPose(nn.Module):
             return x
 
 
-def get_lwopenpose(calc_3d_features,
-                   keypoints,
+def get_lwopenpose(calc_3d_features: bool,
+                   keypoints: int,
                    model_name: str | None = None,
                    pretrained: bool = False,
                    root: str = os.path.join("~", ".torch", "models"),
@@ -571,7 +571,7 @@ def get_lwopenpose(calc_3d_features,
     return net
 
 
-def lwopenpose2d_mobilenet_cmupan_coco(keypoints=19,
+def lwopenpose2d_mobilenet_cmupan_coco(keypoints: int = 19,
                                        **kwargs) -> nn.Module:
     """
     Lightweight OpenPose 2D model on the base of MobileNet for CMU Panoptic from 'Real-time 2D Multi-Person Pose
@@ -598,7 +598,7 @@ def lwopenpose2d_mobilenet_cmupan_coco(keypoints=19,
         **kwargs)
 
 
-def lwopenpose3d_mobilenet_cmupan_coco(keypoints=19,
+def lwopenpose3d_mobilenet_cmupan_coco(keypoints: int = 19,
                                        **kwargs) -> nn.Module:
     """
     Lightweight OpenPose 3D model on the base of MobileNet for CMU Panoptic from 'Real-time 2D Multi-Person Pose

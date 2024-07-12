@@ -21,10 +21,10 @@ class InceptBlock5b(nn.Module):
     Parameters
     ----------
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 normalization: Callable):
+                 normalization: Callable[..., nn.Module]):
         super(InceptBlock5b, self).__init__()
         in_channels = 192
 
@@ -67,11 +67,11 @@ class InceptInitBlock(nn.Module):
     in_channels : int
         Number of input channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 normalization: Callable):
+                 in_channels: int,
+                 normalization: Callable[..., nn.Module]):
         super(InceptInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -144,9 +144,9 @@ class InceptionResNetV2(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 dropout_rate=0.0,
-                 bn_eps=1e-5,
-                 in_channels=3,
+                 dropout_rate: float = 0.0,
+                 bn_eps: float = 1e-5,
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (299, 299),
                  num_classes: int = 1000):
         super(InceptionResNetV2, self).__init__()

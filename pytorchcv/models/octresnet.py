@@ -7,10 +7,11 @@
 __all__ = ['OctResNet', 'octresnet10_ad2', 'octresnet50b_ad2', 'OctResUnit']
 
 import os
-from inspect import isfunction
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import DualPathSequential
+from typing import Callable
+from .common import (lambda_relu, lambda_batchnorm2d, create_activation_layer, create_normalization_layer,
+                     DualPathSequential)
 from .resnet import ResInitBlock
 
 
@@ -44,17 +45,17 @@ class OctConv(nn.Conv2d):
         Octave value.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding=1,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
-                 oct_alpha=0.0,
-                 oct_mode="std",
-                 oct_value=2):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int] = 1,
+                 dilation: int | tuple[int, int] = 1,
+                 groups: int = 1,
+                 bias: bool = False,
+                 oct_alpha: float = 0.0,
+                 oct_mode: str = "std",
+                 oct_value: int = 2):
         if isinstance(stride, int):
             stride = (stride, stride)
         self.downsample = (stride[0] > 1) or (stride[1] > 1)
@@ -191,29 +192,26 @@ class OctConvBlock(nn.Module):
         Octave alpha coefficient.
     oct_mode : str, default 'std'
         Octave convolution mode. It can be 'first', 'norm', 'last', or 'std'.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
-    activate : bool, default True
-        Whether activate the convolution block.
+    normalization : function, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
+    activation : function or nn.Module or str or None, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 dilation=1,
-                 groups=1,
-                 bias=False,
-                 oct_alpha=0.0,
-                 oct_mode="std",
-                 bn_eps=1e-5,
-                 activation=(lambda: nn.ReLU(inplace=True)),
-                 activate=True):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 dilation: int | tuple[int, int] = 1,
+                 groups: int = 1,
+                 bias: bool = False,
+                 oct_alpha: float = 0.0,
+                 oct_mode: str = "std",
+                 normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
+                 activation: Callable[..., nn.Module | None] | nn.Module | str | None = lambda_relu()):
         super(OctConvBlock, self).__init__()
-        self.activate = activate
+        self.activate = (activation is not None)
         self.last = (oct_mode == "last") or (oct_mode == "std")
         out_alpha = 0.0 if self.last else oct_alpha
         h_out_channels = int(out_channels * (1.0 - out_alpha))
@@ -230,26 +228,19 @@ class OctConvBlock(nn.Module):
             bias=bias,
             oct_alpha=oct_alpha,
             oct_mode=oct_mode)
-        self.h_bn = nn.BatchNorm2d(
-            num_features=h_out_channels,
-            eps=bn_eps)
+        self.h_bn = create_normalization_layer(
+            normalization=normalization,
+            num_features=h_out_channels)
         if not self.last:
-            self.l_bn = nn.BatchNorm2d(
-                num_features=l_out_channels,
-                eps=bn_eps)
+            self.l_bn = create_normalization_layer(
+                normalization=normalization,
+                num_features=l_out_channels)
         if self.activate:
-            assert (activation is not None)
-            if isfunction(activation):
-                self.activ = activation()
-            elif isinstance(activation, str):
-                if activation == "relu":
-                    self.activ = nn.ReLU(inplace=True)
-                elif activation == "relu6":
-                    self.activ = nn.ReLU6(inplace=True)
-                else:
-                    raise NotImplementedError()
+            self.activ = create_activation_layer(activation)
+            if self.activ is None:
+                self.activate = False
             else:
-                self.activ = activation
+                assert isinstance(self.activ, nn.Module)
 
     def forward(self, hx, lx=None):
         hx, lx = self.conv(hx, lx)
@@ -263,16 +254,9 @@ class OctConvBlock(nn.Module):
         return hx, lx
 
 
-def oct_conv1x1_block(in_channels,
-                      out_channels,
-                      stride=1,
-                      groups=1,
-                      bias=False,
-                      oct_alpha=0.0,
-                      oct_mode="std",
-                      bn_eps=1e-5,
-                      activation=(lambda: nn.ReLU(inplace=True)),
-                      activate=True):
+def oct_conv1x1_block(stride: int | tuple[int, int] = 1,
+                      padding: int | tuple[int, int] = 0,
+                      **kwargs):
     """
     1x1 version of the octave convolution block.
 
@@ -284,6 +268,10 @@ def oct_conv1x1_block(in_channels,
         Number of output channels.
     stride : int or tuple(int, int), default 1
         Strides of the convolution.
+    padding : int or tuple(int, int), default 0
+        Padding value for convolution layer.
+    dilation : int or tuple(int, int), default 1
+        Dilation value for convolution layer.
     groups : int, default 1
         Number of groups.
     bias : bool, default False
@@ -292,40 +280,21 @@ def oct_conv1x1_block(in_channels,
         Octave alpha coefficient.
     oct_mode : str, default 'std'
         Octave convolution mode. It can be 'first', 'norm', 'last', or 'std'.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
-    activate : bool, default True
-        Whether activate the convolution block.
+    normalization : function, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
+    activation : function or nn.Module or str or None, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     """
     return OctConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=1,
         stride=stride,
-        padding=0,
-        groups=groups,
-        bias=bias,
-        oct_alpha=oct_alpha,
-        oct_mode=oct_mode,
-        bn_eps=bn_eps,
-        activation=activation,
-        activate=activate)
+        padding=padding,
+        **kwargs)
 
 
-def oct_conv3x3_block(in_channels,
-                      out_channels,
-                      stride=1,
-                      padding=1,
-                      dilation=1,
-                      groups=1,
-                      bias=False,
-                      oct_alpha=0.0,
-                      oct_mode="std",
-                      bn_eps=1e-5,
-                      activation=(lambda: nn.ReLU(inplace=True)),
-                      activate=True):
+def oct_conv3x3_block(stride: int | tuple[int, int] = 1,
+                      padding: int | tuple[int, int] = 1,
+                      **kwargs):
     """
     3x3 version of the octave convolution block.
 
@@ -349,27 +318,16 @@ def oct_conv3x3_block(in_channels,
         Octave alpha coefficient.
     oct_mode : str, default 'std'
         Octave convolution mode. It can be 'first', 'norm', 'last', or 'std'.
-    bn_eps : float, default 1e-5
-        Small float added to variance in Batch norm.
-    activation : function or str or None, default nn.ReLU(inplace=True)
-        Activation function or name of activation function.
-    activate : bool, default True
-        Whether activate the convolution block.
+    normalization : function, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
+    activation : function or nn.Module or str or None, default lambda_relu()
+        Lambda-function generator or module for activation layer.
     """
     return OctConvBlock(
-        in_channels=in_channels,
-        out_channels=out_channels,
         kernel_size=3,
         stride=stride,
         padding=padding,
-        dilation=dilation,
-        groups=groups,
-        bias=bias,
-        oct_alpha=oct_alpha,
-        oct_mode=oct_mode,
-        bn_eps=bn_eps,
-        activation=activation,
-        activate=activate)
+        **kwargs)
 
 
 class OctResBlock(nn.Module):
@@ -390,11 +348,11 @@ class OctResBlock(nn.Module):
         Octave convolution mode. It can be 'first', 'norm', 'last', or 'std'.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 oct_alpha=0.0,
-                 oct_mode="std"):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 oct_alpha: float = 0.0,
+                 oct_mode: str = "std"):
         super(OctResBlock, self).__init__()
         self.conv1 = oct_conv3x3_block(
             in_channels=in_channels,
@@ -407,8 +365,7 @@ class OctResBlock(nn.Module):
             out_channels=out_channels,
             oct_alpha=oct_alpha,
             oct_mode=("std" if oct_mode == "last" else (oct_mode if oct_mode != "first" else "norm")),
-            activation=None,
-            activate=False)
+            activation=None)
 
     def forward(self, hx, lx=None):
         hx, lx = self.conv1(hx, lx)
@@ -442,15 +399,15 @@ class OctResBottleneck(nn.Module):
         Bottleneck factor.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 padding=1,
-                 dilation=1,
-                 oct_alpha=0.0,
-                 oct_mode="std",
-                 conv1_stride=False,
-                 bottleneck_factor=4):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int] = 1,
+                 dilation: int | tuple[int, int] = 1,
+                 oct_alpha: float = 0.0,
+                 oct_mode: str = "std",
+                 conv1_stride: bool = False,
+                 bottleneck_factor: int = 4):
         super(OctResBottleneck, self).__init__()
         mid_channels = out_channels // bottleneck_factor
 
@@ -473,8 +430,7 @@ class OctResBottleneck(nn.Module):
             out_channels=out_channels,
             oct_alpha=oct_alpha,
             oct_mode=("std" if oct_mode == "last" else (oct_mode if oct_mode != "first" else "norm")),
-            activation=None,
-            activate=False)
+            activation=None)
 
     def forward(self, hx, lx=None):
         hx, lx = self.conv1(hx, lx)
@@ -509,15 +465,15 @@ class OctResUnit(nn.Module):
         Whether to use stride in the first or the second convolution layer of the block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 padding=1,
-                 dilation=1,
-                 oct_alpha=0.0,
-                 oct_mode="std",
-                 bottleneck=True,
-                 conv1_stride=False):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int] = 1,
+                 dilation: int | tuple[int, int] = 1,
+                 oct_alpha: float = 0.0,
+                 oct_mode: str = "std",
+                 bottleneck: bool = True,
+                 conv1_stride: bool = False):
         super(OctResUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1) or \
                                ((oct_mode == "first") and (oct_alpha != 0.0))
@@ -546,8 +502,7 @@ class OctResUnit(nn.Module):
                 stride=stride,
                 oct_alpha=oct_alpha,
                 oct_mode=oct_mode,
-                activation=None,
-                activate=False)
+                activation=None)
         self.activ = nn.ReLU(inplace=True)
 
     def forward(self, hx, lx=None):
@@ -590,10 +545,10 @@ class OctResNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 bottleneck,
-                 conv1_stride,
-                 oct_alpha=0.5,
+                 init_block_channels: int,
+                 bottleneck: bool,
+                 conv1_stride: bool,
+                 oct_alpha: float = 0.5,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -655,11 +610,11 @@ class OctResNet(nn.Module):
         return x
 
 
-def get_octresnet(blocks,
-                  bottleneck=None,
-                  conv1_stride=True,
-                  oct_alpha=0.5,
-                  width_scale=1.0,
+def get_octresnet(blocks: int,
+                  bottleneck: bool = None,
+                  conv1_stride: bool = True,
+                  oct_alpha: float = 0.5,
+                  width_scale: float = 1.0,
                   model_name: str | None = None,
                   pretrained: bool = False,
                   root: str = os.path.join("~", ".torch", "models"),

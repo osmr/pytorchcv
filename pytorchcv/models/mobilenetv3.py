@@ -9,8 +9,9 @@ __all__ = ['MobileNetV3', 'mobilenetv3_small_w7d20', 'mobilenetv3_small_wd2', 'm
 
 import os
 import torch.nn as nn
-from .common import (round_channels, conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, SEBlock,
-                     HSwish)
+from typing import Callable
+from .common import (round_channels, lambda_relu, lambda_hswish, lambda_hsigmoid, conv1x1, conv1x1_block, conv3x3_block,
+                     dwconv3x3_block, dwconv5x5_block, SEBlock, HSwish)
 
 
 class MobileNetV3Unit(nn.Module):
@@ -29,19 +30,19 @@ class MobileNetV3Unit(nn.Module):
         Strides of the second convolution layer.
     use_kernel3 : bool
         Whether to use 3x3 (instead of 5x5) kernel.
-    activation : str
-        Activation function or name of activation function.
+    activation : function
+        Lambda-function generator for activation layer.
     use_se : bool
         Whether to use SE-module.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 exp_channels,
-                 stride,
-                 use_kernel3,
-                 activation,
-                 use_se):
+                 in_channels: int,
+                 out_channels: int,
+                 exp_channels: int,
+                 stride: int | tuple[int, int],
+                 use_kernel3: bool,
+                 activation: Callable[..., nn.Module],
+                 use_se: bool):
         super(MobileNetV3Unit, self).__init__()
         assert (exp_channels >= out_channels)
         self.residual = (in_channels == out_channels) and (stride == 1)
@@ -71,7 +72,7 @@ class MobileNetV3Unit(nn.Module):
                 channels=mid_channels,
                 reduction=4,
                 round_mid=True,
-                out_activation="hsigmoid")
+                out_activation=lambda_hsigmoid())
         self.conv2 = conv1x1_block(
             in_channels=mid_channels,
             out_channels=out_channels,
@@ -105,22 +106,22 @@ class MobileNetV3FinalBlock(nn.Module):
         Whether to use SE-module.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 use_se):
+                 in_channels: int,
+                 out_channels: int,
+                 use_se: bool):
         super(MobileNetV3FinalBlock, self).__init__()
         self.use_se = use_se
 
         self.conv = conv1x1_block(
             in_channels=in_channels,
             out_channels=out_channels,
-            activation="hswish")
+            activation=lambda_hswish())
         if self.use_se:
             self.se = SEBlock(
                 channels=out_channels,
                 reduction=4,
                 round_mid=True,
-                out_activation="hsigmoid")
+                out_activation=lambda_hsigmoid())
 
     def forward(self, x):
         x = self.conv(x)
@@ -145,10 +146,10 @@ class MobileNetV3Classifier(nn.Module):
         Parameter of Dropout layer. Faction of the input units to drop.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 mid_channels,
-                 dropout_rate):
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int,
+                 dropout_rate: float):
         super(MobileNetV3Classifier, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
 
@@ -188,11 +189,11 @@ class MobileNetV3(nn.Module):
         Number of output channels for the final block of the feature extractor.
     classifier_mid_channels : int
         Number of middle channels for classifier.
-    kernels3 : list(list(int))/bool
+    kernels3 : list(list(int))
         Using 3x3 (instead of 5x5) kernel for each unit.
-    use_relu : list(list(int))/bool
+    use_relu : list(list(int))
         Using ReLU activation flag for each unit.
-    use_se : list(list(int))/bool
+    use_se : list(list(int))
         Using SE-block flag for each unit.
     first_stride : bool
         Whether to use stride for the first stage.
@@ -208,14 +209,14 @@ class MobileNetV3(nn.Module):
     def __init__(self,
                  channels: list[list[int]],
                  exp_channels: list[list[int]],
-                 init_block_channels,
-                 final_block_channels,
-                 classifier_mid_channels,
-                 kernels3,
-                 use_relu,
-                 use_se,
-                 first_stride,
-                 final_use_se,
+                 init_block_channels: int,
+                 final_block_channels: int,
+                 classifier_mid_channels: int,
+                 kernels3: list[list[int]],
+                 use_relu: list[list[int]],
+                 use_se: list[list[int]],
+                 first_stride: bool,
+                 final_use_se: bool,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -228,7 +229,7 @@ class MobileNetV3(nn.Module):
             in_channels=in_channels,
             out_channels=init_block_channels,
             stride=2,
-            activation="hswish"))
+            activation=lambda_hswish()))
         in_channels = init_block_channels
         for i, channels_per_stage in enumerate(channels):
             stage = nn.Sequential()
@@ -236,7 +237,7 @@ class MobileNetV3(nn.Module):
                 exp_channels_ij = exp_channels[i][j]
                 stride = 2 if (j == 0) and ((i != 0) or first_stride) else 1
                 use_kernel3 = kernels3[i][j] == 1
-                activation = "relu" if use_relu[i][j] == 1 else "hswish"
+                activation = lambda_relu() if use_relu[i][j] == 1 else lambda_hswish()
                 use_se_flag = use_se[i][j] == 1
                 stage.add_module("unit{}".format(j + 1), MobileNetV3Unit(
                     in_channels=in_channels,
@@ -279,8 +280,8 @@ class MobileNetV3(nn.Module):
         return x
 
 
-def get_mobilenetv3(version,
-                    width_scale,
+def get_mobilenetv3(version: str,
+                    width_scale: float,
                     model_name: str | None = None,
                     pretrained: bool = False,
                     root: str = os.path.join("~", ".torch", "models"),

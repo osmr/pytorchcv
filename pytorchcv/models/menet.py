@@ -33,12 +33,12 @@ class MEUnit(nn.Module):
         Whether ignore group value in the first convolution layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 side_channels,
-                 groups,
-                 downsample,
-                 ignore_group):
+                 in_channels: int,
+                 out_channels: int,
+                 side_channels: int,
+                 groups: int,
+                 downsample: bool,
+                 ignore_group: bool):
         super(MEUnit, self).__init__()
         self.downsample = downsample
         mid_channels = out_channels // 4
@@ -130,8 +130,8 @@ class MEInitBlock(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(MEInitBlock, self).__init__()
 
         self.conv = nn.Conv2d(
@@ -180,9 +180,9 @@ class MENet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 init_block_channels,
-                 side_channels,
-                 groups,
+                 init_block_channels: int,
+                 side_channels: int,
+                 groups: int,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (224, 224),
                  num_classes: int = 1000):
@@ -233,9 +233,9 @@ class MENet(nn.Module):
         return x
 
 
-def get_menet(first_stage_channels,
-              side_channels,
-              groups,
+def get_menet(first_stage_channels: int,
+              side_channels: int,
+              groups: int,
               model_name: str | None = None,
               pretrained: bool = False,
               root: str = os.path.join("~", ".torch", "models"),

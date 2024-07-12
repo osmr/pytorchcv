@@ -30,17 +30,17 @@ class DropConvBlock(nn.Module):
         Padding value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    dropout_rate : float, default 0.0
+    dropout_prob : float, default 0.0
         Parameter of Dropout layer. Faction of the input units to drop.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 bias=False,
-                 dropout_prob=0.0):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 stride: int | tuple[int, int],
+                 padding: int | tuple[int, int],
+                 bias: bool = False,
+                 dropout_prob: float = 0.0):
         super(DropConvBlock, self).__init__()
         self.use_dropout = (dropout_prob != 0.0)
 
@@ -65,12 +65,12 @@ class DropConvBlock(nn.Module):
         return x
 
 
-def drop_conv3x3_block(in_channels,
-                       out_channels,
-                       stride=1,
-                       padding=1,
-                       bias=False,
-                       dropout_prob=0.0):
+def drop_conv3x3_block(in_channels: int,
+                       out_channels: int,
+                       stride: int | tuple[int, int] = 1,
+                       padding: int | tuple[int, int] = 1,
+                       bias: bool = False,
+                       dropout_prob: float = 0.0):
     """
     3x3 version of the convolution block with dropout.
 
@@ -86,7 +86,7 @@ def drop_conv3x3_block(in_channels,
         Padding value for convolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    dropout_rate : float, default 0.0
+    dropout_prob : float, default 0.0
         Parameter of Dropout layer. Faction of the input units to drop.
     """
     return DropConvBlock(
@@ -117,11 +117,11 @@ class FractalBlock(nn.Module):
         Probability of dropout.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 num_columns,
-                 loc_drop_prob,
-                 dropout_prob):
+                 in_channels: int,
+                 out_channels: int,
+                 num_columns: int,
+                 loc_drop_prob: float,
+                 dropout_prob: float):
         super(FractalBlock, self).__init__()
         assert (num_columns >= 1)
         self.num_columns = num_columns
@@ -142,11 +142,11 @@ class FractalBlock(nn.Module):
             self.blocks.add_module("block{}".format(i + 1), level_block_i)
 
     @staticmethod
-    def calc_drop_mask(batch_size,
-                       glob_num_columns,
-                       curr_num_columns,
-                       max_num_columns,
-                       loc_drop_prob):
+    def calc_drop_mask(batch_size: int,
+                       glob_num_columns: int,
+                       curr_num_columns: int,
+                       max_num_columns: int,
+                       loc_drop_prob: float) -> torch.Tensor:
         """
         Calculate drop path mask.
 
@@ -165,7 +165,7 @@ class FractalBlock(nn.Module):
 
         Returns
         -------
-        Tensor
+        torch.Tensor
             Resulted mask.
         """
         glob_batch_size = glob_num_columns.shape[0]
@@ -187,17 +187,17 @@ class FractalBlock(nn.Module):
         return torch.from_numpy(drop_mask)
 
     @staticmethod
-    def join_outs(raw_outs,
-                  glob_num_columns,
-                  num_columns,
-                  loc_drop_prob,
-                  training):
+    def join_outs(raw_outs: list[torch.Tensor],
+                  glob_num_columns: int,
+                  num_columns: int,
+                  loc_drop_prob: float,
+                  training: bool) -> torch.Tensor:
         """
         Join outputs for current level of block.
 
         Parameters
         ----------
-        raw_outs : list of Tensor
+        raw_outs : list(torch.Tensor)
             Current outputs from active columns.
         glob_num_columns : int
             Number of columns in global drop path mask.
@@ -210,7 +210,7 @@ class FractalBlock(nn.Module):
 
         Returns
         -------
-        Tensor
+        torch.Tensor
             Joined output.
         """
         curr_num_columns = len(raw_outs)
@@ -280,11 +280,11 @@ class FractalUnit(nn.Module):
         Probability of dropout.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 num_columns,
-                 loc_drop_prob,
-                 dropout_prob):
+                 in_channels: int,
+                 out_channels: int,
+                 num_columns: int,
+                 loc_drop_prob: float,
+                 dropout_prob: float):
         super(FractalUnit, self).__init__()
         self.block = FractalBlock(
             in_channels=in_channels,
@@ -327,12 +327,12 @@ class CIFARFractalNet(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 channels,
-                 num_columns,
-                 dropout_probs,
-                 loc_drop_prob,
-                 glob_drop_ratio,
-                 in_channels=3,
+                 channels: list[int],
+                 num_columns: int,
+                 dropout_probs: list[float],
+                 loc_drop_prob: float,
+                 glob_drop_ratio: float,
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (32, 32),
                  num_classes: int = 10):
         super(CIFARFractalNet, self).__init__()
@@ -375,7 +375,7 @@ class CIFARFractalNet(nn.Module):
         return x
 
 
-def get_fractalnet_cifar(num_classes,
+def get_fractalnet_cifar(num_classes: int,
                          model_name: str | None = None,
                          pretrained: bool = False,
                          root: str = os.path.join("~", ".torch", "models"),
@@ -408,7 +408,7 @@ def get_fractalnet_cifar(num_classes,
     net = CIFARFractalNet(
         channels=channels,
         num_columns=num_columns,
-        dropout_probs=dropout_probs,
+        dropout_probs=list(dropout_probs),
         loc_drop_prob=loc_drop_prob,
         glob_drop_ratio=glob_drop_ratio,
         num_classes=num_classes,

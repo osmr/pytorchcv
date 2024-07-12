@@ -8,7 +8,7 @@ __all__ = ['PFPCNet', 'pfpcnet']
 
 import os
 import torch.nn as nn
-from .common import conv3x3_block
+from .common import lambda_batchnorm2d, conv3x3_block
 
 
 class PFPCNet(nn.Module):
@@ -33,14 +33,15 @@ class PFPCNet(nn.Module):
     """
     def __init__(self,
                  channels: list[list[int]],
-                 pca_size,
-                 use_bn=True,
-                 in_channels=1,
-                 in_size=(320, 240),
-                 vertices=5023):
+                 pca_size: int,
+                 use_bn: bool = True,
+                 in_channels: int = 1,
+                 in_size: tuple[int, int] = (320, 240),
+                 vertices: int = 5023):
         super(PFPCNet, self).__init__()
         self.in_size = in_size
         self.vertices = vertices
+        normalization = lambda_batchnorm2d() if use_bn else None
 
         self.encoder = nn.Sequential()
         for i, channels_per_stage in enumerate(channels):
@@ -50,8 +51,8 @@ class PFPCNet(nn.Module):
                 stage.add_module("unit{}".format(j + 1), conv3x3_block(
                     in_channels=in_channels,
                     out_channels=out_channels,
-                    use_bn=use_bn,
-                    stride=stride))
+                    stride=stride,
+                    normalization=normalization))
                 in_channels = out_channels
             self.encoder.add_module("stage{}".format(i + 1), stage)
 
@@ -149,7 +150,7 @@ def pfpcnet(**kwargs) -> nn.Module:
 
 def _test():
     import torch
-    from .model_store import calc_net_weight_count
+    from model_store import calc_net_weight_count
 
     pretrained = False
 

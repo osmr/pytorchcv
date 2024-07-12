@@ -25,13 +25,13 @@ class ENetMaxDownBlock(nn.Module):
         Number of extra channels.
     kernel_size : int or tuple(int, int)
         Convolution window size.
-    padding : int, or tuple(int, int), or tuple/list of 4 int
+    padding : int or tuple(int, int) or tuple(int, int, int, int)
         Padding value for convolution layer.
     """
     def __init__(self,
-                 ext_channels,
-                 kernel_size,
-                 padding):
+                 ext_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 padding: int | tuple[int, int] | tuple[int, int, int, int]):
         super(ENetMaxDownBlock, self).__init__()
         self.ext_channels = ext_channels
 
@@ -63,9 +63,9 @@ class ENetUpBlock(nn.Module):
         Whether the layer uses a bias vector.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 bias):
+                 in_channels: int,
+                 out_channels: int,
+                 bias: bool):
         super(ENetUpBlock, self).__init__()
         self.conv = conv1x1_block(
             in_channels=in_channels,
@@ -92,9 +92,9 @@ class ENetUnit(nn.Module):
         Number of output channels.
     kernel_size : int or tuple(int, int)
         Convolution window size.
-    padding : int, or tuple(int, int), or tuple/list of 4 int
+    padding : int or tuple(int, int) or tuple(int, int, int, int)
         Padding value for convolution layer.
-    dilation : int or tuple(int, int), default 1
+    dilation : int or tuple(int, int)
         Dilation value for convolution layer.
     use_asym_convs : bool
         Whether to use asymmetric convolution blocks.
@@ -102,25 +102,25 @@ class ENetUnit(nn.Module):
         Parameter of Dropout layer. Faction of the input units to drop.
     bias : bool
         Whether the layer uses a bias vector.
-    activation : function or str or None
-        Activation function or name of activation function.
+    activation : function
+        Lambda-function generator for activation layer.
     downs : bool
         Whether to downscale or upscale.
     bottleneck_factor : int, default 4
         Bottleneck factor.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 padding,
-                 dilation,
-                 use_asym_conv,
-                 dropout_rate,
-                 bias,
-                 activation,
-                 down,
-                 bottleneck_factor=4):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_size: int | tuple[int, int],
+                 padding: int | tuple[int, int] | tuple[int, int, int, int],
+                 dilation: int | tuple[int, int],
+                 use_asym_conv: bool,
+                 dropout_rate: float,
+                 bias: bool,
+                 activation: Callable[..., nn.Module],
+                 down: bool,
+                 bottleneck_factor: int = 4):
         super(ENetUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels)
         self.down = down
@@ -246,22 +246,22 @@ class ENetStage(nn.Module):
         Parameter of Dropout layer. Faction of the input units to drop.
     bias : bool
         Whether the layer uses a bias vector.
-    activation : function or str or None
-        Activation function or name of activation function.
+    activation : function
+        Lambda-function generator for activation layer.
     downs : bool
         Whether to downscale or upscale.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_sizes,
-                 paddings,
-                 dilations,
-                 use_asym_convs,
-                 dropout_rate,
-                 bias,
-                 activation,
-                 down):
+                 in_channels: int,
+                 out_channels: int,
+                 kernel_sizes: list[int],
+                 paddings: list[int],
+                 dilations: list[int],
+                 use_asym_convs: list[int],
+                 dropout_rate: float,
+                 bias: bool,
+                 activation: Callable[..., nn.Module],
+                 down: bool):
         super(ENetStage, self).__init__()
         self.down = down
 
@@ -311,20 +311,20 @@ class ENetMixDownBlock(nn.Module):
         Number of output channels.
     bias : bool, default False
         Whether the layer uses a bias vector.
-    normalization : function
+    normalization : function, default lambda_batchnorm2d()
         Lambda-function generator for normalization layer.
     activation : function, default lambda_relu()
-        Lambda-function generator or module for activation layer.
+        Lambda-function generator for activation layer.
     correct_size_mistmatch : bool, default False
         Whether to correct downscaled sizes of images.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 bias=False,
+                 in_channels: int,
+                 out_channels: int,
+                 bias: bool = False,
                  normalization: Callable[..., nn.Module] = lambda_batchnorm2d(),
                  activation: Callable[..., nn.Module] = lambda_relu(),
-                 correct_size_mismatch=False):
+                 correct_size_mismatch: bool = False):
         super(ENetMixDownBlock, self).__init__()
         self.correct_size_mismatch = correct_size_mismatch
 
@@ -394,18 +394,18 @@ class ENet(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 channels,
-                 init_block_channels,
+                 channels: list[int],
+                 init_block_channels: int,
                  kernel_sizes: list[list[int]],
                  paddings: list[list[int]],
                  dilations: list[list[int]],
                  use_asym_convs: list[list[int]],
-                 dropout_rates,
-                 downs,
-                 correct_size_mismatch=False,
-                 bn_eps=1e-5,
-                 aux=False,
-                 fixed_size=False,
+                 dropout_rates: list[float],
+                 downs: list[int],
+                 correct_size_mismatch: bool = False,
+                 bn_eps: float = 1e-5,
+                 aux: bool = False,
+                 fixed_size: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (1024, 2048),
                  num_classes: int = 19):

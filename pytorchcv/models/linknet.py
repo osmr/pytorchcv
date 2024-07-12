@@ -25,17 +25,17 @@ class DecoderStage(nn.Module):
         Number of output channels.
     stride : int or tuple(int, int)
         Strides of the deconvolution.
-    out_padding : int or tuple(int, int)
+    output_padding : int or tuple(int, int)
         Output padding value for deconvolution layer.
     bias : bool, default False
         Whether the layer uses a bias vector.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 output_padding,
-                 bias):
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int | tuple[int, int],
+                 output_padding: int | tuple[int, int],
+                 bias: bool):
         super(DecoderStage, self).__init__()
         mid_channels = in_channels // 4
 
@@ -73,8 +73,8 @@ class LinkNetHead(nn.Module):
         Number of output channels.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels):
+                 in_channels: int,
+                 out_channels: int):
         super(LinkNetHead, self).__init__()
         mid_channels = in_channels // 2
 
@@ -116,14 +116,10 @@ class LinkNet(nn.Module):
         Number of output channels form feature extractor.
     channels : list(int)
         Number of output channels for the first unit of each stage.
-    dilations : list(list(int))
-        Dilation values for each unit.
-    dropout_rates : list(float)
-        Parameter of dropout layer for each stage.
-    downs : list(int)
-        Whether to downscale or upscale in each stage.
-    correct_size_mistmatch : bool
-        Whether to correct downscaled sizes of images in encoder.
+    strides : list(int)
+        Strides of the deconvolution.
+    output_paddings : list(int)
+        Output padding values for deconvolution layer.
     aux : bool, default False
         Whether to output an auxiliary result.
     fixed_size : bool, default False
@@ -136,13 +132,13 @@ class LinkNet(nn.Module):
         Number of segmentation classes.
     """
     def __init__(self,
-                 backbone,
-                 backbone_out_channels,
-                 channels,
-                 strides,
-                 output_paddings,
-                 aux=False,
-                 fixed_size=False,
+                 backbone: nn.Sequential,
+                 backbone_out_channels: int,
+                 channels: list[int],
+                 strides: list[int],
+                 output_paddings: list[int],
+                 aux: bool = False,
+                 fixed_size: bool = False,
                  in_channels: int = 3,
                  in_size: tuple[int, int] = (1024, 2048),
                  num_classes: int = 19):
@@ -203,8 +199,8 @@ class LinkNet(nn.Module):
         return x
 
 
-def get_linknet(backbone,
-                backbone_out_channels,
+def get_linknet(backbone: nn.Sequential,
+                backbone_out_channels: int,
                 model_name: str | None = None,
                 pretrained: bool = False,
                 root: str = os.path.join("~", ".torch", "models"),
@@ -255,7 +251,7 @@ def get_linknet(backbone,
 
 
 def linknet_cityscapes(pretrained_backbone: bool = False,
-                       num_classes=19,
+                       num_classes: int = 19,
                        **kwargs) -> nn.Module:
     """
     LinkNet model for Cityscapes from 'LinkNet: Exploiting Encoder Representations for Efficient Semantic Segmentation,'

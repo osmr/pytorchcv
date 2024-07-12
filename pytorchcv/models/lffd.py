@@ -30,9 +30,9 @@ class LffdDetectionBranch(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels,
-                 bias,
+                 in_channels: int,
+                 out_channels: int,
+                 bias: bool,
                  normalization: Callable[..., nn.Module | None] | None):
         super(LffdDetectionBranch, self).__init__()
         self.conv1 = conv1x1_block(
@@ -69,9 +69,9 @@ class LffdDetectionBlock(nn.Module):
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 bias,
+                 in_channels: int,
+                 mid_channels: int,
+                 bias: bool,
                  normalization: Callable[..., nn.Module | None] | None):
         super(LffdDetectionBlock, self).__init__()
         self.conv = conv1x1_block(
@@ -121,14 +121,14 @@ class LFFD(nn.Module):
         Spatial size of the expected input image.
     """
     def __init__(self,
-                 enc_channels,
-                 dec_channels,
-                 init_block_channels,
-                 layers,
-                 int_bends,
-                 use_preresnet,
-                 in_channels=3,
-                 in_size=(640, 640)):
+                 enc_channels: list[int],
+                 dec_channels: int,
+                 init_block_channels: int,
+                 layers: list[int],
+                 int_bends: list[int],
+                 use_preresnet: bool,
+                 in_channels: int = 3,
+                 in_size: tuple[int, int] = (640, 640)):
         super(LFFD, self).__init__()
         self.in_size = in_size
         unit_class = PreResUnit if use_preresnet else ResUnit
@@ -208,8 +208,8 @@ class LFFD(nn.Module):
         return x
 
 
-def get_lffd(blocks,
-             use_preresnet,
+def get_lffd(blocks: int,
+             use_preresnet: bool,
              model_name: str | None = None,
              pretrained: bool = False,
              root: str = os.path.join("~", ".torch", "models"),

@@ -25,12 +25,12 @@ class InceptionAUnit(nn.Module):
     out_channels_list : list(int)
         List for numbers of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels_list: list[int],
+                 normalization: Callable[..., nn.Module]):
         super(InceptionAUnit, self).__init__()
         self.scale = 0.17
 
@@ -80,12 +80,12 @@ class InceptionBUnit(nn.Module):
     out_channels_list : list(int)
         List for numbers of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels_list: list[int],
+                 normalization: Callable[..., nn.Module]):
         super(InceptionBUnit, self).__init__()
         self.scale = 0.10
 
@@ -128,18 +128,18 @@ class InceptionCUnit(nn.Module):
     out_channels_list : list(int)
         List for numbers of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     scale : float, default 0.2
         Scale value for residual branch.
     activate : bool, default True
         Whether activate the convolution block.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list,
-                 normalization: Callable,
-                 scale=0.2,
-                 activate=True):
+                 in_channels: int,
+                 out_channels_list: list[int],
+                 normalization: Callable[..., nn.Module],
+                 scale: float = 0.2,
+                 activate: bool = True):
         super(InceptionCUnit, self).__init__()
         self.activate = activate
         self.scale = scale
@@ -185,12 +185,12 @@ class ReductionAUnit(nn.Module):
     out_channels_list : list(int)
         List for numbers of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels_list: list[int],
+                 normalization: Callable[..., nn.Module]):
         super(ReductionAUnit, self).__init__()
         self.branches = Concurrent()
         self.branches.add_module("branch1", ConvSeqBranch(
@@ -225,12 +225,12 @@ class ReductionBUnit(nn.Module):
     out_channels_list : list(int)
         List for numbers of output channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 out_channels_list,
-                 normalization: Callable):
+                 in_channels: int,
+                 out_channels_list: list[int],
+                 normalization: Callable[..., nn.Module]):
         super(ReductionBUnit, self).__init__()
         self.branches = Concurrent()
         self.branches.add_module("branch1", ConvSeqBranch(
@@ -270,11 +270,11 @@ class InceptInitBlock(nn.Module):
     in_channels : int
         Number of input channels.
     normalization : function
-        Normalization function.
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
-                 in_channels,
-                 normalization: Callable):
+                 in_channels: int,
+                 normalization: Callable[..., nn.Module]):
         super(InceptInitBlock, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -344,10 +344,10 @@ class InceptHead(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 in_channels,
-                 bn_eps,
-                 dropout_rate,
-                 num_classes):
+                 in_channels: int,
+                 bn_eps: float,
+                 dropout_rate: float,
+                 num_classes: int):
         super(InceptHead, self).__init__()
         self.use_dropout = (dropout_rate != 0.0)
 
@@ -392,9 +392,9 @@ class InceptionResNetV1(nn.Module):
         Number of classification classes.
     """
     def __init__(self,
-                 dropout_prob=0.6,
-                 bn_eps=1e-5,
-                 in_channels=3,
+                 dropout_prob: float = 0.6,
+                 bn_eps: float = 1e-5,
+                 in_channels: int = 3,
                  in_size: tuple[int, int] = (299, 299),
                  num_classes: int = 1000):
         super(InceptionResNetV1, self).__init__()
