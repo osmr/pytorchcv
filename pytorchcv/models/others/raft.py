@@ -7,28 +7,14 @@ from extractor import BasicEncoder, SmallEncoder
 from corr import CorrBlock, AlternateCorrBlock
 from utils import coords_grid, upflow8
 
-try:
-    autocast = torch.cuda.amp.autocast
-except:
-    # dummy autocast for PyTorch < 1.6
-    class autocast:
-        def __init__(self, enabled):
-            pass
-        def __enter__(self):
-            pass
-        def __exit__(self, *args):
-            pass
-
 
 class RAFT(nn.Module):
     def __init__(self,
                  small: bool,
-                 mixed_precision: bool,
                  alternate_corr: bool = False,
                  dropout: float = 0.0):
         super(RAFT, self).__init__()
         self.small = small
-        self.mixed_precision = mixed_precision
         self.alternate_corr = alternate_corr
         self.dropout = dropout
 
@@ -103,8 +89,7 @@ class RAFT(nn.Module):
         cdim = self.context_dim
 
         # run the feature network
-        with autocast(enabled=self.mixed_precision):
-            fmap1, fmap2 = self.fnet([image1, image2])
+        fmap1, fmap2 = self.fnet([image1, image2])
 
         fmap1 = fmap1.float()
         fmap2 = fmap2.float()
@@ -115,11 +100,10 @@ class RAFT(nn.Module):
             corr_fn = CorrBlock(fmap1, fmap2, radius=self.corr_radius)
 
         # run the context network
-        with autocast(enabled=self.mixed_precision):
-            cnet = self.cnet(image1)
-            net, inp = torch.split(cnet, [hdim, cdim], dim=1)
-            net = torch.tanh(net)
-            inp = torch.relu(inp)
+        cnet = self.cnet(image1)
+        net, inp = torch.split(cnet, [hdim, cdim], dim=1)
+        net = torch.tanh(net)
+        inp = torch.relu(inp)
 
         coords0, coords1 = self.initialize_flow(image1)
 
@@ -132,8 +116,7 @@ class RAFT(nn.Module):
             corr = corr_fn(coords1) # index correlation volume
 
             flow = coords1 - coords0
-            with autocast(enabled=self.mixed_precision):
-                net, up_mask, delta_flow = self.update_block(net, inp, corr, flow)
+            net, up_mask, delta_flow = self.update_block(net, inp, corr, flow)
 
             # F(t+1) = F(t) + \Delta(t)
             coords1 = coords1 + delta_flow

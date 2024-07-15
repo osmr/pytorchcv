@@ -11,12 +11,10 @@ def initialize_RAFT(model_path='weights/raft-things.pth',
                     small=False):
     """Initializes the RAFT model.
     """
-    mixed_precision = False
     alternate_corr = False
 
     net = RAFT(
         small=small,
-        mixed_precision=mixed_precision,
         alternate_corr=alternate_corr)
     checkpoint = torch.load(model_path, map_location="cpu")
 
