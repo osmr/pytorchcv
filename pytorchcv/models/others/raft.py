@@ -5,7 +5,20 @@ import torch.nn.functional as F
 from update import BasicUpdateBlock, SmallUpdateBlock
 from extractor import BasicEncoder, SmallEncoder
 from corr import CorrBlock
-from utils import coords_grid, upflow8
+
+
+def coords_grid(batch,
+                ht,
+                wd):
+    coords = torch.meshgrid(torch.arange(ht), torch.arange(wd))
+    coords = torch.stack(coords[::-1], dim=0).float()
+    return coords[None].repeat(batch, 1, 1, 1)
+
+
+def upflow8(flow,
+            mode="bilinear"):
+    new_size = (8 * flow.shape[2], 8 * flow.shape[3])
+    return 8 * F.interpolate(flow, size=new_size, mode=mode, align_corners=True)
 
 
 class RAFT(nn.Module):
