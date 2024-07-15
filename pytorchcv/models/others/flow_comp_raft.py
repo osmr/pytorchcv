@@ -51,8 +51,8 @@ class RAFT_bi(nn.Module):
             gtlf_2 = gt_local_frames[:, 1:, :, :, :].reshape(-1, c, h, w)
             # print(gtlf_1.shape)
 
-            _, gt_flows_forward = self.fix_raft(gtlf_1, gtlf_2, iters=iters, test_mode=True)
-            _, gt_flows_backward = self.fix_raft(gtlf_2, gtlf_1, iters=iters, test_mode=True)
+            _, gt_flows_forward = self.fix_raft(gtlf_1, gtlf_2, iters=iters)
+            _, gt_flows_backward = self.fix_raft(gtlf_2, gtlf_1, iters=iters)
 
         gt_flows_forward = gt_flows_forward.view(b, l_t - 1, 2, h, w)
         gt_flows_backward = gt_flows_backward.view(b, l_t - 1, 2, h, w)
