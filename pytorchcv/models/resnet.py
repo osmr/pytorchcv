@@ -73,6 +73,8 @@ class ResBottleneck(nn.Module):
         Padding value for the second convolution layer.
     dilation : int or tuple(int, int), default 1
         Dilation value for the second convolution layer.
+    normalization : function or None, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
     conv1_stride : bool, default False
         Whether to use stride in the first or the second convolution layer of the block.
     bottleneck_factor : int, default 4
@@ -84,6 +86,7 @@ class ResBottleneck(nn.Module):
                  stride: int | tuple[int, int],
                  padding: int | tuple[int, int] = 1,
                  dilation: int | tuple[int, int] = 1,
+                 normalization: Callable[..., nn.Module | None] | None = lambda_batchnorm2d(),
                  conv1_stride: bool = False,
                  bottleneck_factor: int = 4):
         super(ResBottleneck, self).__init__()
@@ -92,16 +95,19 @@ class ResBottleneck(nn.Module):
         self.conv1 = conv1x1_block(
             in_channels=in_channels,
             out_channels=mid_channels,
-            stride=(stride if conv1_stride else 1))
+            stride=(stride if conv1_stride else 1),
+            normalization=normalization)
         self.conv2 = conv3x3_block(
             in_channels=mid_channels,
             out_channels=mid_channels,
             stride=(1 if conv1_stride else stride),
             padding=padding,
-            dilation=dilation)
+            dilation=dilation,
+            normalization=normalization)
         self.conv3 = conv1x1_block(
             in_channels=mid_channels,
             out_channels=out_channels,
+            normalization=normalization,
             activation=None)
 
     def forward(self, x):
@@ -156,6 +162,7 @@ class ResUnit(nn.Module):
                 stride=stride,
                 padding=padding,
                 dilation=dilation,
+                normalization=normalization,
                 conv1_stride=conv1_stride)
         else:
             self.body = ResBlock(
@@ -195,15 +202,19 @@ class ResInitBlock(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
+    normalization : function or None, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
     """
     def __init__(self,
                  in_channels: int,
-                 out_channels: int):
+                 out_channels: int,
+                 normalization: Callable[..., nn.Module | None] | None = lambda_batchnorm2d()):
         super(ResInitBlock, self).__init__()
         self.conv = conv7x7_block(
             in_channels=in_channels,
             out_channels=out_channels,
-            stride=2)
+            stride=2,
+            normalization=normalization)
         self.pool = nn.MaxPool2d(
             kernel_size=3,
             stride=2,
