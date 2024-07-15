@@ -44,7 +44,7 @@ class RAFT(nn.Module):
         # feature network, context network, and update block
         if self.small:
             self.fnet = SmallEncoder(output_dim=128, norm_fn="instance", dropout=self.dropout)
-            self.cnet = SmallEncoder(output_dim=hdim+cdim, norm_fn="none", dropout=self.dropout)
+            self.cnet = SmallEncoder(output_dim=hdim + cdim, norm_fn="none", dropout=self.dropout)
             self.update_block = SmallUpdateBlock(
                 corr_levels=self.corr_levels,
                 corr_radius=self.corr_radius,
@@ -52,7 +52,7 @@ class RAFT(nn.Module):
 
         else:
             self.fnet = BasicEncoder(output_dim=256, norm_fn="instance", dropout=self.dropout)
-            self.cnet = BasicEncoder(output_dim=hdim+cdim, norm_fn="batch", dropout=self.dropout)
+            self.cnet = BasicEncoder(output_dim=hdim + cdim, norm_fn="batch", dropout=self.dropout)
             self.update_block = BasicUpdateBlock(
                 corr_levels=self.corr_levels,
                 corr_radius=self.corr_radius,
@@ -66,8 +66,8 @@ class RAFT(nn.Module):
     def initialize_flow(self, img):
         """ Flow is represented as difference between two coordinate grids flow = coords1 - coords0"""
         N, C, H, W = img.shape
-        coords0 = coords_grid(N, H//8, W//8).to(img.device)
-        coords1 = coords_grid(N, H//8, W//8).to(img.device)
+        coords0 = coords_grid(N, H // 8, W // 8).to(img.device)
+        coords1 = coords_grid(N, H // 8, W // 8).to(img.device)
 
         # optical flow computed as difference: flow = coords1 - coords0
         return coords0, coords1
@@ -83,7 +83,7 @@ class RAFT(nn.Module):
 
         up_flow = torch.sum(mask * up_flow, dim=2)
         up_flow = up_flow.permute(0, 1, 4, 2, 5, 3)
-        return up_flow.reshape(N, 2, 8*H, 8*W)
+        return up_flow.reshape(N, 2, 8 * H, 8 * W)
 
     def forward(self, image1, image2, iters=12, flow_init=None, test_mode=True):
         """ Estimate optical flow between pair of frames """
@@ -102,7 +102,7 @@ class RAFT(nn.Module):
 
         fmap1 = fmap1.float()
         fmap2 = fmap2.float()
-        
+
         corr_fn = CorrBlock(fmap1, fmap2, radius=self.corr_radius)
 
         # run the context network
@@ -119,7 +119,7 @@ class RAFT(nn.Module):
         flow_predictions = []
         for itr in range(iters):
             coords1 = coords1.detach()
-            corr = corr_fn(coords1) # index correlation volume
+            corr = corr_fn(coords1)  # index correlation volume
 
             flow = coords1 - coords0
             net, up_mask, delta_flow = self.update_block(net, inp, corr, flow)

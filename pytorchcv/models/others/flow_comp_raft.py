@@ -54,9 +54,8 @@ class RAFT_bi(nn.Module):
             _, gt_flows_forward = self.fix_raft(gtlf_1, gtlf_2, iters=iters, test_mode=True)
             _, gt_flows_backward = self.fix_raft(gtlf_2, gtlf_1, iters=iters, test_mode=True)
 
-
-        gt_flows_forward = gt_flows_forward.view(b, l_t-1, 2, h, w)
-        gt_flows_backward = gt_flows_backward.view(b, l_t-1, 2, h, w)
+        gt_flows_forward = gt_flows_forward.view(b, l_t - 1, 2, h, w)
+        gt_flows_backward = gt_flows_backward.view(b, l_t - 1, 2, h, w)
 
         return gt_flows_forward, gt_flows_backward
 
