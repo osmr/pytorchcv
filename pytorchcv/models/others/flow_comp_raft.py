@@ -7,12 +7,14 @@ import numpy as np
 from raft import RAFT
 
 
-def initialize_RAFT(model_path='weights/raft-things.pth', device='cuda'):
+def initialize_RAFT(model_path='weights/raft-things.pth',
+                    device='cuda',
+                    small=False):
     """Initializes the RAFT model.
     """
     args = argparse.ArgumentParser()
     args.raft_model = model_path
-    args.small = False
+    args.small = small
     args.mixed_precision = False
     args.alternate_corr = False
     model = torch.nn.DataParallel(RAFT(args))
@@ -26,9 +28,15 @@ def initialize_RAFT(model_path='weights/raft-things.pth', device='cuda'):
 
 class RAFT_bi(nn.Module):
     """Flow completion loss"""
-    def __init__(self, model_path='weights/raft-things.pth', device='cuda'):
+    def __init__(self,
+                 model_path='weights/raft-things.pth',
+                 device='cuda',
+                 small=False):
         super().__init__()
-        self.fix_raft = initialize_RAFT(model_path, device=device)
+        self.fix_raft = initialize_RAFT(
+            model_path,
+            device=device,
+            small=small)
 
         for p in self.fix_raft.parameters():
             p.requires_grad = False
@@ -56,15 +64,29 @@ class RAFT_bi(nn.Module):
 
 
 def _test():
+    raft_small = False
+    # raft_small = True
+
     raft_iter = 20
     root_path = "../../../../pytorchcv_data/test"
-    ckpt_path = os.path.join(root_path, "raft-things.pth")
+
+    if raft_small:
+        raft_model_file_name = "raft-small.pth"
+        y1_file_name = "y1_s.npy"
+        y2_file_name = "y2_s.npy"
+    else:
+        raft_model_file_name = "raft-things.pth"
+        y1_file_name = "y1.npy"
+        y2_file_name = "y2.npy"
+
     fix_raft = RAFT_bi(
-        model_path=ckpt_path,
-        device="cuda")
+        model_path=os.path.join(root_path, raft_model_file_name),
+        device="cuda",
+        small=raft_small)
+
     x_file_path = os.path.join(root_path, "x.npy")
-    y1_file_path = os.path.join(root_path, "y1.npy")
-    y2_file_path = os.path.join(root_path, "y2.npy")
+    y1_file_path = os.path.join(root_path, y1_file_name)
+    y2_file_path = os.path.join(root_path, y2_file_name)
     x = np.load(x_file_path)
     y1 = np.load(y1_file_path)
     y2 = np.load(y2_file_path)
@@ -77,6 +99,9 @@ def _test():
 
     y1_ = flows_f.cpu().detach().numpy()
     y2_ = flows_b.cpu().detach().numpy()
+
+    # np.save(os.path.join(root_path, "y1_s.npy"), np.ascontiguousarray(y1_))
+    # np.save(os.path.join(root_path, "y2_s.npy"), np.ascontiguousarray(y2_))
 
     if not np.array_equal(y1, y1_):
         print("*")
