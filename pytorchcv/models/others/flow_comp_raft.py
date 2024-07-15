@@ -13,17 +13,22 @@ def initialize_RAFT(model_path='weights/raft-things.pth',
     """Initializes the RAFT model.
     """
     args = argparse.ArgumentParser()
-    args.raft_model = model_path
     args.small = small
     args.mixed_precision = False
     args.alternate_corr = False
-    model = torch.nn.DataParallel(RAFT(args))
-    model.load_state_dict(torch.load(args.raft_model, map_location='cpu'))
-    model = model.module
 
-    model.to(device)
+    net = RAFT(args)
+    checkpoint = torch.load(model_path, map_location="cpu")
 
-    return model
+    # net_tmp = torch.nn.DataParallel(net)
+    # net_tmp.load_state_dict(checkpoint)
+    # checkpoint = net_tmp.module.cpu().state_dict()
+
+    net.load_state_dict(checkpoint)
+
+    net.to(device)
+
+    return net
 
 
 class RAFT_bi(nn.Module):
@@ -41,7 +46,6 @@ class RAFT_bi(nn.Module):
         for p in self.fix_raft.parameters():
             p.requires_grad = False
 
-        self.l1_criterion = nn.L1Loss()
         self.eval()
 
     def forward(self, gt_local_frames, iters=20):
@@ -71,11 +75,11 @@ def _test():
     root_path = "../../../../pytorchcv_data/test"
 
     if raft_small:
-        raft_model_file_name = "raft-small.pth"
+        raft_model_file_name = "raft-small_.pth"
         y1_file_name = "y1_s.npy"
         y2_file_name = "y2_s.npy"
     else:
-        raft_model_file_name = "raft-things.pth"
+        raft_model_file_name = "raft-things_.pth"
         y1_file_name = "y1.npy"
         y2_file_name = "y2.npy"
 
