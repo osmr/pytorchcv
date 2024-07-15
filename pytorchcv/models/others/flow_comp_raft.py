@@ -11,11 +11,7 @@ def initialize_RAFT(model_path='weights/raft-things.pth',
                     small=False):
     """Initializes the RAFT model.
     """
-    alternate_corr = False
-
-    net = RAFT(
-        small=small,
-        alternate_corr=alternate_corr)
+    net = RAFT(small=small)
     checkpoint = torch.load(model_path, map_location="cpu")
 
     # net_tmp = torch.nn.DataParallel(net)
@@ -65,10 +61,7 @@ class RAFT_bi(nn.Module):
         return gt_flows_forward, gt_flows_backward
 
 
-def _test():
-    raft_small = False
-    # raft_small = True
-
+def _test(raft_small: bool = False):
     raft_iter = 20
     root_path = "../../../../pytorchcv_data/test"
 
@@ -116,4 +109,5 @@ def _test():
 
 
 if __name__ == "__main__":
-    _test()
+    _test(raft_small=True)
+    _test(raft_small=False)

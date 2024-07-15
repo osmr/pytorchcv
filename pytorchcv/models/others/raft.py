@@ -4,18 +4,16 @@ import torch.nn.functional as F
 
 from update import BasicUpdateBlock, SmallUpdateBlock
 from extractor import BasicEncoder, SmallEncoder
-from corr import CorrBlock, AlternateCorrBlock
+from corr import CorrBlock
 from utils import coords_grid, upflow8
 
 
 class RAFT(nn.Module):
     def __init__(self,
                  small: bool,
-                 alternate_corr: bool = False,
                  dropout: float = 0.0):
         super(RAFT, self).__init__()
         self.small = small
-        self.alternate_corr = alternate_corr
         self.dropout = dropout
 
         if self.small:
@@ -47,7 +45,6 @@ class RAFT(nn.Module):
                 corr_radius=self.corr_radius,
                 hidden_dim=hdim)
 
-
     def freeze_bn(self):
         for m in self.modules():
             if isinstance(m, nn.BatchNorm2d):
@@ -68,13 +65,12 @@ class RAFT(nn.Module):
         mask = mask.view(N, 1, 9, 8, 8, H, W)
         mask = torch.softmax(mask, dim=2)
 
-        up_flow = F.unfold(8 * flow, [3,3], padding=1)
+        up_flow = F.unfold(8 * flow, [3, 3], padding=1)
         up_flow = up_flow.view(N, 2, 9, 1, 1, H, W)
 
         up_flow = torch.sum(mask * up_flow, dim=2)
         up_flow = up_flow.permute(0, 1, 4, 2, 5, 3)
         return up_flow.reshape(N, 2, 8*H, 8*W)
-
 
     def forward(self, image1, image2, iters=12, flow_init=None, test_mode=True):
         """ Estimate optical flow between pair of frames """
@@ -94,10 +90,7 @@ class RAFT(nn.Module):
         fmap1 = fmap1.float()
         fmap2 = fmap2.float()
         
-        if self.alternate_corr:
-            corr_fn = AlternateCorrBlock(fmap1, fmap2, radius=self.corr_radius)
-        else:
-            corr_fn = CorrBlock(fmap1, fmap2, radius=self.corr_radius)
+        corr_fn = CorrBlock(fmap1, fmap2, radius=self.corr_radius)
 
         # run the context network
         cnet = self.cnet(image1)
