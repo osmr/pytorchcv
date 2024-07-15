@@ -1,5 +1,4 @@
 import os
-import argparse
 import torch
 import torch.nn as nn
 import numpy as np
@@ -12,12 +11,13 @@ def initialize_RAFT(model_path='weights/raft-things.pth',
                     small=False):
     """Initializes the RAFT model.
     """
-    args = argparse.ArgumentParser()
-    args.small = small
-    args.mixed_precision = False
-    args.alternate_corr = False
+    mixed_precision = False
+    alternate_corr = False
 
-    net = RAFT(args)
+    net = RAFT(
+        small=small,
+        mixed_precision=mixed_precision,
+        alternate_corr=alternate_corr)
     checkpoint = torch.load(model_path, map_location="cpu")
 
     # net_tmp = torch.nn.DataParallel(net)
