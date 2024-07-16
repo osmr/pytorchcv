@@ -43,6 +43,32 @@ def convert_state_dict(src_checkpoint,
     for src_i, dst_i in zip(list5, list5_u):
         upd_dict[src_i] = dst_i
 
+    list6 = list(filter(re.compile("update_block.gru.").search, src_param_keys))
+    if small:
+        list6_u = [key.replace(".convz.", ".conv_z.conv.") for key in list6]
+        list6_u = [key.replace(".convr.", ".conv_r.conv.") for key in list6_u]
+        list6_u = [key.replace(".convq.", ".conv_q.conv.") for key in list6_u]
+    else:
+        list6_u = [key.replace(".convz1.", ".horizontal_gru.conv_z.conv.") for key in list6]
+        list6_u = [key.replace(".convr1.", ".horizontal_gru.conv_r.conv.") for key in list6_u]
+        list6_u = [key.replace(".convq1.", ".horizontal_gru.conv_q.conv.") for key in list6_u]
+        list6_u = [key.replace(".convz2.", ".vertical_gru.conv_z.conv.") for key in list6_u]
+        list6_u = [key.replace(".convr2.", ".vertical_gru.conv_r.conv.") for key in list6_u]
+        list6_u = [key.replace(".convq2.", ".vertical_gru.conv_q.conv.") for key in list6_u]
+    for src_i, dst_i in zip(list6, list6_u):
+        upd_dict[src_i] = dst_i
+
+    list7 = list(filter(re.compile("update_block.flow_head.").search, src_param_keys))
+    list7_u = [key.replace(".conv1.", ".conv1.conv.") for key in list7]
+    for src_i, dst_i in zip(list7, list7_u):
+        upd_dict[src_i] = dst_i
+
+    list8 = list(filter(re.compile("update_block.mask.").search, src_param_keys))
+    list8_u = [key.replace(".0.", ".conv1.conv.") for key in list8]
+    list8_u = [key.replace(".2.", ".conv2.") for key in list8_u]
+    for src_i, dst_i in zip(list8, list8_u):
+        upd_dict[src_i] = dst_i
+
     list4 = list(filter(re.compile("net.layer").search, src_param_keys))
     list4_u = [key.replace("net.layer1.0.", "net.features.stage1.unit1.body.") for key in list4]
     list4_u = [key.replace("net.layer1.1.", "net.features.stage1.unit2.body.") for key in list4_u]

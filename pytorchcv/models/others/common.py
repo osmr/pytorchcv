@@ -3,8 +3,8 @@
 """
 
 __all__ = ['round_channels', 'Identity', 'BreakBlock', 'Swish', 'HSigmoid', 'HSwish', 'lambda_relu', 'lambda_relu6',
-           'lambda_prelu', 'lambda_leakyrelu', 'lambda_sigmoid', 'lambda_hsigmoid', 'lambda_swish', 'lambda_hswish',
-           'lambda_batchnorm1d', 'lambda_batchnorm2d', 'lambda_instancenorm2d', 'lambda_groupnorm',
+           'lambda_prelu', 'lambda_leakyrelu', 'lambda_sigmoid', 'lambda_tanh', 'lambda_hsigmoid', 'lambda_swish',
+           'lambda_hswish', 'lambda_batchnorm1d', 'lambda_batchnorm2d', 'lambda_instancenorm2d', 'lambda_groupnorm',
            'create_activation_layer', 'create_normalization_layer', 'SelectableDense', 'DenseBlock', 'ConvBlock1d',
            'conv1x1', 'conv3x3', 'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block', 'conv5x5_block',
            'conv7x7_block', 'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block', 'dwsconv3x3_block', 'PreConvBlock',
@@ -192,6 +192,18 @@ def lambda_sigmoid() -> Callable[[], nn.Module]:
         Desired function.
     """
     return lambda: nn.Sigmoid()
+
+
+def lambda_tanh() -> Callable[[], nn.Module]:
+    """
+    Create lambda-function generator for nn.Tanh activation layer.
+
+    Returns
+    -------
+    function
+        Desired function.
+    """
+    return lambda: nn.Tanh()
 
 
 def lambda_hsigmoid() -> Callable[[], nn.Module]:
