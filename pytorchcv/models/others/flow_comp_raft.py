@@ -18,6 +18,12 @@ def convert_state_dict(src_checkpoint, dst_checkpoint):
     list1_u = [key.replace("net.conv1.", "net.features.init_block.conv.") for key in list1]
     for src_i, dst_i in zip(list1, list1_u):
         upd_dict[src_i] = dst_i
+
+    list2 = list(filter(re.compile("net.conv2.").search, src_param_keys))
+    list2_u = [key.replace("net.conv2.", "net.features.final_block.") for key in list2]
+    for src_i, dst_i in zip(list2, list2_u):
+        upd_dict[src_i] = dst_i
+
     list3 = list(filter(re.compile("net.norm1.").search, src_param_keys))
     list3_u = [key.replace("net.norm1.", "net.features.init_block.bn.") for key in list3]
     for src_i, dst_i in zip(list3, list3_u):
@@ -41,52 +47,6 @@ def convert_state_dict(src_checkpoint, dst_checkpoint):
     for src_i, dst_i in zip(list4, list4_u):
         if src_i not in list4_r:
             upd_dict[src_i] = dst_i
-
-
-    # upd_dict2 = {
-    #     "fnet.layer1.0.conv1.weight": "fnet.features.stage1.unit1.body.conv1.conv.weight",
-    #     "fnet.layer1.0.conv1.bias": "fnet.features.stage1.unit1.body.conv1.conv.bias",
-    #
-    #     "fnet.layer1.0.conv2.weight": "fnet.features.stage1.unit1.body.conv2.conv.weight",
-    #     "fnet.layer1.0.conv2.bias": "fnet.features.stage1.unit1.body.conv2.conv.bias",
-    #
-    #     "fnet.layer1.1.conv1.weight": "fnet.features.stage1.unit2.body.conv1.conv.weight",
-    #     "fnet.layer1.1.conv1.bias": "fnet.features.stage1.unit2.body.conv1.conv.bias",
-    #
-    #     "fnet.layer1.1.conv2.weight": "fnet.features.stage1.unit2.body.conv2.conv.weight",
-    #     "fnet.layer1.1.conv2.bias": "fnet.features.stage1.unit2.body.conv2.conv.bias",
-    #
-    #     "fnet.layer2.0.conv1.weight": "fnet.features.stage2.unit1.body.conv1.conv.weight",
-    #     "fnet.layer2.0.conv1.bias": "fnet.features.stage2.unit1.body.conv1.conv.bias",
-    #
-    #     "fnet.layer2.0.conv2.weight": "fnet.features.stage2.unit1.body.conv2.conv.weight",
-    #     "fnet.layer2.0.conv2.bias": "fnet.features.stage2.unit1.body.conv2.conv.bias",
-    #
-    #     "fnet.layer2.0.downsample.0.weight": "fnet.features.stage2.unit1.identity_conv.conv.weight",
-    #     "fnet.layer2.0.downsample.0.bias": "fnet.features.stage2.unit1.identity_conv.conv.bias",
-    #
-    #     "fnet.layer2.1.conv1.weight": "fnet.features.stage2.unit2.body.conv1.conv.weight",
-    #     "fnet.layer2.1.conv1.bias": "fnet.features.stage2.unit2.body.conv1.conv.bias",
-    #
-    #     "fnet.layer2.1.conv2.weight": "fnet.features.stage2.unit2.body.conv2.conv.weight",
-    #     "fnet.layer2.1.conv2.bias": "fnet.features.stage2.unit2.body.conv2.conv.bias",
-    #
-    #     "fnet.layer3.0.conv1.weight": "fnet.features.stage3.unit1.body.conv1.conv.weight",
-    #     "fnet.layer3.0.conv1.bias": "fnet.features.stage3.unit1.body.conv1.conv.bias",
-    #
-    #     "fnet.layer3.0.conv2.weight": "fnet.features.stage3.unit1.body.conv2.conv.weight",
-    #     "fnet.layer3.0.conv2.bias": "fnet.features.stage3.unit1.body.conv2.conv.bias",
-    #
-    #     "fnet.layer3.0.downsample.0.weight": "fnet.features.stage3.unit1.identity_conv.conv.weight",
-    #     "fnet.layer3.0.downsample.0.bias": "fnet.features.stage3.unit1.identity_conv.conv.bias",
-    #
-    #     "fnet.layer3.1.conv1.weight": "fnet.features.stage3.unit2.body.conv1.conv.weight",
-    #     "fnet.layer3.1.conv1.bias": "fnet.features.stage3.unit2.body.conv1.conv.bias",
-    #
-    #     "fnet.layer3.1.conv2.weight": "fnet.features.stage3.unit2.body.conv2.conv.weight",
-    #     "fnet.layer3.1.conv2.bias": "fnet.features.stage3.unit2.body.conv2.conv.bias",
-    # }
-    # upd_dict.update(upd_dict2)
 
     for k, v in src_checkpoint.items():
         if k in upd_dict.keys():
