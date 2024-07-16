@@ -119,7 +119,8 @@ class BottleneckBlock(nn.Module):
         if self.downsample is not None:
             x = self.downsample(x)
 
-        return self.relu(x + y)
+        out = self.relu(x + y)
+        return out
 
 
 class BasicEncoder(nn.Module):

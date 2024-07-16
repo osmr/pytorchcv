@@ -8,7 +8,9 @@ from raft0 import RAFT0
 from raft import RAFT
 
 
-def convert_state_dict(src_checkpoint, dst_checkpoint):
+def convert_state_dict(src_checkpoint,
+                       dst_checkpoint,
+                       small=False):
 
     src_param_keys = list(src_checkpoint.keys())
 
@@ -29,6 +31,14 @@ def convert_state_dict(src_checkpoint, dst_checkpoint):
     for src_i, dst_i in zip(list3, list3_u):
         upd_dict[src_i] = dst_i
 
+    list5 = list(filter(re.compile("update_block.encoder.").search, src_param_keys))
+    list5_u = [key.replace(".conv.", ".conv_out.conv.") for key in list5]
+    list5_u = [key.replace(".convc1.", ".conv_corr.conv.") for key in list5_u]
+    list5_u = [key.replace(".convf1.", ".conv_flow.conv_list.conv1.conv.") for key in list5_u]
+    list5_u = [key.replace(".convf2.", ".conv_flow.conv_list.conv2.conv.") for key in list5_u]
+    for src_i, dst_i in zip(list5, list5_u):
+        upd_dict[src_i] = dst_i
+
     list4 = list(filter(re.compile("net.layer").search, src_param_keys))
     list4_u = [key.replace("net.layer1.0.", "net.features.stage1.unit1.body.") for key in list4]
     list4_u = [key.replace("net.layer1.1.", "net.features.stage1.unit2.body.") for key in list4_u]
@@ -40,10 +50,16 @@ def convert_state_dict(src_checkpoint, dst_checkpoint):
     list4_u = [key.replace(".body.downsample.1.", ".identity_conv.bn.") for key in list4_u]
     list4_u = [key.replace(".conv1.", ".conv1.conv.") for key in list4_u]
     list4_u = [key.replace(".conv2.", ".conv2.conv.") for key in list4_u]
+    if small:
+        list4_u = [key.replace(".conv3.", ".conv3.conv.") for key in list4_u]
     list4_u = [key.replace(".norm1.", ".conv1.bn.") for key in list4_u]
     list4_u = [key.replace(".norm2.", ".conv2.bn.") for key in list4_u]
 
-    list4_r = list(filter(re.compile(".norm3.").search, list4))
+    if small:
+        list4_r = list(filter(re.compile(".norm4.").search, list4))
+    else:
+        list4_r = list(filter(re.compile(".norm3.").search, list4))
+
     for src_i, dst_i in zip(list4, list4_u):
         if src_i not in list4_r:
             upd_dict[src_i] = dst_i
@@ -79,7 +95,10 @@ def initialize_RAFT(model_path='weights/raft-things.pth',
         dst_checkpoint = src_checkpoint
     else:
         dst_checkpoint = net.state_dict()
-        convert_state_dict(src_checkpoint, dst_checkpoint)
+        convert_state_dict(
+            src_checkpoint,
+            dst_checkpoint,
+            small)
 
     net.load_state_dict(dst_checkpoint)
 

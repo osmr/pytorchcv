@@ -216,5 +216,5 @@ def _test(raft_small: bool = False,
 
 if __name__ == "__main__":
     raft_orig = True
-    # _test(raft_small=True, raft_orig=raft_orig)
-    _test(raft_small=False, raft_orig=raft_orig)
+    _test(raft_small=True, raft_orig=raft_orig)
+    # _test(raft_small=False, raft_orig=raft_orig)

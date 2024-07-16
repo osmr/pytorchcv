@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from typing import Callable
+from common import lambda_relu, conv1x1_block, conv3x3_block, conv7x7_block, ConvBlock, Concurrent
 
 
 class FlowHead(nn.Module):
@@ -67,24 +69,154 @@ class SepConvGRU(nn.Module):
         return h
 
 
+class Conv1x1Branch(nn.Module):
+    """
+    Inception specific convolutional 1x1 branch block.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    normalization : function or None
+        Lambda-function generator for normalization layer.
+    """
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 normalization: Callable[..., nn.Module | None] | None):
+        super(Conv1x1Branch, self).__init__()
+        self.conv = conv1x1_block(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            normalization=normalization)
+
+    def forward(self, x):
+        x = self.conv(x)
+        return x
+
+
+class ConvSeqBranch(nn.Module):
+    """
+    Inception specific convolutional sequence branch block.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels_list : list(int) or tuple(int, ...)
+        List of numbers of output channels.
+    kernel_size_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
+        List of convolution window sizes.
+    strides_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
+        List of strides of the convolution.
+    padding_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
+        List of padding values for convolution layers.
+    bias : bool, default False
+        Whether the layer uses a bias vector.
+    normalization : function or None, default lambda_relu()
+        Lambda-function generator for normalization layer.
+    """
+    def __init__(self,
+                 in_channels: int,
+                 out_channels_list: list[int] | tuple[int, ...],
+                 kernel_size_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
+                 strides_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
+                 padding_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
+                 bias: bool = False,
+                 normalization: Callable[..., nn.Module | None] | None = lambda_relu()):
+        super(ConvSeqBranch, self).__init__()
+        assert (len(out_channels_list) == len(kernel_size_list))
+        assert (len(out_channels_list) == len(strides_list))
+        assert (len(out_channels_list) == len(padding_list))
+
+        self.conv_list = nn.Sequential()
+        for i, (out_channels, kernel_size, strides, padding) in enumerate(zip(
+                out_channels_list, kernel_size_list, strides_list, padding_list)):
+            self.conv_list.add_module("conv{}".format(i + 1), ConvBlock(
+                in_channels=in_channels,
+                out_channels=out_channels,
+                kernel_size=kernel_size,
+                stride=strides,
+                padding=padding,
+                bias=bias,
+                normalization=normalization))
+            in_channels = out_channels
+
+    def forward(self, x):
+        x = self.conv_list(x)
+        return x
+
+
 class SmallMotionEncoder(nn.Module):
     def __init__(self,
                  corr_levels,
                  corr_radius):
         super(SmallMotionEncoder, self).__init__()
         cor_planes = corr_levels * (2 * corr_radius + 1) ** 2
-        self.convc1 = nn.Conv2d(cor_planes, 96, 1, padding=0)
-        self.convf1 = nn.Conv2d(2, 64, 7, padding=3)
-        self.convf2 = nn.Conv2d(64, 32, 3, padding=1)
-        self.conv = nn.Conv2d(128, 80, 3, padding=1)
+
+        # self.branches = Concurrent()
+        # self.branches.add_module("branch1", Conv1x1Branch(
+        #     in_channels=cor_planes,
+        #     out_channels=96,
+        #     normalization=None))
+        # self.branches.add_module("branch2", ConvSeqBranch(
+        #     in_channels=2,
+        #     out_channels_list=(64, 32),
+        #     kernel_size_list=(7, 3),
+        #     strides_list=(1, 1),
+        #     padding_list=(3, 1),
+        #     normalization=None))
+
+        self.conv_corr = conv1x1_block(
+            in_channels=cor_planes,
+            out_channels=96,
+            bias=True,
+            normalization=None)
+
+        self.conv_flow = ConvSeqBranch(
+            in_channels=2,
+            out_channels_list=(64, 32),
+            kernel_size_list=(7, 3),
+            strides_list=(1, 1),
+            padding_list=(3, 1),
+            bias=True,
+            normalization=None)
+
+        # self.conv_f1 = conv7x7_block(
+        #     in_channels=2,
+        #     out_channels=64,
+        #     normalization=None)
+        # self.conv_f2 = conv3x3_block(
+        #     in_channels=64,
+        #     out_channels=32,
+        #     normalization=None)
+        self.conv_out = conv3x3_block(
+            in_channels=128,
+            out_channels=80,
+            bias=True,
+            normalization=None)
+
+        # self.convc1 = nn.Conv2d(cor_planes, 96, 1, padding=0)
+        # self.convf1 = nn.Conv2d(2, 64, 7, padding=3)
+        # self.convf2 = nn.Conv2d(64, 32, 3, padding=1)
+        # self.conv = nn.Conv2d(128, 80, 3, padding=1)
 
     def forward(self, flow, corr):
-        cor = F.relu(self.convc1(corr))
-        flo = F.relu(self.convf1(flow))
-        flo = F.relu(self.convf2(flo))
-        cor_flo = torch.cat([cor, flo], dim=1)
-        out = F.relu(self.conv(cor_flo))
-        return torch.cat([out, flow], dim=1)
+        corr1 = self.conv_corr(corr)
+        flow1 = self.conv_flow(flow)
+        out = torch.cat([corr1, flow1], dim=1)
+        out = self.conv_out(out)
+        out = torch.cat([out, flow], dim=1)
+        return out
+
+        # cor = F.relu(self.convc1(corr))
+        # flo = F.relu(self.convf1(flow))
+        # flo = F.relu(self.convf2(flo))
+        # cor_flo = torch.cat([cor, flo], dim=1)
+        # out = F.relu(self.conv(cor_flo))
+        # return torch.cat([out, flow], dim=1)
 
 
 class BasicMotionEncoder(nn.Module):

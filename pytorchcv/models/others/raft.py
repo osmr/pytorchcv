@@ -24,10 +24,10 @@ def upflow8(flow,
 class RAFT(nn.Module):
     def __init__(self,
                  small: bool,
-                 dropout: float = 0.0):
+                 dropout_rate: float = 0.0):
         super(RAFT, self).__init__()
         self.small = small
-        self.dropout = dropout
+        self.dropout_rate = dropout_rate
 
         if self.small:
             self.hidden_dim = hdim = 96
@@ -43,16 +43,16 @@ class RAFT(nn.Module):
 
         # feature network, context network, and update block
         if self.small:
-            self.fnet = SmallEncoder(output_dim=128, norm_fn="instance", dropout=self.dropout)
-            self.cnet = SmallEncoder(output_dim=hdim + cdim, norm_fn="none", dropout=self.dropout)
+            self.fnet = SmallEncoder(output_dim=128, norm_fn="instance", dropout_rate=self.dropout_rate)
+            self.cnet = SmallEncoder(output_dim=hdim + cdim, norm_fn="none", dropout_rate=self.dropout_rate)
             self.update_block = SmallUpdateBlock(
                 corr_levels=self.corr_levels,
                 corr_radius=self.corr_radius,
                 hidden_dim=hdim)
 
         else:
-            self.fnet = BasicEncoder(output_dim=256, norm_fn="instance", dropout=self.dropout)
-            self.cnet = BasicEncoder(output_dim=hdim + cdim, norm_fn="batch", dropout=self.dropout)
+            self.fnet = BasicEncoder(output_dim=256, norm_fn="instance", dropout_rate=self.dropout_rate)
+            self.cnet = BasicEncoder(output_dim=hdim + cdim, norm_fn="batch", dropout_rate=self.dropout_rate)
             self.update_block = BasicUpdateBlock(
                 corr_levels=self.corr_levels,
                 corr_radius=self.corr_radius,
