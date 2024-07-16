@@ -735,7 +735,7 @@ class ConvBlock(nn.Module):
             if self.bn is None:
                 self.normalize = False
             else:
-                assert isinstance(self.bn, nn.BatchNorm2d)
+                # assert isinstance(self.bn, nn.BatchNorm2d)
                 assert isinstance(self.bn, nn.Module)
         if self.activate:
             self.activ = create_activation_layer(activation)
