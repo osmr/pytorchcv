@@ -33,7 +33,11 @@ def convert_state_dict(src_checkpoint,
 
     list5 = list(filter(re.compile("update_block.encoder.").search, src_param_keys))
     list5_u = [key.replace(".conv.", ".conv_out.conv.") for key in list5]
-    list5_u = [key.replace(".convc1.", ".conv_corr.conv.") for key in list5_u]
+    if small:
+        list5_u = [key.replace(".convc1.", ".conv_corr.conv.") for key in list5_u]
+    else:
+        list5_u = [key.replace(".convc1.", ".conv_corr.conv_list.conv1.conv.") for key in list5_u]
+        list5_u = [key.replace(".convc2.", ".conv_corr.conv_list.conv2.conv.") for key in list5_u]
     list5_u = [key.replace(".convf1.", ".conv_flow.conv_list.conv1.conv.") for key in list5_u]
     list5_u = [key.replace(".convf2.", ".conv_flow.conv_list.conv2.conv.") for key in list5_u]
     for src_i, dst_i in zip(list5, list5_u):
@@ -195,5 +199,5 @@ def _test(raft_small: bool = False,
 
 if __name__ == "__main__":
     raft_orig = False
-    # _test(raft_small=True, raft_orig=raft_orig)
+    _test(raft_small=True, raft_orig=raft_orig)
     _test(raft_small=False, raft_orig=raft_orig)

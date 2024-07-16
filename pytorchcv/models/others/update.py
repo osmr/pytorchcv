@@ -156,25 +156,11 @@ class SmallMotionEncoder(nn.Module):
         super(SmallMotionEncoder, self).__init__()
         cor_planes = corr_levels * (2 * corr_radius + 1) ** 2
 
-        # self.branches = Concurrent()
-        # self.branches.add_module("branch1", Conv1x1Branch(
-        #     in_channels=cor_planes,
-        #     out_channels=96,
-        #     normalization=None))
-        # self.branches.add_module("branch2", ConvSeqBranch(
-        #     in_channels=2,
-        #     out_channels_list=(64, 32),
-        #     kernel_size_list=(7, 3),
-        #     strides_list=(1, 1),
-        #     padding_list=(3, 1),
-        #     normalization=None))
-
         self.conv_corr = conv1x1_block(
             in_channels=cor_planes,
             out_channels=96,
             bias=True,
             normalization=None)
-
         self.conv_flow = ConvSeqBranch(
             in_channels=2,
             out_channels_list=(64, 32),
@@ -183,25 +169,11 @@ class SmallMotionEncoder(nn.Module):
             padding_list=(3, 1),
             bias=True,
             normalization=None)
-
-        # self.conv_f1 = conv7x7_block(
-        #     in_channels=2,
-        #     out_channels=64,
-        #     normalization=None)
-        # self.conv_f2 = conv3x3_block(
-        #     in_channels=64,
-        #     out_channels=32,
-        #     normalization=None)
         self.conv_out = conv3x3_block(
             in_channels=128,
             out_channels=80,
             bias=True,
             normalization=None)
-
-        # self.convc1 = nn.Conv2d(cor_planes, 96, 1, padding=0)
-        # self.convf1 = nn.Conv2d(2, 64, 7, padding=3)
-        # self.convf2 = nn.Conv2d(64, 32, 3, padding=1)
-        # self.conv = nn.Conv2d(128, 80, 3, padding=1)
 
     def forward(self, flow, corr):
         corr1 = self.conv_corr(corr)
@@ -211,13 +183,6 @@ class SmallMotionEncoder(nn.Module):
         out = torch.cat([out, flow], dim=1)
         return out
 
-        # cor = F.relu(self.convc1(corr))
-        # flo = F.relu(self.convf1(flow))
-        # flo = F.relu(self.convf2(flo))
-        # cor_flo = torch.cat([cor, flo], dim=1)
-        # out = F.relu(self.conv(cor_flo))
-        # return torch.cat([out, flow], dim=1)
-
 
 class BasicMotionEncoder(nn.Module):
     def __init__(self,
@@ -225,21 +190,36 @@ class BasicMotionEncoder(nn.Module):
                  corr_radius):
         super(BasicMotionEncoder, self).__init__()
         cor_planes = corr_levels * (2 * corr_radius + 1) ** 2
-        self.convc1 = nn.Conv2d(cor_planes, 256, 1, padding=0)
-        self.convc2 = nn.Conv2d(256, 192, 3, padding=1)
-        self.convf1 = nn.Conv2d(2, 128, 7, padding=3)
-        self.convf2 = nn.Conv2d(128, 64, 3, padding=1)
-        self.conv = nn.Conv2d(64 + 192, 128 - 2, 3, padding=1)
+
+        self.conv_corr = ConvSeqBranch(
+            in_channels=cor_planes,
+            out_channels_list=(256, 192),
+            kernel_size_list=(1, 3),
+            strides_list=(1, 1),
+            padding_list=(0, 1),
+            bias=True,
+            normalization=None)
+        self.conv_flow = ConvSeqBranch(
+            in_channels=2,
+            out_channels_list=(128, 64),
+            kernel_size_list=(7, 3),
+            strides_list=(1, 1),
+            padding_list=(3, 1),
+            bias=True,
+            normalization=None)
+        self.conv_out = conv3x3_block(
+            in_channels=(64 + 192),
+            out_channels=(128 - 2),
+            bias=True,
+            normalization=None)
 
     def forward(self, flow, corr):
-        cor = F.relu(self.convc1(corr))
-        cor = F.relu(self.convc2(cor))
-        flo = F.relu(self.convf1(flow))
-        flo = F.relu(self.convf2(flo))
-
-        cor_flo = torch.cat([cor, flo], dim=1)
-        out = F.relu(self.conv(cor_flo))
-        return torch.cat([out, flow], dim=1)
+        corr1 = self.conv_corr(corr)
+        flow1 = self.conv_flow(flow)
+        out = torch.cat([corr1, flow1], dim=1)
+        out = self.conv_out(out)
+        out = torch.cat([out, flow], dim=1)
+        return out
 
 
 class SmallUpdateBlock(nn.Module):
