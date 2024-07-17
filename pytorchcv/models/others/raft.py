@@ -4,12 +4,55 @@
     https://arxiv.org/pdf/2003.12039.
 """
 
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Callable
 from common import (lambda_relu, lambda_sigmoid, lambda_tanh, lambda_batchnorm2d, lambda_instancenorm2d,
-                    lambda_groupnorm, conv1x1, conv3x3, conv1x1_block, conv3x3_block, conv7x7_block, ConvBlock)
+                    conv1x1, conv3x3, conv1x1_block, conv3x3_block, conv7x7_block, ConvBlock)
+
+
+def coords_grid(batch,
+                ht,
+                wd):
+    coords = torch.meshgrid(torch.arange(ht), torch.arange(wd))
+    coords = torch.stack(coords[::-1], dim=0).float()
+    return coords[None].repeat(batch, 1, 1, 1)
+
+
+def initialize_flow(img):
+    """
+    Flow is represented as difference between two coordinate grids flow = coords1 - coords0.
+    """
+    N, C, H, W = img.shape
+    coords0 = coords_grid(N, H // 8, W // 8).to(img.device)
+    coords1 = coords_grid(N, H // 8, W // 8).to(img.device)
+
+    # optical flow computed as difference: flow = coords1 - coords0
+    return coords0, coords1
+
+
+def upflow8(flow,
+            mode="bilinear"):
+    new_size = (8 * flow.shape[2], 8 * flow.shape[3])
+    return 8 * F.interpolate(flow, size=new_size, mode=mode, align_corners=True)
+
+
+def upsample_flow(flow, mask):
+    """
+    Upsample flow field [H/8, W/8, 2] -> [H, W, 2] using convex combination.
+    """
+    N, _, H, W = flow.shape
+    mask = mask.view(N, 1, 9, 8, 8, H, W)
+    mask = torch.softmax(mask, dim=2)
+
+    up_flow = F.unfold(8 * flow, [3, 3], padding=1)
+    up_flow = up_flow.view(N, 2, 9, 1, 1, H, W)
+
+    up_flow = torch.sum(mask * up_flow, dim=2)
+    up_flow = up_flow.permute(0, 1, 4, 2, 5, 3)
+    return up_flow.reshape(N, 2, 8 * H, 8 * W)
 
 
 def bilinear_sampler(img,
@@ -284,30 +327,18 @@ class ResUnit(nn.Module):
         return x
 
 
-class BasicEncoder(nn.Module):
+class RAFTEncoder(nn.Module):
     def __init__(self,
-                 output_dim,
-                 norm_fn,
+                 in_channels: int,
+                 init_block_channels: int,
+                 mid_channels: list[list[int]],
+                 final_block_channels: int,
+                 bottleneck: bool,
+                 normalization: Callable[..., nn.Module | None] | None = lambda_batchnorm2d(),
                  dropout_rate=0.0):
-        super(BasicEncoder, self).__init__()
-        in_channels = 3
-        init_block_channels = 64
-        final_block_channels = output_dim
-        channels = [[64, 64], [96, 96], [128, 128]]
-        bottleneck = False
+        super(RAFTEncoder, self).__init__()
         conv1_stride = False
         final_activation = lambda_relu()
-
-        if norm_fn == "group":
-            normalization = lambda_groupnorm(num_groups=8)
-        elif norm_fn == "batch":
-            normalization = lambda_batchnorm2d()
-        elif norm_fn == "instance":
-            normalization = lambda_instancenorm2d()
-        elif norm_fn == "none":
-            normalization = None
-        else:
-            assert False
 
         self.features = nn.Sequential()
         self.features.add_module("init_block", conv7x7_block(
@@ -317,92 +348,7 @@ class BasicEncoder(nn.Module):
             bias=True,
             normalization=normalization))
         in_channels = init_block_channels
-        for i, channels_per_stage in enumerate(channels):
-            stage = nn.Sequential()
-            for j, out_channels in enumerate(channels_per_stage):
-                stride = 2 if (j == 0) and (i != 0) else 1
-                stage.add_module("unit{}".format(j + 1), ResUnit(
-                    in_channels=in_channels,
-                    out_channels=out_channels,
-                    stride=stride,
-                    bias=True,
-                    normalization=normalization,
-                    bottleneck=bottleneck,
-                    conv1_stride=conv1_stride,
-                    final_activation=final_activation))
-                in_channels = out_channels
-            self.features.add_module("stage{}".format(i + 1), stage)
-        self.features.add_module("final_block", conv1x1(
-            in_channels=in_channels,
-            out_channels=final_block_channels,
-            bias=True))
-        if dropout_rate > 0.0:
-            self.features.add_module("dropout", nn.Dropout(p=dropout_rate))
-
-        self._init_params()
-
-    def _init_params(self):
-        for name, module in self.named_modules():
-            if isinstance(module, nn.Conv2d):
-                nn.init.kaiming_uniform_(module.weight, mode="fan_out", nonlinearity="relu")
-                if module.bias is not None:
-                    nn.init.constant_(module.bias, 0)
-            elif isinstance(module, (nn.BatchNorm2d, nn.InstanceNorm2d, nn.GroupNorm)):
-                if module.weight is not None:
-                    nn.init.constant_(module.weight, 1)
-                if module.bias is not None:
-                    nn.init.constant_(module.bias, 0)
-
-    def forward(self, x):
-
-        # if input is list, combine batch dimension
-        is_list = isinstance(x, tuple) or isinstance(x, list)
-        if is_list:
-            batch_dim = x[0].shape[0]
-            x = torch.cat(x, dim=0)
-
-        x = self.features(x)
-
-        if is_list:
-            x = torch.split(x, [batch_dim, batch_dim], dim=0)
-
-        return x
-
-
-class SmallEncoder(nn.Module):
-    def __init__(self,
-                 output_dim,
-                 norm_fn,
-                 dropout_rate=0.0):
-        super(SmallEncoder, self).__init__()
-        in_channels = 3
-        init_block_channels = 32
-        final_block_channels = output_dim
-        channels = [[32, 32], [64, 64], [96, 96]]
-        bottleneck = True
-        conv1_stride = False
-        final_activation = lambda_relu()
-
-        if norm_fn == "group":
-            normalization = lambda_groupnorm(num_groups=8)
-        elif norm_fn == "batch":
-            normalization = lambda_batchnorm2d()
-        elif norm_fn == "instance":
-            normalization = lambda_instancenorm2d()
-        elif norm_fn == "none":
-            normalization = None
-        else:
-            assert False
-
-        self.features = nn.Sequential()
-        self.features.add_module("init_block", conv7x7_block(
-            in_channels=in_channels,
-            out_channels=init_block_channels,
-            stride=2,
-            bias=True,
-            normalization=normalization))
-        in_channels = init_block_channels
-        for i, channels_per_stage in enumerate(channels):
+        for i, channels_per_stage in enumerate(mid_channels):
             stage = nn.Sequential()
             for j, out_channels in enumerate(channels_per_stage):
                 stride = 2 if (j == 0) and (i != 0) else 1
@@ -506,67 +452,46 @@ class ConvSeqBranch(nn.Module):
         return x
 
 
-class SmallMotionEncoder(nn.Module):
+class RAFTMotionEncoder(nn.Module):
     def __init__(self,
-                 corr_levels,
-                 corr_radius):
-        super(SmallMotionEncoder, self).__init__()
+                 corr_levels: int,
+                 corr_radius: int,
+                 corr_out_channels_list: tuple[int, ...],
+                 flow_out_channels_list: tuple[int, ...],
+                 mout_in_channels: int,
+                 mout_out_channels: int):
+        super(RAFTMotionEncoder, self).__init__()
         cor_planes = corr_levels * (2 * corr_radius + 1) ** 2
 
-        self.conv_corr = conv1x1_block(
-            in_channels=cor_planes,
-            out_channels=96,
-            bias=True,
-            normalization=None)
-        self.conv_flow = ConvSeqBranch(
-            in_channels=2,
-            out_channels_list=(64, 32),
-            kernel_size_list=(7, 3),
-            strides_list=(1, 1),
-            padding_list=(3, 1),
-            bias=True,
-            normalization=None)
-        self.conv_out = conv3x3_block(
-            in_channels=128,
-            out_channels=80,
-            bias=True,
-            normalization=None)
-
-    def forward(self, corr, flow):
-        corr1 = self.conv_corr(corr)
-        flow1 = self.conv_flow(flow)
-        out = torch.cat([corr1, flow1], dim=1)
-        out = self.conv_out(out)
-        out = torch.cat([out, flow], dim=1)
-        return out
-
-
-class BasicMotionEncoder(nn.Module):
-    def __init__(self,
-                 corr_levels,
-                 corr_radius):
-        super(BasicMotionEncoder, self).__init__()
-        cor_planes = corr_levels * (2 * corr_radius + 1) ** 2
+        if len(corr_out_channels_list) == 1:
+            corr_kernel_size_list = (1,)
+            corr_strides_list = (1,)
+            corr_padding_list = (0,)
+        else:
+            assert (len(corr_out_channels_list) == 2)
+            corr_kernel_size_list = (1, 3)
+            corr_strides_list = (1, 1)
+            corr_padding_list = (0, 1)
 
         self.conv_corr = ConvSeqBranch(
             in_channels=cor_planes,
-            out_channels_list=(256, 192),
-            kernel_size_list=(1, 3),
-            strides_list=(1, 1),
-            padding_list=(0, 1),
+            out_channels_list=corr_out_channels_list,
+            kernel_size_list=corr_kernel_size_list,
+            strides_list=corr_strides_list,
+            padding_list=corr_padding_list,
             bias=True,
             normalization=None)
         self.conv_flow = ConvSeqBranch(
             in_channels=2,
-            out_channels_list=(128, 64),
+            out_channels_list=flow_out_channels_list,
             kernel_size_list=(7, 3),
             strides_list=(1, 1),
             padding_list=(3, 1),
             bias=True,
             normalization=None)
         self.conv_out = conv3x3_block(
-            in_channels=(64 + 192),
-            out_channels=(128 - 2),
+            in_channels=mout_in_channels,
+            out_channels=mout_out_channels,
             bias=True,
             normalization=None)
 
@@ -595,8 +520,8 @@ class ConvGRU(nn.Module):
         Padding value for convolution layer.
     """
     def __init__(self,
-                 hidden_dim,
-                 input_dim,
+                 hidden_dim: int,
+                 input_dim: int,
                  kernel_size: int | tuple[int, int] = 3,
                  padding: int | tuple[int, int] | tuple[int, int, int, int] = 1):
         super(ConvGRU, self).__init__()
@@ -642,8 +567,8 @@ class ConvGRU(nn.Module):
 
 class SepConvGRU(nn.Module):
     def __init__(self,
-                 hidden_dim,
-                 input_dim):
+                 hidden_dim: int,
+                 input_dim: int):
         super(SepConvGRU, self).__init__()
         self.horizontal_gru = ConvGRU(
             hidden_dim=hidden_dim,
@@ -664,9 +589,9 @@ class SepConvGRU(nn.Module):
 
 class FlowHead(nn.Module):
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 out_channels):
+                 in_channels: int,
+                 mid_channels: int,
+                 out_channels: int):
         super(FlowHead, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -686,9 +611,9 @@ class FlowHead(nn.Module):
 
 class MaskHead(nn.Module):
     def __init__(self,
-                 in_channels,
-                 mid_channels,
-                 out_channels):
+                 in_channels: int,
+                 mid_channels: int,
+                 out_channels: int):
         super(MaskHead, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
@@ -706,22 +631,69 @@ class MaskHead(nn.Module):
         return x
 
 
-class SmallUpdateBlock(nn.Module):
+class RAFTUpdateBlock(nn.Module):
+    """
+    RAFT udpate block.
+
+    Parameters
+    ----------
+    corr_levels : int
+        Correlation level.
+    corr_radius : int
+        Correlation radius.
+    hidden_dim : int
+        Hidden data size.
+    corr_out_channels_list : tuple(int, ...)
+        Number of output channels for the motion encoder correlation convolutions in the update block.
+    flow_out_channels_list : tuple(int, ...)
+        Number of output channels for the motion encoder flow convolutions in the update block.
+    mout_in_channels : int
+        Number of input channels for the motion encoder last convolution in the update block.
+    mout_out_channels : int
+        Number of output channels for the motion encoder last convolution in the update block.
+    gru_class : type(nn.Module)
+        GRU class.
+    gru_input_dim : int
+        Number of input channels for GRU in the update block.
+    flow_mid_channels : int
+        Number of middle channels for flow-head in the update block.
+    mask_out_channels : int
+        Number of output channels for mask in the update block.
+    """
     def __init__(self,
-                 corr_levels,
-                 corr_radius,
-                 hidden_dim=96):
-        super(SmallUpdateBlock, self).__init__()
-        self.encoder = SmallMotionEncoder(
+                 corr_levels: int,
+                 corr_radius: int,
+                 hidden_dim: int,
+                 corr_out_channels_list: tuple[int, ...],
+                 flow_out_channels_list: tuple[int, ...],
+                 mout_in_channels: int,
+                 mout_out_channels: int,
+                 gru_class: type[nn.Module],
+                 gru_input_dim: int,
+                 flow_mid_channels: int,
+                 mask_out_channels: int):
+        super(RAFTUpdateBlock, self).__init__()
+        self.calc_mask = (mask_out_channels != 0)
+
+        self.encoder = RAFTMotionEncoder(
             corr_levels=corr_levels,
-            corr_radius=corr_radius)
-        self.gru = ConvGRU(
+            corr_radius=corr_radius,
+            corr_out_channels_list=corr_out_channels_list,
+            flow_out_channels_list=flow_out_channels_list,
+            mout_in_channels=mout_in_channels,
+            mout_out_channels=mout_out_channels)
+        self.gru = gru_class(
             hidden_dim=hidden_dim,
-            input_dim=(82 + 64))
+            input_dim=gru_input_dim)
         self.flow_head = FlowHead(
             in_channels=hidden_dim,
-            mid_channels=128,
+            mid_channels=flow_mid_channels,
             out_channels=2)
+        if self.calc_mask:
+            self.mask = MaskHead(
+                in_channels=hidden_dim,
+                mid_channels=flow_mid_channels,
+                out_channels=mask_out_channels)
 
     def forward(self, net, inp, corr, flow):
         motion_features = self.encoder(corr=corr, flow=flow)
@@ -730,131 +702,120 @@ class SmallUpdateBlock(nn.Module):
         net = self.gru(h=net, x=inp)
         delta_flow = self.flow_head(net)
 
-        return net, None, delta_flow
+        if self.calc_mask:
+            # Scale mask to balence gradients:
+            mask = 0.25 * self.mask(net)
+        else:
+            mask = None
 
-
-class BasicUpdateBlock(nn.Module):
-    def __init__(self,
-                 corr_levels,
-                 corr_radius,
-                 hidden_dim=128):
-        super(BasicUpdateBlock, self).__init__()
-        self.encoder = BasicMotionEncoder(
-            corr_levels=corr_levels,
-            corr_radius=corr_radius)
-        self.gru = SepConvGRU(
-            hidden_dim=hidden_dim,
-            input_dim=(128 + hidden_dim))
-        self.flow_head = FlowHead(
-            in_channels=hidden_dim,
-            mid_channels=256,
-            out_channels=2)
-        self.mask = MaskHead(
-            in_channels=128,
-            mid_channels=256,
-            out_channels=(64 * 9))
-
-    def forward(self, net, inp, corr, flow):
-        motion_features = self.encoder(corr=corr, flow=flow)
-        inp = torch.cat([inp, motion_features], dim=1)
-
-        net = self.gru(h=net, x=inp)
-        delta_flow = self.flow_head(net)
-
-        # Scale mask to balence gradients:
-        mask = 0.25 * self.mask(net)
         return net, mask, delta_flow
 
 
 class RAFT(nn.Module):
+    """
+    RAFT model from 'RAFT: Recurrent All-Pairs Field Transforms for Optical Flow,' https://arxiv.org/pdf/2003.12039.
+
+    Parameters
+    ----------
+    corr_levels : int
+        Correlation level.
+    corr_radius : int
+        Correlation radius.
+    hidden_dim : int
+        Hidden data size.
+    context_dim : int
+        Context data size.
+    encoder_init_block_channels : int
+        Number of output channels for the initial unit in feature/context encoder networks.
+    encoder_mid_channels : list(list(int))
+        Number of output channels for each unit in feature/context encoder networks.
+    fnet_final_block_channels : int
+        Number of final block channels for the feature networks.
+    encoder_bottleneck : bool
+        Whether to use bottleneck in feature/context encoder networks.
+    cnet_normalize : bool
+        Whether to normalize the context network.
+    corr_out_channels_list : tuple(int, ...)
+        Number of output channels for the motion encoder correlation convolutions in the update block.
+    flow_out_channels_list : tuple(int, ...)
+        Number of output channels for the motion encoder flow convolutions in the update block.
+    mout_in_channels : int
+        Number of input channels for the motion encoder last convolution in the update block.
+    mout_out_channels : int
+        Number of output channels for the motion encoder last convolution in the update block.
+    gru_class : type(nn.Module)
+        GRU class.
+    gru_input_dim : int
+        Number of input channels for GRU in the update block.
+    flow_mid_channels : int
+        Number of middle channels for flow-head in the update block.
+    mask_out_channels : int
+        Number of output channels for mask in the update block.
+    dropout_rate : float, default 0.0
+        Fraction of the input units to drop. Must be a number between 0 and 1.
+    in_channels : int, default 3
+        Number of input channels.
+    """
     def __init__(self,
-                 small: bool,
-                 dropout_rate: float = 0.0):
+                 corr_levels: int,
+                 corr_radius: int,
+                 hidden_dim: int,
+                 context_dim: int,
+                 encoder_init_block_channels: int,
+                 encoder_mid_channels: list[list[int]],
+                 fnet_final_block_channels: int,
+                 encoder_bottleneck: bool,
+                 cnet_normalize: bool,
+                 corr_out_channels_list: tuple[int, ...],
+                 flow_out_channels_list: tuple[int, ...],
+                 mout_in_channels: int,
+                 mout_out_channels: int,
+                 gru_class: type[nn.Module],
+                 gru_input_dim: int,
+                 flow_mid_channels: int,
+                 mask_out_channels: int,
+                 dropout_rate: float = 0.0,
+                 in_channels: int = 3):
         super(RAFT, self).__init__()
-        self.small = small
-        self.dropout_rate = dropout_rate
+        self.hidden_dim = hidden_dim
+        self.context_dim = context_dim
+        self.corr_radius = corr_radius
+        fnet_normalization = lambda_instancenorm2d()
+        cnet_normalization = lambda_batchnorm2d() if cnet_normalize else None
 
-        if self.small:
-            self.hidden_dim = hdim = 96
-            self.context_dim = cdim = 64
-            self.corr_levels = 4
-            self.corr_radius = 3
+        # feature network
+        self.fnet = RAFTEncoder(
+            in_channels=in_channels,
+            init_block_channels=encoder_init_block_channels,
+            mid_channels=encoder_mid_channels,
+            final_block_channels=fnet_final_block_channels,
+            bottleneck=encoder_bottleneck,
+            normalization=fnet_normalization,
+            dropout_rate=dropout_rate)
 
-        else:
-            self.hidden_dim = hdim = 128
-            self.context_dim = cdim = 128
-            self.corr_levels = 4
-            self.corr_radius = 4
+        # context network
+        self.cnet = RAFTEncoder(
+            in_channels=in_channels,
+            init_block_channels=encoder_init_block_channels,
+            mid_channels=encoder_mid_channels,
+            final_block_channels=hidden_dim + context_dim,
+            bottleneck=encoder_bottleneck,
+            normalization=cnet_normalization,
+            dropout_rate=dropout_rate)
 
-        # feature network, context network, and update block
-        if self.small:
-            self.fnet = SmallEncoder(
-                output_dim=128,
-                norm_fn="instance",
-                dropout_rate=self.dropout_rate)
-            self.cnet = SmallEncoder(
-                output_dim=hdim + cdim,
-                norm_fn="none",
-                dropout_rate=self.dropout_rate)
-            self.update_block = SmallUpdateBlock(
-                corr_levels=self.corr_levels,
-                corr_radius=self.corr_radius,
-                hidden_dim=hdim)
-        else:
-            self.fnet = BasicEncoder(
-                output_dim=256,
-                norm_fn="instance",
-                dropout_rate=self.dropout_rate)
-            self.cnet = BasicEncoder(
-                output_dim=hdim + cdim,
-                norm_fn="batch",
-                dropout_rate=self.dropout_rate)
-            self.update_block = BasicUpdateBlock(
-                corr_levels=self.corr_levels,
-                corr_radius=self.corr_radius,
-                hidden_dim=hdim)
-
-    @staticmethod
-    def coords_grid(batch,
-                    ht,
-                    wd):
-        coords = torch.meshgrid(torch.arange(ht), torch.arange(wd))
-        coords = torch.stack(coords[::-1], dim=0).float()
-        return coords[None].repeat(batch, 1, 1, 1)
-
-    @staticmethod
-    def initialize_flow(img):
-        """
-        Flow is represented as difference between two coordinate grids flow = coords1 - coords0.
-        """
-        N, C, H, W = img.shape
-        coords0 = RAFT.coords_grid(N, H // 8, W // 8).to(img.device)
-        coords1 = RAFT.coords_grid(N, H // 8, W // 8).to(img.device)
-
-        # optical flow computed as difference: flow = coords1 - coords0
-        return coords0, coords1
-
-    @staticmethod
-    def upflow8(flow,
-                mode="bilinear"):
-        new_size = (8 * flow.shape[2], 8 * flow.shape[3])
-        return 8 * F.interpolate(flow, size=new_size, mode=mode, align_corners=True)
-
-    @staticmethod
-    def upsample_flow(flow, mask):
-        """
-        Upsample flow field [H/8, W/8, 2] -> [H, W, 2] using convex combination.
-        """
-        N, _, H, W = flow.shape
-        mask = mask.view(N, 1, 9, 8, 8, H, W)
-        mask = torch.softmax(mask, dim=2)
-
-        up_flow = F.unfold(8 * flow, [3, 3], padding=1)
-        up_flow = up_flow.view(N, 2, 9, 1, 1, H, W)
-
-        up_flow = torch.sum(mask * up_flow, dim=2)
-        up_flow = up_flow.permute(0, 1, 4, 2, 5, 3)
-        return up_flow.reshape(N, 2, 8 * H, 8 * W)
+        # update block
+        self.update_block = RAFTUpdateBlock(
+            corr_levels=corr_levels,
+            corr_radius=corr_radius,
+            hidden_dim=hidden_dim,
+            corr_out_channels_list=corr_out_channels_list,
+            flow_out_channels_list=flow_out_channels_list,
+            mout_in_channels=mout_in_channels,
+            mout_out_channels=mout_out_channels,
+            gru_class=gru_class,
+            gru_input_dim=gru_input_dim,
+            flow_mid_channels=flow_mid_channels,
+            mask_out_channels=mask_out_channels)
 
     def forward(self, image1, image2, iters=12, flow_init=None):
         """
@@ -866,9 +827,6 @@ class RAFT(nn.Module):
         image1 = image1.contiguous()
         image2 = image2.contiguous()
 
-        hdim = self.hidden_dim
-        cdim = self.context_dim
-
         # run the feature network
         fmap1, fmap2 = self.fnet([image1, image2])
 
@@ -879,11 +837,11 @@ class RAFT(nn.Module):
 
         # run the context network
         cnet = self.cnet(image1)
-        net, inp = torch.split(cnet, [hdim, cdim], dim=1)
+        net, inp = torch.split(cnet, [self.hidden_dim, self.context_dim], dim=1)
         net = torch.tanh(net)
         inp = torch.relu(inp)
 
-        coords0, coords1 = RAFT.initialize_flow(image1)
+        coords0, coords1 = initialize_flow(image1)
 
         if flow_init is not None:
             coords1 = coords1 + flow_init
@@ -900,14 +858,159 @@ class RAFT(nn.Module):
 
             # upsample predictions
             if up_mask is None:
-                flow_up = RAFT.upflow8(coords1 - coords0)
+                flow_up = upflow8(coords1 - coords0)
             else:
-                flow_up = RAFT.upsample_flow(coords1 - coords0, up_mask)
+                flow_up = upsample_flow(coords1 - coords0, up_mask)
 
         return coords1 - coords0, flow_up
 
+
+def get_raft(version: str,
+             model_name: str | None = None,
+             pretrained: bool = False,
+             root: str = os.path.join("~", ".torch", "models"),
+             **kwargs) -> nn.Module:
+    """
+    Create RAFT model with specific parameters.
+
+    Parameters
+    ----------
+    version : str
+        Version of RAFT ('basic' or 'small').
+    model_name : str or None, default None
+        Model name for loading pretrained model.
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.torch/models'
+        Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
+    if version == "basic":
+        corr_levels = 4
+        corr_radius = 4
+        hidden_dim = 128
+        context_dim = 128
+        encoder_init_block_channels = 64
+        encoder_mid_channels = [[64, 64], [96, 96], [128, 128]]
+        fnet_final_block_channels = 256
+        encoder_bottleneck = False
+        cnet_normalize = True
+
+        corr_out_channels_list = (256, 192)
+        flow_out_channels_list = (128, 64)
+        mout_in_channels = (64 + 192)
+        mout_out_channels = (128 - 2)
+
+        gru_class = SepConvGRU
+        gru_input_dim = 128 + 128
+        flow_mid_channels = 256
+        mask_out_channels = 64 * 9
+    elif version == "small":
+        corr_levels = 4
+        corr_radius = 3
+        hidden_dim = 96
+        context_dim = 64
+        encoder_init_block_channels = 32
+        encoder_mid_channels = [[32, 32], [64, 64], [96, 96]]
+        fnet_final_block_channels = 128
+        encoder_bottleneck = True
+        cnet_normalize = False
+
+        corr_out_channels_list = (96,)
+        flow_out_channels_list = (64, 32)
+        mout_in_channels = 128
+        mout_out_channels = 80
+
+        gru_class = ConvGRU
+        gru_input_dim = 82 + 64
+        flow_mid_channels = 128
+        mask_out_channels = 0
+    else:
+        raise ValueError("Unsupported RAFT version {}".format(version))
+
+    net = RAFT(
+        corr_levels=corr_levels,
+        corr_radius=corr_radius,
+        hidden_dim=hidden_dim,
+        context_dim=context_dim,
+        encoder_init_block_channels=encoder_init_block_channels,
+        encoder_mid_channels=encoder_mid_channels,
+        fnet_final_block_channels=fnet_final_block_channels,
+        encoder_bottleneck=encoder_bottleneck,
+        cnet_normalize=cnet_normalize,
+        corr_out_channels_list=corr_out_channels_list,
+        flow_out_channels_list=flow_out_channels_list,
+        mout_in_channels=mout_in_channels,
+        mout_out_channels=mout_out_channels,
+        gru_class=gru_class,
+        gru_input_dim=gru_input_dim,
+        flow_mid_channels=flow_mid_channels,
+        mask_out_channels=mask_out_channels,
+        **kwargs)
+
+    if pretrained:
+        if (model_name is None) or (not model_name):
+            raise ValueError("Parameter `model_name` should be properly initialized for loading pretrained model.")
+        from .model_store import download_model
+        download_model(
+            net=net,
+            model_name=model_name,
+            local_model_store_dir_path=root)
+
+    return net
+
+
+def raft_basic(**kwargs) -> nn.Module:
+    """
+    RAFT-Basic model from 'RAFT: Recurrent All-Pairs Field Transforms for Optical Flow,'
+    https://arxiv.org/pdf/2003.12039.
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.torch/models'
+        Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
+    return get_raft(
+        version="basic",
+        model_name="raft_basic",
+        **kwargs)
+
+
+def raft_small(**kwargs) -> nn.Module:
+    """
+    RAFT-Small model from 'RAFT: Recurrent All-Pairs Field Transforms for Optical Flow,'
+    https://arxiv.org/pdf/2003.12039.
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.torch/models'
+        Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
+    return get_raft(
+        version="small",
+        model_name="raft_small",
+        **kwargs)
+
+
 def _test():
-    import os
     import re
     import numpy as np
 
@@ -937,7 +1040,9 @@ def _test():
         list5 = list(filter(re.compile("update_block.encoder.").search, src_param_keys))
         list5_u = [key.replace(".conv.", ".conv_out.conv.") for key in list5]
         if small:
-            list5_u = [key.replace(".convc1.", ".conv_corr.conv.") for key in list5_u]
+            # list5_u = [key.replace(".convc1.", ".conv_corr.conv.") for key in list5_u]
+            list5_u = [key.replace(".convc1.", ".conv_corr.conv_list.conv1.conv.") for key in list5_u]
+            list5_u = [key.replace(".convc2.", ".conv_corr.conv_list.conv2.conv.") for key in list5_u]
         else:
             list5_u = [key.replace(".convc1.", ".conv_corr.conv_list.conv1.conv.") for key in list5_u]
             list5_u = [key.replace(".convc2.", ".conv_corr.conv_list.conv2.conv.") for key in list5_u]
@@ -1012,7 +1117,11 @@ def _test():
                         small=False):
         """Initializes the RAFT model.
         """
-        net = RAFT(small=small)
+        if small:
+            net = raft_small()
+        else:
+            net = raft_basic()
+
         src_checkpoint = torch.load(model_path, map_location="cpu")
 
         # net_tmp = torch.nn.DataParallel(net)
@@ -1042,8 +1151,7 @@ def _test():
             self.fix_raft = initialize_RAFT(
                 model_path,
                 device=device,
-                small=small,
-                raft_orig=raft_orig)
+                small=small)
 
             for p in self.fix_raft.parameters():
                 p.requires_grad = False
