@@ -10,7 +10,7 @@ import os
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common import lambda_batchnorm2d, ConvBlock, conv1x1_block, conv3x3_block, Concurrent
+from .common import lambda_relu, lambda_batchnorm2d, ConvBlock, conv1x1_block, conv3x3_block, Concurrent
 
 
 class MaxPoolBranch(nn.Module):
@@ -110,7 +110,9 @@ class ConvSeqBranch(nn.Module):
         List of strides of the convolution.
     padding_list : list(int) or tuple(int, ...) or tuple(int or tuple(int, int), ...)
         List of padding values for convolution layers.
-    normalization : function
+    bias : bool, default False
+        Whether the layer uses a bias vector.
+    normalization : function or None, default lambda_relu()
         Lambda-function generator for normalization layer.
     """
     def __init__(self,
@@ -119,7 +121,8 @@ class ConvSeqBranch(nn.Module):
                  kernel_size_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
                  strides_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
                  padding_list: list[int] | tuple[int, ...] | tuple[int | tuple[int, int], ...],
-                 normalization: Callable[..., nn.Module]):
+                 bias: bool = False,
+                 normalization: Callable[..., nn.Module | None] | None = lambda_relu()):
         super(ConvSeqBranch, self).__init__()
         assert (len(out_channels_list) == len(kernel_size_list))
         assert (len(out_channels_list) == len(strides_list))
@@ -134,6 +137,7 @@ class ConvSeqBranch(nn.Module):
                 kernel_size=kernel_size,
                 stride=strides,
                 padding=padding,
+                bias=bias,
                 normalization=normalization))
             in_channels = out_channels
 
@@ -675,7 +679,7 @@ def inceptionv3(**kwargs) -> nn.Module:
 
 def _test():
     import torch
-    from .model_store import calc_net_weight_count
+    from model_store import calc_net_weight_count
 
     pretrained = False
 
