@@ -13,81 +13,169 @@ from common import (lambda_relu, lambda_sigmoid, lambda_tanh, lambda_batchnorm2d
                     conv1x1, conv3x3, conv1x1_block, conv3x3_block, conv7x7_block, ConvBlock)
 
 
-def coords_grid(batch,
-                ht,
-                wd):
-    coords = torch.meshgrid(torch.arange(ht), torch.arange(wd))
+def create_coords_grid(batch: int,
+                       height: int,
+                       width: int) -> torch.Tensor:
+    """
+    Create coordinate grid.
+
+    Parameters
+    ----------
+    batch : int
+        Batch size.
+    height : int
+        Height.
+    width : int
+        Width.
+
+    Returns
+    -------
+    torch.Tensor
+        Resulted tensor.
+    """
+    coords = torch.meshgrid(torch.arange(height), torch.arange(width))
     coords = torch.stack(coords[::-1], dim=0).float()
     return coords[None].repeat(batch, 1, 1, 1)
 
 
-def initialize_flow(img):
+def initialize_flow(img: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
     """
-    Flow is represented as difference between two coordinate grids flow = coords1 - coords0.
-    """
-    N, C, H, W = img.shape
-    coords0 = coords_grid(N, H // 8, W // 8).to(img.device)
-    coords1 = coords_grid(N, H // 8, W // 8).to(img.device)
+    Create structures for flow as difference between two coordinate grids (flow = coords1 - coords0).
 
-    # optical flow computed as difference: flow = coords1 - coords0
+    Parameters
+    ----------
+    img : torch.Tensor
+        Image for shape calculation.
+
+    Returns
+    -------
+    torch.Tensor
+        Coordinate grid for #0.
+    torch.Tensor
+        Coordinate grid for #1.
+    """
+    batch, _, height, width = img.size()
+    coords0 = create_coords_grid(batch, height // 8, width // 8).to(img.device)
+    coords1 = create_coords_grid(batch, height // 8, width // 8).to(img.device)
     return coords0, coords1
 
 
-def upflow8(flow,
-            mode="bilinear"):
-    new_size = (8 * flow.shape[2], 8 * flow.shape[3])
-    return 8 * F.interpolate(flow, size=new_size, mode=mode, align_corners=True)
-
-
-def upsample_flow(flow, mask):
+def upsample_flow_using_mask(flow: torch.Tensor,
+                             mask: torch.Tensor) -> torch.Tensor:
     """
-    Upsample flow field [H/8, W/8, 2] -> [H, W, 2] using convex combination.
+    Upsample flow field [2, H/8, W/8] -> [2, H, W] using convex combination.
+
+    Parameters
+    ----------
+    flow : torch.Tensor
+        Flow.
+    mask : torch.Tensor
+        Mask.
+
+    Returns
+    -------
+    torch.Tensor
+        Upsampled flow.
     """
-    N, _, H, W = flow.shape
-    mask = mask.view(N, 1, 9, 8, 8, H, W)
+    batch, channels, height, width = flow.size()
+    assert (channels == 2)
+
+    mask = mask.view(batch, 1, 9, 8, 8, height, width)
     mask = torch.softmax(mask, dim=2)
 
-    up_flow = F.unfold(8 * flow, [3, 3], padding=1)
-    up_flow = up_flow.view(N, 2, 9, 1, 1, H, W)
+    up_flow = F.unfold(
+        input=(8 * flow),
+        kernel_size=[3, 3],
+        padding=1)
+    up_flow = up_flow.view(batch, 2, 9, 1, 1, height, width)
 
     up_flow = torch.sum(mask * up_flow, dim=2)
     up_flow = up_flow.permute(0, 1, 4, 2, 5, 3)
-    return up_flow.reshape(N, 2, 8 * H, 8 * W)
+    return up_flow.reshape(batch, 2, 8 * height, 8 * width)
 
 
-def bilinear_sampler(img,
-                     coords,
-                     mask=False):
+def upsample_flow_using_interpolation(flow: torch.Tensor,
+                                      mode: str = "bilinear") -> torch.Tensor:
+    """
+    Upsample flow field [2, H/8, W/8] -> [2, H, W] using interpolation.
+
+    Parameters
+    ----------
+    flow : torch.Tensor
+        Flow.
+    mode : str, default 'bilinear'
+        Interpolation mode.
+
+    Returns
+    -------
+    torch.Tensor
+        Upsampled flow.
+    """
+    new_size = (8 * flow.shape[2], 8 * flow.shape[3])
+    up_flow = 8 * F.interpolate(
+        input=flow,
+        size=new_size,
+        mode=mode,
+        align_corners=True)
+    return up_flow
+
+
+def bilinear_sampler(img: torch.Tensor,
+                     coords: torch.Tensor) -> torch.Tensor:
     """
     Wrapper for grid_sample, uses pixel coordinates.
+
+    Parameters
+    ----------
+    img : torch.Tensor
+        Processed image.
+    coords : torch.Tensor
+        Coordinates.
+
+    Returns
+    -------
+    torch.Tensor
+        Sampled image.
     """
-    H, W = img.shape[-2:]
-    xgrid, ygrid = coords.split([1, 1], dim=-1)
-    xgrid = 2 * xgrid / (W - 1) - 1
-    ygrid = 2 * ygrid / (H - 1) - 1
+    height, width = img.shape[-2:]
+    x_grid, y_grid = coords.split(split_size=[1, 1], dim=-1)
+    x_grid = 2 * x_grid / (width - 1) - 1
+    y_grid = 2 * y_grid / (height - 1) - 1
 
-    grid = torch.cat([xgrid, ygrid], dim=-1)
-    img = F.grid_sample(img, grid, align_corners=True)
-
-    if mask:
-        mask = (xgrid > -1) & (ygrid > -1) & (xgrid < 1) & (ygrid < 1)
-        return img, mask.float()
-
+    grid = torch.cat([x_grid, y_grid], dim=-1)
+    img = F.grid_sample(
+        input=img,
+        grid=grid,
+        align_corners=True)
     return img
 
 
-class CorrBlock:
+class CorrCalculator:
+    """
+    Correlation calculator.
+
+    Parameters
+    ----------
+    fmap1 : torch.Tensor
+        Feature map #1.
+    fmap2 : torch.Tensor
+        Feature map #2.
+    radius : int
+        Correlation radius.
+    num_levels : int, default 4
+        Number of correlation pyramid levels.
+    """
     def __init__(self,
-                 fmap1,
-                 fmap2,
-                 num_levels=4,
-                 radius=4):
-        self.num_levels = num_levels
+                 fmap1: torch.Tensor,
+                 fmap2: torch.Tensor,
+                 radius: int,
+                 num_levels: int = 4):
         self.radius = radius
+        self.num_levels = num_levels
         self.corr_pyramid = []
 
         # all pairs correlation
-        corr = CorrBlock.corr(fmap1, fmap2)
+        corr = CorrCalculator.corr(fmap1, fmap2)
 
         batch, h1, w1, dim, h2, w2 = corr.shape
         corr = corr.reshape(batch * h1 * w1, dim, h2, w2)
@@ -97,7 +185,21 @@ class CorrBlock:
             corr = F.avg_pool2d(corr, 2, stride=2)
             self.corr_pyramid.append(corr)
 
-    def __call__(self, coords):
+    """
+    Calculate correlation.
+
+    Parameters
+    ----------
+    coords : torch.Tensor
+        Coordinates.
+
+    Returns
+    -------
+    torch.Tensor
+        Correlation.
+    """
+    def __call__(self,
+                 coords: torch.Tensor) -> torch.Tensor:
         r = self.radius
         coords = coords.permute(0, 2, 3, 1)
         batch, h1, w1, _ = coords.shape
@@ -118,17 +220,35 @@ class CorrBlock:
             out_pyramid.append(corr)
 
         out = torch.cat(out_pyramid, dim=-1)
-        return out.permute(0, 3, 1, 2).contiguous().float()
+        out = out.permute(0, 3, 1, 2).contiguous().float()
+        return out
 
+    """
+    Calculate correlation matrix for two feature maps.
+
+    Parameters
+    ----------
+    fmap1 : torch.Tensor
+        Feature map #1.
+    fmap2 : torch.Tensor
+        Feature map #2.
+
+    Returns
+    -------
+    torch.Tensor
+        Correlation matrix.
+    """
     @staticmethod
-    def corr(fmap1, fmap2):
-        batch, dim, ht, wd = fmap1.shape
-        fmap1 = fmap1.view(batch, dim, ht * wd)
-        fmap2 = fmap2.view(batch, dim, ht * wd)
+    def corr(fmap1: torch.Tensor,
+             fmap2: torch.Tensor) -> torch.Tensor:
+        batch, channels, height, width = fmap1.shape
+        fmap1 = fmap1.view(batch, channels, height * width)
+        fmap2 = fmap2.view(batch, channels, height * width)
 
         corr = torch.matmul(fmap1.transpose(1, 2), fmap2)
-        corr = corr.view(batch, ht, wd, 1, ht, wd)
-        return corr / torch.sqrt(torch.tensor(dim).float())
+        corr = corr.view(batch, height, width, 1, height, width)
+        corr /= torch.sqrt(torch.tensor(channels).float())
+        return corr
 
 
 class ResBlock(nn.Module):
@@ -328,6 +448,26 @@ class ResUnit(nn.Module):
 
 
 class RAFTEncoder(nn.Module):
+    """
+    RAFT feature/context encoder.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    init_block_channels : int
+        Number of output channels for the initial unit.
+    mid_channels : list(list(int))
+        Number of output channels for each unit.
+    final_block_channels : int
+        Number of output channels for the final unit.
+    bottleneck : bool
+        Whether to use a bottleneck or simple block in units.
+    normalization : function or None, default lambda_batchnorm2d()
+        Lambda-function generator for normalization layer.
+    dropout_rate : float, default 0.0
+        Fraction of the input units to drop. Must be a number between 0 and 1.
+    """
     def __init__(self,
                  in_channels: int,
                  init_block_channels: int,
@@ -453,6 +593,24 @@ class ConvSeqBranch(nn.Module):
 
 
 class RAFTMotionEncoder(nn.Module):
+    """
+    RAFT motion encoder.
+
+    Parameters
+    ----------
+    corr_levels : int
+        Correlation levels.
+    corr_radius : int
+        Correlation radius.
+    corr_out_channels_list : tuple(int, ...)
+        Numbers of output channels for correlation convolution.
+    flow_out_channels_list : tuple(int, ...)
+        Numbers of output channels for flow convolution.
+    mout_in_channels : int
+        Number of input channels for output convolution.
+    mout_out_channels : int
+        Number of output channels for output convolution.
+    """
     def __init__(self,
                  corr_levels: int,
                  corr_radius: int,
@@ -566,6 +724,16 @@ class ConvGRU(nn.Module):
 
 
 class SepConvGRU(nn.Module):
+    """
+    Separable convolutional GRU.
+
+    Parameters
+    ----------
+    hidden_dim : int
+        Hidden value size.
+    input_dim : int
+        Input value size.
+    """
     def __init__(self,
                  hidden_dim: int,
                  input_dim: int):
@@ -588,6 +756,18 @@ class SepConvGRU(nn.Module):
 
 
 class FlowHead(nn.Module):
+    """
+    Flow head block.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    mid_channels : int
+        Number of middle channels.
+    out_channels : int
+        Number of output channels.
+    """
     def __init__(self,
                  in_channels: int,
                  mid_channels: int,
@@ -610,6 +790,18 @@ class FlowHead(nn.Module):
 
 
 class MaskHead(nn.Module):
+    """
+    Mask head block.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    mid_channels : int
+        Number of middle channels.
+    out_channels : int
+        Number of output channels.
+    """
     def __init__(self,
                  in_channels: int,
                  mid_channels: int,
@@ -833,7 +1025,7 @@ class RAFT(nn.Module):
         fmap1 = fmap1.float()
         fmap2 = fmap2.float()
 
-        corr_fn = CorrBlock(fmap1, fmap2, radius=self.corr_radius)
+        corr_calc = CorrCalculator(fmap1, fmap2, radius=self.corr_radius)
 
         # run the context network
         cnet = self.cnet(image1)
@@ -848,7 +1040,7 @@ class RAFT(nn.Module):
 
         for itr in range(iters):
             coords1 = coords1.detach()
-            corr = corr_fn(coords1)  # index correlation volume
+            corr = corr_calc(coords1)  # index correlation volume
 
             flow = coords1 - coords0
             net, up_mask, delta_flow = self.update_block(net, inp, corr, flow)
@@ -858,9 +1050,9 @@ class RAFT(nn.Module):
 
             # upsample predictions
             if up_mask is None:
-                flow_up = upflow8(coords1 - coords0)
+                flow_up = upsample_flow_using_interpolation(coords1 - coords0)
             else:
-                flow_up = upsample_flow(coords1 - coords0, up_mask)
+                flow_up = upsample_flow_using_mask(coords1 - coords0, up_mask)
 
         return coords1 - coords0, flow_up
 
@@ -1174,7 +1366,6 @@ def _test():
             gt_flows_backward = gt_flows_backward.view(b, l_t - 1, 2, h, w)
 
             return gt_flows_forward, gt_flows_backward
-
 
     def sub_test(raft_small: bool = False):
         raft_iter = 20
