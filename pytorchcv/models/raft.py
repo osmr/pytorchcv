@@ -11,10 +11,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Callable
-from .common import (lambda_relu, lambda_sigmoid, lambda_tanh, lambda_batchnorm2d, lambda_instancenorm2d, conv1x1,
+from common import (lambda_relu, lambda_sigmoid, lambda_tanh, lambda_batchnorm2d, lambda_instancenorm2d, conv1x1,
                      conv3x3, conv3x3_block, conv7x7_block, ConvBlock)
-from .resnet import ResUnit
-from .inceptionv3 import ConvSeqBranch
+from resnet import ResUnit
+from inceptionv3 import ConvSeqBranch
 
 
 def create_coords_grid(batch: int,
@@ -1076,13 +1076,17 @@ def _test2():
         # net_tmp.load_state_dict(checkpoint)
         # checkpoint = net_tmp.module.cpu().state_dict()
 
-        dst_checkpoint = net.state_dict()
-        convert_state_dict(
-            src_checkpoint,
-            dst_checkpoint,
-            small)
+        # dst_checkpoint = net.state_dict()
+        # convert_state_dict(
+        #     src_checkpoint,
+        #     dst_checkpoint,
+        #     small)
+
+        dst_checkpoint = src_checkpoint
 
         net.load_state_dict(dst_checkpoint)
+
+        # torch.save(net.state_dict(), model_path[:-4] + "2" + model_path[-4:])
 
         net.to(device)
 
@@ -1093,8 +1097,7 @@ def _test2():
         def __init__(self,
                      model_path='weights/raft-things.pth',
                      device='cuda',
-                     small=False,
-                     raft_orig=False):
+                     small=False):
             super().__init__()
             self.fix_raft = initialize_RAFT(
                 model_path,
@@ -1128,11 +1131,11 @@ def _test2():
         root_path = "../../../pytorchcv_data/test"
 
         if raft_small:
-            raft_model_file_name = "raft-small_.pth"
+            raft_model_file_name = "raft-small_2.pth"
             y1_file_name = "y1_s.npy"
             y2_file_name = "y2_s.npy"
         else:
-            raft_model_file_name = "raft-things_.pth"
+            raft_model_file_name = "raft-things_2.pth"
             y1_file_name = "y1.npy"
             y2_file_name = "y2.npy"
 
