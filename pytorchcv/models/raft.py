@@ -4,7 +4,7 @@
     https://arxiv.org/pdf/2003.12039.
 """
 
-__all__ = ['RAFT', 'raft_basic', 'raft_small']
+__all__ = ['RAFT', 'raft_things', 'raft_small']
 
 import os
 import torch
@@ -699,6 +699,8 @@ class RAFT(nn.Module):
         Number of middle channels for flow-head in the update block.
     mask_out_channels : int
         Number of output channels for mask in the update block.
+    in_normalize : bool, default False
+        Whether to normalize input images.
     dropout_rate : float, default 0.0
         Fraction of the input units to drop. Must be a number between 0 and 1.
     in_channels : int, default 3
@@ -722,12 +724,14 @@ class RAFT(nn.Module):
                  gru_input_dim: int,
                  flow_mid_channels: int,
                  mask_out_channels: int,
+                 in_normalize: bool = False,
                  dropout_rate: float = 0.0,
                  in_channels: int = 3):
         super(RAFT, self).__init__()
         self.hidden_dim = hidden_dim
         self.context_dim = context_dim
         self.corr_radius = corr_radius
+        self.in_normalize = in_normalize
         fnet_normalization = lambda_instancenorm2d()
         cnet_normalization = lambda_batchnorm2d() if cnet_normalize else None
 
@@ -769,8 +773,9 @@ class RAFT(nn.Module):
         """
         Estimate optical flow between pair of frames.
         """
-        # image1 = 2 * (image1 / 255.0) - 1.0
-        # image2 = 2 * (image2 / 255.0) - 1.0
+        if self.in_normalize:
+            image1 = 2 * (image1 / 255.0) - 1.0
+            image2 = 2 * (image2 / 255.0) - 1.0
 
         image1 = image1.contiguous()
         image2 = image2.contiguous()
@@ -912,9 +917,9 @@ def get_raft(version: str,
     return net
 
 
-def raft_basic(**kwargs) -> nn.Module:
+def raft_things(**kwargs) -> nn.Module:
     """
-    RAFT-Basic model from 'RAFT: Recurrent All-Pairs Field Transforms for Optical Flow,'
+    RAFT-Things model from 'RAFT: Recurrent All-Pairs Field Transforms for Optical Flow,'
     https://arxiv.org/pdf/2003.12039.
 
     Parameters
@@ -931,7 +936,7 @@ def raft_basic(**kwargs) -> nn.Module:
     """
     return get_raft(
         version="basic",
-        model_name="raft_basic",
+        model_name="raft_things",
         **kwargs)
 
 
@@ -1068,7 +1073,7 @@ def _test2():
         if small:
             net = raft_small()
         else:
-            net = raft_basic()
+            net = raft_things()
 
         src_checkpoint = torch.load(model_path, map_location="cpu")
 
@@ -1183,7 +1188,7 @@ def _test():
     pretrained = False
 
     models = [
-        raft_basic,
+        raft_things,
         raft_small,
     ]
 
@@ -1195,7 +1200,7 @@ def _test():
         net.eval()
         weight_count = calc_net_weight_count(net)
         print("m={}, {}".format(model.__name__, weight_count))
-        assert (model != raft_basic or weight_count == 5257536)
+        assert (model != raft_things or weight_count == 5257536)
         assert (model != raft_small or weight_count == 990162)
 
         batch = 4
