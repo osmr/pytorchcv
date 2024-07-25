@@ -7,6 +7,8 @@ import cv2
 from PIL import Image
 import numpy as np
 import torch
+import torch.nn as nn
+from raft import raft_things
 
 
 class FilePathDirIterator(object):
@@ -263,7 +265,7 @@ class WindowBufferedDataLoader(BufferedDataLoader):
     def __init__(self,
                  window_index: WindowIndex,
                  **kwargs):
-        super(BufferedDataLoader, self).__init__(**kwargs)
+        super(WindowBufferedDataLoader, self).__init__(**kwargs)
         self.window_index = window_index
 
         self.length = self.window_index[-1].target.stop
@@ -317,9 +319,43 @@ class WindowBufferedDataLoader(BufferedDataLoader):
             self.end_pos = win_map.target.stop
 
 
+def calc_optical_flow_on_video(net: nn.Module,
+                               frames: torch.Tensor,
+                               iters: int = 20) -> (torch.Tensor, torch.Tensor):
+    """
+    Calculate optical flow on video.
+
+    Parameters
+    ----------
+    net: nn.Module
+        Optical flow model.
+    frames : torch.Tensor
+        Frames.
+    iters : int, default 20
+        Number of iterations.
+
+    Returns
+    -------
+    torch.Tensor
+        Forward flow.
+    torch.Tensor
+        Backward flow.
+    """
+    frames1 = frames[:-1]
+    frames2 = frames[1:]
+
+    _, flows_forward = net(frames1, frames2, iters=iters)
+    _, flows_backward = net(frames2, frames1, iters=iters)
+
+    # return flows_forward, flows_backward
+
+    flows = torch.stack([flows_forward, flows_backward])
+    return flows
+
+
 class FrameBufferedDataLoader(BufferedDataLoader):
     """
-    Buffered data loader.
+    Frame buffered data loader.
 
     Parameters
     ----------
@@ -409,6 +445,62 @@ class FrameBufferedDataLoader(BufferedDataLoader):
         self.buffer = torch.cat([self.buffer, data_chunk])
 
 
+class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
+    """
+    Optical flow window buffered data loader.
+
+    Parameters
+    ----------
+    net: nn.Module
+        Optical flow model.
+    frames_loader : FrameBufferedDataLoader
+        Frames.
+    iters : int, default 20
+        Number of iterations for flow calculation.
+    """
+    def __init__(self,
+                 net: nn.Module,
+                 iters: int = 20,
+                 **kwargs):
+        super(FlowWindowBufferedDataLoader, self).__init__(**kwargs)
+        assert (iters > 0)
+
+        self.net = net
+        self.iters = iters
+
+    def _load_data_items(self,
+                         raw_data_chunk):
+        """
+        Load data items.
+
+        Parameters
+        ----------
+        raw_data_chunk : protocol(any)
+            Raw data chunk.
+
+        Returns
+        -------
+        protocol(any)
+            Resulted data.
+        """
+        flows = calc_optical_flow_on_video(
+            net=self.net,
+            frames=raw_data_chunk,
+            iters=self.iters)
+        # torch.cuda.empty_cache()
+        return flows
+
+    def _expand_buffer_by(self,
+                          data_chunk):
+        """
+        Expand buffer by extra data.
+
+        Parameters
+        ----------
+        data_chunk : protocol(any)
+            Data chunk.
+        """
+        self.buffer = torch.cat([self.buffer, data_chunk], dim=1)
 
 
 def _test():
@@ -417,6 +509,8 @@ def _test():
     frames_dir_path = os.path.join(root_path, frames_dir_name)
     image_resize_ratio = 1.0
     use_cuda = True
+    raft_iters = 20
+    raft_model_path = root_path = "../../../pytorchcv_data/test/raft-things_2.pth"
 
     # ind1 = calc_window_data_loader_index(
     #     length=876,
@@ -443,19 +537,44 @@ def _test():
     #     edge_mode="trim")
 
     # loader = BufferedDataLoader(data=FilePathDirIterator(frames_dir_path))
-    loader = FrameBufferedDataLoader(data=FilePathDirIterator(frames_dir_path), image_resize_ratio=image_resize_ratio, use_cuda=use_cuda)
-    # a = loader[:]
-    # a = loader[2:]
-    a = loader[:10]
-    a = loader[0:10]
-    a = loader[7]
-    a = loader[0:20]
-    a = loader[10:20]
-    a = loader[21:30]
-    loader.trim_buffer_to(25)
-    a = loader[26:31]
-    loader.trim_buffer_to(26)
-    a = loader[27:110]
+    frames_loader = FrameBufferedDataLoader(
+        data=FilePathDirIterator(frames_dir_path),
+        image_resize_ratio=image_resize_ratio,
+        use_cuda=use_cuda)
+
+    raft_net = raft_things()
+    raft_net.load_state_dict(torch.load(raft_model_path, map_location="cpu"))
+    for p in raft_net.parameters():
+        p.requires_grad = False
+    raft_net.eval()
+    raft_net = raft_net.cuda()
+
+    raft_window_index = calc_window_data_loader_index(
+        length=80,
+        window_size=12,
+        padding=(1, 0),
+        edge_mode="trim")
+
+    raft_loader = FlowWindowBufferedDataLoader(
+        data=frames_loader,
+        window_index=raft_window_index,
+        net=raft_net,
+        iters=raft_iters)
+    a = raft_loader[:]
+    # a = raft_loader[raft_window_index[0].target.start:raft_window_index[0].target.stop]
+
+    # # a = loader[:]
+    # # a = loader[2:]
+    # a = loader[:10]
+    # a = loader[0:10]
+    # a = loader[7]
+    # a = loader[0:20]
+    # a = loader[10:20]
+    # a = loader[21:30]
+    # loader.trim_buffer_to(25)
+    # a = loader[26:31]
+    # loader.trim_buffer_to(26)
+    # a = loader[27:110]
     pass
 
 
