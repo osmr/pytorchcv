@@ -7,11 +7,6 @@ import cv2
 from PIL import Image
 import numpy as np
 import torch
-from collections import OrderedDict
-import torch.nn as nn
-import torch.nn.functional as F
-from typing import Callable, Any, Protocol
-from raft import raft_things
 
 
 class FilePathDirIterator(object):
@@ -20,7 +15,7 @@ class FilePathDirIterator(object):
 
     Parameters
     ----------
-    dir_path str
+    dir_path: str
         Directory path.
     """
     def __init__(self,
@@ -80,7 +75,7 @@ class BufferedDataLoader(object):
         Returns
         -------
         protocol(any)
-            Resulted data.
+            Target data.
         """
         return raw_data_chunk
 
@@ -159,6 +154,167 @@ class BufferedDataLoader(object):
             s_idx = start - self.start_pos
             self.buffer = self.buffer[s_idx:]
             self.start_pos = start
+
+
+class WindowRange(object):
+    """
+    Window range.
+
+    Parameters
+    ----------
+    start: int
+        Start position.
+    stop: int
+        Stop position.
+    """
+    def __init__(self,
+                 start: int,
+                 stop: int):
+        super(WindowRange, self).__init__()
+        self.start = start
+        self.stop = stop
+
+    def __repr__(self):
+        return "{start}:{stop}".format(
+            start=self.start,
+            stop=self.stop)
+
+
+class WindowMap(object):
+    """
+    Window map.
+
+    Parameters
+    ----------
+    target: WindowRange
+        Target window range.
+    source: WindowRange
+        Source window range.
+    """
+    def __init__(self,
+                 target: WindowRange,
+                 source: WindowRange):
+        super(WindowMap, self).__init__()
+        self.target = target
+        self.source = source
+
+    def __repr__(self):
+        return "{target} <- {source}".format(
+            target=self.target,
+            source=self.source)
+
+
+WindowIndex = list[WindowMap]
+
+
+def calc_window_data_loader_index(length: int,
+                                  window_size: int = 1,
+                                  padding: tuple[int, int] = (0, 0),
+                                  edge_mode: str = "ignore") -> WindowIndex:
+    """
+    Calculate window data loader index.
+
+    Parameters
+    ----------
+    length : int
+        Data length.
+    window_size : int, default 1
+        Calculation window size.
+    padding : tuple(int, int), default (0, 0)
+        Padding (overlap) values for raw data.
+    edge_mode : str, options: 'ignore', 'trim', default 'ignore'
+        Data edge processing mode:
+        'ignore' - ignore padding on edges,
+        'trim' - trim edges due to padding.
+
+    Returns
+    -------
+    WindowIndex
+        Resulted index.
+    """
+    assert (length > 0)
+    assert (window_size > 0)
+    assert (padding[0] >= 0) and (padding[1] >= 0)
+    assert (edge_mode in ("ignore", "trim"))
+
+    trim_values = padding if edge_mode == "trim" else (0, 0)
+    index = []
+    for i in range(0, length, window_size):
+        src_s = max(i - padding[0], 0)
+        src_e = min(i + window_size + padding[1], length)
+        s = max(i - trim_values[0], 0)
+        e = min(i - trim_values[0] + window_size, length - trim_values[0] - trim_values[1])
+        assert (e > s)
+        index.append(WindowMap(
+            target=WindowRange(start=s, stop=e),
+            source=WindowRange(start=src_s, stop=src_e)))
+    return index
+
+
+class WindowBufferedDataLoader(BufferedDataLoader):
+    """
+    Window buffered data loader.
+
+    Parameters
+    ----------
+    data : protocol(any)
+        Data.
+    """
+    def __init__(self,
+                 window_index: WindowIndex,
+                 **kwargs):
+        super(BufferedDataLoader, self).__init__(**kwargs)
+        self.window_index = window_index
+
+        self.length = self.window_index[-1].target.stop
+        self.window_length = len(self.window_index)
+        self.window_pose = -1
+
+    def __len__(self):
+        return self.length
+
+    def _calc_window_pose(self,
+                          pos: int) -> int:
+        """
+        Calculate window pose.
+
+        Parameters
+        ----------
+        pos : int
+            Position of target data.
+
+        Returns
+        -------
+        int
+            Window position.
+        """
+        for win_pose in range(max(self.window_pose, 0), self.window_length):
+            win_stop = self.window_index[win_pose].target.stop
+            if pos <= win_stop:
+                return win_pose
+        return self.window_length - 1
+
+    def _expand_buffer_to(self,
+                          end: int):
+        """
+        Expand buffer to the end index.
+
+        Parameters
+        ----------
+        end : int
+            End index.
+        """
+        assert (end > self.end_pos)
+        win_end = self._calc_window_pose(end)
+        for win_pose in range(max(self.window_pose, 0), win_end + 1):
+            win_map = self.window_index[win_pose]
+            raw_data_chunk = self.raw_data[win_map.source.start:win_map.source.stop]
+            if self.buffer is None:
+                self.buffer = self._load_data_items(raw_data_chunk)
+            else:
+                data_chunk = self._load_data_items(raw_data_chunk)
+                self._expand_buffer_by(data_chunk)
+            self.end_pos = win_map.target.stop
 
 
 class FrameBufferedDataLoader(BufferedDataLoader):
@@ -253,162 +409,6 @@ class FrameBufferedDataLoader(BufferedDataLoader):
         self.buffer = torch.cat([self.buffer, data_chunk])
 
 
-def calc_window_data_loader_index(length: int,
-                                  window_size: int = 1,
-                                  stride: int = 1,
-                                  in_padding: tuple[int, int] = (0, 0),
-                                  reduce: bool = True,
-                                  reduce_first_window: bool = False) -> OrderedDict[tuple[int, int], tuple[int, int]]:
-    """
-    Calculate window data loader index.
-
-    Parameters
-    ----------
-    length : int
-        Data length.
-    window_size : int, default 1
-        Calculation window size.
-    stride : int, default 1
-        Stride of the calculation.
-    in_padding : tuple(int, int), default (0, 0)
-        Internal padding (overlap) value for calculation.
-    reduce : bool, default True
-        Whether to reduce output size due to padding.
-    reduce_first_window : bool, default False
-        Whether to reduce size of the first window.
-
-    Returns
-    -------
-    OrderedDict(tuple(int, int), tuple(int, int))
-        Resulted index.
-    """
-    assert (length > 0)
-    assert (window_size > 0)
-    assert (stride > 0)
-    assert (in_padding[0] >= 0) and (in_padding[1] >= 0)
-
-    if reduce_first_window:
-        out_index = [(0, min(length, window_size - 1))]
-    else:
-        in_start_index = list(range(0, length, window_size))
-    index = OrderedDict()
-    for s_idx in range(length):
-        e_idx = min(length, s_idx + window_size - 1)
-        s_idx_ext = s_idx if s_idx == 0 else s_idx - 1
-        index[(s_idx_ext, e_idx)] = (s_idx_ext, e_idx)
-
-    return index
-
-
-class WindowDataLoaderIndexCalculator(object):
-    """
-    Window data loader index calculator.
-
-    Parameters
-    ----------
-    length : int
-        Data length.
-    window_size : int, default 1
-        Calculation window size.
-    stride : int, default 1
-        Stride of the calculation.
-    in_padding : tuple(int, int), default (0, 0)
-        Internal padding (overlap) value for calculation.
-    reduce : bool, default True
-        Whether to reduce output size due to padding.
-    """
-    def __init__(self,
-                 length: int,
-                 window_size: int = 1,
-                 stride: int = 1,
-                 in_padding: tuple[int, int] = (0, 0),
-                 reduce: bool = True):
-        super(WindowDataLoaderIndexCalculator, self).__init__()
-        assert (length > 0)
-        assert (window_size > 0)
-        assert (stride > 0)
-        assert (in_padding[0] >= 0) and (in_padding[1] >= 0)
-
-        self.length = length
-        self.window_size = window_size
-        self.stride = stride
-        self.in_padding = in_padding
-        self.reduce = reduce
-
-        self.index = 0
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        try:
-            result = self.data[self.index]
-        except IndexError:
-            raise StopIteration
-        self.index += 1
-        return result
-
-    def __len__(self):
-        try:
-            return self.data.__len__()
-        except AttributeError:
-            return sum(1 for item in iter(self.data))
-
-    def __getitem__(self, index):
-        return self.data[index]
-
-
-class BufferedCalculator(object):
-    """
-    Abstract buffered calculator.
-
-    Parameters
-    ----------
-    data : protocol(any)
-        Data.
-    window_size : int, default 1
-        Calculation window size.
-    stride : int, default 1
-        Stride of the calculation.
-    in_padding : tuple(int, int), default (0, 0)
-        Internal padding (overlap) value for calculation.
-    """
-    def __init__(self,
-                 data,
-                 window_size: int = 1,
-                 stride: int = 1,
-                 in_padding: tuple[int, int] = (0, 0)):
-        super(BufferedCalculator, self).__init__()
-        assert (window_size > 0)
-        assert (stride > 0)
-        assert (in_padding[0] >= 0) and (in_padding[1] >= 0)
-
-        self.data = data
-        self.window_size = window_size
-        self.stride = stride
-        self.in_padding = in_padding
-
-        self.index = 0
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        try:
-            result = self.data[self.index]
-        except IndexError:
-            raise StopIteration
-        self.index += 1
-        return result
-
-    def __len__(self):
-        try:
-            return self.data.__len__()
-        except AttributeError:
-            return sum(1 for item in iter(self.data))
-
-    def __getitem__(self, index):
-        return self.data[index]
 
 
 def _test():
@@ -417,6 +417,30 @@ def _test():
     frames_dir_path = os.path.join(root_path, frames_dir_name)
     image_resize_ratio = 1.0
     use_cuda = True
+
+    # ind1 = calc_window_data_loader_index(
+    #     length=876,
+    #     window_size=80,
+    #     padding=(5, 5),
+    #     edge_mode="ignore")
+    #
+    # ind1 = calc_window_data_loader_index(
+    #     length=877,
+    #     window_size=12,
+    #     padding=(1, 0),
+    #     edge_mode="trim")
+    #
+    # ind1 = calc_window_data_loader_index(
+    #     length=287,
+    #     window_size=12,
+    #     padding=(1, 0),
+    #     edge_mode="trim")
+    #
+    # ind1 = calc_window_data_loader_index(
+    #     length=80,
+    #     window_size=12,
+    #     padding=(1, 0),
+    #     edge_mode="trim")
 
     # loader = BufferedDataLoader(data=FilePathDirIterator(frames_dir_path))
     loader = FrameBufferedDataLoader(data=FilePathDirIterator(frames_dir_path), image_resize_ratio=image_resize_ratio, use_cuda=use_cuda)
