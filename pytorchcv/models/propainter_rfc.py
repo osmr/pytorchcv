@@ -79,7 +79,12 @@ class SecondOrderDeformableAlignment(ModulatedDeformConv2d):
         super(SecondOrderDeformableAlignment, self).__init__(*args, **kwargs)
 
         self.conv_offset = nn.Sequential(
-            nn.Conv2d(3 * self.out_channels, self.out_channels, 3, 1, 1),
+            nn.Conv2d(
+                3 * self.out_channels,
+                self.out_channels,
+                3,
+                1,
+                1),
             nn.LeakyReLU(negative_slope=0.1, inplace=True),
             nn.Conv2d(self.out_channels, self.out_channels, 3, 1, 1),
             nn.LeakyReLU(negative_slope=0.1, inplace=True),
@@ -125,7 +130,8 @@ class BidirectionalPropagation(nn.Module):
 
         for i, module in enumerate(modules):
             self.deform_align[module] = SecondOrderDeformableAlignment(
-                2 * channel, channel, 3, padding=1, deform_groups=16)
+                2 * channel,
+                channel, 3, padding=1, deform_groups=16)
 
             self.backbone[module] = nn.Sequential(
                 nn.Conv2d((2 + i) * channel, channel, 3, 1, 1),
@@ -216,7 +222,13 @@ class deconv(nn.Module):
 
 
 class P3DBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, use_residual=0, bias=True):
+    def __init__(self,
+                 in_channels,
+                 out_channels,
+                 kernel_size,
+                 stride,
+                 padding,
+                 bias=True):
         super().__init__()
         self.conv1 = nn.Sequential(
             nn.Conv3d(
@@ -236,15 +248,11 @@ class P3DBlock(nn.Module):
                 padding=(2, 0, 0),
                 dilation=(2, 1, 1),
                 bias=bias))
-        self.use_residual = use_residual
 
     def forward(self, feats):
         feat1 = self.conv1(feats)
         feat2 = self.conv2(feat1)
-        if self.use_residual:
-            output = feats + feat2
-        else:
-            output = feat2
+        output = feat2
         return output
 
 
@@ -384,11 +392,12 @@ class RecurrentFlowCompleteNet(nn.Module):
         masked_flows = masked_flows.permute(0, 2, 1, 3, 4)
         masks = masks.permute(0, 2, 1, 3, 4)
 
-        inputs = torch.cat((masked_flows, masks), dim=1)
+        x = torch.cat((masked_flows, masks), dim=1)
 
-        x = self.downsample(inputs)
+        x = self.downsample(x)
 
         feat_e1 = self.encoder1(x)
+
         feat_e2 = self.encoder2(feat_e1)  # b c t h w
         feat_mid = self.mid_dilation(feat_e2)  # b c t h w
         feat_mid = feat_mid.permute(0, 2, 1, 3, 4)  # b t c h w
@@ -399,9 +408,6 @@ class RecurrentFlowCompleteNet(nn.Module):
         _, c, _, h_f, w_f = feat_e1.shape
         feat_e1 = feat_e1.permute(0, 2, 1, 3, 4).contiguous().view(-1, c, h_f, w_f)  # b*t c h w
         feat_d2 = self.decoder2(feat_prop) + feat_e1
-
-        # _, c, _, h_f, w_f = x.shape
-        # x = x.permute(0, 2, 1, 3, 4).contiguous().view(-1, c, h_f, w_f)  # b*t c h w
 
         feat_d1 = self.decoder1(feat_d2)
 
