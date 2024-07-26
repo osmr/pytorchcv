@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.modules.utils import _pair, _single
 import torchvision
+from torchvision.ops import DeformConv2d
 from common import lambda_leakyrelu, conv1x1, conv3x3, conv3x3_block
 from resnet import ResUnit
 
@@ -21,87 +22,160 @@ def constant_init(module, val, bias=0):
         nn.init.constant_(module.bias, bias)
 
 
-class ModulatedDeformConv2d(nn.Module):
-    def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride=1,
-                 padding=0,
-                 dilation=1,
-                 groups=1,
-                 deform_groups=1,
-                 bias=True):
-        super(ModulatedDeformConv2d, self).__init__()
+# class ModulatedDeformConv2d(nn.Module):
+#     def __init__(self,
+#                  in_channels,
+#                  out_channels,
+#                  kernel_size,
+#                  stride=1,
+#                  padding=0,
+#                  dilation=1,
+#                  groups=1,
+#                  deform_groups=1,
+#                  bias=True):
+#         super(ModulatedDeformConv2d, self).__init__()
+#
+#         self.in_channels = in_channels
+#         self.out_channels = out_channels
+#         self.kernel_size = _pair(kernel_size)
+#         self.stride = stride
+#         self.padding = padding
+#         self.dilation = dilation
+#         self.groups = groups
+#         self.deform_groups = deform_groups
+#         self.with_bias = bias
+#         # enable compatibility with nn.Conv2d
+#         self.transposed = False
+#         self.output_padding = _single(0)
+#
+#         self.weight = nn.Parameter(torch.Tensor(out_channels, in_channels // groups, *self.kernel_size))
+#         if bias:
+#             self.bias = nn.Parameter(torch.Tensor(out_channels))
+#         else:
+#             self.register_parameter('bias', None)
+#         self.init_weights()
+#
+#     def init_weights(self):
+#         n = self.in_channels
+#         for k in self.kernel_size:
+#             n *= k
+#         stdv = 1.0 / math.sqrt(n)
+#         self.weight.data.uniform_(-stdv, stdv)
+#         if self.bias is not None:
+#             self.bias.data.zero_()
+#
+#         if hasattr(self, "conv_offset"):
+#             self.conv_offset.weight.data.zero_()
+#             self.conv_offset.bias.data.zero_()
+#
+#     def forward(self, x, offset, mask):
+#         pass
+#
+#
+# class SecondOrderDeformableAlignment(ModulatedDeformConv2d):
+#     """Second-order deformable alignment module."""
+#     def __init__(self, *args, **kwargs):
+#         self.max_residue_magnitude = kwargs.pop('max_residue_magnitude', 5)
+#
+#         super(SecondOrderDeformableAlignment, self).__init__(*args, **kwargs)
+#
+#         self.conv_offset = nn.Sequential(
+#             conv3x3(
+#                 in_channels=(3 * self.out_channels),
+#                 out_channels=self.out_channels,
+#                 bias=True),
+#             nn.LeakyReLU(negative_slope=0.1, inplace=True),
+#             conv3x3(
+#                 in_channels=self.out_channels,
+#                 out_channels=self.out_channels,
+#                 bias=True),
+#             nn.LeakyReLU(negative_slope=0.1, inplace=True),
+#             conv3x3(
+#                 in_channels=self.out_channels,
+#                 out_channels=self.out_channels,
+#                 bias=True),
+#             nn.LeakyReLU(negative_slope=0.1, inplace=True),
+#             conv3x3(
+#                 in_channels=self.out_channels,
+#                 out_channels=(27 * self.deform_groups),
+#                 bias=True),
+#         )
+#         self.init_offset()
+#
+#     def init_offset(self):
+#         constant_init(self.conv_offset[-1], val=0, bias=0)
+#
+#     def forward(self, x, extra_feat):
+#         out = self.conv_offset(extra_feat)
+#         o1, o2, mask = torch.chunk(out, 3, dim=1)
+#
+#         # offset
+#         offset = self.max_residue_magnitude * torch.tanh(torch.cat((o1, o2), dim=1))
+#         offset_1, offset_2 = torch.chunk(offset, 2, dim=1)
+#         offset = torch.cat([offset_1, offset_2], dim=1)
+#
+#         # mask
+#         mask = torch.sigmoid(mask)
+#
+#         return torchvision.ops.deform_conv2d(
+#             x,
+#             offset,
+#             self.weight,
+#             self.bias,
+#             self.stride,
+#             self.padding,
+#             self.dilation,
+#             mask)
 
-        self.in_channels = in_channels
-        self.out_channels = out_channels
-        self.kernel_size = _pair(kernel_size)
-        self.stride = stride
-        self.padding = padding
-        self.dilation = dilation
-        self.groups = groups
-        self.deform_groups = deform_groups
-        self.with_bias = bias
-        # enable compatibility with nn.Conv2d
-        self.transposed = False
-        self.output_padding = _single(0)
 
-        self.weight = nn.Parameter(torch.Tensor(out_channels, in_channels // groups, *self.kernel_size))
-        if bias:
-            self.bias = nn.Parameter(torch.Tensor(out_channels))
-        else:
-            self.register_parameter('bias', None)
-        self.init_weights()
-
-    def init_weights(self):
-        n = self.in_channels
-        for k in self.kernel_size:
-            n *= k
-        stdv = 1.0 / math.sqrt(n)
-        self.weight.data.uniform_(-stdv, stdv)
-        if self.bias is not None:
-            self.bias.data.zero_()
-
-        if hasattr(self, "conv_offset"):
-            self.conv_offset.weight.data.zero_()
-            self.conv_offset.bias.data.zero_()
-
-    def forward(self, x, offset, mask):
-        pass
-
-
-class SecondOrderDeformableAlignment(ModulatedDeformConv2d):
+class SecondOrderDeformableAlignment(nn.Module):
     """Second-order deformable alignment module."""
-    def __init__(self, *args, **kwargs):
-        self.max_residue_magnitude = kwargs.pop('max_residue_magnitude', 5)
-
-        super(SecondOrderDeformableAlignment, self).__init__(*args, **kwargs)
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 deform_groups: int = 16):
+        super(SecondOrderDeformableAlignment, self).__init__()
+        self.max_residue_magnitude = 5
 
         self.conv_offset = nn.Sequential(
             conv3x3(
-                in_channels=(3 * self.out_channels),
-                out_channels=self.out_channels,
+                in_channels=(3 * out_channels),
+                out_channels=out_channels,
                 bias=True),
             nn.LeakyReLU(negative_slope=0.1, inplace=True),
             conv3x3(
-                in_channels=self.out_channels,
-                out_channels=self.out_channels,
+                in_channels=out_channels,
+                out_channels=out_channels,
                 bias=True),
             nn.LeakyReLU(negative_slope=0.1, inplace=True),
             conv3x3(
-                in_channels=self.out_channels,
-                out_channels=self.out_channels,
+                in_channels=out_channels,
+                out_channels=out_channels,
                 bias=True),
             nn.LeakyReLU(negative_slope=0.1, inplace=True),
             conv3x3(
-                in_channels=self.out_channels,
-                out_channels=(27 * self.deform_groups),
+                in_channels=out_channels,
+                out_channels=(27 * deform_groups),
                 bias=True),
         )
-        self.init_offset()
 
-    def init_offset(self):
+        self.deform_conv = DeformConv2d(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=3,
+            padding=1)
+
+        self._init_params()
+
+    def _init_params(self):
+        n = self.deform_conv.in_channels
+        for k in self.deform_conv.kernel_size:
+            n *= k
+        stdv = 1.0 / math.sqrt(n)
+        self.deform_conv.weight.data.uniform_(-stdv, stdv)
+        if self.deform_conv.bias is not None:
+            self.deform_conv.bias.data.zero_()
+
         constant_init(self.conv_offset[-1], val=0, bias=0)
 
     def forward(self, x, extra_feat):
@@ -116,15 +190,21 @@ class SecondOrderDeformableAlignment(ModulatedDeformConv2d):
         # mask
         mask = torch.sigmoid(mask)
 
-        return torchvision.ops.deform_conv2d(
-            x,
-            offset,
-            self.weight,
-            self.bias,
-            self.stride,
-            self.padding,
-            self.dilation,
-            mask)
+        out = self.deform_conv(
+            input=x,
+            offset=offset,
+            mask=mask)
+        return out
+
+        # return torchvision.ops.deform_conv2d(
+        #     x,
+        #     offset,
+        #     self.weight,
+        #     self.bias,
+        #     self.stride,
+        #     self.padding,
+        #     self.dilation,
+        #     mask)
 
 
 class BidirectionalPropagation(nn.Module):
@@ -138,8 +218,9 @@ class BidirectionalPropagation(nn.Module):
 
         for i, module in enumerate(modules):
             self.deform_align[module] = SecondOrderDeformableAlignment(
-                2 * channels,
-                channels, 3, padding=1, deform_groups=16)
+                in_channels=(2 * channels),
+                out_channels=channels,
+                deform_groups=16)
 
             self.backbone[module] = nn.Sequential(
                 conv3x3(
@@ -394,13 +475,13 @@ class RecurrentFlowCompleteNet(nn.Module):
             out_channels=1,
             mid_channels=16)
 
-        self._init_params()
-
-    def _init_params(self):
-        # Need to initial the weights of MSDeformAttn specifically
-        for m in self.modules():
-            if isinstance(m, SecondOrderDeformableAlignment):
-                m.init_offset()
+    #     self._init_params()
+    #
+    # def _init_params(self):
+    #     # Need to initial the weights of MSDeformAttn specifically
+    #     for m in self.modules():
+    #         if isinstance(m, SecondOrderDeformableAlignment):
+    #             m.init_offset()
 
     def forward(self, masked_flows, masks):
         # masked_flows: b t-1 2 h w
@@ -495,6 +576,14 @@ def _test2():
         list1_u = [key.replace(".mid_layer_2.0.", ".res_unit.body.conv2.conv.") for key in list1_u]
         list1_u = [key.replace(".out_layer.", ".out_conv.") for key in list1_u]
         for src_i, dst_i in zip(list1, list1_u):
+            upd_dict[src_i] = dst_i
+
+        list2 = list(filter(re.compile("feat_prop_module.deform_align.").search, src_param_keys))
+        list2_u = [key.replace(".backward_.weight", ".backward_.deform_conv.weight") for key in list2]
+        list2_u = [key.replace(".backward_.bias", ".backward_.deform_conv.bias") for key in list2_u]
+        list2_u = [key.replace(".forward_.weight", ".forward_.deform_conv.weight") for key in list2_u]
+        list2_u = [key.replace(".forward_.bias", ".forward_.deform_conv.bias") for key in list2_u]
+        for src_i, dst_i in zip(list2, list2_u):
             upd_dict[src_i] = dst_i
 
         list4_r = []
