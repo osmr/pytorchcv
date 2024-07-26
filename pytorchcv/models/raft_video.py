@@ -8,7 +8,7 @@ from PIL import Image
 import numpy as np
 import torch
 import torch.nn as nn
-from raft import raft_things
+from raft import raft_things, run_raft_on_video
 
 
 class FilePathDirIterator(object):
@@ -319,40 +319,6 @@ class WindowBufferedDataLoader(BufferedDataLoader):
             self.end_pos = win_map.target.stop
 
 
-def calc_optical_flow_on_video(net: nn.Module,
-                               frames: torch.Tensor,
-                               iters: int = 20) -> (torch.Tensor, torch.Tensor):
-    """
-    Calculate optical flow on video.
-
-    Parameters
-    ----------
-    net: nn.Module
-        Optical flow model.
-    frames : torch.Tensor
-        Frames.
-    iters : int, default 20
-        Number of iterations.
-
-    Returns
-    -------
-    torch.Tensor
-        Forward flow.
-    torch.Tensor
-        Backward flow.
-    """
-    frames1 = frames[:-1]
-    frames2 = frames[1:]
-
-    _, flows_forward = net(frames1, frames2, iters=iters)
-    _, flows_backward = net(frames2, frames1, iters=iters)
-
-    # return flows_forward, flows_backward
-
-    flows = torch.stack([flows_forward, flows_backward])
-    return flows
-
-
 class FrameBufferedDataLoader(BufferedDataLoader):
     """
     Frame buffered data loader.
@@ -483,7 +449,7 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
         protocol(any)
             Resulted data.
         """
-        flows = calc_optical_flow_on_video(
+        flows = run_raft_on_video(
             net=self.net,
             frames=raw_data_chunk,
             iters=self.iters)

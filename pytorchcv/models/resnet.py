@@ -11,7 +11,7 @@ __all__ = ['ResNet', 'resnet10', 'resnet12', 'resnet14', 'resnetbc14b', 'resnet1
 import os
 import torch.nn as nn
 from typing import Callable
-from common import lambda_batchnorm2d, conv1x1_block, conv3x3_block, conv7x7_block
+from common import lambda_relu, lambda_batchnorm2d, conv1x1_block, conv3x3_block, conv7x7_block
 
 
 class ResBlock(nn.Module):
@@ -30,6 +30,8 @@ class ResBlock(nn.Module):
         Whether the layer uses a bias vector.
     normalization : function or None, default lambda_batchnorm2d()
         Lambda-function generator for normalization layer.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer in the main convolution block.
     final_activation : function or None, default None
         Lambda-function generator for activation layer in the final convolution block.
     """
@@ -39,6 +41,7 @@ class ResBlock(nn.Module):
                  stride: int | tuple[int, int],
                  bias: bool = False,
                  normalization: Callable[..., nn.Module | None] | None = lambda_batchnorm2d(),
+                 activation: Callable[..., nn.Module] = lambda_relu(),
                  final_activation: Callable[..., nn.Module | None] | None = None):
         super(ResBlock, self).__init__()
         self.conv1 = conv3x3_block(
@@ -46,7 +49,8 @@ class ResBlock(nn.Module):
             out_channels=out_channels,
             stride=stride,
             bias=bias,
-            normalization=normalization)
+            normalization=normalization,
+            activation=activation)
         self.conv2 = conv3x3_block(
             in_channels=out_channels,
             out_channels=out_channels,
@@ -84,6 +88,8 @@ class ResBottleneck(nn.Module):
         Whether to use stride in the first or the second convolution layer of the block.
     bottleneck_factor : int, default 4
         Bottleneck factor.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer in the main convolution blocks.
     final_activation : function or None, default None
         Lambda-function generator for activation layer in the final convolution block.
     """
@@ -97,6 +103,7 @@ class ResBottleneck(nn.Module):
                  normalization: Callable[..., nn.Module | None] | None = lambda_batchnorm2d(),
                  conv1_stride: bool = False,
                  bottleneck_factor: int = 4,
+                 activation: Callable[..., nn.Module] = lambda_relu(),
                  final_activation: Callable[..., nn.Module | None] | None = None):
         super(ResBottleneck, self).__init__()
         mid_channels = out_channels // bottleneck_factor
@@ -106,7 +113,8 @@ class ResBottleneck(nn.Module):
             out_channels=mid_channels,
             stride=(stride if conv1_stride else 1),
             bias=bias,
-            normalization=normalization)
+            normalization=normalization,
+            activation=activation)
         self.conv2 = conv3x3_block(
             in_channels=mid_channels,
             out_channels=mid_channels,
@@ -114,7 +122,8 @@ class ResBottleneck(nn.Module):
             padding=padding,
             dilation=dilation,
             bias=bias,
-            normalization=normalization)
+            normalization=normalization,
+            activation=activation)
         self.conv3 = conv1x1_block(
             in_channels=mid_channels,
             out_channels=out_channels,
@@ -139,7 +148,7 @@ class ResUnit(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    stride : int or tuple(int, int)
+    stride : int or tuple(int, int), default 1
         Strides of the convolution.
     padding : int or tuple(int, int), default 1
         Padding value for the second convolution layer in bottleneck.
@@ -153,20 +162,26 @@ class ResUnit(nn.Module):
         Whether to use a bottleneck or simple block in units.
     conv1_stride : bool, default False
         Whether to use stride in the first or the second convolution layer of the block.
-    final_activation : function or None, default None
-        Lambda-function generator for activation layer in the final convolution block.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer in the main convolution blocks (in body block).
+    final_body_activation : function or None, default None
+        Lambda-function generator for activation layer in the final convolution block (in body block).
+    final_activation : function, default lambda_relu()
+        Lambda-function generator for activation layer after residual calculation.
     """
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 stride: int | tuple[int, int],
+                 stride: int | tuple[int, int] = 1,
                  padding: int | tuple[int, int] = 1,
                  dilation: int | tuple[int, int] = 1,
                  bias: bool = False,
                  normalization: Callable[..., nn.Module | None] | None = lambda_batchnorm2d(),
                  bottleneck: bool = True,
                  conv1_stride: bool = False,
-                 final_activation: Callable[..., nn.Module | None] | None = None):
+                 activation: Callable[..., nn.Module] = lambda_relu(),
+                 final_body_activation: Callable[..., nn.Module | None] | None = None,
+                 final_activation: Callable[..., nn.Module] = lambda_relu()):
         super(ResUnit, self).__init__()
         self.resize_identity = (in_channels != out_channels) or (stride != 1)
 
@@ -180,7 +195,8 @@ class ResUnit(nn.Module):
                 bias=bias,
                 normalization=normalization,
                 conv1_stride=conv1_stride,
-                final_activation=final_activation)
+                activation=activation,
+                final_activation=final_body_activation)
         else:
             self.body = ResBlock(
                 in_channels=in_channels,
@@ -188,7 +204,8 @@ class ResUnit(nn.Module):
                 stride=stride,
                 bias=bias,
                 normalization=normalization,
-                final_activation=final_activation)
+                activation=activation,
+                final_activation=final_body_activation)
         if self.resize_identity:
             self.identity_conv = conv1x1_block(
                 in_channels=in_channels,
@@ -197,7 +214,7 @@ class ResUnit(nn.Module):
                 bias=bias,
                 normalization=normalization,
                 activation=None)
-        self.activ = nn.ReLU(inplace=True)
+        self.activ = final_activation()
 
     def forward(self, x):
         if self.resize_identity:

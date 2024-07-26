@@ -10,6 +10,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.modules.utils import _pair, _single
 import torchvision
+from common import lambda_leakyrelu, conv1x1, conv3x3, conv3x3_block
+from resnet import ResUnit
 
 
 def constant_init(module, val, bias=0):
@@ -196,22 +198,20 @@ class BidirectionalPropagation(nn.Module):
 
 class deconv(nn.Module):
     def __init__(self,
-                 input_channel,
-                 output_channel,
-                 kernel_size=3,
-                 padding=0):
+                 in_channels,
+                 out_channels):
         super().__init__()
-        self.conv = nn.Conv2d(input_channel,
-                              output_channel,
-                              kernel_size=kernel_size,
-                              stride=1,
-                              padding=padding)
+        self.conv = conv3x3(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            bias=True)
 
     def forward(self, x):
-        x = F.interpolate(x,
-                          scale_factor=2,
-                          mode='bilinear',
-                          align_corners=True)
+        x = F.interpolate(
+            x,
+            scale_factor=2,
+            mode="bilinear",
+            align_corners=True)
         return self.conv(x)
 
 
@@ -249,38 +249,41 @@ class P3DBlock(nn.Module):
 
 
 class EdgeDetection(nn.Module):
-    def __init__(self, in_ch=2, out_ch=1, mid_ch=16):
-        super().__init__()
-        self.projection = nn.Sequential(
-            nn.Conv2d(in_ch, mid_ch, 3, 1, 1),
-            nn.LeakyReLU(0.2, inplace=True)
-        )
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int):
+        super(EdgeDetection, self).__init__()
+        main_activation = lambda_leakyrelu(negative_slope=0.2)
+        final_activation = lambda_leakyrelu(negative_slope=0.01)
 
-        self.mid_layer_1 = nn.Sequential(
-            nn.Conv2d(mid_ch, mid_ch, 3, 1, 1),
-            nn.LeakyReLU(0.2, inplace=True)
-        )
+        self.proj = conv3x3_block(
+            in_channels=in_channels,
+            out_channels=mid_channels,
+            bias=True,
+            normalization=None,
+            activation=main_activation)
 
-        self.mid_layer_2 = nn.Sequential(
-            nn.Conv2d(
-                mid_ch,
-                mid_ch,
-                kernel_size=3,
-                stride=1,
-                padding=1))
+        self.res_unit = ResUnit(
+            in_channels=mid_channels,
+            out_channels=mid_channels,
+            bias=True,
+            normalization=None,
+            bottleneck=False,
+            activation=main_activation,
+            final_activation=final_activation)
 
-        self.l_relu = nn.LeakyReLU(0.01, inplace=True)
+        self.out_conv = conv1x1(
+            in_channels=mid_channels,
+            out_channels=out_channels,
+            bias=True)
 
-        self.out_layer = nn.Conv2d(mid_ch, out_ch, 1, 1, 0)
-
-    def forward(self, flow):
-        flow = self.projection(flow)
-        edge = self.mid_layer_1(flow)
-        edge = self.mid_layer_2(edge)
-        edge = self.l_relu(flow + edge)
-        edge = self.out_layer(edge)
-        edge = torch.sigmoid(edge)
-        return edge
+    def forward(self, x):
+        x = self.proj(x)
+        x = self.res_unit(x)
+        x = self.out_conv(x)
+        x = torch.sigmoid(x)
+        return x
 
 
 class RecurrentFlowCompleteNet(nn.Module):
@@ -343,25 +346,28 @@ class RecurrentFlowCompleteNet(nn.Module):
         self.decoder2 = nn.Sequential(
             nn.Conv2d(128, 128, 3, 1, 1),
             nn.LeakyReLU(0.2, inplace=True),
-            deconv(128, 64, 3, 1),
+            deconv(128, 64),
             nn.LeakyReLU(0.2, inplace=True)
         )  # 4x
 
         self.decoder1 = nn.Sequential(
             nn.Conv2d(64, 64, 3, 1, 1),
             nn.LeakyReLU(0.2, inplace=True),
-            deconv(64, 32, 3, 1),
+            deconv(64, 32),
             nn.LeakyReLU(0.2, inplace=True)
         )  # 2x
 
         self.upsample = nn.Sequential(
             nn.Conv2d(32, 32, 3, padding=1),
             nn.LeakyReLU(0.2, inplace=True),
-            deconv(32, 2, 3, 1)
+            deconv(32, 2)
         )
 
         # edge loss
-        self.edgeDetector = EdgeDetection(in_ch=2, out_ch=1, mid_ch=16)
+        self.edgeDetector = EdgeDetection(
+            in_channels=2,
+            out_channels=1,
+            mid_channels=16)
 
         self._init_params()
 
@@ -394,13 +400,14 @@ class RecurrentFlowCompleteNet(nn.Module):
         feat_e1 = feat_e1.permute(0, 2, 1, 3, 4).contiguous().view(-1, c, h_f, w_f)  # b*t c h w
         feat_d2 = self.decoder2(feat_prop) + feat_e1
 
-        _, c, _, h_f, w_f = x.shape
-        x = x.permute(0, 2, 1, 3, 4).contiguous().view(-1, c, h_f, w_f)  # b*t c h w
+        # _, c, _, h_f, w_f = x.shape
+        # x = x.permute(0, 2, 1, 3, 4).contiguous().view(-1, c, h_f, w_f)  # b*t c h w
 
         feat_d1 = self.decoder1(feat_d2)
 
         flow = self.upsample(feat_d1)
-        if self.training:
+        if True:
+        # if self.training:
             edge = self.edgeDetector(flow)
             edge = edge.view(b, t, 1, h, w)
         else:
@@ -448,16 +455,51 @@ class RecurrentFlowCompleteNet(nn.Module):
 
 
 def _test2():
+    import re
     import os
     import numpy as np
+
+    def convert_state_dict(src_checkpoint,
+                           dst_checkpoint):
+
+        src_param_keys = list(src_checkpoint.keys())
+
+        upd_dict = {}
+
+        list1 = list(filter(re.compile("edgeDetector.").search, src_param_keys))
+        list1_u = [key.replace(".projection.0.", ".proj.conv.") for key in list1]
+        list1_u = [key.replace(".mid_layer_1.0.", ".res_unit.body.conv1.conv.") for key in list1_u]
+        list1_u = [key.replace(".mid_layer_2.0.", ".res_unit.body.conv2.conv.") for key in list1_u]
+        list1_u = [key.replace(".out_layer.", ".out_conv.") for key in list1_u]
+        for src_i, dst_i in zip(list1, list1_u):
+            upd_dict[src_i] = dst_i
+
+        list4_r = []
+
+        for k, v in src_checkpoint.items():
+            if k in upd_dict.keys():
+                dst_checkpoint[upd_dict[k]] = src_checkpoint[k]
+            else:
+                if k not in list4_r:
+                    dst_checkpoint[k] = src_checkpoint[k]
+                else:
+                    print("Remove: {}".format(k))
+                    pass
 
     root_path = "../../../pytorchcv_data/test"
     rfc_model_file_name = "recurrent_flow_completion.pth"
 
     model_path = os.path.join(root_path, rfc_model_file_name)
     net_rfc = RecurrentFlowCompleteNet()
-    ckpt = torch.load(model_path, map_location="cpu")
-    net_rfc.load_state_dict(ckpt, strict=True)
+
+    src_checkpoint = torch.load(model_path, map_location="cpu")
+    dst_checkpoint = net_rfc.state_dict()
+    convert_state_dict(
+        src_checkpoint,
+        dst_checkpoint)
+    net_rfc.load_state_dict(dst_checkpoint, strict=True)
+    # ckpt = torch.load(model_path, map_location="cpu")
+    # net_rfc.load_state_dict(ckpt, strict=True)
 
     for p in net_rfc.parameters():
         p.requires_grad = False
@@ -507,6 +549,29 @@ def _test2():
     if not np.array_equal(flow_b_comp_np, flow_b_comp_np_):
         print("*")
     np.testing.assert_array_equal(flow_b_comp_np, flow_b_comp_np_)
+
+    masks_forward = mask[:, :-1, ...].contiguous()
+    masked_flows_forward = flow_f * (1 - masks_forward)
+    pred_flows_f, pred_edges_f = net_rfc(masked_flows_forward, masks_forward)
+
+    pred_flows_f_np_ = pred_flows_f[0, 0].cpu().detach().numpy()
+    pred_edges_f_np_ = pred_edges_f[0, 0].cpu().detach().numpy()
+
+    # np.save(os.path.join(root_path, "pred_flows_f.npy"), np.ascontiguousarray(pred_flows_f_np_))
+    # np.save(os.path.join(root_path, "pred_edges_f.npy"), np.ascontiguousarray(pred_edges_f_np_))
+
+    pred_flows_f_file_path = os.path.join(root_path, "pred_flows_f.npy")
+    pred_edges_f_file_path = os.path.join(root_path, "pred_edges_f.npy")
+
+    pred_flows_f_np = np.load(pred_flows_f_file_path)
+    pred_edges_f_np = np.load(pred_edges_f_file_path)
+
+    if not np.array_equal(pred_flows_f_np, pred_flows_f_np_):
+        print("*")
+    np.testing.assert_array_equal(pred_flows_f_np, pred_flows_f_np_)
+    if not np.array_equal(pred_edges_f_np, pred_edges_f_np_):
+        print("*")
+    np.testing.assert_array_equal(pred_edges_f_np, pred_edges_f_np_)
 
     pass
 

@@ -4,7 +4,7 @@
     https://arxiv.org/pdf/2003.12039.
 """
 
-__all__ = ['RAFT', 'raft_things', 'raft_small']
+__all__ = ['RAFT', 'raft_things', 'raft_small', 'run_raft_on_video']
 
 import os
 import torch
@@ -15,6 +15,44 @@ from common import (lambda_relu, lambda_sigmoid, lambda_tanh, lambda_batchnorm2d
                      conv3x3, conv3x3_block, conv7x7_block, ConvBlock)
 from resnet import ResUnit
 from inceptionv3 import ConvSeqBranch
+
+
+def run_raft_on_video(net: nn.Module,
+                      frames: torch.Tensor,
+                      iters: int = 20) -> (torch.Tensor, torch.Tensor):
+    """
+    Calculate optical flow (based on RAFT) on video.
+    Batch dimension is interpreted as time.
+
+    Parameters
+    ----------
+    net: nn.Module
+        Optical flow model.
+    frames : torch.Tensor
+        Frames.
+    iters : int, default 20
+        Number of iterations.
+
+    Returns
+    -------
+    torch.Tensor
+        Forward flow.
+    torch.Tensor
+        Backward flow.
+    """
+    assert (len(frames.shape) == 4)
+    assert (frames.shape[0] > 1)
+
+    frames1 = frames[:-1]
+    frames2 = frames[1:]
+
+    _, flows_forward = net(frames1, frames2, iters=iters)
+    _, flows_backward = net(frames2, frames1, iters=iters)
+
+    # return flows_forward, flows_backward
+
+    flows = torch.stack([flows_forward, flows_backward])
+    return flows
 
 
 def create_coords_grid(batch: int,
@@ -286,7 +324,7 @@ class RAFTEncoder(nn.Module):
                  dropout_rate=0.0):
         super(RAFTEncoder, self).__init__()
         conv1_stride = False
-        final_activation = lambda_relu()
+        final_body_activation = lambda_relu()
 
         self.features = nn.Sequential()
         self.features.add_module("init_block", conv7x7_block(
@@ -308,7 +346,7 @@ class RAFTEncoder(nn.Module):
                     normalization=normalization,
                     bottleneck=bottleneck,
                     conv1_stride=conv1_stride,
-                    final_activation=final_activation))
+                    final_body_activation=final_body_activation))
                 in_channels = out_channels
             self.features.add_module("stage{}".format(i + 1), stage)
         self.features.add_module("final_block", conv1x1(
