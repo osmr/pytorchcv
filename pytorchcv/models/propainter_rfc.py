@@ -79,18 +79,25 @@ class SecondOrderDeformableAlignment(ModulatedDeformConv2d):
         super(SecondOrderDeformableAlignment, self).__init__(*args, **kwargs)
 
         self.conv_offset = nn.Sequential(
-            nn.Conv2d(
-                3 * self.out_channels,
-                self.out_channels,
-                3,
-                1,
-                1),
+            conv3x3(
+                in_channels=(3 * self.out_channels),
+                out_channels=self.out_channels,
+                bias=True),
             nn.LeakyReLU(negative_slope=0.1, inplace=True),
-            nn.Conv2d(self.out_channels, self.out_channels, 3, 1, 1),
+            conv3x3(
+                in_channels=self.out_channels,
+                out_channels=self.out_channels,
+                bias=True),
             nn.LeakyReLU(negative_slope=0.1, inplace=True),
-            nn.Conv2d(self.out_channels, self.out_channels, 3, 1, 1),
+            conv3x3(
+                in_channels=self.out_channels,
+                out_channels=self.out_channels,
+                bias=True),
             nn.LeakyReLU(negative_slope=0.1, inplace=True),
-            nn.Conv2d(self.out_channels, 27 * self.deform_groups, 3, 1, 1),
+            conv3x3(
+                in_channels=self.out_channels,
+                out_channels=(27 * self.deform_groups),
+                bias=True),
         )
         self.init_offset()
 
@@ -121,25 +128,35 @@ class SecondOrderDeformableAlignment(ModulatedDeformConv2d):
 
 
 class BidirectionalPropagation(nn.Module):
-    def __init__(self, channel):
+    def __init__(self,
+                 channels):
         super(BidirectionalPropagation, self).__init__()
         modules = ['backward_', 'forward_']
         self.deform_align = nn.ModuleDict()
         self.backbone = nn.ModuleDict()
-        self.channel = channel
+        self.channels = channels
 
         for i, module in enumerate(modules):
             self.deform_align[module] = SecondOrderDeformableAlignment(
-                2 * channel,
-                channel, 3, padding=1, deform_groups=16)
+                2 * channels,
+                channels, 3, padding=1, deform_groups=16)
 
             self.backbone[module] = nn.Sequential(
-                nn.Conv2d((2 + i) * channel, channel, 3, 1, 1),
+                conv3x3(
+                    in_channels=((2 + i) * channels),
+                    out_channels=channels,
+                    bias=True),
                 nn.LeakyReLU(negative_slope=0.1, inplace=True),
-                nn.Conv2d(channel, channel, 3, 1, 1),
+                conv3x3(
+                    in_channels=channels,
+                    out_channels=channels,
+                    bias=True),
             )
 
-        self.fusion = nn.Conv2d(2 * channel, channel, 1, 1, 0)
+        self.fusion = conv1x1(
+            in_channels=(2 * channels),
+            out_channels=channels,
+            bias=True)
 
     def forward(self, x):
         """
@@ -161,7 +178,7 @@ class BidirectionalPropagation(nn.Module):
             if 'backward' in module_name:
                 frame_idx = frame_idx[::-1]
 
-            feat_prop = x.new_zeros(b, self.channel, h, w)
+            feat_prop = x.new_zeros(b, self.channels, h, w)
             for i, idx in enumerate(frame_idx):
                 feat_current = feats['spatial'][mapping_idx[idx]]
                 if i > 0:
