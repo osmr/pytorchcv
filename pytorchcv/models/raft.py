@@ -19,7 +19,7 @@ from inceptionv3 import ConvSeqBranch
 
 def run_raft_on_video(net: nn.Module,
                       frames: torch.Tensor,
-                      iters: int = 20) -> (torch.Tensor, torch.Tensor):
+                      iters: int = 20) -> torch.Tensor:
     """
     Calculate optical flow (based on RAFT) on video.
     Batch dimension is interpreted as time.
@@ -29,16 +29,14 @@ def run_raft_on_video(net: nn.Module,
     net: nn.Module
         Optical flow model.
     frames : torch.Tensor
-        Frames.
+        Frames with size: (time, channels, height, width).
     iters : int, default 20
         Number of iterations.
 
     Returns
     -------
     torch.Tensor
-        Forward flow.
-    torch.Tensor
-        Backward flow.
+        Forward/Backward flow with size: (f/b, time, channels, height, width).
     """
     assert (len(frames.shape) == 4)
     assert (frames.shape[0] > 1)
@@ -49,9 +47,14 @@ def run_raft_on_video(net: nn.Module,
     _, flows_forward = net(frames1, frames2, iters=iters)
     _, flows_backward = net(frames2, frames1, iters=iters)
 
-    # return flows_forward, flows_backward
-
     flows = torch.stack([flows_forward, flows_backward])
+
+    assert (flows.shape[0] == 2)
+    assert (flows.shape[1] == frames.shape[0] - 1)
+    assert (flows.shape[2] == 2)
+    assert (flows.shape[3] == frames.shape[2])
+    assert (flows.shape[4] == frames.shape[3])
+
     return flows
 
 

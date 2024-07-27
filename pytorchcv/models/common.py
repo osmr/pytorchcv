@@ -543,9 +543,6 @@ class ConvBlock1d(nn.Module):
             groups=groups,
             bias=bias)
         if self.normalize:
-            # self.bn = nn.BatchNorm1d(
-            #     num_features=out_channels,
-            #     eps=bn_eps)
             self.bn = create_normalization_layer(
                 normalization=normalization,
                 num_features=out_channels)

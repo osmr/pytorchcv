@@ -8,10 +8,10 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn.modules.utils import _pair, _single
-import torchvision
 from torchvision.ops import DeformConv2d
-from common import lambda_leakyrelu, conv1x1, conv3x3, conv3x3_block
+from typing import Callable
+from common import (lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3, conv3x3_block,
+                    InterpolationBlock)
 from resnet import ResUnit
 
 
@@ -20,112 +20,6 @@ def constant_init(module, val, bias=0):
         nn.init.constant_(module.weight, val)
     if hasattr(module, 'bias') and module.bias is not None:
         nn.init.constant_(module.bias, bias)
-
-
-# class ModulatedDeformConv2d(nn.Module):
-#     def __init__(self,
-#                  in_channels,
-#                  out_channels,
-#                  kernel_size,
-#                  stride=1,
-#                  padding=0,
-#                  dilation=1,
-#                  groups=1,
-#                  deform_groups=1,
-#                  bias=True):
-#         super(ModulatedDeformConv2d, self).__init__()
-#
-#         self.in_channels = in_channels
-#         self.out_channels = out_channels
-#         self.kernel_size = _pair(kernel_size)
-#         self.stride = stride
-#         self.padding = padding
-#         self.dilation = dilation
-#         self.groups = groups
-#         self.deform_groups = deform_groups
-#         self.with_bias = bias
-#         # enable compatibility with nn.Conv2d
-#         self.transposed = False
-#         self.output_padding = _single(0)
-#
-#         self.weight = nn.Parameter(torch.Tensor(out_channels, in_channels // groups, *self.kernel_size))
-#         if bias:
-#             self.bias = nn.Parameter(torch.Tensor(out_channels))
-#         else:
-#             self.register_parameter('bias', None)
-#         self.init_weights()
-#
-#     def init_weights(self):
-#         n = self.in_channels
-#         for k in self.kernel_size:
-#             n *= k
-#         stdv = 1.0 / math.sqrt(n)
-#         self.weight.data.uniform_(-stdv, stdv)
-#         if self.bias is not None:
-#             self.bias.data.zero_()
-#
-#         if hasattr(self, "conv_offset"):
-#             self.conv_offset.weight.data.zero_()
-#             self.conv_offset.bias.data.zero_()
-#
-#     def forward(self, x, offset, mask):
-#         pass
-#
-#
-# class SecondOrderDeformableAlignment(ModulatedDeformConv2d):
-#     """Second-order deformable alignment module."""
-#     def __init__(self, *args, **kwargs):
-#         self.max_residue_magnitude = kwargs.pop('max_residue_magnitude', 5)
-#
-#         super(SecondOrderDeformableAlignment, self).__init__(*args, **kwargs)
-#
-#         self.conv_offset = nn.Sequential(
-#             conv3x3(
-#                 in_channels=(3 * self.out_channels),
-#                 out_channels=self.out_channels,
-#                 bias=True),
-#             nn.LeakyReLU(negative_slope=0.1, inplace=True),
-#             conv3x3(
-#                 in_channels=self.out_channels,
-#                 out_channels=self.out_channels,
-#                 bias=True),
-#             nn.LeakyReLU(negative_slope=0.1, inplace=True),
-#             conv3x3(
-#                 in_channels=self.out_channels,
-#                 out_channels=self.out_channels,
-#                 bias=True),
-#             nn.LeakyReLU(negative_slope=0.1, inplace=True),
-#             conv3x3(
-#                 in_channels=self.out_channels,
-#                 out_channels=(27 * self.deform_groups),
-#                 bias=True),
-#         )
-#         self.init_offset()
-#
-#     def init_offset(self):
-#         constant_init(self.conv_offset[-1], val=0, bias=0)
-#
-#     def forward(self, x, extra_feat):
-#         out = self.conv_offset(extra_feat)
-#         o1, o2, mask = torch.chunk(out, 3, dim=1)
-#
-#         # offset
-#         offset = self.max_residue_magnitude * torch.tanh(torch.cat((o1, o2), dim=1))
-#         offset_1, offset_2 = torch.chunk(offset, 2, dim=1)
-#         offset = torch.cat([offset_1, offset_2], dim=1)
-#
-#         # mask
-#         mask = torch.sigmoid(mask)
-#
-#         return torchvision.ops.deform_conv2d(
-#             x,
-#             offset,
-#             self.weight,
-#             self.bias,
-#             self.stride,
-#             self.padding,
-#             self.dilation,
-#             mask)
 
 
 class SecondOrderDeformableAlignment(nn.Module):
@@ -179,8 +73,8 @@ class SecondOrderDeformableAlignment(nn.Module):
         constant_init(self.conv_offset[-1], val=0, bias=0)
 
     def forward(self, x, extra_feat):
-        out = self.conv_offset(extra_feat)
-        o1, o2, mask = torch.chunk(out, 3, dim=1)
+        y = self.conv_offset(extra_feat)
+        o1, o2, mask = torch.chunk(y, 3, dim=1)
 
         # offset
         offset = self.max_residue_magnitude * torch.tanh(torch.cat((o1, o2), dim=1))
@@ -195,16 +89,6 @@ class SecondOrderDeformableAlignment(nn.Module):
             offset=offset,
             mask=mask)
         return out
-
-        # return torchvision.ops.deform_conv2d(
-        #     x,
-        #     offset,
-        #     self.weight,
-        #     self.bias,
-        #     self.stride,
-        #     self.padding,
-        #     self.dilation,
-        #     mask)
 
 
 class BidirectionalPropagation(nn.Module):
@@ -300,85 +184,276 @@ class BidirectionalPropagation(nn.Module):
         return torch.stack(outputs, dim=1) + x
 
 
-class deconv(nn.Module):
-    def __init__(self,
-                 in_channels,
-                 out_channels):
-        super().__init__()
-        self.conv = conv3x3(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            bias=True)
+class ConvBlock3d(nn.Module):
+    """
+    Standard 3D convolution block with activation.
 
-    def forward(self, x):
-        x = F.interpolate(
-            x,
-            scale_factor=2,
-            mode="bilinear",
-            align_corners=True)
-        return self.conv(x)
-
-
-class P3DBlock(nn.Module):
-    def __init__(self,
-                 in_channels,
-                 out_channels,
-                 kernel_size,
-                 stride,
-                 padding,
-                 bias=True):
-        super().__init__()
-        self.conv1 = nn.Sequential(
-            nn.Conv3d(
-                in_channels,
-                out_channels,
-                kernel_size=(1, kernel_size, kernel_size),
-                stride=(1, stride, stride),
-                padding=(0, padding, padding),
-                bias=bias),
-            nn.LeakyReLU(0.2, inplace=True))
-        self.conv2 = nn.Sequential(
-            nn.Conv3d(
-                out_channels,
-                out_channels,
-                kernel_size=(3, 1, 1),
-                stride=(1, 1, 1),
-                padding=(2, 0, 0),
-                dilation=(2, 1, 1),
-                bias=bias))
-
-    def forward(self, feats):
-        feat1 = self.conv1(feats)
-        feat2 = self.conv2(feat1)
-        output = feat2
-        return output
-
-
-class EdgeDetection(nn.Module):
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    kernel_size : int or tuple(int, int, int)
+        Convolution window size.
+    stride : int or tuple(int, int, int), default 1
+        Strides of the convolution.
+    padding : int or tuple(int, int, int), default 0
+        Padding value for convolution layer.
+    dilation : int or tuple(int, int, int), default 1
+        Dilation value for convolution layer.
+    groups : int, default 1
+        Number of groups.
+    bias : bool, default True
+        Whether the layer uses a bias vector.
+    padding_mode : str, default 'zeros'
+        Padding mode.
+    activation : function or None, default lambda_relu()
+        Lambda-function generator for activation layer.
+    """
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 mid_channels: int):
-        super(EdgeDetection, self).__init__()
-        main_activation = lambda_leakyrelu(negative_slope=0.2)
-        final_activation = lambda_leakyrelu(negative_slope=0.01)
+                 kernel_size: int | tuple[int, int, int],
+                 stride: int | tuple[int, int, int] = 1,
+                 padding: int | tuple[int, int, int] = 0,
+                 dilation: int | tuple[int, int, int] = 1,
+                 groups: int = 1,
+                 bias: bool = True,
+                 padding_mode: str = "zeros",
+                 activation: Callable[..., nn.Module | None] | None = lambda_relu()):
+        super(ConvBlock3d, self).__init__()
+        self.activate = (activation is not None)
 
+        self.conv = nn.Conv3d(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            dilation=dilation,
+            groups=groups,
+            bias=bias,
+            padding_mode=padding_mode)
+        if self.activate:
+            self.activ = create_activation_layer(activation)
+            if self.activ is None:
+                self.activate = False
+
+    def forward(self, x):
+        x = self.conv(x)
+        if self.activate:
+            x = self.activ(x)
+        return x
+
+
+def conv1x3x3_block(padding: int | tuple[int, int, int] = (0, 1, 1),
+                    **kwargs) -> nn.Module:
+    """
+    1x3x3 version of the standard 3D convolution block.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    stride : int or tuple(int, int, int), default 1
+        Strides of the convolution.
+    padding : int or tuple(int, int, int), default (0, 1, 1)
+        Padding value for convolution layer.
+    dilation : int or tuple(int, int, int), default 1
+        Dilation value for convolution layer.
+    groups : int, default 1
+        Number of groups.
+    bias : bool, default True
+        Whether the layer uses a bias vector.
+    padding_mode : str, default 'zeros'
+        Padding mode.
+    activation : function or None, default lambda_relu()
+        Lambda-function generator for activation layer.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
+    return ConvBlock3d(
+        kernel_size=(1, 3, 3),
+        padding=padding,
+        **kwargs)
+
+
+class P3dBlock(nn.Module):
+    """
+    Simple ResNet-like block with 3D convolutions and with specific kernel sizes.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    stride : int
+        Strides of the convolution for (height x width).
+    bias : bool, default True
+        Whether the layer uses a bias vector.
+    activation : function, default lambda_relu()
+        Lambda-function generator for activation layer in the main convolution block.
+    final_activation : function or None, default None
+        Lambda-function generator for activation layer in the final convolution block.
+    """
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 stride: int,
+                 bias: bool = True,
+                 activation: Callable[..., nn.Module] = lambda_relu(),
+                 final_activation: Callable[..., nn.Module | None] | None = None):
+        super(P3dBlock, self).__init__()
+        self.conv1 = conv1x3x3_block(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            stride=(1, stride, stride),
+            bias=bias,
+            activation=activation)
+        self.conv2 = ConvBlock3d(
+            in_channels=out_channels,
+            out_channels=out_channels,
+            kernel_size=(3, 1, 1),
+            stride=(1, 1, 1),
+            padding=(2, 0, 0),
+            dilation=(2, 1, 1),
+            bias=bias,
+            activation=final_activation)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        return x
+
+
+class DilationBlock(nn.Module):
+    """
+    Dilation block.
+
+    Parameters
+    ----------
+    channels : int
+        Number of input/output channels.
+    activation : function
+        Lambda-function generator for activation layer in the convolution blocks.
+    """
+    def __init__(self,
+                 channels: int,
+                 activation: Callable[..., nn.Module]):
+        super(DilationBlock, self).__init__()
+        self.conv1 = conv1x3x3_block(
+            in_channels=channels,
+            out_channels=channels,
+            padding=(0, 3, 3),
+            dilation=(1, 3, 3),
+            activation=activation)  # p = d*(k-1)/2
+        self.conv2 = conv1x3x3_block(
+            in_channels=channels,
+            out_channels=channels,
+            padding=(0, 2, 2),
+            dilation=(1, 2, 2),
+            activation=activation)
+        self.conv3 = conv1x3x3_block(
+            in_channels=channels,
+            out_channels=channels,
+            padding=(0, 1, 1),
+            dilation=(1, 1, 1),
+            activation=activation)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
+        return x
+
+
+class DecoderUnit(nn.Module):
+    """
+    Decoder unit.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    activation : function
+        Lambda-function generator for activation layer in the main convolution block.
+    final_activation : function or None
+        Lambda-function generator for activation layer in the final convolution block.
+    """
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 activation: Callable[..., nn.Module],
+                 final_activation: Callable[..., nn.Module | None] | None):
+        super(DecoderUnit, self).__init__()
+        self.conv1 = conv3x3_block(
+            in_channels=in_channels,
+            out_channels=in_channels,
+            bias=True,
+            normalization=None,
+            activation=activation)
+        self.up = InterpolationBlock(scale_factor=2)
+        self.conv2 = conv3x3_block(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            bias=True,
+            normalization=None,
+            activation=final_activation)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.up(x)
+        x = self.conv2(x)
+        return x
+
+
+class EdgeDetection(nn.Module):
+    """
+    Edge detection block.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    mid_channels : int
+        Number of middle channels.
+    activation : function
+        Lambda-function generator for activation layer in the main convolution block.
+    final_activation : function or None
+        Lambda-function generator for activation layer in the final convolution block.
+    """
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 mid_channels: int,
+                 activation: Callable[..., nn.Module],
+                 final_activation: Callable[..., nn.Module | None] | None):
+        super(EdgeDetection, self).__init__()
         self.proj = conv3x3_block(
             in_channels=in_channels,
             out_channels=mid_channels,
             bias=True,
             normalization=None,
-            activation=main_activation)
-
+            activation=activation)
         self.res_unit = ResUnit(
             in_channels=mid_channels,
             out_channels=mid_channels,
             bias=True,
             normalization=None,
             bottleneck=False,
-            activation=main_activation,
+            activation=activation,
             final_activation=final_activation)
-
         self.out_conv = conv1x1(
             in_channels=mid_channels,
             out_channels=out_channels,
@@ -395,85 +470,80 @@ class EdgeDetection(nn.Module):
 class RecurrentFlowCompleteNet(nn.Module):
     def __init__(self):
         super().__init__()
-        self.downsample = nn.Sequential(
-            nn.Conv3d(
-                3,
-                32,
-                kernel_size=(1, 5, 5),
-                stride=(1, 2, 2),
-                padding=(0, 2, 2),
-                padding_mode='replicate'),
-            nn.LeakyReLU(0.2, inplace=True))
+        man_activation = lambda_leakyrelu(negative_slope=0.2)
+
+        self.downsample = ConvBlock3d(
+            in_channels=3,
+            out_channels=32,
+            kernel_size=(1, 5, 5),
+            stride=(1, 2, 2),
+            padding=(0, 2, 2),
+            padding_mode="replicate",
+            activation=man_activation)
 
         self.encoder1 = nn.Sequential(
-            P3DBlock(32, 32, 3, 1, 1),
-            nn.LeakyReLU(0.2, inplace=True),
-            P3DBlock(32, 64, 3, 2, 1),
-            nn.LeakyReLU(0.2, inplace=True)
+            P3dBlock(
+                in_channels=32,
+                out_channels=32,
+                stride=1,
+                activation=man_activation,
+                final_activation=man_activation),
+            P3dBlock(
+                in_channels=32,
+                out_channels=64,
+                stride=2,
+                activation=man_activation,
+                final_activation=man_activation),
         )  # 4x
 
         self.encoder2 = nn.Sequential(
-            P3DBlock(64, 64, 3, 1, 1),
-            nn.LeakyReLU(0.2, inplace=True),
-            P3DBlock(64, 128, 3, 2, 1),
-            nn.LeakyReLU(0.2, inplace=True)
+            P3dBlock(
+                in_channels=64,
+                out_channels=64,
+                stride=1,
+                activation=man_activation,
+                final_activation=man_activation),
+            P3dBlock(
+                in_channels=64,
+                out_channels=128,
+                stride=2,
+                activation=man_activation,
+                final_activation=man_activation),
         )  # 8x
 
-        self.mid_dilation = nn.Sequential(
-            nn.Conv3d(
-                in_channels=128,
-                out_channels=128,
-                kernel_size=(1, 3, 3),
-                stride=(1, 1, 1),
-                padding=(0, 3, 3),
-                dilation=(1, 3, 3)),  # p = d*(k-1)/2
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv3d(
-                in_channels=128,
-                out_channels=128,
-                kernel_size=(1, 3, 3),
-                stride=(1, 1, 1),
-                padding=(0, 2, 2),
-                dilation=(1, 2, 2)),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv3d(
-                in_channels=128,
-                out_channels=128,
-                kernel_size=(1, 3, 3),
-                stride=(1, 1, 1),
-                padding=(0, 1, 1),
-                dilation=(1, 1, 1)),
-            nn.LeakyReLU(0.2, inplace=True)
-        )
+        self.mid_dilation = DilationBlock(
+            channels=128,
+            activation=man_activation)
 
         # feature propagation module
         self.feat_prop_module = BidirectionalPropagation(128)
 
-        self.decoder2 = nn.Sequential(
-            nn.Conv2d(128, 128, 3, 1, 1),
-            nn.LeakyReLU(0.2, inplace=True),
-            deconv(128, 64),
-            nn.LeakyReLU(0.2, inplace=True)
-        )  # 4x
+        self.decoder2 = DecoderUnit(
+            in_channels=128,
+            out_channels=64,
+            activation=man_activation,
+            final_activation=man_activation)
 
-        self.decoder1 = nn.Sequential(
-            nn.Conv2d(64, 64, 3, 1, 1),
-            nn.LeakyReLU(0.2, inplace=True),
-            deconv(64, 32),
-            nn.LeakyReLU(0.2, inplace=True)
-        )  # 2x
+        self.decoder1 = DecoderUnit(
+            in_channels=64,
+            out_channels=32,
+            activation=man_activation,
+            final_activation=man_activation)
 
-        self.upsample = nn.Sequential(
-            nn.Conv2d(32, 32, 3, padding=1),
-            nn.LeakyReLU(0.2, inplace=True),
-            deconv(32, 2)
-        )
+        self.upsample = DecoderUnit(
+            in_channels=32,
+            out_channels=2,
+            activation=man_activation,
+            final_activation=None)
 
         # edge loss
+        edge_det_final_activation = lambda_leakyrelu(negative_slope=0.01)
         self.edgeDetector = EdgeDetection(
             in_channels=2,
             out_channels=1,
-            mid_channels=16)
+            mid_channels=16,
+            activation=man_activation,
+            final_activation=edge_det_final_activation)
 
     #     self._init_params()
     #
@@ -584,6 +654,38 @@ def _test2():
         list2_u = [key.replace(".forward_.weight", ".forward_.deform_conv.weight") for key in list2_u]
         list2_u = [key.replace(".forward_.bias", ".forward_.deform_conv.bias") for key in list2_u]
         for src_i, dst_i in zip(list2, list2_u):
+            upd_dict[src_i] = dst_i
+
+        list3 = list(filter(re.compile("downsample.").search, src_param_keys))
+        list3_u = [key.replace(".0.", ".conv.") for key in list3]
+        for src_i, dst_i in zip(list3, list3_u):
+            upd_dict[src_i] = dst_i
+
+        list4 = list(filter(re.compile("encoder").search, src_param_keys))
+        list4_u = [key.replace("encoder1.2.", "encoder1.1.") for key in list4]
+        list4_u = [key.replace("encoder2.2.", "encoder2.1.") for key in list4_u]
+        list4_u = [key.replace(".conv1.0.", ".conv1.conv.") for key in list4_u]
+        list4_u = [key.replace(".conv2.0.", ".conv2.conv.") for key in list4_u]
+        for src_i, dst_i in zip(list4, list4_u):
+            upd_dict[src_i] = dst_i
+
+        list5 = list(filter(re.compile("mid_dilation.").search, src_param_keys))
+        list5_u = [key.replace(".0.", ".conv1.conv.") for key in list5]
+        list5_u = [key.replace(".2.", ".conv2.conv.") for key in list5_u]
+        list5_u = [key.replace(".4.", ".conv3.conv.") for key in list5_u]
+        for src_i, dst_i in zip(list5, list5_u):
+            upd_dict[src_i] = dst_i
+
+        list6 = list(filter(re.compile("decoder").search, src_param_keys))
+        list6_u = [key.replace(".0.", ".conv1.conv.") for key in list6]
+        list6_u = [key.replace(".2.", ".conv2.") for key in list6_u]
+        for src_i, dst_i in zip(list6, list6_u):
+            upd_dict[src_i] = dst_i
+
+        list7 = list(filter(re.compile("upsample.").search, src_param_keys))
+        list7_u = [key.replace(".0.", ".conv1.conv.") for key in list7]
+        list7_u = [key.replace(".2.", ".conv2.") for key in list7_u]
+        for src_i, dst_i in zip(list7, list7_u):
             upd_dict[src_i] = dst_i
 
         list4_r = []
