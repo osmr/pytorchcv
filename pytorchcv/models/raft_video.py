@@ -5,10 +5,14 @@
 import os
 import cv2
 from PIL import Image
+import scipy.ndimage
 import numpy as np
 import torch
 import torch.nn as nn
+from typing import Any
+from enum import IntEnum
 from raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
+from propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
 
 
 class FilePathDirIterator(object):
@@ -48,13 +52,17 @@ class BufferedDataLoader(object):
 
     Parameters
     ----------
-    data : protocol(any)
+    data : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
         Data.
     """
     def __init__(self,
-                 data):
+                 data: tuple[Any, ...] | list[Any] | Any):
         super(BufferedDataLoader, self).__init__()
-        self.raw_data = data
+        if isinstance(data, (tuple, list)):
+            assert (len(data) > 0)
+            self.raw_data_list = data
+        else:
+            self.raw_data_list = [data]
 
         self.start_pos = 0
         self.end_pos = 0
@@ -62,16 +70,16 @@ class BufferedDataLoader(object):
         self.buffer = None
 
     def __len__(self):
-        return len(self.raw_data)
+        return len(self.raw_data_list[0])
 
     def _load_data_items(self,
-                         raw_data_chunk):
+                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
         """
         Load data items.
 
         Parameters
         ----------
-        raw_data_chunk : protocol(any)
+        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
             Raw data chunk.
 
         Returns
@@ -79,7 +87,10 @@ class BufferedDataLoader(object):
         protocol(any)
             Target data.
         """
-        return raw_data_chunk
+        if len(raw_data_chunk_list) == 1:
+            return raw_data_chunk_list
+        else:
+            raise Exception()
 
     def _expand_buffer_by(self,
                           data_chunk):
@@ -104,11 +115,11 @@ class BufferedDataLoader(object):
             End index.
         """
         assert (end > self.end_pos)
-        raw_data_chunk = self.raw_data[self.end_pos:end]
+        raw_data_chunk_list = [raw_data[self.end_pos:end] for raw_data in self.raw_data_list]
         if self.buffer is None:
-            self.buffer = self._load_data_items(raw_data_chunk)
+            self.buffer = self._load_data_items(raw_data_chunk_list)
         else:
-            data_chunk = self._load_data_items(raw_data_chunk)
+            data_chunk = self._load_data_items(raw_data_chunk_list)
             self._expand_buffer_by(data_chunk)
         self.end_pos = end
 
@@ -139,7 +150,7 @@ class BufferedDataLoader(object):
         return self.buffer[index]
 
     def trim_buffer_to(self,
-                       start):
+                       start: int):
         """
         Trim buffer.
 
@@ -290,7 +301,7 @@ class WindowBufferedDataLoader(BufferedDataLoader):
         int
             Window position.
         """
-        for win_pose in range(max(self.window_pose, 0), self.window_length):
+        for win_pose in range(max(self.window_pose + 1, 0), self.window_length):
             win_stop = self.window_index[win_pose].target.stop
             if pos <= win_stop:
                 return win_pose
@@ -308,15 +319,18 @@ class WindowBufferedDataLoader(BufferedDataLoader):
         """
         assert (end > self.end_pos)
         win_end = self._calc_window_pose(end)
-        for win_pose in range(max(self.window_pose, 0), win_end + 1):
+        for win_pose in range(max(self.window_pose + 1, 0), win_end + 1):
             win_map = self.window_index[win_pose]
-            raw_data_chunk = self.raw_data[win_map.source.start:win_map.source.stop]
+            raw_data_chunk_list = [r_data[win_map.source.start:win_map.source.stop] for r_data in self.raw_data_list]
+            data_chunk = self._load_data_items(raw_data_chunk_list)
+            assert (win_map.target.start - self.end_pos >= 0)
+            data_chunk = data_chunk[(win_map.target.start - self.end_pos):(win_map.target.stop - self.end_pos)]
             if self.buffer is None:
-                self.buffer = self._load_data_items(raw_data_chunk)
+                self.buffer = data_chunk
             else:
-                data_chunk = self._load_data_items(raw_data_chunk)
                 self._expand_buffer_by(data_chunk)
             self.end_pos = win_map.target.stop
+            self.window_pose = win_pose
 
 
 class FrameBufferedDataLoader(BufferedDataLoader):
@@ -339,8 +353,40 @@ class FrameBufferedDataLoader(BufferedDataLoader):
         self.image_resize_ratio = image_resize_ratio
         self.use_cuda = use_cuda
 
-        self.frame_scaled_size = None
+        self.image_scaled_size = None
         self.do_scale = False
+
+    def _rescale_image(self,
+                       image: Image,
+                       resample: IntEnum | None = None) -> Image:
+        """
+        Rescale frame.
+
+        Parameters
+        ----------
+        image : Image
+            Frame.
+        resample : IntEnum or None, default None
+            PIL resample mode.
+
+        Returns
+        -------
+        Image
+            Image.
+        """
+        if self.image_scaled_size is None:
+            image_raw_size = image.size
+            self.image_scaled_size = (int(self.image_resize_ratio * image_raw_size[0]),
+                                      int(self.image_resize_ratio * image_raw_size[1]))
+            self.image_scaled_size = (self.image_scaled_size[0] - self.image_scaled_size[0] % 8,
+                                      self.image_scaled_size[1] - self.image_scaled_size[1] % 8)
+            if image_raw_size != self.image_scaled_size:
+                self.do_scale = True
+        if self.do_scale:
+            image = image.resize(
+                size=self.image_scaled_size,
+                resample=resample)
+        return image
 
     def load_frame(self,
                    frame_path: str) -> Image:
@@ -359,26 +405,17 @@ class FrameBufferedDataLoader(BufferedDataLoader):
         """
         frame = cv2.imread(frame_path)
         frame = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        if self.frame_scaled_size is None:
-            frame_raw_size = frame.size
-            self.frame_scaled_size = (int(self.image_resize_ratio * frame_raw_size[0]),
-                                      int(self.image_resize_ratio * frame_raw_size[1]))
-            self.frame_scaled_size = (self.frame_scaled_size[0] - self.frame_scaled_size[0] % 8,
-                                      self.frame_scaled_size[1] - self.frame_scaled_size[1] % 8)
-            if frame_raw_size != self.frame_scaled_size:
-                self.do_scale = True
-        if self.do_scale:
-            frame = frame.resize(self.frame_scaled_size)
+        frame = self._rescale_image(image=frame)
         return frame
 
     def _load_data_items(self,
-                         raw_data_chunk):
+                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
         """
         Load data items.
 
         Parameters
         ----------
-        raw_data_chunk : protocol(any)
+        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
             Raw data chunk.
 
         Returns
@@ -386,7 +423,9 @@ class FrameBufferedDataLoader(BufferedDataLoader):
         protocol(any)
             Resulted data.
         """
-        frame_list = [self.load_frame(x) for x in raw_data_chunk]
+        assert (len(raw_data_chunk_list) == 1)
+
+        frame_list = [self.load_frame(x) for x in raw_data_chunk_list[0]]
         frames = np.stack(frame_list)
         frames = torch.from_numpy(frames).permute(0, 3, 1, 2).contiguous()
         frames = frames.float()
@@ -399,7 +438,7 @@ class FrameBufferedDataLoader(BufferedDataLoader):
         return frames
 
     def _expand_buffer_by(self,
-                          data_chunk):
+                          data_chunk: Any):
         """
         Expand buffer by extra data.
 
@@ -411,6 +450,80 @@ class FrameBufferedDataLoader(BufferedDataLoader):
         self.buffer = torch.cat([self.buffer, data_chunk])
 
 
+class MaskBufferedDataLoader(FrameBufferedDataLoader):
+    """
+    Mask buffered data loader.
+
+    Parameters
+    ----------
+    mask_dilation : int
+        Mask dilation.
+    image_resize_ratio : float
+        Resize ratio.
+    use_cuda : bool
+        Whether to use CUDA.
+    """
+    def __init__(self,
+                 mask_dilation: int,
+                 **kwargs):
+        super(MaskBufferedDataLoader, self).__init__(**kwargs)
+        self.mask_dilation = mask_dilation
+        assert (self.mask_dilation > 0)
+
+    def load_mask(self,
+                  mask_path: str) -> Image:
+        """
+        Load mask from file.
+
+        Parameters
+        ----------
+        mask_path : str
+            Path to mask file.
+
+        Returns
+        -------
+        Image
+            Mask.
+        """
+        mask = Image.open(mask_path)
+        mask = self._rescale_image(image=mask, resample=Image.NEAREST)
+        mask = np.array(mask.convert("L"))
+
+        mask = scipy.ndimage.binary_dilation(mask, iterations=self.mask_dilation).astype(np.uint8)
+        mask = Image.fromarray(mask * 255)
+
+        return mask
+
+    def _load_data_items(self,
+                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
+        """
+        Load data items.
+
+        Parameters
+        ----------
+        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
+            Raw data chunk.
+
+        Returns
+        -------
+        protocol(any)
+            Resulted data.
+        """
+        assert (len(raw_data_chunk_list) == 1)
+
+        mask_list = [self.load_mask(x) for x in raw_data_chunk_list[0]]
+        masks = np.stack(mask_list)
+        masks = np.expand_dims(masks, axis=-1)
+        masks = torch.from_numpy(masks).permute(0, 3, 1, 2).contiguous()
+        masks = masks.float()
+        masks = masks.div(255.0)
+
+        if self.use_cuda:
+            masks = masks.cuda()
+
+        return masks
+
+
 class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
     """
     Optical flow window buffered data loader.
@@ -419,8 +532,6 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
     ----------
     net: nn.Module
         Optical flow model.
-    frames_loader : FrameBufferedDataLoader
-        Frames.
     """
     def __init__(self,
                  net: nn.Module,
@@ -429,13 +540,13 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
         self.net = net
 
     def _load_data_items(self,
-                         raw_data_chunk):
+                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
         """
         Load data items.
 
         Parameters
         ----------
-        raw_data_chunk : protocol(any)
+        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
             Raw data chunk.
 
         Returns
@@ -443,9 +554,11 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
         protocol(any)
             Resulted data.
         """
+        assert (len(raw_data_chunk_list) == 1)
+
         flows = calc_bidirectional_optical_flow_on_video_by_raft(
             net=self.net,
-            frames=raw_data_chunk)
+            frames=raw_data_chunk_list[0])
         assert (len(flows.shape) == 4)
         assert (flows.shape[1] == 4)
 
@@ -453,7 +566,116 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
         return flows
 
     def _expand_buffer_by(self,
-                          data_chunk):
+                          data_chunk: Any):
+        """
+        Expand buffer by extra data.
+
+        Parameters
+        ----------
+        data_chunk : protocol(any)
+            Data chunk.
+        """
+        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
+
+
+class FlowMaskWindowBufferedDataLoader(WindowBufferedDataLoader):
+    """
+    Optical flow mask window buffered data loader.
+
+    Parameters
+    ----------
+    net: nn.Module
+        Optical flow model.
+    """
+    def __init__(self,
+                 net: nn.Module,
+                 **kwargs):
+        super(FlowMaskWindowBufferedDataLoader, self).__init__(**kwargs)
+        self.net = net
+
+    def _load_data_items(self,
+                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
+        """
+        Load data items.
+
+        Parameters
+        ----------
+        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
+            Raw data chunk.
+
+        Returns
+        -------
+        protocol(any)
+            Resulted data.
+        """
+        assert (len(raw_data_chunk_list) == 1)
+
+        masks = raw_data_chunk_list[0]
+        assert (masks.shape[0] > 1)
+
+        masks_forward = masks[:-1].contiguous()
+        masks_backward = masks[1:].contiguous()
+        flow_masks = torch.cat((masks_forward, masks_backward), dim=1)
+
+        return flow_masks
+
+    def _expand_buffer_by(self,
+                          data_chunk: Any):
+        """
+        Expand buffer by extra data.
+
+        Parameters
+        ----------
+        data_chunk : protocol(any)
+            Data chunk.
+        """
+        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
+
+
+class FlowCompWindowBufferedDataLoader(WindowBufferedDataLoader):
+    """
+    Optical flow completion window buffered data loader.
+
+    Parameters
+    ----------
+    net: nn.Module
+        Optical flow model.
+    """
+    def __init__(self,
+                 net: nn.Module,
+                 **kwargs):
+        super(FlowCompWindowBufferedDataLoader, self).__init__(**kwargs)
+        self.net = net
+
+    def _load_data_items(self,
+                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
+        """
+        Load data items.
+
+        Parameters
+        ----------
+        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
+            Raw data chunk.
+
+        Returns
+        -------
+        protocol(any)
+            Resulted data.
+        """
+        assert (len(raw_data_chunk_list) == 2)
+
+        comp_flows, _ = calc_bidirectional_opt_flow_completion_by_pprfc(
+            net=self.net,
+            flows=raw_data_chunk_list[0],
+            flow_masks=raw_data_chunk_list[1])
+        assert (len(comp_flows.shape) == 4)
+        assert (comp_flows.shape[1] == 4)
+
+        # torch.cuda.empty_cache()
+        return comp_flows
+
+    def _expand_buffer_by(self,
+                          data_chunk: Any):
         """
         Expand buffer by extra data.
 
@@ -466,13 +688,24 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
 
 
 def _test():
-    root_path = "../../../pytorchcv_data/test0"
+    # root_path = "../../../pytorchcv_data/test0"
+    # image_resize_ratio = 1.0
+    # video_length = 80
+
+    root_path = "../../../pytorchcv_data/test1"
+    image_resize_ratio = 0.5
+    video_length = 287
+
     frames_dir_name = "_source_frames"
+    masks_dir_name = "_segmentation_masks"
     frames_dir_path = os.path.join(root_path, frames_dir_name)
-    image_resize_ratio = 1.0
+    masks_dir_path = os.path.join(root_path, masks_dir_name)
+
+    mask_dilation = 4
     use_cuda = True
     raft_iters = 20
-    raft_model_path = root_path = "../../../pytorchcv_data/test/raft-things_2.pth"
+    raft_model_path = "../../../pytorchcv_data/test/raft-things_2.pth"
+    pprfc_model_path = "../../../pytorchcv_data/test/propainter_rfc.pth"
 
     # ind1 = calc_window_data_loader_index(
     #     length=876,
@@ -503,6 +736,14 @@ def _test():
         data=FilePathDirIterator(frames_dir_path),
         image_resize_ratio=image_resize_ratio,
         use_cuda=use_cuda)
+    # a = frames_loader[:]
+
+    masks_loader = MaskBufferedDataLoader(
+        mask_dilation=mask_dilation,
+        data=FilePathDirIterator(masks_dir_path),
+        image_resize_ratio=image_resize_ratio,
+        use_cuda=use_cuda)
+    # a = masks_loader[:]
 
     raft_net = raft_things(
         in_normalize=False,
@@ -514,7 +755,7 @@ def _test():
     raft_net = raft_net.cuda()
 
     raft_window_index = calc_window_data_loader_index(
-        length=80,
+        length=video_length,
         window_size=12,
         padding=(1, 0),
         edge_mode="trim")
@@ -523,8 +764,34 @@ def _test():
         data=frames_loader,
         window_index=raft_window_index,
         net=raft_net)
-    a = raft_loader[:]
+    # a = raft_loader[:]
     # a = raft_loader[raft_window_index[0].target.start:raft_window_index[0].target.stop]
+
+    flow_mask_loader = FlowMaskWindowBufferedDataLoader(
+        data=masks_loader,
+        window_index=raft_window_index,
+        net=raft_net)
+    # a = flow_mask_loader[:]
+
+    pprfc_net = propainter_rfc()
+    pprfc_net.load_state_dict(torch.load(pprfc_model_path, map_location="cpu"))
+    for p in pprfc_net.parameters():
+        p.requires_grad = False
+    pprfc_net.eval()
+    pprfc_net = pprfc_net.cuda()
+
+    pprfc_window_index = calc_window_data_loader_index(
+        length=video_length - 1,
+        window_size=80,
+        padding=(5, 5),
+        edge_mode="ignore")
+
+    pprfc_loader = FlowCompWindowBufferedDataLoader(
+        data=[raft_loader, flow_mask_loader],
+        window_index=pprfc_window_index,
+        net=pprfc_net)
+    a = pprfc_loader[:]
+
 
     # # a = loader[:]
     # # a = loader[2:]

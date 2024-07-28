@@ -761,7 +761,7 @@ def propainter_rfc(**kwargs) -> nn.Module:
 
 def calc_bidirectional_opt_flow_completion_by_pprfc(net: PPRecurrentFlowComplete,
                                                     flows: torch.Tensor,
-                                                    masks: torch.Tensor,
+                                                    flow_masks: torch.Tensor,
                                                     combine_flows: bool = True) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Complete bidirectional optical flow (based on ProPainter's Recurrent Flow Completion net) on video.
@@ -773,8 +773,8 @@ def calc_bidirectional_opt_flow_completion_by_pprfc(net: PPRecurrentFlowComplete
         Optical flow completion model.
     flows : torch.Tensor
         Bidirectional flows with size: (time, channels=4, height, width).
-    masks : torch.Tensor
-        Masks with size: (time, channels=1, height, width).
+    flow_masks : torch.Tensor
+        Flow masks with size: (time, channels=2, height, width).
     combine_flows : bool, default True
         Whether to combine predicted flows with original flows.
 
@@ -786,17 +786,15 @@ def calc_bidirectional_opt_flow_completion_by_pprfc(net: PPRecurrentFlowComplete
         Forward/Backward edge images with size: (time, channels=2, height, width).
     """
     assert (len(flows.shape) == 4)
-    assert (len(flows.shape) == len(masks.shape))
-    assert (flows.shape[0] == masks.shape[0] - 1)
+    assert (len(flows.shape) == len(flow_masks.shape))
+    assert (flows.shape[0] == flow_masks.shape[0])
     assert (flows.shape[1] == 4)
-    assert (masks.shape[1] == 1)
-    assert (flows.shape[2] == masks.shape[2])
-    assert (flows.shape[3] == masks.shape[3])
+    assert (flow_masks.shape[1] == 2)
+    assert (flows.shape[2] == flow_masks.shape[2])
+    assert (flows.shape[3] == flow_masks.shape[3])
 
     flows_forward, flows_backward = torch.split(flows, [2, 2], dim=1)
-
-    masks_forward = masks[:-1].contiguous()
-    masks_backward = masks[1:].contiguous()
+    masks_forward, masks_backward = torch.split(flow_masks, [1, 1], dim=1)
 
     masked_flows_forward = flows_forward * (1 - masks_forward)
     masked_flows_backward = flows_backward * (1 - masks_backward)
@@ -952,6 +950,7 @@ def _test2():
     net_rfc.load_state_dict(dst_checkpoint, strict=True)
     # ckpt = torch.load(model_path, map_location="cpu")
     # net_rfc.load_state_dict(ckpt, strict=True)
+    # torch.save(net_rfc.state_dict(), "../../../pytorchcv_data/test/propainter_rfc.pth")
 
     for p in net_rfc.parameters():
         p.requires_grad = False
@@ -985,6 +984,10 @@ def _test2():
     flow_b = torch.from_numpy(flow_b_np).cuda()
     mask = torch.from_numpy(mask_np).cuda()
 
+    masks_forward = mask[0][:-1].contiguous()
+    masks_backward = mask[0][1:].contiguous()
+    flow_masks = torch.cat((masks_forward, masks_backward), dim=1)
+
     # (flow_f_comp, flow_b_comp), _ = net_rfc.forward_bidirect_flow(
     #     masked_flows_bi=(flow_f, flow_b),
     #     masks=mask)
@@ -996,7 +999,7 @@ def _test2():
     flow_comp, _ = calc_bidirectional_opt_flow_completion_by_pprfc(
         net=net_rfc,
         flows=torch.cat((flow_f[0], flow_b[0]), dim=1),
-        masks=mask[0],
+        flow_masks=flow_masks,
         combine_flows=True)
     flow_f_comp, flow_b_comp = torch.split(flow_comp, [2, 2], dim=1)
 
