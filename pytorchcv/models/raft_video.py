@@ -581,17 +581,10 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
 class FlowMaskWindowBufferedDataLoader(WindowBufferedDataLoader):
     """
     Optical flow mask window buffered data loader.
-
-    Parameters
-    ----------
-    net: nn.Module
-        Optical flow model.
     """
     def __init__(self,
-                 net: nn.Module,
                  **kwargs):
         super(FlowMaskWindowBufferedDataLoader, self).__init__(**kwargs)
-        self.net = net
 
     def _load_data_items(self,
                          raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
@@ -769,8 +762,7 @@ def _test():
 
     flow_mask_loader = FlowMaskWindowBufferedDataLoader(
         data=masks_loader,
-        window_index=raft_window_index,
-        net=raft_net)
+        window_index=raft_window_index)
     # a = flow_mask_loader[:]
 
     pprfc_net = propainter_rfc()
