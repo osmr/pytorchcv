@@ -85,10 +85,10 @@ class BidirectionalPropagation(nn.Module):
         activation = lambda_leakyrelu(negative_slope=0.2)
         self.prop_list = ["backward_1", "forward_1"]
 
-        self.deform_align = nn.ModuleDict()
-        self.backbone = nn.ModuleDict()
-
         if self.learnable:
+            self.deform_align = nn.ModuleDict()
+            self.backbone = nn.ModuleDict()
+
             for i, module in enumerate(self.prop_list):
                 self.deform_align[module] = SecondOrderDeformableAlignment(
                     x_in_channels=channels,
@@ -224,62 +224,28 @@ class BidirectionalPropagation(nn.Module):
                 masks_f)
 
 
-class InpaintGenerator(nn.Module):
-    def __init__(self):
-        super(InpaintGenerator, self).__init__()
+class PPImagePropagation(BidirectionalPropagation):
+    """
+    Image Propagation part of ProPainter model from 'ProPainter: Improving Propagation and Transformer for Video
+    Inpainting,' https://arxiv.org/pdf/2309.03897.
 
-        self.img_prop_module = BidirectionalPropagation(3, learnable=False)
-
-        self._init_weights()
-
-    def _init_weights(self,
-                      init_type="normal",
-                      gain=0.02):
-        '''
-        initialize network's weights
-        init_type: normal | xavier | kaiming | orthogonal
-        https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/9451e70673400885567d08a9e97ade2524c700d0/models/networks.py#L39
-        '''
-        def init_func(m):
-            classname = m.__class__.__name__
-            if classname.find("InstanceNorm2d") != -1:
-                if hasattr(m, "weight") and m.weight is not None:
-                    nn.init.constant_(m.weight.data, 1.0)
-                if hasattr(m, "bias") and m.bias is not None:
-                    nn.init.constant_(m.bias.data, 0.0)
-            elif hasattr(m, 'weight') and (classname.find('Conv') != -1 or classname.find('Linear') != -1):
-                if init_type == 'normal':
-                    nn.init.normal_(m.weight.data, 0.0, gain)
-                elif init_type == 'xavier':
-                    nn.init.xavier_normal_(m.weight.data, gain=gain)
-                elif init_type == 'xavier_uniform':
-                    nn.init.xavier_uniform_(m.weight.data, gain=1.0)
-                elif init_type == 'kaiming':
-                    nn.init.kaiming_normal_(m.weight.data, a=0, mode='fan_in')
-                elif init_type == 'orthogonal':
-                    nn.init.orthogonal_(m.weight.data, gain=gain)
-                elif init_type == 'none':  # uses pytorch's default init method
-                    m.reset_parameters()
-                else:
-                    raise NotImplementedError(
-                        'initialization method [%s] is not implemented' %
-                        init_type)
-                if hasattr(m, 'bias') and m.bias is not None:
-                    nn.init.constant_(m.bias.data, 0.0)
-
-        self.apply(init_func)
-
-        # propagate to children
-        for m in self.children():
-            if hasattr(m, 'init_weights'):
-                m.init_weights(init_type, gain)
+    Parameters
+    ----------
+    in_channels : int, default 3
+        Number of input channels.
+    """
+    def __init__(self,
+                 in_channels: int = 3):
+        super(PPImagePropagation, self).__init__(
+            channels=in_channels,
+            learnable=False)
 
     def forward(self,
                 masked_frames,
                 completed_flows,
                 masks,
                 interpolation="nearest"):
-        _, _, prop_frames, updated_masks = self.img_prop_module(
+        _, _, prop_frames, updated_masks = super(PPImagePropagation, self).forward(
             x=masked_frames,
             flows_forward=completed_flows[0],
             flows_backward=completed_flows[1],
@@ -293,68 +259,16 @@ def _test2():
     import os
     import numpy as np
 
-    def convert_state_dict(src_checkpoint,
-                           dst_checkpoint):
-
-        src_param_keys = list(src_checkpoint.keys())
-
-        upd_dict = {}
-
-        list2 = list(filter(re.compile("feat_prop_module.deform_align.").search, src_param_keys))
-        list2_u = [key.replace(".backward_1.weight", ".backward_1.deform_conv.weight") for key in list2]
-        list2_u = [key.replace(".backward_1.bias", ".backward_1.deform_conv.bias") for key in list2_u]
-        list2_u = [key.replace(".forward_1.weight", ".forward_1.deform_conv.weight") for key in list2_u]
-        list2_u = [key.replace(".forward_1.bias", ".forward_1.deform_conv.bias") for key in list2_u]
-        list2_u = [key.replace(".conv_offset.0.", ".conv_offset.conv1.conv.") for key in list2_u]
-        list2_u = [key.replace(".conv_offset.2.", ".conv_offset.conv2.conv.") for key in list2_u]
-        list2_u = [key.replace(".conv_offset.4.", ".conv_offset.conv3.conv.") for key in list2_u]
-        list2_u = [key.replace(".conv_offset.6.", ".conv_offset.conv4.conv.") for key in list2_u]
-        for src_i, dst_i in zip(list2, list2_u):
-            upd_dict[src_i] = dst_i
-
-        list3 = list(filter(re.compile("feat_prop_module.fuse.").search, src_param_keys))
-        list3_u = [key.replace(".0.", ".conv1.conv.") for key in list3]
-        list3_u = [key.replace(".2.", ".conv2.conv.") for key in list3_u]
-        for src_i, dst_i in zip(list3, list3_u):
-            upd_dict[src_i] = dst_i
-
-        list8 = list(filter(re.compile("feat_prop_module.backbone.").search, src_param_keys))
-        list8_u = [key.replace(".0.", ".conv1.conv.") for key in list8]
-        list8_u = [key.replace(".2.", ".conv2.conv.") for key in list8_u]
-        for src_i, dst_i in zip(list8, list8_u):
-            upd_dict[src_i] = dst_i
-
-        list4_r = []
-
-        for k, v in src_checkpoint.items():
-            if k in upd_dict.keys():
-                dst_checkpoint[upd_dict[k]] = src_checkpoint[k]
-            else:
-                if k not in list4_r:
-                    dst_checkpoint[k] = src_checkpoint[k]
-                else:
-                    print("Remove: {}".format(k))
-                    pass
-
     root_path = "../../../pytorchcv_data/test_a"
     pp_model_file_name = "ProPainter.pth"
 
-    model_path = os.path.join(root_path, pp_model_file_name)
-    net_pp = InpaintGenerator()
+    # model_path = os.path.join(root_path, pp_model_file_name)
+    net_ppip = PPImagePropagation()
 
-    src_checkpoint = torch.load(model_path, map_location="cpu")
-    dst_checkpoint = net_pp.state_dict()
-    convert_state_dict(
-        src_checkpoint,
-        dst_checkpoint)
-    net_pp.load_state_dict(dst_checkpoint, strict=True)
-    # ckpt = torch.load(model_path, map_location="cpu")
-    # net_pp.load_state_dict(ckpt, strict=True)
-
-    for p in net_pp.parameters():
+    for p in net_ppip.parameters():
         p.requires_grad = False
-    net_pp.eval()
-    net_pp = net_pp.cuda()
+    net_ppip.eval()
+    net_ppip = net_ppip.cuda()
 
     frame1_file_path = os.path.join(root_path, "frame_00100.npy")
     frame2_file_path = os.path.join(root_path, "frame_00101.npy")
@@ -382,28 +296,31 @@ def _test2():
     pred_flow_f = torch.from_numpy(pred_flow_f_np).cuda()
     pred_flow_b = torch.from_numpy(pred_flow_b_np).cuda()
 
-    prop_imgs, updated_local_masks = net_pp.img_propagation(
+    prop_imgs, updated_local_masks = net_ppip(
         masked_frames=masked_frames,
         completed_flows=(pred_flow_f, pred_flow_b),
         masks=masks_dilated,
         interpolation="nearest")
-    pred_img = net_pp(
-        masked_frames=masked_frames,
-        completed_flows=(pred_flow_f, pred_flow_b),
-        masks_in=masks_dilated,
-        masks_updated=masks_dilated,
-        num_local_frames=2)
 
-    pred_img_np_ = pred_img[0].cpu().detach().numpy()
+    prop_imgs_np_ = prop_imgs[0].cpu().detach().numpy()
+    updated_local_masks_np_ = updated_local_masks[0].cpu().detach().numpy()
 
-    # np.save(os.path.join(root_path, "pred_img.npy"), np.ascontiguousarray(pred_img_np_))
+    # np.save(os.path.join(root_path, "prop_imgs.npy"), np.ascontiguousarray(prop_imgs_np_))
+    # np.save(os.path.join(root_path, "updated_local_masks.npy"), np.ascontiguousarray(updated_local_masks_np_))
 
-    pred_img_file_path = os.path.join(root_path, "pred_img.npy")
-    pred_img_np = np.load(pred_img_file_path)
+    prop_imgs_file_path = os.path.join(root_path, "prop_imgs.npy")
+    prop_imgs_np = np.load(prop_imgs_file_path)
 
-    if not np.array_equal(pred_img_np, pred_img_np_):
+    updated_local_masks_file_path = os.path.join(root_path, "updated_local_masks.npy")
+    updated_local_masks_np = np.load(updated_local_masks_file_path)
+
+    if not np.array_equal(prop_imgs_np, prop_imgs_np_):
         print("*")
-    np.testing.assert_array_equal(pred_img_np, pred_img_np_)
+    np.testing.assert_array_equal(prop_imgs_np, prop_imgs_np_)
+
+    if not np.array_equal(updated_local_masks_np, updated_local_masks_np_):
+        print("*")
+    np.testing.assert_array_equal(updated_local_masks_np, updated_local_masks_np_)
 
     pass
 
