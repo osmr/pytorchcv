@@ -4,10 +4,11 @@
     https://arxiv.org/pdf/2309.03897.
 """
 
+__all__ = ['SecondOrderDeformableAlignment']
+
 import math
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torchvision.ops import DeformConv2d
 from typing import Callable
 from common import (lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3, conv3x3_block,
@@ -15,46 +16,48 @@ from common import (lambda_relu, create_activation_layer, lambda_leakyrelu, conv
 from resnet import ResUnit
 
 
-def constant_init(module, val, bias=0):
-    if hasattr(module, 'weight') and module.weight is not None:
-        nn.init.constant_(module.weight, val)
-    if hasattr(module, 'bias') and module.bias is not None:
-        nn.init.constant_(module.bias, bias)
-
-
 class SecondOrderDeformableAlignment(nn.Module):
-    """Second-order deformable alignment module."""
-    def __init__(self,
-                 in_channels: int,
-                 out_channels: int,
-                 deform_groups: int = 16):
-        super(SecondOrderDeformableAlignment, self).__init__()
-        self.max_residue_magnitude = 5
+    """
+    Second-order deformable alignment module.
 
-        self.conv_offset = nn.Sequential(
-            conv3x3(
-                in_channels=(3 * out_channels),
-                out_channels=out_channels,
-                bias=True),
-            nn.LeakyReLU(negative_slope=0.1, inplace=True),
-            conv3x3(
-                in_channels=out_channels,
-                out_channels=out_channels,
-                bias=True),
-            nn.LeakyReLU(negative_slope=0.1, inplace=True),
-            conv3x3(
-                in_channels=out_channels,
-                out_channels=out_channels,
-                bias=True),
-            nn.LeakyReLU(negative_slope=0.1, inplace=True),
-            conv3x3(
-                in_channels=out_channels,
-                out_channels=(27 * deform_groups),
-                bias=True),
-        )
+    Parameters
+    ----------
+    x_in_channels : int
+        Number of `x` input channels.
+    cond_in_channels : int
+        Number of `cond` input channels.
+    out_channels : int
+        Number of output channels.
+    deform_groups : int
+        Number of deformable groups.
+    max_residue_magnitude : int
+        Maximal residue magnitude.
+    """
+    def __init__(self,
+                 x_in_channels: int,
+                 cond_in_channels: int,
+                 out_channels: int,
+                 deform_groups: int,
+                 max_residue_magnitude: int):
+        super(SecondOrderDeformableAlignment, self).__init__()
+        self.max_residue_magnitude = max_residue_magnitude
+
+        cond_channels = [out_channels, out_channels, out_channels, 27 * deform_groups]
+        cond_activation = lambda_leakyrelu(negative_slope=0.1)
+
+        self.conv_offset = nn.Sequential()
+        for i, cond_out_channels in enumerate(cond_channels):
+            cond_activation_i = cond_activation if (i != len(cond_channels) - 1) else None
+            self.conv_offset.add_module("conv{}".format(i + 1), conv3x3_block(
+                in_channels=cond_in_channels,
+                out_channels=cond_out_channels,
+                bias=True,
+                normalization=None,
+                activation=cond_activation_i))
+            cond_in_channels = cond_out_channels
 
         self.deform_conv = DeformConv2d(
-            in_channels=in_channels,
+            in_channels=x_in_channels,
             out_channels=out_channels,
             kernel_size=3,
             padding=1)
@@ -70,18 +73,18 @@ class SecondOrderDeformableAlignment(nn.Module):
         if self.deform_conv.bias is not None:
             self.deform_conv.bias.data.zero_()
 
-        constant_init(self.conv_offset[-1], val=0, bias=0)
+        nn.init.constant_(self.conv_offset[-1].conv.weight, 0.0)
+        nn.init.constant_(self.conv_offset[-1].conv.bias, 0.0)
 
-    def forward(self, x, extra_feat):
-        y = self.conv_offset(extra_feat)
-        o1, o2, mask = torch.chunk(y, 3, dim=1)
+    def forward(self, x, cond, flow=None):
+        y = self.conv_offset(cond)
+        offset1, offset2, mask = torch.chunk(y, 3, dim=1)
 
-        # offset
-        offset = self.max_residue_magnitude * torch.tanh(torch.cat((o1, o2), dim=1))
-        offset_1, offset_2 = torch.chunk(offset, 2, dim=1)
-        offset = torch.cat([offset_1, offset_2], dim=1)
+        offset = torch.cat((offset1, offset2), dim=1)
+        offset = self.max_residue_magnitude * torch.tanh(offset)
+        if flow is not None:
+            offset += flow.flip(1).repeat(1, offset.size(1) // 2, 1, 1)
 
-        # mask
         mask = torch.sigmoid(mask)
 
         out = self.deform_conv(
@@ -91,20 +94,22 @@ class SecondOrderDeformableAlignment(nn.Module):
         return out
 
 
-class BidirectionalPropagation(nn.Module):
+class RFCBidirectionalPropagation(nn.Module):
     def __init__(self,
-                 channels):
-        super(BidirectionalPropagation, self).__init__()
-        modules = ['backward_', 'forward_']
+                 channels: int):
+        super(RFCBidirectionalPropagation, self).__init__()
+        modules = ["backward_", "forward_"]
         self.deform_align = nn.ModuleDict()
         self.backbone = nn.ModuleDict()
         self.channels = channels
 
         for i, module in enumerate(modules):
             self.deform_align[module] = SecondOrderDeformableAlignment(
-                in_channels=(2 * channels),
+                x_in_channels=(2 * channels),
+                cond_in_channels=(3 * channels),
                 out_channels=channels,
-                deform_groups=16)
+                deform_groups=16,
+                max_residue_magnitude=5)
 
             self.backbone[module] = nn.Sequential(
                 conv3x3(
@@ -130,22 +135,22 @@ class BidirectionalPropagation(nn.Module):
         """
         b, t, c, h, w = x.shape
         feats = {}
-        feats['spatial'] = [x[:, i, :, :, :] for i in range(0, t)]
+        feats["spatial"] = [x[:, i, :, :, :] for i in range(0, t)]
 
-        for module_name in ['backward_', 'forward_']:
+        for module_name in ["backward_", "forward_"]:
 
             feats[module_name] = []
 
             frame_idx = range(0, t)
-            mapping_idx = list(range(0, len(feats['spatial'])))
+            mapping_idx = list(range(0, len(feats["spatial"])))
             mapping_idx += mapping_idx[::-1]
 
-            if 'backward' in module_name:
+            if "backward" in module_name:
                 frame_idx = frame_idx[::-1]
 
             feat_prop = x.new_zeros(b, self.channels, h, w)
             for i, idx in enumerate(frame_idx):
-                feat_current = feats['spatial'][mapping_idx[idx]]
+                feat_current = feats["spatial"][mapping_idx[idx]]
                 if i > 0:
                     cond_n1 = feat_prop
 
@@ -159,10 +164,10 @@ class BidirectionalPropagation(nn.Module):
                     # condition information, cond(flow warped 1st/2nd feature):
                     cond = torch.cat([cond_n1, feat_current, cond_n2], dim=1)
                     feat_prop = torch.cat([feat_prop, feat_n2], dim=1)  # two order feat_prop -1 & -2
-                    feat_prop = self.deform_align[module_name](feat_prop, cond)
+                    feat_prop = self.deform_align[module_name](x=feat_prop, cond=cond)
 
                 # fuse current features
-                feat = ([feat_current] + [feats[k][idx] for k in feats if k not in ['spatial', module_name]] +
+                feat = ([feat_current] + [feats[k][idx] for k in feats if k not in ["spatial", module_name]] +
                         [feat_prop])
 
                 feat = torch.cat(feat, dim=1)
@@ -172,12 +177,12 @@ class BidirectionalPropagation(nn.Module):
                 feats[module_name].append(feat_prop)
 
             # end for
-            if 'backward' in module_name:
+            if "backward" in module_name:
                 feats[module_name] = feats[module_name][::-1]
 
         outputs = []
         for i in range(0, t):
-            align_feats = [feats[k].pop(0) for k in feats if k != 'spatial']
+            align_feats = [feats[k].pop(0) for k in feats if k != "spatial"]
             align_feats = torch.cat(align_feats, dim=1)
             outputs.append(self.fusion(align_feats))
 
@@ -516,7 +521,7 @@ class RecurrentFlowCompleteNet(nn.Module):
             activation=man_activation)
 
         # feature propagation module
-        self.feat_prop_module = BidirectionalPropagation(128)
+        self.feat_prop_module = RFCBidirectionalPropagation(128)
 
         self.decoder2 = DecoderUnit(
             in_channels=128,
@@ -653,6 +658,10 @@ def _test2():
         list2_u = [key.replace(".backward_.bias", ".backward_.deform_conv.bias") for key in list2_u]
         list2_u = [key.replace(".forward_.weight", ".forward_.deform_conv.weight") for key in list2_u]
         list2_u = [key.replace(".forward_.bias", ".forward_.deform_conv.bias") for key in list2_u]
+        list2_u = [key.replace(".conv_offset.0.", ".conv_offset.conv1.conv.") for key in list2_u]
+        list2_u = [key.replace(".conv_offset.2.", ".conv_offset.conv2.conv.") for key in list2_u]
+        list2_u = [key.replace(".conv_offset.4.", ".conv_offset.conv3.conv.") for key in list2_u]
+        list2_u = [key.replace(".conv_offset.6.", ".conv_offset.conv4.conv.") for key in list2_u]
         for src_i, dst_i in zip(list2, list2_u):
             upd_dict[src_i] = dst_i
 
@@ -720,24 +729,28 @@ def _test2():
     net_rfc.eval()
     net_rfc = net_rfc.cuda()
 
-    flow_f_file_path = os.path.join(root_path, "gt_flow_f_00100.npy")
-    flow_b_file_path = os.path.join(root_path, "gt_flow_b_00100.npy")
-    mask1_file_path = os.path.join(root_path, "flow_mask_00100.npy")
-    mask2_file_path = os.path.join(root_path, "flow_mask_00101.npy")
-    # flow_f_comp_file_path = os.path.join(root_path, "pred_flow_f_00100.npy")
-    # flow_b_comp_file_path = os.path.join(root_path, "pred_flow_b_00100.npy")
+    flow1_f_file_path = os.path.join(root_path, "gt_flow_f_00099.npy")
+    flow2_f_file_path = os.path.join(root_path, "gt_flow_f_00100.npy")
+    flow1_b_file_path = os.path.join(root_path, "gt_flow_b_00099.npy")
+    flow2_b_file_path = os.path.join(root_path, "gt_flow_b_00100.npy")
+    mask1_file_path = os.path.join(root_path, "flow_mask_00099.npy")
+    mask2_file_path = os.path.join(root_path, "flow_mask_00100.npy")
+    mask3_file_path = os.path.join(root_path, "flow_mask_00101.npy")
     flow_f_comp_file_path = os.path.join(root_path, "flow_f_comp.npy")
     flow_b_comp_file_path = os.path.join(root_path, "flow_b_comp.npy")
-    flow_f_np = np.load(flow_f_file_path)
-    flow_b_np = np.load(flow_b_file_path)
+    flow1_f_np = np.load(flow1_f_file_path)
+    flow2_f_np = np.load(flow2_f_file_path)
+    flow1_b_np = np.load(flow1_b_file_path)
+    flow2_b_np = np.load(flow2_b_file_path)
     mask1_np = np.load(mask1_file_path)
     mask2_np = np.load(mask2_file_path)
+    mask3_np = np.load(mask3_file_path)
     flow_f_comp_np = np.load(flow_f_comp_file_path)
     flow_b_comp_np = np.load(flow_b_comp_file_path)
 
-    flow_f_np = flow_f_np[None, None]
-    flow_b_np = flow_b_np[None, None]
-    mask_np = np.stack([mask1_np, mask2_np])[None]
+    flow_f_np = np.stack([flow1_f_np, flow2_f_np])[None]
+    flow_b_np = np.stack([flow1_b_np, flow2_b_np])[None]
+    mask_np = np.stack([mask1_np, mask2_np, mask3_np])[None]
 
     flow_f = torch.from_numpy(flow_f_np).cuda()
     flow_b = torch.from_numpy(flow_b_np).cuda()
@@ -751,8 +764,8 @@ def _test2():
         pred_flows_bi=(flow_f_comp, flow_b_comp),
         masks=mask)
 
-    flow_f_comp_np_ = flow_f_comp[0, 0].cpu().detach().numpy()
-    flow_b_comp_np_ = flow_b_comp[0, 0].cpu().detach().numpy()
+    flow_f_comp_np_ = flow_f_comp[0].cpu().detach().numpy()
+    flow_b_comp_np_ = flow_b_comp[0].cpu().detach().numpy()
 
     # np.save(os.path.join(root_path, "flow_f_comp.npy"), np.ascontiguousarray(flow_f_comp_np_))
     # np.save(os.path.join(root_path, "flow_b_comp.npy"), np.ascontiguousarray(flow_b_comp_np_))
@@ -768,8 +781,8 @@ def _test2():
     masked_flows_forward = flow_f * (1 - masks_forward)
     pred_flows_f, pred_edges_f = net_rfc(masked_flows_forward, masks_forward)
 
-    pred_flows_f_np_ = pred_flows_f[0, 0].cpu().detach().numpy()
-    pred_edges_f_np_ = pred_edges_f[0, 0].cpu().detach().numpy()
+    pred_flows_f_np_ = pred_flows_f[0].cpu().detach().numpy()
+    pred_edges_f_np_ = pred_edges_f[0].cpu().detach().numpy()
 
     # np.save(os.path.join(root_path, "pred_flows_f.npy"), np.ascontiguousarray(pred_flows_f_np_))
     # np.save(os.path.join(root_path, "pred_edges_f.npy"), np.ascontiguousarray(pred_edges_f_np_))
