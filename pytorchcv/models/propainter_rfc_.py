@@ -11,7 +11,8 @@ import torch
 import torch.nn as nn
 from torchvision.ops import DeformConv2d
 from typing import Callable
-from common import lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3_block, InterpolationBlock
+from common import (lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3_block, InterpolationBlock,
+                    BreakBlock, Hourglass)
 from resnet import ResUnit, ResBlock
 
 
@@ -585,45 +586,108 @@ class MainUnit(nn.Module):
         return x
 
 
+class ReshapeBlock(nn.Module):
+    """
+    RFC specific reshape skip block.
+
+    Input tensor size should be (batch, channels, time, height, width).
+    Output tensor size will be (batch * time, channels, height, width).
+    """
+    def __init__(self):
+        super(ReshapeBlock, self).__init__()
+
+    def forward(self, x):
+        x = x.permute(0, 2, 1, 3, 4).contiguous()
+        batch, time, channels, height, width = x.size()
+        x = x.view(batch * time, channels, height, width)
+        return x
+
+
 class RecurrentFlowCompleteNet(nn.Module):
     def __init__(self):
         super().__init__()
         man_activation = lambda_leakyrelu(negative_slope=0.2)
 
-        self.downsample = InitBlock(
+        down_seq = nn.Sequential()
+        down_seq.add_module("down1", InitBlock(
             in_channels=3,
             out_channels=32,
-            activation=man_activation)
-        self.encoder1 = EncoderUnit(
+            activation=man_activation))
+        down_seq.add_module("down2", EncoderUnit(
             in_channels=32,
             out_channels=64,
-            activation=man_activation)
-        self.encoder2 = EncoderUnit(
+            activation=man_activation))
+        down_seq.add_module("down3", EncoderUnit(
             in_channels=64,
             out_channels=128,
-            activation=man_activation)
+            activation=man_activation))
 
-        self.main_unit = MainUnit(
-            channels=128,
-            activation=man_activation)
-
-        self.decoder2 = DecoderUnit(
-            in_channels=128,
-            out_channels=64,
-            activation=man_activation,
-            final_activation=man_activation)
-
-        self.decoder1 = DecoderUnit(
-            in_channels=64,
-            out_channels=32,
-            activation=man_activation,
-            final_activation=man_activation)
-
-        self.upsample = DecoderUnit(
+        up_seq = nn.Sequential()
+        up_seq.add_module("up1", DecoderUnit(
             in_channels=32,
             out_channels=2,
             activation=man_activation,
-            final_activation=None)
+            final_activation=None))
+        up_seq.add_module("up2", DecoderUnit(
+            in_channels=64,
+            out_channels=32,
+            activation=man_activation,
+            final_activation=man_activation))
+        up_seq.add_module("up3", DecoderUnit(
+            in_channels=128,
+            out_channels=64,
+            activation=man_activation,
+            final_activation=man_activation))
+
+        skip_seq = nn.Sequential()
+        skip_seq.add_module("skip1", BreakBlock())
+        skip_seq.add_module("skip2", BreakBlock())
+        skip_seq.add_module("skip3", ReshapeBlock())
+        skip_seq.add_module("skip4", MainUnit(
+            channels=128,
+            activation=man_activation))
+
+
+        # self.downsample = InitBlock(
+        #     in_channels=3,
+        #     out_channels=32,
+        #     activation=man_activation)
+        # self.encoder1 = EncoderUnit(
+        #     in_channels=32,
+        #     out_channels=64,
+        #     activation=man_activation)
+        # self.encoder2 = EncoderUnit(
+        #     in_channels=64,
+        #     out_channels=128,
+        #     activation=man_activation)
+
+        # self.main_unit = MainUnit(
+        #     channels=128,
+        #     activation=man_activation)
+        #
+        # self.decoder2 = DecoderUnit(
+        #     in_channels=128,
+        #     out_channels=64,
+        #     activation=man_activation,
+        #     final_activation=man_activation)
+        #
+        # self.decoder1 = DecoderUnit(
+        #     in_channels=64,
+        #     out_channels=32,
+        #     activation=man_activation,
+        #     final_activation=man_activation)
+        #
+        # self.upsample = DecoderUnit(
+        #     in_channels=32,
+        #     out_channels=2,
+        #     activation=man_activation,
+        #     final_activation=None)
+
+        self.hg = Hourglass(
+            down_seq=down_seq,
+            up_seq=up_seq,
+            skip_seq=skip_seq,
+            merge_type="add")
 
         # edge loss
         edge_det_final_activation = lambda_leakyrelu(negative_slope=0.01)
@@ -646,25 +710,28 @@ class RecurrentFlowCompleteNet(nn.Module):
 
         x = torch.cat((masked_flows, masks), dim=2)
 
-        x = self.downsample(x)
+        flow = self.hg(x)
 
-        feat_e1 = self.encoder1(x)
-        feat_e2 = self.encoder2(feat_e1)  # b c t h w
-        # feat_mid = self.mid_dilation(feat_e2)  # b c t h w
+        # x = self.downsample(x)
+        #
+        # feat_e1 = self.encoder1(x)
+        # feat_e2 = self.encoder2(feat_e1)  # b c t h w
+        # # feat_mid = self.mid_dilation(feat_e2)  # b c t h w
+        #
+        # # feat_mid = feat_mid.permute(0, 2, 1, 3, 4)  # b t c h w
+        # # feat_prop = self.feat_prop_module(feat_mid)
+        # # feat_prop = feat_prop.view(-1, 128, height // 8, width // 8)  # b*t c h w
+        # feat_prop = self.main_unit(feat_e2)
+        #
+        # _, c, _, h_f, w_f = feat_e1.shape
+        # feat_e1 = feat_e1.permute(0, 2, 1, 3, 4).contiguous().view(-1, c, h_f, w_f)  # b*t c h w
+        #
+        # feat_d2 = self.decoder2(feat_prop) + feat_e1
+        #
+        # feat_d1 = self.decoder1(feat_d2)
+        #
+        # flow = self.upsample(feat_d1)
 
-        # feat_mid = feat_mid.permute(0, 2, 1, 3, 4)  # b t c h w
-        # feat_prop = self.feat_prop_module(feat_mid)
-        # feat_prop = feat_prop.view(-1, 128, height // 8, width // 8)  # b*t c h w
-        feat_prop = self.main_unit(feat_e2)
-
-        _, c, _, h_f, w_f = feat_e1.shape
-        feat_e1 = feat_e1.permute(0, 2, 1, 3, 4).contiguous().view(-1, c, h_f, w_f)  # b*t c h w
-
-        feat_d2 = self.decoder2(feat_prop) + feat_e1
-
-        feat_d1 = self.decoder1(feat_d2)
-
-        flow = self.upsample(feat_d1)
         if True:
         # if self.training:
             edge = self.edgeDetector(flow)
@@ -734,7 +801,8 @@ def _test2():
             upd_dict[src_i] = dst_i
 
         list2 = list(filter(re.compile("feat_prop_module.deform_align.").search, src_param_keys))
-        list2_u = [key.replace(".backward_.weight", ".backward_.deform_conv.weight") for key in list2]
+        list2_u = [key.replace("feat_prop_module.", "hg.skip_seq.skip4.feat_prop_module.") for key in list2]
+        list2_u = [key.replace(".backward_.weight", ".backward_.deform_conv.weight") for key in list2_u]
         list2_u = [key.replace(".backward_.bias", ".backward_.deform_conv.bias") for key in list2_u]
         list2_u = [key.replace(".forward_.weight", ".forward_.deform_conv.weight") for key in list2_u]
         list2_u = [key.replace(".forward_.bias", ".forward_.deform_conv.bias") for key in list2_u]
@@ -742,24 +810,26 @@ def _test2():
         list2_u = [key.replace(".conv_offset.2.", ".conv_offset.conv2.conv.") for key in list2_u]
         list2_u = [key.replace(".conv_offset.4.", ".conv_offset.conv3.conv.") for key in list2_u]
         list2_u = [key.replace(".conv_offset.6.", ".conv_offset.conv4.conv.") for key in list2_u]
-        list2_u = [key.replace("feat_prop_module.", "main_unit.feat_prop_module.") for key in list2_u]
+        # list2_u = [key.replace("feat_prop_module.", "main_unit.feat_prop_module.") for key in list2_u]
         for src_i, dst_i in zip(list2, list2_u):
             upd_dict[src_i] = dst_i
 
         list8 = list(filter(re.compile("feat_prop_module.backbone.").search, src_param_keys))
-        list8_u = [key.replace(".0.", ".conv1.conv.") for key in list8]
+        list8_u = [key.replace("feat_prop_module.", "hg.skip_seq.skip4.feat_prop_module.") for key in list8]
+        list8_u = [key.replace(".0.", ".conv1.conv.") for key in list8_u]
         list8_u = [key.replace(".2.", ".conv2.conv.") for key in list8_u]
-        list8_u = [key.replace("feat_prop_module.", "main_unit.feat_prop_module.") for key in list8_u]
+        # list8_u = [key.replace("feat_prop_module.", "main_unit.feat_prop_module.") for key in list8_u]
         for src_i, dst_i in zip(list8, list8_u):
             upd_dict[src_i] = dst_i
 
         list8 = list(filter(re.compile("feat_prop_module.fusion.").search, src_param_keys))
-        list8_u = [key.replace("feat_prop_module.", "main_unit.feat_prop_module.") for key in list8]
+        list8_u = [key.replace("feat_prop_module.", "hg.skip_seq.skip4.feat_prop_module.") for key in list8]
         for src_i, dst_i in zip(list8, list8_u):
             upd_dict[src_i] = dst_i
 
         list3 = list(filter(re.compile("downsample.").search, src_param_keys))
-        list3_u = [key.replace(".0.", ".conv.conv.") for key in list3]
+        list3_u = [key.replace("downsample.", "hg.down_seq.down1.") for key in list3]
+        list3_u = [key.replace(".0.", ".conv.conv.") for key in list3_u]
         for src_i, dst_i in zip(list3, list3_u):
             upd_dict[src_i] = dst_i
 
@@ -770,6 +840,8 @@ def _test2():
         list4_u = [key.replace("encoder2.2.", "encoder2.block2.") for key in list4_u]
         list4_u = [key.replace(".conv1.0.", ".conv1.conv.") for key in list4_u]
         list4_u = [key.replace(".conv2.0.", ".conv2.conv.") for key in list4_u]
+        list4_u = [key.replace("encoder1.", "hg.down_seq.down2.") for key in list4_u]
+        list4_u = [key.replace("encoder2.", "hg.down_seq.down3.") for key in list4_u]
         for src_i, dst_i in zip(list4, list4_u):
             upd_dict[src_i] = dst_i
 
@@ -777,19 +849,22 @@ def _test2():
         list5_u = [key.replace(".0.", ".conv1.conv.") for key in list5]
         list5_u = [key.replace(".2.", ".conv2.conv.") for key in list5_u]
         list5_u = [key.replace(".4.", ".conv3.conv.") for key in list5_u]
-        list5_u = [key.replace("mid_dilation.", "main_unit.mid_dilation.") for key in list5_u]
+        list5_u = [key.replace("mid_dilation.", "hg.skip_seq.skip4.mid_dilation.") for key in list5_u]
         for src_i, dst_i in zip(list5, list5_u):
             upd_dict[src_i] = dst_i
 
         list6 = list(filter(re.compile("decoder").search, src_param_keys))
         list6_u = [key.replace(".0.", ".conv1.conv.") for key in list6]
         list6_u = [key.replace(".2.", ".conv2.") for key in list6_u]
+        list6_u = [key.replace("decoder1.", "hg.up_seq.up2.") for key in list6_u]
+        list6_u = [key.replace("decoder2.", "hg.up_seq.up3.") for key in list6_u]
         for src_i, dst_i in zip(list6, list6_u):
             upd_dict[src_i] = dst_i
 
         list7 = list(filter(re.compile("upsample.").search, src_param_keys))
         list7_u = [key.replace(".0.", ".conv1.conv.") for key in list7]
         list7_u = [key.replace(".2.", ".conv2.") for key in list7_u]
+        list7_u = [key.replace("upsample.", "hg.up_seq.up1.") for key in list7_u]
         for src_i, dst_i in zip(list7, list7_u):
             upd_dict[src_i] = dst_i
 

@@ -1191,11 +1191,7 @@ def _test2():
             small=raft_small)
 
         x_file_path = os.path.join(root_path, "x.npy")
-        y1_file_path = os.path.join(root_path, y1_file_name)
-        y2_file_path = os.path.join(root_path, y2_file_name)
         x = np.load(x_file_path)
-        y1 = np.load(y1_file_path)
-        y2 = np.load(y2_file_path)
 
         frames = torch.from_numpy(x).cuda()
 
@@ -1206,8 +1202,13 @@ def _test2():
         y1_ = flows_f.cpu().detach().numpy()
         y2_ = flows_b.cpu().detach().numpy()
 
-        # np.save(os.path.join(root_path, "y1_s.npy"), np.ascontiguousarray(y1_))
-        # np.save(os.path.join(root_path, "y2_s.npy"), np.ascontiguousarray(y2_))
+        # np.save(os.path.join(root_path, y1_file_name), np.ascontiguousarray(y1_))
+        # np.save(os.path.join(root_path, y2_file_name), np.ascontiguousarray(y2_))
+
+        y1_file_path = os.path.join(root_path, y1_file_name)
+        y2_file_path = os.path.join(root_path, y2_file_name)
+        y1 = np.load(y1_file_path)
+        y2 = np.load(y2_file_path)
 
         if not np.array_equal(y1, y1_):
             print("*")

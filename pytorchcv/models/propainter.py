@@ -15,7 +15,7 @@ from einops import rearrange
 from typing import Callable
 from common import (lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3, conv3x3_block,
                     InterpolationBlock)
-from resnet import ResUnit
+from resnet import ResUnit, ResBlock
 from propainter_rfc import SecondOrderDeformableAlignment
 
 
@@ -81,165 +81,43 @@ def fbConsistencyCheck(flow_fw,
     return fb_valid_fw
 
 
-# class ModulatedDeformConv2d(nn.Module):
-#     def __init__(self,
-#                  in_channels,
-#                  out_channels,
-#                  kernel_size,
-#                  stride=1,
-#                  padding=0,
-#                  dilation=1,
-#                  groups=1,
-#                  deform_groups=1,
-#                  bias=True):
-#         super(ModulatedDeformConv2d, self).__init__()
-#
-#         self.in_channels = in_channels
-#         self.out_channels = out_channels
-#         self.kernel_size = _pair(kernel_size)
-#         self.stride = stride
-#         self.padding = padding
-#         self.dilation = dilation
-#         self.groups = groups
-#         self.deform_groups = deform_groups
-#         self.with_bias = bias
-#         # enable compatibility with nn.Conv2d
-#         self.transposed = False
-#         self.output_padding = _single(0)
-#
-#         self.weight = nn.Parameter(torch.Tensor(out_channels, in_channels // groups, *self.kernel_size))
-#         if bias:
-#             self.bias = nn.Parameter(torch.Tensor(out_channels))
-#         else:
-#             self.register_parameter('bias', None)
-#         self.init_weights()
-#
-#     def init_weights(self):
-#         n = self.in_channels
-#         for k in self.kernel_size:
-#             n *= k
-#         stdv = 1. / math.sqrt(n)
-#         self.weight.data.uniform_(-stdv, stdv)
-#         if self.bias is not None:
-#             self.bias.data.zero_()
-#
-#         if hasattr(self, 'conv_offset'):
-#             self.conv_offset.weight.data.zero_()
-#             self.conv_offset.bias.data.zero_()
-#
-#     def forward(self, x, offset, mask):
-#         pass
-#
-#
-# def constant_init(module, val, bias=0):
-#     if hasattr(module, 'weight') and module.weight is not None:
-#         nn.init.constant_(module.weight, val)
-#     if hasattr(module, 'bias') and module.bias is not None:
-#         nn.init.constant_(module.bias, bias)
-#
-#
-# class DeformableAlignment(nn.Module):
-#     """
-#     Second-order deformable alignment module.
-#     """
-#     def __init__(self,
-#                  x_in_channels: int,
-#                  cond_in_channels: int,
-#                  out_channels: int,
-#                  deform_groups: int,
-#                  max_residue_magnitude: int):
-#         super(DeformableAlignment, self).__init__()
-#         self.max_residue_magnitude = max_residue_magnitude
-#
-#         self.conv_offset = nn.Sequential(
-#             nn.Conv2d(
-#                 2 * out_channels + 2 + 1 + 2,
-#                 out_channels, 3, 1, 1),
-#             nn.LeakyReLU(negative_slope=0.1, inplace=True),
-#             nn.Conv2d(out_channels, out_channels, 3, 1, 1),
-#             nn.LeakyReLU(negative_slope=0.1, inplace=True),
-#             nn.Conv2d(out_channels, out_channels, 3, 1, 1),
-#             nn.LeakyReLU(negative_slope=0.1, inplace=True),
-#             nn.Conv2d(out_channels, 27 * deform_groups, 3, 1, 1),
-#         )
-#
-#         self.deform_conv = DeformConv2d(
-#             in_channels=x_in_channels,
-#             out_channels=out_channels,
-#             kernel_size=3,
-#             padding=1)
-#
-#         self.init_offset()
-#
-#     def init_offset(self):
-#         constant_init(self.conv_offset[-1], val=0, bias=0)
-#
-#     def forward(self, x, cond, flow):
-#         out = self.conv_offset(cond)
-#         o1, o2, mask = torch.chunk(out, 3, dim=1)
-#
-#         # offset
-#         offset = self.max_residue_magnitude * torch.tanh(torch.cat((o1, o2), dim=1))
-#         offset = offset + flow.flip(1).repeat(1, offset.size(1) // 2, 1, 1)
-#
-#         # mask
-#         mask = torch.sigmoid(mask)
-#
-#         out = self.deform_conv(
-#             input=x,
-#             offset=offset,
-#             mask=mask)
-#         return out
-#
-#         # out = deform_conv2d(
-#         #     x,
-#         #     offset,
-#         #     self.weight,
-#         #     self.bias,
-#         #     self.stride,
-#         #     self.padding,
-#         #     self.dilation,
-#         #     mask)
-#         # return out
-
-
 class BidirectionalPropagation(nn.Module):
     def __init__(self,
-                 channel,
-                 learnable=True):
+                 channels: int,
+                 learnable: bool = True):
         super(BidirectionalPropagation, self).__init__()
+        self.channels = channels
+        self.learnable = learnable
+
+        activation = lambda_leakyrelu(negative_slope=0.2)
+        self.prop_list = ["backward_1", "forward_1"]
+
         self.deform_align = nn.ModuleDict()
         self.backbone = nn.ModuleDict()
-        self.channel = channel
-        self.prop_list = ["backward_1", "forward_1"]
-        self.learnable = learnable
 
         if self.learnable:
             for i, module in enumerate(self.prop_list):
                 self.deform_align[module] = SecondOrderDeformableAlignment(
-                    x_in_channels=channel,
-                    cond_in_channels=(2 * channel + 2 + 1 + 2),
-                    out_channels=channel,
+                    x_in_channels=channels,
+                    cond_in_channels=(2 * channels + 2 + 1 + 2),
+                    out_channels=channels,
                     deform_groups=16,
                     max_residue_magnitude=3)
-                    # channel,
-                    # channel,
-                    # 3,
-                    # padding=1,
-                    # deform_groups=16,
-                    # max_residue_magnitude=3)
+                self.backbone[module] = ResBlock(
+                    in_channels=(2 * channels + 2),
+                    out_channels=channels,
+                    stride=1,
+                    bias=True,
+                    normalization=None,
+                    activation=activation)
 
-                self.backbone[module] = nn.Sequential(
-                    nn.Conv2d(2 * channel + 2, channel, 3, 1, 1),
-                    nn.LeakyReLU(negative_slope=0.2, inplace=True),
-                    nn.Conv2d(channel, channel, 3, 1, 1),
-                )
-
-            self.fuse = nn.Sequential(
-                nn.Conv2d(2 * channel + 2, channel, 3, 1, 1),
-                nn.LeakyReLU(negative_slope=0.2, inplace=True),
-                nn.Conv2d(channel, channel, 3, 1, 1),
-            )
+            self.fuse = ResBlock(
+                in_channels=(2 * channels + 2),
+                out_channels=channels,
+                stride=1,
+                bias=True,
+                normalization=None,
+                activation=activation)
 
     def binary_mask(self,
                     mask,
@@ -263,10 +141,13 @@ class BidirectionalPropagation(nn.Module):
         # For backward warping
         # pred_flows_forward for backward feature propagation
         # pred_flows_backward for forward feature propagation
-        b, t, c, h, w = x.shape
-        feats, masks = {}, {}
-        feats["input"] = [x[:, i, :, :, :] for i in range(0, t)]
-        masks["input"] = [mask[:, i, :, :, :] for i in range(0, t)]
+        batch, time, channels, height, width = x.shape
+        assert (channels == self.channels)
+
+        feats = {}
+        masks = {}
+        feats["input"] = [x[:, i, :, :, :] for i in range(0, time)]
+        masks["input"] = [mask[:, i, :, :, :] for i in range(0, time)]
 
         prop_list = ["backward_1", "forward_1"]
         cache_list = ["input"] + prop_list
@@ -276,14 +157,14 @@ class BidirectionalPropagation(nn.Module):
             masks[module_name] = []
 
             if "backward" in module_name:
-                frame_idx = range(0, t)
+                frame_idx = range(0, time)
                 frame_idx = frame_idx[::-1]
                 flow_idx = frame_idx
                 flows_for_prop = flows_forward
                 flows_for_check = flows_backward
             else:
-                frame_idx = range(0, t)
-                flow_idx = range(-1, t - 1)
+                frame_idx = range(0, time)
+                flow_idx = range(-1, time - 1)
                 flows_for_prop = flows_backward
                 flows_for_check = flows_forward
 
@@ -301,7 +182,12 @@ class BidirectionalPropagation(nn.Module):
                     feat_warped = flow_warp(feat_prop, flow_prop.permute(0, 2, 3, 1), interpolation)
 
                     if self.learnable:
-                        cond = torch.cat([feat_current, feat_warped, flow_prop, flow_vaild_mask, mask_current], dim=1)
+                        cond = torch.cat([
+                            feat_current,
+                            feat_warped,
+                            flow_prop,
+                            flow_vaild_mask,
+                            mask_current], dim=1)
                         feat_prop = self.deform_align[module_name](x=feat_prop, cond=cond, flow=flow_prop)
                         mask_prop = mask_current
                     else:
@@ -327,20 +213,22 @@ class BidirectionalPropagation(nn.Module):
                 feats[module_name] = feats[module_name][::-1]
                 masks[module_name] = masks[module_name][::-1]
 
-        outputs_b = torch.stack(feats["backward_1"], dim=1).view(-1, c, h, w)
-        outputs_f = torch.stack(feats["forward_1"], dim=1).view(-1, c, h, w)
+        outputs_b = torch.stack(feats["backward_1"], dim=1).view(-1, channels, height, width)
+        outputs_f = torch.stack(feats["forward_1"], dim=1).view(-1, channels, height, width)
 
         if self.learnable:
-            mask_in = mask.view(-1, 2, h, w)
-            masks_b, masks_f = None, None
-            outputs = self.fuse(torch.cat([outputs_b, outputs_f, mask_in], dim=1)) + x.view(-1, c, h, w)
+            mask_in = mask.view(-1, 2, height, width)
+            masks_f = None
+            outputs = (self.fuse(torch.cat([outputs_b, outputs_f, mask_in], dim=1)) +
+                       x.view(-1, channels, height, width))
         else:
-            # masks_b = torch.stack(masks['backward_1'], dim=1)
             masks_f = torch.stack(masks["forward_1"], dim=1)
             outputs = outputs_f
 
-        return outputs_b.view(b, -1, c, h, w), outputs_f.view(b, -1, c, h, w), \
-            outputs.view(b, -1, c, h, w), masks_f
+        return (outputs_b.view(batch, -1, channels, height, width),
+                outputs_f.view(batch, -1, channels, height, width),
+                outputs.view(batch, -1, channels, height, width),
+                masks_f)
 
 
 class Encoder(nn.Module):
@@ -1013,6 +901,19 @@ def _test2():
         list2_u = [key.replace(".conv_offset.6.", ".conv_offset.conv4.conv.") for key in list2_u]
         for src_i, dst_i in zip(list2, list2_u):
             upd_dict[src_i] = dst_i
+
+        list3 = list(filter(re.compile("feat_prop_module.fuse.").search, src_param_keys))
+        list3_u = [key.replace(".0.", ".conv1.conv.") for key in list3]
+        list3_u = [key.replace(".2.", ".conv2.conv.") for key in list3_u]
+        for src_i, dst_i in zip(list3, list3_u):
+            upd_dict[src_i] = dst_i
+
+        list8 = list(filter(re.compile("feat_prop_module.backbone.").search, src_param_keys))
+        list8_u = [key.replace(".0.", ".conv1.conv.") for key in list8]
+        list8_u = [key.replace(".2.", ".conv2.conv.") for key in list8_u]
+        for src_i, dst_i in zip(list8, list8_u):
+            upd_dict[src_i] = dst_i
+
 
         list4_r = []
 
