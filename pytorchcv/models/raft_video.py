@@ -8,7 +8,7 @@ from PIL import Image
 import numpy as np
 import torch
 import torch.nn as nn
-from raft import raft_things, run_raft_on_video
+from raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
 
 
 class FilePathDirIterator(object):
@@ -421,18 +421,12 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
         Optical flow model.
     frames_loader : FrameBufferedDataLoader
         Frames.
-    iters : int, default 20
-        Number of iterations for flow calculation.
     """
     def __init__(self,
                  net: nn.Module,
-                 iters: int = 20,
                  **kwargs):
         super(FlowWindowBufferedDataLoader, self).__init__(**kwargs)
-        assert (iters > 0)
-
         self.net = net
-        self.iters = iters
 
     def _load_data_items(self,
                          raw_data_chunk):
@@ -449,10 +443,12 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
         protocol(any)
             Resulted data.
         """
-        flows = run_raft_on_video(
+        flows = calc_bidirectional_optical_flow_on_video_by_raft(
             net=self.net,
-            frames=raw_data_chunk,
-            iters=self.iters)
+            frames=raw_data_chunk)
+        assert (len(flows.shape) == 4)
+        assert (flows.shape[1] == 4)
+
         # torch.cuda.empty_cache()
         return flows
 
@@ -466,7 +462,7 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
         data_chunk : protocol(any)
             Data chunk.
         """
-        self.buffer = torch.cat([self.buffer, data_chunk], dim=1)
+        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
 
 
 def _test():
@@ -508,7 +504,9 @@ def _test():
         image_resize_ratio=image_resize_ratio,
         use_cuda=use_cuda)
 
-    raft_net = raft_things()
+    raft_net = raft_things(
+        in_normalize=False,
+        iters=raft_iters)
     raft_net.load_state_dict(torch.load(raft_model_path, map_location="cpu"))
     for p in raft_net.parameters():
         p.requires_grad = False
@@ -524,8 +522,7 @@ def _test():
     raft_loader = FlowWindowBufferedDataLoader(
         data=frames_loader,
         window_index=raft_window_index,
-        net=raft_net,
-        iters=raft_iters)
+        net=raft_net)
     a = raft_loader[:]
     # a = raft_loader[raft_window_index[0].target.start:raft_window_index[0].target.stop]
 

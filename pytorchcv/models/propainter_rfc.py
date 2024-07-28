@@ -4,14 +4,17 @@
     https://arxiv.org/pdf/2309.03897.
 """
 
-__all__ = ['SecondOrderDeformableAlignment']
+__all__ = ['PPRecurrentFlowComplete', 'propainter_rfc', 'SecondOrderDeformableAlignment',
+           'calc_bidirectional_opt_flow_completion_by_pprfc']
 
+import os
 import math
 import torch
 import torch.nn as nn
 from torchvision.ops import DeformConv2d
 from typing import Callable
-from common import lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3_block, InterpolationBlock
+from common import (lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3_block, InterpolationBlock,
+                    BreakBlock, Hourglass)
 from resnet import ResUnit, ResBlock
 
 
@@ -585,47 +588,87 @@ class MainUnit(nn.Module):
         return x
 
 
-class RecurrentFlowCompleteNet(nn.Module):
+class ReshapeBlock(nn.Module):
+    """
+    RFC specific reshape skip block.
+
+    Input tensor size should be (batch, channels, time, height, width).
+    Output tensor size will be (batch * time, channels, height, width).
+    """
     def __init__(self):
-        super().__init__()
+        super(ReshapeBlock, self).__init__()
+
+    def forward(self, x):
+        x = x.permute(0, 2, 1, 3, 4).contiguous()
+        batch, time, channels, height, width = x.size()
+        x = x.view(batch * time, channels, height, width)
+        return x
+
+
+class PPRecurrentFlowComplete(nn.Module):
+    """
+    Recurrent Flow Completion part of ProPainter model from 'ProPainter: Improving Propagation and Transformer for Video
+    Inpainting,' https://arxiv.org/pdf/2309.03897.
+
+    Parameters
+    ----------
+    calc_edge : bool, default False
+        Whether to calculate edge image.
+    in_channels : int, default 3
+        Number of input channels.
+    """
+    def __init__(self,
+                 calc_edge: bool = False,
+                 in_channels: int = 3):
+        super(PPRecurrentFlowComplete, self).__init__()
+        self.calc_edge = calc_edge
         man_activation = lambda_leakyrelu(negative_slope=0.2)
 
-        self.downsample = InitBlock(
-            in_channels=3,
+        down_seq = nn.Sequential()
+        down_seq.add_module("down1", InitBlock(
+            in_channels=in_channels,
             out_channels=32,
-            activation=man_activation)
-        self.encoder1 = EncoderUnit(
+            activation=man_activation))
+        down_seq.add_module("down2", EncoderUnit(
             in_channels=32,
             out_channels=64,
-            activation=man_activation)
-        self.encoder2 = EncoderUnit(
+            activation=man_activation))
+        down_seq.add_module("down3", EncoderUnit(
             in_channels=64,
             out_channels=128,
-            activation=man_activation)
+            activation=man_activation))
 
-        self.main_unit = MainUnit(
-            channels=128,
-            activation=man_activation)
-
-        self.decoder2 = DecoderUnit(
-            in_channels=128,
-            out_channels=64,
-            activation=man_activation,
-            final_activation=man_activation)
-
-        self.decoder1 = DecoderUnit(
-            in_channels=64,
-            out_channels=32,
-            activation=man_activation,
-            final_activation=man_activation)
-
-        self.upsample = DecoderUnit(
+        up_seq = nn.Sequential()
+        up_seq.add_module("up1", DecoderUnit(
             in_channels=32,
             out_channels=2,
             activation=man_activation,
-            final_activation=None)
+            final_activation=None))
+        up_seq.add_module("up2", DecoderUnit(
+            in_channels=64,
+            out_channels=32,
+            activation=man_activation,
+            final_activation=man_activation))
+        up_seq.add_module("up3", DecoderUnit(
+            in_channels=128,
+            out_channels=64,
+            activation=man_activation,
+            final_activation=man_activation))
 
-        # edge loss
+        skip_seq = nn.Sequential()
+        skip_seq.add_module("skip1", BreakBlock())
+        skip_seq.add_module("skip2", BreakBlock())
+        skip_seq.add_module("skip3", ReshapeBlock())
+        skip_seq.add_module("skip4", MainUnit(
+            channels=128,
+            activation=man_activation))
+
+        self.hg = Hourglass(
+            down_seq=down_seq,
+            up_seq=up_seq,
+            skip_seq=skip_seq,
+            merge_type="add")
+
         edge_det_final_activation = lambda_leakyrelu(negative_slope=0.01)
         self.edgeDetector = EdgeDetection(
             in_channels=2,
@@ -639,34 +682,18 @@ class RecurrentFlowCompleteNet(nn.Module):
         assert (channels == 2)
         assert (height % 8 == 0)
         assert (width % 8 == 0)
-
-        # masked_flows = masked_flows.permute(0, 2, 1, 3, 4)  # b t c h w -> b c t h w
-        # masks = masks.permute(0, 2, 1, 3, 4)  # b t c h w -> b c t h w
-        # x = torch.cat((masked_flows, masks), dim=1)
+        assert (masked_flows.shape[0] == masks.shape[0])
+        assert (masked_flows.shape[1] == masks.shape[1])
+        assert (masks.shape[2] == 1)
+        assert (masked_flows.shape[3] == masks.shape[3])
+        assert (masked_flows.shape[4] == masks.shape[4])
 
         x = torch.cat((masked_flows, masks), dim=2)
 
-        x = self.downsample(x)
+        flow = self.hg(x)
 
-        feat_e1 = self.encoder1(x)
-        feat_e2 = self.encoder2(feat_e1)  # b c t h w
-        # feat_mid = self.mid_dilation(feat_e2)  # b c t h w
-
-        # feat_mid = feat_mid.permute(0, 2, 1, 3, 4)  # b t c h w
-        # feat_prop = self.feat_prop_module(feat_mid)
-        # feat_prop = feat_prop.view(-1, 128, height // 8, width // 8)  # b*t c h w
-        feat_prop = self.main_unit(feat_e2)
-
-        _, c, _, h_f, w_f = feat_e1.shape
-        feat_e1 = feat_e1.permute(0, 2, 1, 3, 4).contiguous().view(-1, c, h_f, w_f)  # b*t c h w
-
-        feat_d2 = self.decoder2(feat_prop) + feat_e1
-
-        feat_d1 = self.decoder1(feat_d2)
-
-        flow = self.upsample(feat_d1)
-        if True:
         # if self.training:
+        if self.calc_edge:
             edge = self.edgeDetector(flow)
             edge = edge.view(batch, time, 1, height, width)
         else:
@@ -676,41 +703,139 @@ class RecurrentFlowCompleteNet(nn.Module):
 
         return flow, edge
 
-    def forward_bidirect_flow(self, masked_flows_bi, masks):
-        """
-        Args:
-            masked_flows_bi: [masked_flows_f, masked_flows_b] | (b t-1 2 h w), (b t-1 2 h w)
-            masks: b t 1 h w
-        """
-        masks_forward = masks[:, :-1, ...].contiguous()
-        masks_backward = masks[:, 1:, ...].contiguous()
 
-        # mask flow
-        masked_flows_forward = masked_flows_bi[0] * (1 - masks_forward)
-        masked_flows_backward = masked_flows_bi[1] * (1 - masks_backward)
+def get_propainter_rfc(model_name: str | None = None,
+                       pretrained: bool = False,
+                       root: str = os.path.join("~", ".torch", "models"),
+                       **kwargs) -> nn.Module:
+    """
+    Create Recurrent Flow Completion part of ProPainter model with specific parameters.
 
-        # -- completion --
-        # forward
-        pred_flows_forward, pred_edges_forward = self.forward(masked_flows_forward, masks_forward)
+    Parameters
+    ----------
+    model_name : str or None, default None
+        Model name for loading pretrained model.
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.torch/models'
+        Location for keeping the model parameters.
 
-        # backward
-        masked_flows_backward = torch.flip(masked_flows_backward, dims=[1])
-        masks_backward = torch.flip(masks_backward, dims=[1])
-        pred_flows_backward, pred_edges_backward = self.forward(masked_flows_backward, masks_backward)
-        pred_flows_backward = torch.flip(pred_flows_backward, dims=[1])
-        if self.training:
-            pred_edges_backward = torch.flip(pred_edges_backward, dims=[1])
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
+    net = PPRecurrentFlowComplete(**kwargs)
 
-        return [pred_flows_forward, pred_flows_backward], [pred_edges_forward, pred_edges_backward]
+    if pretrained:
+        if (model_name is None) or (not model_name):
+            raise ValueError("Parameter `model_name` should be properly initialized for loading pretrained model.")
+        from .model_store import download_model
+        download_model(
+            net=net,
+            model_name=model_name,
+            local_model_store_dir_path=root)
 
-    def combine_flow(self, masked_flows_bi, pred_flows_bi, masks):
-        masks_forward = masks[:, :-1, ...].contiguous()
-        masks_backward = masks[:, 1:, ...].contiguous()
+    return net
 
-        pred_flows_forward = pred_flows_bi[0] * masks_forward + masked_flows_bi[0] * (1 - masks_forward)
-        pred_flows_backward = pred_flows_bi[1] * masks_backward + masked_flows_bi[1] * (1 - masks_backward)
 
-        return pred_flows_forward, pred_flows_backward
+def propainter_rfc(**kwargs) -> nn.Module:
+    """
+    ProPainter-RFC model from 'ProPainter: Improving Propagation and Transformer for Video Inpainting,'
+    https://arxiv.org/pdf/2309.03897.
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.torch/models'
+        Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
+    return get_propainter_rfc(**kwargs)
+
+
+def calc_bidirectional_opt_flow_completion_by_pprfc(net: PPRecurrentFlowComplete,
+                                                    flows: torch.Tensor,
+                                                    masks: torch.Tensor,
+                                                    combine_flows: bool = True) -> tuple[torch.Tensor, torch.Tensor]:
+    """
+    Complete bidirectional optical flow (based on ProPainter's Recurrent Flow Completion net) on video.
+    Batch dimension for frames is interpreted as time.
+
+    Parameters
+    ----------
+    net: PPRecurrentFlowComplete
+        Optical flow completion model.
+    flows : torch.Tensor
+        Bidirectional flows with size: (time, channels=4, height, width).
+    masks : torch.Tensor
+        Masks with size: (time, channels=1, height, width).
+    combine_flows : bool, default True
+        Whether to combine predicted flows with original flows.
+
+    Returns
+    -------
+    torch.Tensor
+        Forward/Backward completed flow with size: (time, channels=4, height, width).
+    torch.Tensor
+        Forward/Backward edge images with size: (time, channels=2, height, width).
+    """
+    assert (len(flows.shape) == 4)
+    assert (len(flows.shape) == len(masks.shape))
+    assert (flows.shape[0] == masks.shape[0] - 1)
+    assert (flows.shape[1] == 4)
+    assert (masks.shape[1] == 1)
+    assert (flows.shape[2] == masks.shape[2])
+    assert (flows.shape[3] == masks.shape[3])
+
+    flows_forward, flows_backward = torch.split(flows, [2, 2], dim=1)
+
+    masks_forward = masks[:-1].contiguous()
+    masks_backward = masks[1:].contiguous()
+
+    masked_flows_forward = flows_forward * (1 - masks_forward)
+    masked_flows_backward = flows_backward * (1 - masks_backward)
+
+    comp_flows_forward, edges_forward = net.forward(
+        masked_flows=masked_flows_forward[None],
+        masks=masks_forward[None])
+    comp_flows_forward = comp_flows_forward[0]
+    if edges_forward is not None:
+        edges_forward = edges_forward[0]
+
+    masked_flows_backward_inv = torch.flip(masked_flows_backward, dims=[0])
+    masks_backward_inv = torch.flip(masks_backward, dims=[0])
+    comp_flows_backward_inv, edges_backward_inv = net.forward(
+        masked_flows=masked_flows_backward_inv[None],
+        masks=masks_backward_inv[None])
+    comp_flows_backward_inv = comp_flows_backward_inv[0]
+    if edges_backward_inv is not None:
+        edges_backward_inv = edges_backward_inv[0]
+    comp_flows_backward = torch.flip(comp_flows_backward_inv, dims=[0])
+    if edges_backward_inv is not None:
+        edges_backward = torch.flip(edges_backward_inv, dims=[0])
+    else:
+        edges_backward = None
+
+    if combine_flows:
+        comp_flows_forward = comp_flows_forward * masks_forward + masked_flows_forward
+        comp_flows_backward = comp_flows_backward * masks_backward + masked_flows_backward
+
+    comp_flows = torch.cat((comp_flows_forward, comp_flows_backward), dim=1)
+
+    if edges_forward is not None:
+        edges = torch.cat((edges_forward, edges_backward), dim=1)
+    else:
+        edges = None
+
+    assert (comp_flows.shape == flows.shape)
+
+    return comp_flows, edges
 
 
 def _test2():
@@ -734,7 +859,8 @@ def _test2():
             upd_dict[src_i] = dst_i
 
         list2 = list(filter(re.compile("feat_prop_module.deform_align.").search, src_param_keys))
-        list2_u = [key.replace(".backward_.weight", ".backward_.deform_conv.weight") for key in list2]
+        list2_u = [key.replace("feat_prop_module.", "hg.skip_seq.skip4.feat_prop_module.") for key in list2]
+        list2_u = [key.replace(".backward_.weight", ".backward_.deform_conv.weight") for key in list2_u]
         list2_u = [key.replace(".backward_.bias", ".backward_.deform_conv.bias") for key in list2_u]
         list2_u = [key.replace(".forward_.weight", ".forward_.deform_conv.weight") for key in list2_u]
         list2_u = [key.replace(".forward_.bias", ".forward_.deform_conv.bias") for key in list2_u]
@@ -742,24 +868,26 @@ def _test2():
         list2_u = [key.replace(".conv_offset.2.", ".conv_offset.conv2.conv.") for key in list2_u]
         list2_u = [key.replace(".conv_offset.4.", ".conv_offset.conv3.conv.") for key in list2_u]
         list2_u = [key.replace(".conv_offset.6.", ".conv_offset.conv4.conv.") for key in list2_u]
-        list2_u = [key.replace("feat_prop_module.", "main_unit.feat_prop_module.") for key in list2_u]
+        # list2_u = [key.replace("feat_prop_module.", "main_unit.feat_prop_module.") for key in list2_u]
         for src_i, dst_i in zip(list2, list2_u):
             upd_dict[src_i] = dst_i
 
         list8 = list(filter(re.compile("feat_prop_module.backbone.").search, src_param_keys))
-        list8_u = [key.replace(".0.", ".conv1.conv.") for key in list8]
+        list8_u = [key.replace("feat_prop_module.", "hg.skip_seq.skip4.feat_prop_module.") for key in list8]
+        list8_u = [key.replace(".0.", ".conv1.conv.") for key in list8_u]
         list8_u = [key.replace(".2.", ".conv2.conv.") for key in list8_u]
-        list8_u = [key.replace("feat_prop_module.", "main_unit.feat_prop_module.") for key in list8_u]
+        # list8_u = [key.replace("feat_prop_module.", "main_unit.feat_prop_module.") for key in list8_u]
         for src_i, dst_i in zip(list8, list8_u):
             upd_dict[src_i] = dst_i
 
         list8 = list(filter(re.compile("feat_prop_module.fusion.").search, src_param_keys))
-        list8_u = [key.replace("feat_prop_module.", "main_unit.feat_prop_module.") for key in list8]
+        list8_u = [key.replace("feat_prop_module.", "hg.skip_seq.skip4.feat_prop_module.") for key in list8]
         for src_i, dst_i in zip(list8, list8_u):
             upd_dict[src_i] = dst_i
 
         list3 = list(filter(re.compile("downsample.").search, src_param_keys))
-        list3_u = [key.replace(".0.", ".conv.conv.") for key in list3]
+        list3_u = [key.replace("downsample.", "hg.down_seq.down1.") for key in list3]
+        list3_u = [key.replace(".0.", ".conv.conv.") for key in list3_u]
         for src_i, dst_i in zip(list3, list3_u):
             upd_dict[src_i] = dst_i
 
@@ -770,6 +898,8 @@ def _test2():
         list4_u = [key.replace("encoder2.2.", "encoder2.block2.") for key in list4_u]
         list4_u = [key.replace(".conv1.0.", ".conv1.conv.") for key in list4_u]
         list4_u = [key.replace(".conv2.0.", ".conv2.conv.") for key in list4_u]
+        list4_u = [key.replace("encoder1.", "hg.down_seq.down2.") for key in list4_u]
+        list4_u = [key.replace("encoder2.", "hg.down_seq.down3.") for key in list4_u]
         for src_i, dst_i in zip(list4, list4_u):
             upd_dict[src_i] = dst_i
 
@@ -777,19 +907,22 @@ def _test2():
         list5_u = [key.replace(".0.", ".conv1.conv.") for key in list5]
         list5_u = [key.replace(".2.", ".conv2.conv.") for key in list5_u]
         list5_u = [key.replace(".4.", ".conv3.conv.") for key in list5_u]
-        list5_u = [key.replace("mid_dilation.", "main_unit.mid_dilation.") for key in list5_u]
+        list5_u = [key.replace("mid_dilation.", "hg.skip_seq.skip4.mid_dilation.") for key in list5_u]
         for src_i, dst_i in zip(list5, list5_u):
             upd_dict[src_i] = dst_i
 
         list6 = list(filter(re.compile("decoder").search, src_param_keys))
         list6_u = [key.replace(".0.", ".conv1.conv.") for key in list6]
         list6_u = [key.replace(".2.", ".conv2.") for key in list6_u]
+        list6_u = [key.replace("decoder1.", "hg.up_seq.up2.") for key in list6_u]
+        list6_u = [key.replace("decoder2.", "hg.up_seq.up3.") for key in list6_u]
         for src_i, dst_i in zip(list6, list6_u):
             upd_dict[src_i] = dst_i
 
         list7 = list(filter(re.compile("upsample.").search, src_param_keys))
         list7_u = [key.replace(".0.", ".conv1.conv.") for key in list7]
         list7_u = [key.replace(".2.", ".conv2.") for key in list7_u]
+        list7_u = [key.replace("upsample.", "hg.up_seq.up1.") for key in list7_u]
         for src_i, dst_i in zip(list7, list7_u):
             upd_dict[src_i] = dst_i
 
@@ -809,7 +942,7 @@ def _test2():
     rfc_model_file_name = "recurrent_flow_completion.pth"
 
     model_path = os.path.join(root_path, rfc_model_file_name)
-    net_rfc = RecurrentFlowCompleteNet()
+    net_rfc = PPRecurrentFlowComplete(calc_edge=True)
 
     src_checkpoint = torch.load(model_path, map_location="cpu")
     dst_checkpoint = net_rfc.state_dict()
@@ -852,16 +985,23 @@ def _test2():
     flow_b = torch.from_numpy(flow_b_np).cuda()
     mask = torch.from_numpy(mask_np).cuda()
 
-    (flow_f_comp, flow_b_comp), _ = net_rfc.forward_bidirect_flow(
-        masked_flows_bi=(flow_f, flow_b),
-        masks=mask)
-    flow_f_comp, flow_b_comp = net_rfc.combine_flow(
-        masked_flows_bi=(flow_f, flow_b),
-        pred_flows_bi=(flow_f_comp, flow_b_comp),
-        masks=mask)
+    # (flow_f_comp, flow_b_comp), _ = net_rfc.forward_bidirect_flow(
+    #     masked_flows_bi=(flow_f, flow_b),
+    #     masks=mask)
+    # flow_f_comp, flow_b_comp = net_rfc.combine_flow(
+    #     masked_flows_bi=(flow_f, flow_b),
+    #     pred_flows_bi=(flow_f_comp, flow_b_comp),
+    #     masks=mask)
 
-    flow_f_comp_np_ = flow_f_comp[0].cpu().detach().numpy()
-    flow_b_comp_np_ = flow_b_comp[0].cpu().detach().numpy()
+    flow_comp, _ = calc_bidirectional_opt_flow_completion_by_pprfc(
+        net=net_rfc,
+        flows=torch.cat((flow_f[0], flow_b[0]), dim=1),
+        masks=mask[0],
+        combine_flows=True)
+    flow_f_comp, flow_b_comp = torch.split(flow_comp, [2, 2], dim=1)
+
+    flow_f_comp_np_ = flow_f_comp.cpu().detach().numpy()
+    flow_b_comp_np_ = flow_b_comp.cpu().detach().numpy()
 
     # np.save(os.path.join(root_path, "flow_f_comp.npy"), np.ascontiguousarray(flow_f_comp_np_))
     # np.save(os.path.join(root_path, "flow_b_comp.npy"), np.ascontiguousarray(flow_b_comp_np_))
@@ -899,38 +1039,37 @@ def _test2():
     pass
 
 
-# def _test():
-#     import torch
-#     from model_store import calc_net_weight_count
-#
-#     pretrained = False
-#
-#     models = [
-#         raft_things,
-#         raft_small,
-#     ]
-#
-#     for model in models:
-#
-#         net = model(pretrained=pretrained)
-#
-#         # net.train()
-#         net.eval()
-#         weight_count = calc_net_weight_count(net)
-#         print("m={}, {}".format(model.__name__, weight_count))
-#         assert (model != raft_things or weight_count == 5257536)
-#         assert (model != raft_small or weight_count == 990162)
-#
-#         batch = 4
-#         height = 240
-#         width = 432
-#         x1 = torch.randn(batch, 3, height, width)
-#         x2 = torch.randn(batch, 3, height, width)
-#         y1, y2 = net(x1, x2)
-#         # y1.sum().backward()
-#         # y2.sum().backward()
-#         assert (tuple(y1.size()) == (batch, 2, height // 8, width // 8))
-#         assert (tuple(y2.size()) == (batch, 2, height, width))
+def _test():
+    import torch
+    from model_store import calc_net_weight_count
+
+    pretrained = False
+
+    models = [
+        propainter_rfc,
+    ]
+
+    for model in models:
+
+        net = model(pretrained=pretrained, calc_edge=True)
+
+        # net.train()
+        net.eval()
+        weight_count = calc_net_weight_count(net)
+        print("m={}, {}".format(model.__name__, weight_count))
+        assert (model != propainter_rfc or weight_count == 5079555)
+
+        batch = 4
+        time = 5
+        height = 240
+        width = 432
+        x1 = torch.randn(batch, time, 2, height, width)
+        x2 = torch.randn(batch, time, 1, height, width)
+        y1, y2 = net(x1, x2)
+        # y1.sum().backward()
+        # y2.sum().backward()
+        assert (tuple(y1.size()) == (batch, time, 2, height, width))
+        assert (tuple(y2.size()) == (batch, time, 1, height, width))
 
 
 if __name__ == "__main__":

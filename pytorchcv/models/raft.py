@@ -4,7 +4,7 @@
     https://arxiv.org/pdf/2003.12039.
 """
 
-__all__ = ['RAFT', 'raft_things', 'raft_small', 'run_raft_on_video']
+__all__ = ['RAFT', 'raft_things', 'raft_small', 'calc_bidirectional_optical_flow_on_video_by_raft']
 
 import os
 import torch
@@ -12,50 +12,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import Callable
 from common import (lambda_relu, lambda_sigmoid, lambda_tanh, lambda_batchnorm2d, lambda_instancenorm2d, conv1x1,
-                     conv3x3, conv3x3_block, conv7x7_block, ConvBlock)
+                    conv3x3, conv3x3_block, conv7x7_block, ConvBlock)
 from resnet import ResUnit
 from inceptionv3 import ConvSeqBranch
-
-
-def run_raft_on_video(net: nn.Module,
-                      frames: torch.Tensor,
-                      iters: int = 20) -> torch.Tensor:
-    """
-    Calculate optical flow (based on RAFT) on video.
-    Batch dimension is interpreted as time.
-
-    Parameters
-    ----------
-    net: nn.Module
-        Optical flow model.
-    frames : torch.Tensor
-        Frames with size: (time, channels, height, width).
-    iters : int, default 20
-        Number of iterations.
-
-    Returns
-    -------
-    torch.Tensor
-        Forward/Backward flow with size: (f/b, time, channels, height, width).
-    """
-    assert (len(frames.shape) == 4)
-    assert (frames.shape[0] > 1)
-
-    frames1 = frames[:-1]
-    frames2 = frames[1:]
-
-    _, flows_forward = net(frames1, frames2, iters=iters)
-    _, flows_backward = net(frames2, frames1, iters=iters)
-
-    flows = torch.stack([flows_forward, flows_backward])
-
-    assert (flows.shape[0] == 2)
-    assert (flows.shape[1] == frames.shape[0] - 1)
-    assert (flows.shape[2] == 2)
-    assert (flows.shape[3] == frames.shape[2])
-    assert (flows.shape[4] == frames.shape[3])
-
-    return flows
 
 
 def create_coords_grid(batch: int,
@@ -740,10 +699,12 @@ class RAFT(nn.Module):
         Number of middle channels for flow-head in the update block.
     mask_out_channels : int
         Number of output channels for mask in the update block.
-    in_normalize : bool, default False
+    in_normalize : bool, default True
         Whether to normalize input images.
     dropout_rate : float, default 0.0
         Fraction of the input units to drop. Must be a number between 0 and 1.
+    iters : int, default 12
+        Number of iterations for flow calculation.
     in_channels : int, default 3
         Number of input channels.
     """
@@ -765,14 +726,18 @@ class RAFT(nn.Module):
                  gru_input_dim: int,
                  flow_mid_channels: int,
                  mask_out_channels: int,
-                 in_normalize: bool = False,
+                 in_normalize: bool = True,
                  dropout_rate: float = 0.0,
+                 iters: int = 12,
                  in_channels: int = 3):
         super(RAFT, self).__init__()
+        assert (iters > 0)
+
         self.hidden_dim = hidden_dim
         self.context_dim = context_dim
         self.corr_radius = corr_radius
         self.in_normalize = in_normalize
+        self.iters = iters
         fnet_normalization = lambda_instancenorm2d()
         cnet_normalization = lambda_batchnorm2d() if cnet_normalize else None
 
@@ -810,10 +775,13 @@ class RAFT(nn.Module):
             flow_mid_channels=flow_mid_channels,
             mask_out_channels=mask_out_channels)
 
-    def forward(self, image1, image2, iters=12, flow_init=None):
+    def forward(self, image1, image2, flow_init=None):
         """
         Estimate optical flow between pair of frames.
         """
+        assert (len(image1.shape) == 4)
+        assert (image1.shape == image2.shape)
+
         if self.in_normalize:
             image1 = 2 * (image1 / 255.0) - 1.0
             image2 = 2 * (image2 / 255.0) - 1.0
@@ -840,7 +808,7 @@ class RAFT(nn.Module):
         if flow_init is not None:
             coords1 = coords1 + flow_init
 
-        for itr in range(iters):
+        for itr in range(self.iters):
             coords1 = coords1.detach()
             corr = corr_calc(coords1)  # index correlation volume
 
@@ -1004,6 +972,44 @@ def raft_small(**kwargs) -> nn.Module:
         **kwargs)
 
 
+def calc_bidirectional_optical_flow_on_video_by_raft(net: RAFT,
+                                                     frames: torch.Tensor) -> torch.Tensor:
+    """
+    Calculate bidirectional optical flow (based on RAFT) on video.
+    Batch dimension for frames is interpreted as time.
+
+    Parameters
+    ----------
+    net: RAFT
+        RAFT model.
+    frames : torch.Tensor
+        Frames with size: (time, channels, height, width).
+
+    Returns
+    -------
+    torch.Tensor
+        Forward/Backward flow with size: (time, channels=4, height, width).
+    """
+    assert (len(frames.shape) == 4)
+    assert (frames.shape[0] > 1)
+
+    frames1 = frames[:-1]
+    frames2 = frames[1:]
+
+    _, flows_forward = net(frames1, frames2)
+    _, flows_backward = net(frames2, frames1)
+
+    flows = torch.cat((flows_forward, flows_backward), dim=1)
+
+    assert (len(flows.shape) == 4)
+    assert (flows.shape[0] == frames.shape[0] - 1)
+    assert (flows.shape[1] == 4)
+    assert (flows.shape[2] == frames.shape[2])
+    assert (flows.shape[3] == frames.shape[3])
+
+    return flows
+
+
 def _test2():
     import re
     import numpy as np
@@ -1108,15 +1114,20 @@ def _test2():
 
     def initialize_RAFT(model_path='weights/raft-things.pth',
                         device='cuda',
-                        small=False):
+                        small=False,
+                        iters=12):
         """Initializes the RAFT model.
         """
         if small:
-            net = raft_small()
+            net = raft_small(
+                in_normalize=False,
+                iters=iters)
         else:
-            net = raft_things()
+            net = raft_things(
+                in_normalize=False,
+                iters=iters)
 
-        src_checkpoint = torch.load(model_path, map_location="cpu")
+        src_checkpoint = torch.load(model_path, map_location="cpu", weights_only=True)
 
         # net_tmp = torch.nn.DataParallel(net)
         # net_tmp.load_state_dict(checkpoint)
@@ -1143,19 +1154,21 @@ def _test2():
         def __init__(self,
                      model_path='weights/raft-things.pth',
                      device='cuda',
-                     small=False):
+                     small=False,
+                     iters=12):
             super().__init__()
             self.fix_raft = initialize_RAFT(
                 model_path,
                 device=device,
-                small=small)
+                small=small,
+                iters=iters)
 
             for p in self.fix_raft.parameters():
                 p.requires_grad = False
 
             self.eval()
 
-        def forward(self, gt_local_frames, iters=20):
+        def forward(self, gt_local_frames):
             b, l_t, c, h, w = gt_local_frames.size()
             # print(gt_local_frames.shape)
 
@@ -1164,8 +1177,8 @@ def _test2():
                 gtlf_2 = gt_local_frames[:, 1:, :, :, :].reshape(-1, c, h, w)
                 # print(gtlf_1.shape)
 
-                _, gt_flows_forward = self.fix_raft(gtlf_1, gtlf_2, iters=iters)
-                _, gt_flows_backward = self.fix_raft(gtlf_2, gtlf_1, iters=iters)
+                _, gt_flows_forward = self.fix_raft(gtlf_1, gtlf_2)
+                _, gt_flows_backward = self.fix_raft(gtlf_2, gtlf_1)
 
             gt_flows_forward = gt_flows_forward.view(b, l_t - 1, 2, h, w)
             gt_flows_backward = gt_flows_backward.view(b, l_t - 1, 2, h, w)
@@ -1188,7 +1201,8 @@ def _test2():
         fix_raft = RAFT_bi(
             model_path=os.path.join(root_path, raft_model_file_name),
             device="cuda",
-            small=raft_small)
+            small=raft_small,
+            iters=raft_iter)
 
         x_file_path = os.path.join(root_path, "x.npy")
         x = np.load(x_file_path)
@@ -1196,8 +1210,7 @@ def _test2():
         frames = torch.from_numpy(x).cuda()
 
         flows_f, flows_b = fix_raft(
-            gt_local_frames=frames,
-            iters=raft_iter)
+            gt_local_frames=frames)
 
         y1_ = flows_f.cpu().detach().numpy()
         y2_ = flows_b.cpu().detach().numpy()

@@ -288,6 +288,7 @@ from .models.tresnet import tresnet_m, tresnet_l, tresnet_xl
 from .models.espcnet import espcnet_cityscapes
 
 from .models.raft import raft_things, raft_small
+from .models.propainter_rfc import propainter_rfc
 
 # from .models.others.oth_quartznet import *
 
@@ -1315,6 +1316,8 @@ _models = {
 
     'raft_things': raft_things,
     'raft_small': raft_small,
+
+    'propainter_rfc': propainter_rfc,
 
     # 'oth_quartznet5x5_en_ls': oth_quartznet5x5_en_ls,
     # 'oth_quartznet15x5_en': oth_quartznet15x5_en,
