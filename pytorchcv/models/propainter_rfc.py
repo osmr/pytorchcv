@@ -388,9 +388,9 @@ class DilationBlock(nn.Module):
         return x
 
 
-class DecoderUnit(nn.Module):
+class RFCDecoderUnit(nn.Module):
     """
-    Decoder unit.
+    Decoder unit (specific for Recurrent Flow Completion task).
 
     Parameters
     ----------
@@ -408,7 +408,7 @@ class DecoderUnit(nn.Module):
                  out_channels: int,
                  activation: Callable[..., nn.Module],
                  final_activation: Callable[..., nn.Module | None] | None):
-        super(DecoderUnit, self).__init__()
+        super(RFCDecoderUnit, self).__init__()
         self.conv1 = conv3x3_block(
             in_channels=in_channels,
             out_channels=in_channels,
@@ -639,17 +639,17 @@ class PPRecurrentFlowComplete(nn.Module):
             activation=man_activation))
 
         up_seq = nn.Sequential()
-        up_seq.add_module("up1", DecoderUnit(
+        up_seq.add_module("up1", RFCDecoderUnit(
             in_channels=32,
             out_channels=2,
             activation=man_activation,
             final_activation=None))
-        up_seq.add_module("up2", DecoderUnit(
+        up_seq.add_module("up2", RFCDecoderUnit(
             in_channels=64,
             out_channels=32,
             activation=man_activation,
             final_activation=man_activation))
-        up_seq.add_module("up3", DecoderUnit(
+        up_seq.add_module("up3", RFCDecoderUnit(
             in_channels=128,
             out_channels=64,
             activation=man_activation,

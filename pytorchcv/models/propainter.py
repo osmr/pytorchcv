@@ -13,265 +13,211 @@ from torch.nn.modules.utils import _pair, _single
 from torchvision.ops import DeformConv2d, deform_conv2d
 from einops import rearrange
 from typing import Callable
-from common import (lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3, conv3x3_block,
-                    InterpolationBlock)
+from common import (lambda_relu, create_activation_layer, lambda_leakyrelu, lambda_tanh, conv1x1, conv3x3,
+                    conv3x3_block, InterpolationBlock)
 from resnet import ResUnit, ResBlock
 from propainter_rfc import SecondOrderDeformableAlignment
-
-
-def flow_warp(x,
-              flow,
-              interpolation="bilinear",
-              padding_mode="zeros",
-              align_corners=True):
-    """
-    Warp an image or a feature map with optical flow.
-    Args:
-        x (Tensor): Tensor with size (n, c, h, w).
-        flow (Tensor): Tensor with size (n, h, w, 2). The last dimension is
-            a two-channel, denoting the width and height relative offsets.
-            Note that the values are not normalized to [-1, 1].
-        interpolation (str): Interpolation mode: 'nearest' or 'bilinear'.
-            Default: 'bilinear'.
-        padding_mode (str): Padding mode: 'zeros' or 'border' or 'reflection'.
-            Default: 'zeros'.
-        align_corners (bool): Whether align corners. Default: True.
-    Returns:
-        Tensor: Warped image or feature map.
-    """
-    if x.size()[-2:] != flow.size()[1:3]:
-        raise ValueError(f'The spatial sizes of input ({x.size()[-2:]}) and '
-                         f'flow ({flow.size()[1:3]}) are not the same.')
-    _, _, h, w = x.size()
-    # create mesh grid
-    device = flow.device
-    grid_y, grid_x = torch.meshgrid(torch.arange(0, h, device=device), torch.arange(0, w, device=device))
-    grid = torch.stack((grid_x, grid_y), 2).type_as(x)  # (w, h, 2)
-    grid.requires_grad = False
-
-    grid_flow = grid + flow
-    # scale grid_flow to [-1,1]
-    grid_flow_x = 2.0 * grid_flow[:, :, :, 0] / max(w - 1, 1) - 1.0
-    grid_flow_y = 2.0 * grid_flow[:, :, :, 1] / max(h - 1, 1) - 1.0
-    grid_flow = torch.stack((grid_flow_x, grid_flow_y), dim=3)
-    output = F.grid_sample(x,
-                           grid_flow,
-                           mode=interpolation,
-                           padding_mode=padding_mode,
-                           align_corners=align_corners)
-    return output
-
-
-def length_sq(x):
-    return torch.sum(torch.square(x), dim=1, keepdim=True)
-
-
-def fbConsistencyCheck(flow_fw,
-                       flow_bw,
-                       alpha1=0.01,
-                       alpha2=0.5):
-    flow_bw_warped = flow_warp(flow_bw, flow_fw.permute(0, 2, 3, 1))  # wb(wf(x))
-    flow_diff_fw = flow_fw + flow_bw_warped  # wf + wb(wf(x))
-
-    mag_sq_fw = length_sq(flow_fw) + length_sq(flow_bw_warped)  # |wf| + |wb(wf(x))|
-    occ_thresh_fw = alpha1 * mag_sq_fw + alpha2
-
-    # fb_valid_fw = (length_sq(flow_diff_fw) < occ_thresh_fw).float()
-    fb_valid_fw = (length_sq(flow_diff_fw) < occ_thresh_fw).to(flow_fw)
-    return fb_valid_fw
-
-
-class BidirectionalPropagation(nn.Module):
-    def __init__(self,
-                 channels: int,
-                 learnable: bool = True):
-        super(BidirectionalPropagation, self).__init__()
-        self.channels = channels
-        self.learnable = learnable
-
-        activation = lambda_leakyrelu(negative_slope=0.2)
-        self.prop_list = ["backward_1", "forward_1"]
-
-        self.deform_align = nn.ModuleDict()
-        self.backbone = nn.ModuleDict()
-
-        if self.learnable:
-            for i, module in enumerate(self.prop_list):
-                self.deform_align[module] = SecondOrderDeformableAlignment(
-                    x_in_channels=channels,
-                    cond_in_channels=(2 * channels + 2 + 1 + 2),
-                    out_channels=channels,
-                    deform_groups=16,
-                    max_residue_magnitude=3)
-                self.backbone[module] = ResBlock(
-                    in_channels=(2 * channels + 2),
-                    out_channels=channels,
-                    stride=1,
-                    bias=True,
-                    normalization=None,
-                    activation=activation)
-
-            self.fuse = ResBlock(
-                in_channels=(2 * channels + 2),
-                out_channels=channels,
-                stride=1,
-                bias=True,
-                normalization=None,
-                activation=activation)
-
-    def binary_mask(self,
-                    mask,
-                    th=0.1):
-        mask[mask > th] = 1
-        mask[mask <= th] = 0
-        # return mask.float()
-        return mask.to(mask)
-
-    def forward(self,
-                x,
-                flows_forward,
-                flows_backward,
-                mask,
-                interpolation="bilinear"):
-        """
-        x shape : [b, t, c, h, w]
-        return [b, t, c, h, w]
-        """
-
-        # For backward warping
-        # pred_flows_forward for backward feature propagation
-        # pred_flows_backward for forward feature propagation
-        batch, time, channels, height, width = x.shape
-        assert (channels == self.channels)
-
-        feats = {}
-        masks = {}
-        feats["input"] = [x[:, i, :, :, :] for i in range(0, time)]
-        masks["input"] = [mask[:, i, :, :, :] for i in range(0, time)]
-
-        prop_list = ["backward_1", "forward_1"]
-        cache_list = ["input"] + prop_list
-
-        for p_i, module_name in enumerate(prop_list):
-            feats[module_name] = []
-            masks[module_name] = []
-
-            if "backward" in module_name:
-                frame_idx = range(0, time)
-                frame_idx = frame_idx[::-1]
-                flow_idx = frame_idx
-                flows_for_prop = flows_forward
-                flows_for_check = flows_backward
-            else:
-                frame_idx = range(0, time)
-                flow_idx = range(-1, time - 1)
-                flows_for_prop = flows_backward
-                flows_for_check = flows_forward
-
-            for i, idx in enumerate(frame_idx):
-                feat_current = feats[cache_list[p_i]][idx]
-                mask_current = masks[cache_list[p_i]][idx]
-
-                if i == 0:
-                    feat_prop = feat_current
-                    mask_prop = mask_current
-                else:
-                    flow_prop = flows_for_prop[:, flow_idx[i], :, :, :]
-                    flow_check = flows_for_check[:, flow_idx[i], :, :, :]
-                    flow_vaild_mask = fbConsistencyCheck(flow_prop, flow_check)
-                    feat_warped = flow_warp(feat_prop, flow_prop.permute(0, 2, 3, 1), interpolation)
-
-                    if self.learnable:
-                        cond = torch.cat([
-                            feat_current,
-                            feat_warped,
-                            flow_prop,
-                            flow_vaild_mask,
-                            mask_current], dim=1)
-                        feat_prop = self.deform_align[module_name](x=feat_prop, cond=cond, flow=flow_prop)
-                        mask_prop = mask_current
-                    else:
-                        mask_prop_valid = flow_warp(mask_prop, flow_prop.permute(0, 2, 3, 1))
-                        mask_prop_valid = self.binary_mask(mask_prop_valid)
-
-                        union_vaild_mask = self.binary_mask(mask_current * flow_vaild_mask * (1 - mask_prop_valid))
-                        feat_prop = union_vaild_mask * feat_warped + (1 - union_vaild_mask) * feat_current
-                        # update mask
-                        mask_prop = self.binary_mask(mask_current * (1 - (flow_vaild_mask * (1 - mask_prop_valid))))
-
-                # refine
-                if self.learnable:
-                    feat = torch.cat([feat_current, feat_prop, mask_current], dim=1)
-                    feat_prop = feat_prop + self.backbone[module_name](feat)
-                    # feat_prop = self.backbone[module_name](feat_prop)
-
-                feats[module_name].append(feat_prop)
-                masks[module_name].append(mask_prop)
-
-            # end for
-            if "backward" in module_name:
-                feats[module_name] = feats[module_name][::-1]
-                masks[module_name] = masks[module_name][::-1]
-
-        outputs_b = torch.stack(feats["backward_1"], dim=1).view(-1, channels, height, width)
-        outputs_f = torch.stack(feats["forward_1"], dim=1).view(-1, channels, height, width)
-
-        if self.learnable:
-            mask_in = mask.view(-1, 2, height, width)
-            masks_f = None
-            outputs = (self.fuse(torch.cat([outputs_b, outputs_f, mask_in], dim=1)) +
-                       x.view(-1, channels, height, width))
-        else:
-            masks_f = torch.stack(masks["forward_1"], dim=1)
-            outputs = outputs_f
-
-        return (outputs_b.view(batch, -1, channels, height, width),
-                outputs_f.view(batch, -1, channels, height, width),
-                outputs.view(batch, -1, channels, height, width),
-                masks_f)
+from propainter_ip import propainter_ip, BidirectionalPropagation
 
 
 class Encoder(nn.Module):
-    def __init__(self):
+    """
+    Encoder unit.
+
+    Parameters
+    ----------
+    activation : function
+        Lambda-function generator for activation layer in convolution blocks.
+    """
+    def __init__(self,
+                 activation: Callable[..., nn.Module]):
         super(Encoder, self).__init__()
         self.group = [1, 2, 4, 8, 1]
         self.layers = nn.ModuleList([
-            nn.Conv2d(5, 64, kernel_size=3, stride=2, padding=1),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(256, 384, kernel_size=3, stride=1, padding=1, groups=1),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(640, 512, kernel_size=3, stride=1, padding=1, groups=2),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(768, 384, kernel_size=3, stride=1, padding=1, groups=4),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(640, 256, kernel_size=3, stride=1, padding=1, groups=8),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(512, 128, kernel_size=3, stride=1, padding=1, groups=1),
-            nn.LeakyReLU(0.2, inplace=True)
+            conv3x3_block(
+                in_channels=5,
+                out_channels=64,
+                stride=2,
+                bias=True,
+                normalization=None,
+                activation=activation),
+            conv3x3_block(
+                in_channels=64,
+                out_channels=64,
+                bias=True,
+                normalization=None,
+                activation=activation),
+            conv3x3_block(
+                in_channels=64,
+                out_channels=128,
+                stride=2,
+                bias=True,
+                normalization=None,
+                activation=activation),
+            conv3x3_block(
+                in_channels=128,
+                out_channels=256,
+                bias=True,
+                normalization=None,
+                activation=activation),
+            conv3x3_block(
+                in_channels=256,
+                out_channels=384,
+                groups=1,
+                bias=True,
+                normalization=None,
+                activation=activation),
+            conv3x3_block(
+                in_channels=640,
+                out_channels=512,
+                groups=2,
+                bias=True,
+                normalization=None,
+                activation=activation),
+            conv3x3_block(
+                in_channels=768,
+                out_channels=384,
+                groups=4,
+                bias=True,
+                normalization=None,
+                activation=activation),
+            conv3x3_block(
+                in_channels=640,
+                out_channels=256,
+                groups=8,
+                bias=True,
+                normalization=None,
+                activation=activation),
+            conv3x3_block(
+                in_channels=512,
+                out_channels=128,
+                groups=1,
+                bias=True,
+                normalization=None,
+                activation=activation),
         ])
 
     def forward(self, x):
         batch, _, x_height, x_width = x.size()
         out = x
         for i, layer in enumerate(self.layers):
-            if i == 8:
+            if i == 4:
                 x0 = out
                 _, _, height, width = x0.size()
                 assert (height == x_height // 4)
                 assert (width == x_width // 4)
-            if i > 8 and i % 2 == 0:
-                g = self.group[(i - 8) // 2]
+            if i > 4:
+                g = self.group[i - 4]
+                assert (g == layer.conv.groups)
                 y = x0.view(batch, g, -1, height, width)
                 o = out.view(batch, g, -1, height, width)
                 out = torch.cat([y, o], 2).view(batch, -1, height, width)
             out = layer(out)
         return out
+
+
+class PPDecoderUnit(nn.Module):
+    """
+    Decoder unit (specific for ProPainter).
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    activation : function
+        Lambda-function generator for activation layer in the main convolution block.
+    final_activation : function or None
+        Lambda-function generator for activation layer in the final convolution block.
+    """
+    def __init__(self,
+                 in_channels: int,
+                 out_channels: int,
+                 activation: Callable[..., nn.Module],
+                 final_activation: Callable[..., nn.Module | None] | None):
+        super(PPDecoderUnit, self).__init__()
+        self.up = InterpolationBlock(scale_factor=2)
+        self.conv1 = conv3x3_block(
+            in_channels=in_channels,
+            out_channels=in_channels,
+            bias=True,
+            normalization=None,
+            activation=activation)
+        self.conv2 = conv3x3_block(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            bias=True,
+            normalization=None,
+            activation=final_activation)
+
+    def forward(self, x):
+        x = self.up(x)
+        x = self.conv1(x)
+        x = self.conv2(x)
+        return x
+
+
+class Decoder(nn.Module):
+    """
+    Decoder unit.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    activation : function
+        Lambda-function generator for activation layer in convolution blocks.
+    final_activation : function or None
+        Lambda-function generator for activation layer in the final convolution block.
+    """
+    def __init__(self,
+                 in_channels: int,
+                 activation: Callable[..., nn.Module],
+                 final_activation: Callable[..., nn.Module | None] | None):
+        super(Decoder, self).__init__()
+        self.unit1 = PPDecoderUnit(
+            in_channels=in_channels,
+            out_channels=64,
+            activation=activation,
+            final_activation=activation)
+        self.unit2 = PPDecoderUnit(
+            in_channels=64,
+            out_channels=3,
+            activation=activation,
+            final_activation=final_activation)
+        # self.body = nn.Sequential(
+        #     InterpolationBlock(scale_factor=2),
+        #     conv3x3_block(
+        #         in_channels=in_channels,
+        #         out_channels=128,
+        #         bias=True,
+        #         normalization=None,
+        #         activation=activation),
+        #     conv3x3_block(
+        #         in_channels=128,
+        #         out_channels=64,
+        #         bias=True,
+        #         normalization=None,
+        #         activation=activation),
+        #     InterpolationBlock(scale_factor=2),
+        #     conv3x3_block(
+        #         in_channels=64,
+        #         out_channels=64,
+        #         bias=True,
+        #         normalization=None,
+        #         activation=activation),
+        #     conv3x3_block(
+        #         in_channels=64,
+        #         out_channels=3,
+        #         bias=True,
+        #         normalization=None,
+        #         activation=final_activation))
+
+    def forward(self, x):
+        x = self.unit1(x)
+        x = self.unit2(x)
+        return x
 
 
 class deconv(nn.Module):
@@ -281,18 +227,18 @@ class deconv(nn.Module):
                  kernel_size=3,
                  padding=0):
         super().__init__()
-        self.conv = nn.Conv2d(input_channel,
-                              output_channel,
-                              kernel_size=kernel_size,
-                              stride=1,
-                              padding=padding)
+        self.up = InterpolationBlock(scale_factor=2)
+        self.conv = nn.Conv2d(
+            input_channel,
+            output_channel,
+            kernel_size=kernel_size,
+            stride=1,
+            padding=padding)
 
     def forward(self, x):
-        x = F.interpolate(x,
-                          scale_factor=2,
-                          mode='bilinear',
-                          align_corners=True)
-        return self.conv(x)
+        x = self.up(x)
+        x = self.conv(x)
+        return x
 
 
 class SoftSplit(nn.Module):
@@ -692,21 +638,18 @@ class TemporalSparseTransformerBlock(nn.Module):
 class InpaintGenerator(nn.Module):
     def __init__(self):
         super(InpaintGenerator, self).__init__()
-        channel = 128
+        channels = 128
         hidden = 512
+        activation = lambda_leakyrelu(negative_slope=0.2)
 
         # encoder
-        self.encoder = Encoder()
+        self.encoder = Encoder(activation=activation)
 
         # decoder
-        self.decoder = nn.Sequential(
-            deconv(channel, 128, kernel_size=3, padding=1),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1),
-            nn.LeakyReLU(0.2, inplace=True),
-            deconv(64, 64, kernel_size=3, padding=1),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(64, 3, kernel_size=3, stride=1, padding=1))
+        self.decoder = Decoder(
+            in_channels=channels,
+            activation=activation,
+            final_activation=lambda_tanh())
 
         # soft split and soft composition
         kernel_size = (7, 7)
@@ -717,12 +660,11 @@ class InpaintGenerator(nn.Module):
             "stride": stride,
             "padding": padding
         }
-        self.ss = SoftSplit(channel, hidden, kernel_size, stride, padding)
-        self.sc = SoftComp(channel, hidden, kernel_size, stride, padding)
+        self.ss = SoftSplit(channels, hidden, kernel_size, stride, padding)
+        self.sc = SoftComp(channels, hidden, kernel_size, stride, padding)
         self.max_pool = nn.MaxPool2d(kernel_size, stride, padding)
 
         # feature propagation module
-        self.img_prop_module = BidirectionalPropagation(3, learnable=False)
         self.feat_prop_module = BidirectionalPropagation(128, learnable=True)
 
         depths = 8
@@ -781,19 +723,6 @@ class InpaintGenerator(nn.Module):
             if hasattr(m, 'init_weights'):
                 m.init_weights(init_type, gain)
 
-    def img_propagation(self,
-                        masked_frames,
-                        completed_flows,
-                        masks,
-                        interpolation="nearest"):
-        _, _, prop_frames, updated_masks = self.img_prop_module(
-            x=masked_frames,
-            flows_forward=completed_flows[0],
-            flows_backward=completed_flows[1],
-            mask=masks,
-            interpolation=interpolation)
-        return prop_frames, updated_masks
-
     def forward(self,
                 masked_frames,
                 completed_flows,
@@ -808,35 +737,35 @@ class InpaintGenerator(nn.Module):
             masks_updated: updated mask after image propagation
         """
         l_t = num_local_frames
-        batch, time, _, ori_height, ori_width = masked_frames.size()
+        batch, time, _, orig_height, orig_width = masked_frames.size()
 
         # Extracting features:
         enc_feat = self.encoder(torch.cat([
-            masked_frames.view(batch * time, 3, ori_height, ori_width),
-            masks_in.view(batch * time, 1, ori_height, ori_width),
-            masks_updated.view(batch * time, 1, ori_height, ori_width)], dim=1))
+            masked_frames.view(batch * time, 3, orig_height, orig_width),
+            masks_in.view(batch * time, 1, orig_height, orig_width),
+            masks_updated.view(batch * time, 1, orig_height, orig_width)], dim=1))
         _, channels, height, width = enc_feat.size()
         local_feat = enc_feat.view(batch, time, channels, height, width)[:, :l_t, ...]
         ref_feat = enc_feat.view(batch, time, channels, height, width)[:, l_t:, ...]
         fold_feat_size = (height, width)
 
         ds_flows_f = F.interpolate(
-            input=completed_flows[0].view(-1, 2, ori_height, ori_width),
+            input=completed_flows[0].view(-1, 2, orig_height, orig_width),
             scale_factor=(1 / 4),
             mode="bilinear",
             align_corners=False).view(batch, l_t - 1, 2, height, width) / 4.0
         ds_flows_b = F.interpolate(
-            completed_flows[1].view(-1, 2, ori_height, ori_width),
+            completed_flows[1].view(-1, 2, orig_height, orig_width),
             scale_factor=(1 / 4),
             mode="bilinear",
             align_corners=False).view(batch, l_t - 1, 2, height, width) / 4.0
         ds_mask_in = F.interpolate(
-            masks_in.reshape(-1, 1, ori_height, ori_width),
+            masks_in.reshape(-1, 1, orig_height, orig_width),
             scale_factor=(1 / 4),
             mode="nearest").view(batch, time, 1, height, width)
         ds_mask_in_local = ds_mask_in[:, :l_t]
         ds_mask_updated_local = F.interpolate(
-            masks_updated[:, :l_t].reshape(-1, 1, ori_height, ori_width),
+            masks_updated[:, :l_t].reshape(-1, 1, orig_height, orig_width),
             scale_factor=(1 / 4),
             mode="nearest").view(batch, l_t, 1, height, width)
 
@@ -870,10 +799,10 @@ class InpaintGenerator(nn.Module):
 
         if self.training:
             output = self.decoder(enc_feat.view(-1, channels, height, width))
-            output = torch.tanh(output).view(batch, time, 3, ori_height, ori_width)
+            output = output.view(batch, time, 3, orig_height, orig_width)
         else:
             output = self.decoder(enc_feat[:, :l_t].view(-1, channels, height, width))
-            output = torch.tanh(output).view(batch, l_t, 3, ori_height, ori_width)
+            output = output.view(batch, l_t, 3, orig_height, orig_width)
 
         return output
 
@@ -914,6 +843,26 @@ def _test2():
         for src_i, dst_i in zip(list8, list8_u):
             upd_dict[src_i] = dst_i
 
+        list4 = list(filter(re.compile("encoder.layers.").search, src_param_keys))
+        list4_u = [key.replace(".0.", ".0.conv.") for key in list4]
+        list4_u = [key.replace(".2.", ".1.conv.") for key in list4_u]
+        list4_u = [key.replace(".4.", ".2.conv.") for key in list4_u]
+        list4_u = [key.replace(".6.", ".3.conv.") for key in list4_u]
+        list4_u = [key.replace(".8.", ".4.conv.") for key in list4_u]
+        list4_u = [key.replace(".10.", ".5.conv.") for key in list4_u]
+        list4_u = [key.replace(".12.", ".6.conv.") for key in list4_u]
+        list4_u = [key.replace(".14.", ".7.conv.") for key in list4_u]
+        list4_u = [key.replace(".16.", ".8.conv.") for key in list4_u]
+        for src_i, dst_i in zip(list4, list4_u):
+            upd_dict[src_i] = dst_i
+
+        list4 = list(filter(re.compile("decoder.").search, src_param_keys))
+        list4_u = [key.replace(".0.", ".unit1.conv1.") for key in list4]
+        list4_u = [key.replace(".2.", ".unit1.conv2.conv.") for key in list4_u]
+        list4_u = [key.replace(".4.", ".unit2.conv1.") for key in list4_u]
+        list4_u = [key.replace(".6.", ".unit2.conv2.conv.") for key in list4_u]
+        for src_i, dst_i in zip(list4, list4_u):
+            upd_dict[src_i] = dst_i
 
         list4_r = []
 
@@ -973,11 +922,22 @@ def _test2():
     pred_flow_f = torch.from_numpy(pred_flow_f_np).cuda()
     pred_flow_b = torch.from_numpy(pred_flow_b_np).cuda()
 
-    prop_imgs, updated_local_masks = net_pp.img_propagation(
-        masked_frames=masked_frames,
-        completed_flows=(pred_flow_f, pred_flow_b),
-        masks=masks_dilated,
+    # prop_imgs, updated_local_masks = net_pp.img_propagation(
+    #     masked_frames=masked_frames,
+    #     completed_flows=(pred_flow_f, pred_flow_b),
+    #     masks=masks_dilated,
+    #     interpolation="nearest")
+
+    ppip_net = propainter_ip()
+    ppip_net.eval()
+    ppip_net = ppip_net.cuda()
+    comp_flows = torch.cat((pred_flow_f[0], pred_flow_b[0]), dim=1)
+    prop_imgs, updated_local_masks = ppip_net(
+        frames=frames[0],
+        masks=masks_dilated[0],
+        comp_flows=comp_flows,
         interpolation="nearest")
+
     pred_img = net_pp(
         masked_frames=masked_frames,
         completed_flows=(pred_flow_f, pred_flow_b),
