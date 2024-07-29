@@ -756,7 +756,9 @@ def propainter_rfc(**kwargs) -> nn.Module:
     nn.Module
         Desired module.
     """
-    return get_propainter_rfc(**kwargs)
+    return get_propainter_rfc(
+        model_name="propainter_rfc",
+        **kwargs)
 
 
 def calc_bidirectional_opt_flow_completion_by_pprfc(net: PPRecurrentFlowComplete,

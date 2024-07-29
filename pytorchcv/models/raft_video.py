@@ -13,6 +13,7 @@ from typing import Any
 from enum import IntEnum
 from raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
 from propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
+from propainter_ip import propainter_ip
 
 
 class FilePathDirIterator(object):
@@ -217,7 +218,33 @@ class WindowMap(object):
             source=self.source)
 
 
+class WindowMultiMap(object):
+    """
+    Window multimap.
+
+    Parameters
+    ----------
+    target: WindowRange
+        Target window range.
+    sources: list(WindowRange)
+        Source window range.
+    """
+    def __init__(self,
+                 target: WindowRange,
+                 sources: list[WindowRange]):
+        super(WindowMultiMap, self).__init__()
+        self.target = target
+        self.sources = sources
+
+    def __repr__(self):
+        s = "/".join(["{}".format(s) for s in self.sources])
+        return "{target} <- {sources}".format(
+            target=self.target,
+            sources=s)
+
+
 WindowIndex = list[WindowMap]
+WindowMultiIndex = list[WindowMultiMap]
 
 
 def calc_window_data_loader_index(length: int,
@@ -264,20 +291,44 @@ def calc_window_data_loader_index(length: int,
     return index
 
 
+def cat_window_data_loader_indices(indices: list[WindowIndex]) -> WindowMultiIndex:
+    """
+    Concatenates window data loader indices.
+
+    Parameters
+    ----------
+    indices : list(WindowIndex)
+        Indices.
+
+    Returns
+    -------
+    WindowMultiIndex
+        Resulted multiindex.
+    """
+    index = [WindowMultiMap(x[0].target, [y.source for y in x]) for x in zip(*indices)]
+    return index
+
+
 class WindowBufferedDataLoader(BufferedDataLoader):
     """
     Window buffered data loader.
 
     Parameters
     ----------
-    data : protocol(any)
-        Data.
+    window_index : WindowIndex or WindowMultiIndex
+        Window index.
     """
     def __init__(self,
-                 window_index: WindowIndex,
+                 window_index: WindowIndex | WindowMultiIndex,
                  **kwargs):
         super(WindowBufferedDataLoader, self).__init__(**kwargs)
-        self.window_index = window_index
+        assert (len(window_index) > 0)
+        if isinstance(window_index[0], WindowMap):
+            self.window_index = cat_window_data_loader_indices([window_index])
+        else:
+            self.window_index = window_index
+
+        assert (len(self.raw_data_list) == len(self.window_index[0].sources))
 
         self.length = self.window_index[-1].target.stop
         self.window_length = len(self.window_index)
@@ -320,16 +371,17 @@ class WindowBufferedDataLoader(BufferedDataLoader):
         assert (end > self.end_pos)
         win_end = self._calc_window_pose(end)
         for win_pose in range(max(self.window_pose + 1, 0), win_end + 1):
-            win_map = self.window_index[win_pose]
-            raw_data_chunk_list = [r_data[win_map.source.start:win_map.source.stop] for r_data in self.raw_data_list]
+            win_mmap = self.window_index[win_pose]
+            raw_data_chunk_list = [r_data[map_s.start:map_s.stop] for r_data, map_s in
+                                   zip(self.raw_data_list, win_mmap.sources)]
             data_chunk = self._load_data_items(raw_data_chunk_list)
-            assert (win_map.target.start - self.end_pos >= 0)
-            data_chunk = data_chunk[(win_map.target.start - self.end_pos):(win_map.target.stop - self.end_pos)]
+            assert (win_mmap.target.start - self.end_pos >= 0)
+            data_chunk = data_chunk[(win_mmap.target.start - self.end_pos):(win_mmap.target.stop - self.end_pos)]
             if self.buffer is None:
                 self.buffer = data_chunk
             else:
                 self._expand_buffer_by(data_chunk)
-            self.end_pos = win_map.target.stop
+            self.end_pos = win_mmap.target.stop
             self.window_pose = win_pose
 
 
@@ -489,7 +541,7 @@ class MaskBufferedDataLoader(FrameBufferedDataLoader):
         mask = self._rescale_image(image=mask, resample=Image.NEAREST)
         mask = np.array(mask.convert("L"))
 
-        mask = scipy.ndimage.binary_dilation(mask, iterations=self.mask_dilation).astype(np.uint8)
+        mask = scipy.ndimage.binary_dilation(input=mask, iterations=self.mask_dilation).astype(np.uint8)
         mask = Image.fromarray(mask * 255)
 
         return mask
@@ -632,7 +684,7 @@ class FlowCompWindowBufferedDataLoader(WindowBufferedDataLoader):
     Parameters
     ----------
     net: nn.Module
-        Optical flow model.
+        Optical flow completion model.
     """
     def __init__(self,
                  net: nn.Module,
@@ -666,6 +718,69 @@ class FlowCompWindowBufferedDataLoader(WindowBufferedDataLoader):
 
         # torch.cuda.empty_cache()
         return comp_flows
+
+    def _expand_buffer_by(self,
+                          data_chunk: Any):
+        """
+        Expand buffer by extra data.
+
+        Parameters
+        ----------
+        data_chunk : protocol(any)
+            Data chunk.
+        """
+        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
+
+
+class ImagePropWindowBufferedDataLoader(WindowBufferedDataLoader):
+    """
+    Image propagation window buffered data loader.
+
+    Parameters
+    ----------
+    net: nn.Module
+        Image propagation model.
+    """
+    def __init__(self,
+                 net: nn.Module,
+                 **kwargs):
+        super(ImagePropWindowBufferedDataLoader, self).__init__(**kwargs)
+        self.net = net
+
+    def _load_data_items(self,
+                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
+        """
+        Load data items.
+
+        Parameters
+        ----------
+        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
+            Raw data chunk.
+
+        Returns
+        -------
+        protocol(any)
+            Resulted data.
+        """
+        assert (len(raw_data_chunk_list) == 3)
+
+        frames = raw_data_chunk_list[0]
+        masks = raw_data_chunk_list[1]
+        comp_flows = raw_data_chunk_list[2]
+
+        prop_frames, updated_masks = self.net(
+            frames=frames,
+            masks=masks,
+            comp_flows=comp_flows,
+            interpolation="nearest")
+
+        assert (len(prop_frames.shape) == 4)
+        assert (len(updated_masks.shape) == 4)
+
+        updated_frames_masks = torch.cat((prop_frames, updated_masks), dim=1)
+        assert (updated_frames_masks.shape[1] == 4)
+
+        return updated_frames_masks
 
     def _expand_buffer_by(self,
                           data_chunk: Any):
@@ -772,17 +887,41 @@ def _test():
     pprfc_net.eval()
     pprfc_net = pprfc_net.cuda()
 
-    pprfc_window_index = calc_window_data_loader_index(
+    pprfc_flows_window_index = calc_window_data_loader_index(
         length=video_length - 1,
         window_size=80,
         padding=(5, 5),
         edge_mode="ignore")
 
+    pprfc_window_index = cat_window_data_loader_indices([pprfc_flows_window_index, pprfc_flows_window_index])
     pprfc_loader = FlowCompWindowBufferedDataLoader(
         data=[raft_loader, flow_mask_loader],
         window_index=pprfc_window_index,
         net=pprfc_net)
-    a = pprfc_loader[:]
+    # a = pprfc_loader[:]
+
+    ppip_net = propainter_ip()
+    ppip_net.eval()
+    ppip_net = ppip_net.cuda()
+
+    ppip_images_window_index = calc_window_data_loader_index(
+        length=video_length,
+        window_size=80,
+        padding=(10, 10),
+        edge_mode="ignore")
+    ppip_flows_window_index = calc_window_data_loader_index(
+        length=video_length - 1,
+        window_size=80,
+        padding=(10, 9),
+        edge_mode="ignore")
+    ppip_window_index = cat_window_data_loader_indices([ppip_images_window_index, ppip_images_window_index,
+                                                        ppip_flows_window_index])
+
+    ppip_loader = ImagePropWindowBufferedDataLoader(
+        data=[frames_loader, masks_loader, pprfc_loader],
+        window_index=ppip_window_index,
+        net=ppip_net)
+    a = ppip_loader[:]
 
 
     # # a = loader[:]

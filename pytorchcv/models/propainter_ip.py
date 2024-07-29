@@ -4,6 +4,9 @@
     https://arxiv.org/pdf/2309.03897.
 """
 
+__all__ = ['PPImagePropagation', 'propainter_ip', 'BidirectionalPropagation']
+
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -33,25 +36,28 @@ def flow_warp(x,
         Tensor: Warped image or feature map.
     """
     if x.size()[-2:] != flow.size()[1:3]:
-        raise ValueError(f'The spatial sizes of input ({x.size()[-2:]}) and '
-                         f'flow ({flow.size()[1:3]}) are not the same.')
-    _, _, h, w = x.size()
-    # create mesh grid
+        raise ValueError(f"The spatial sizes of input ({x.size()[-2:]}) and "
+                         f"flow ({flow.size()[1:3]}) are not the same.")
+    _, _, height, width = x.size()
+    # Create mesh grid:
     device = flow.device
-    grid_y, grid_x = torch.meshgrid(torch.arange(0, h, device=device), torch.arange(0, w, device=device))
-    grid = torch.stack((grid_x, grid_y), 2).type_as(x)  # (w, h, 2)
+    grid_y, grid_x = torch.meshgrid(
+        torch.arange(0, height, device=device),
+        torch.arange(0, width, device=device))
+    grid = torch.stack((grid_x, grid_y), dim=2).type_as(x)  # (w, h, 2)
     grid.requires_grad = False
 
     grid_flow = grid + flow
     # scale grid_flow to [-1,1]
-    grid_flow_x = 2.0 * grid_flow[:, :, :, 0] / max(w - 1, 1) - 1.0
-    grid_flow_y = 2.0 * grid_flow[:, :, :, 1] / max(h - 1, 1) - 1.0
+    grid_flow_x = 2.0 * grid_flow[:, :, :, 0] / max(width - 1, 1) - 1.0
+    grid_flow_y = 2.0 * grid_flow[:, :, :, 1] / max(height - 1, 1) - 1.0
     grid_flow = torch.stack((grid_flow_x, grid_flow_y), dim=3)
-    output = F.grid_sample(x,
-                           grid_flow,
-                           mode=interpolation,
-                           padding_mode=padding_mode,
-                           align_corners=align_corners)
+    output = F.grid_sample(
+        input=x,
+        grid=grid_flow,
+        mode=interpolation,
+        padding_mode=padding_mode,
+        align_corners=align_corners)
     return output
 
 
@@ -59,10 +65,10 @@ def length_sq(x):
     return torch.sum(torch.square(x), dim=1, keepdim=True)
 
 
-def fbConsistencyCheck(flow_fw,
-                       flow_bw,
-                       alpha1=0.01,
-                       alpha2=0.5):
+def fb_consistency_check(flow_fw,
+                         flow_bw,
+                         alpha1=0.01,
+                         alpha2=0.5):
     flow_bw_warped = flow_warp(flow_bw, flow_fw.permute(0, 2, 3, 1))  # wb(wf(x))
     flow_diff_fw = flow_fw + flow_bw_warped  # wf + wb(wf(x))
 
@@ -171,7 +177,7 @@ class BidirectionalPropagation(nn.Module):
                 else:
                     flow_prop = flows_for_prop[:, flow_idx[i], :, :, :]
                     flow_check = flows_for_check[:, flow_idx[i], :, :, :]
-                    flow_vaild_mask = fbConsistencyCheck(flow_prop, flow_check)
+                    flow_vaild_mask = fb_consistency_check(flow_prop, flow_check)
                     feat_warped = flow_warp(feat_prop, flow_prop.permute(0, 2, 3, 1), interpolation)
 
                     if self.learnable:
@@ -241,22 +247,120 @@ class PPImagePropagation(BidirectionalPropagation):
             learnable=False)
 
     def forward(self,
-                masked_frames,
-                completed_flows,
-                masks,
-                interpolation="nearest"):
+                frames: torch.Tensor,
+                masks: torch.Tensor,
+                comp_flows: torch.Tensor,
+                interpolation: str = "nearest"):
+        """
+        Do image propagation.
+        Batch dimension for frames is interpreted as time.
+
+        Parameters
+        ----------
+        frames : torch.Tensor
+            Frames with size: (time, channels=3, height, width).
+        masks : torch.Tensor
+            Masks with size: (time, channels=1, height, width).
+        comp_flows : torch.Tensor
+            Bidirectional completed flows with size: (time-1, channels=4, height, width).
+        interpolation : str, default 'nearest'
+            Interpolation mode.
+
+        Returns
+        -------
+        torch.Tensor
+            Updated frames with size: (time, channels=4, height, width).
+        torch.Tensor
+            Updated masks with size: (time, channels=1, height, width).
+        """
+        assert (len(frames.shape) == 4)
+        assert (len(masks.shape) == 4)
+        assert (len(comp_flows.shape) == 4)
+        assert (frames.shape[0] == masks.shape[0])
+        assert (frames.shape[0] > 1)
+        assert (comp_flows.shape[0] == masks.shape[0] - 1)
+        assert (frames.shape[1] == 3)
+        assert (masks.shape[1] == 1)
+        assert (comp_flows.shape[1] == 4)
+        assert (frames.shape[2] == masks.shape[2])
+        assert (frames.shape[3] == masks.shape[3])
+        assert (frames.shape[2] == comp_flows.shape[2])
+        assert (frames.shape[3] == comp_flows.shape[3])
+
+        masked_frames = frames * (1 - masks)
+        comp_flows_forward, comp_flows_backward = torch.split(comp_flows, [2, 2], dim=1)
+
         _, _, prop_frames, updated_masks = super(PPImagePropagation, self).forward(
-            x=masked_frames,
-            flows_forward=completed_flows[0],
-            flows_backward=completed_flows[1],
-            mask=masks,
+            x=masked_frames[None],
+            flows_forward=comp_flows_forward[None],
+            flows_backward=comp_flows_backward[None],
+            mask=masks[None],
             interpolation=interpolation)
+
+        prop_frames = prop_frames[0]
+        updated_masks = updated_masks[0]
+
         return prop_frames, updated_masks
 
 
+def get_propainter_ip(model_name: str | None = None,
+                      pretrained: bool = False,
+                      root: str = os.path.join("~", ".torch", "models"),
+                      **kwargs) -> nn.Module:
+    """
+    Create Recurrent Image Propagation part of ProPainter model with specific parameters.
+
+    Parameters
+    ----------
+    model_name : str or None, default None
+        Model name for loading pretrained model.
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.torch/models'
+        Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
+    net = PPImagePropagation(**kwargs)
+
+    if pretrained:
+        if (model_name is None) or (not model_name):
+            raise ValueError("Parameter `model_name` should be properly initialized for loading pretrained model.")
+        from .model_store import download_model
+        download_model(
+            net=net,
+            model_name=model_name,
+            local_model_store_dir_path=root)
+
+    return net
+
+
+def propainter_ip(**kwargs) -> nn.Module:
+    """
+    ProPainter-IP model from 'ProPainter: Improving Propagation and Transformer for Video Inpainting,'
+    https://arxiv.org/pdf/2309.03897.
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.torch/models'
+        Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
+    return get_propainter_ip(
+        model_name="propainter_ip",
+        **kwargs)
+
+
 def _test2():
-    import re
-    import os
     import numpy as np
 
     root_path = "../../../pytorchcv_data/test_a"
@@ -285,25 +389,26 @@ def _test2():
     pred_flow_f_np = np.load(pred_flow_f_file_path)
     pred_flow_b_np = np.load(pred_flow_b_file_path)
 
-    frames_np = np.stack([frame1_np, frame2_np])[None]
+    frames_np = np.stack([frame1_np, frame2_np])
     frames = torch.from_numpy(frames_np).cuda()
-    masks_dilated_np = np.stack([mask_dilated1_np, mask_dilated2_np])[None]
+    masks_dilated_np = np.stack([mask_dilated1_np, mask_dilated2_np])
     masks_dilated = torch.from_numpy(masks_dilated_np).cuda()
-    masked_frames = frames * (1 - masks_dilated)
+    # masked_frames = frames * (1 - masks_dilated)
 
-    pred_flow_f_np = pred_flow_f_np[None, None]
-    pred_flow_b_np = pred_flow_b_np[None, None]
+    pred_flow_f_np = pred_flow_f_np[None]
+    pred_flow_b_np = pred_flow_b_np[None]
     pred_flow_f = torch.from_numpy(pred_flow_f_np).cuda()
     pred_flow_b = torch.from_numpy(pred_flow_b_np).cuda()
 
+    comp_flows = torch.cat((pred_flow_f, pred_flow_b), dim=1)
     prop_imgs, updated_local_masks = net_ppip(
-        masked_frames=masked_frames,
-        completed_flows=(pred_flow_f, pred_flow_b),
+        frames=frames,
         masks=masks_dilated,
+        comp_flows=comp_flows,
         interpolation="nearest")
 
-    prop_imgs_np_ = prop_imgs[0].cpu().detach().numpy()
-    updated_local_masks_np_ = updated_local_masks[0].cpu().detach().numpy()
+    prop_imgs_np_ = prop_imgs.cpu().detach().numpy()
+    updated_local_masks_np_ = updated_local_masks.cpu().detach().numpy()
 
     # np.save(os.path.join(root_path, "prop_imgs.npy"), np.ascontiguousarray(prop_imgs_np_))
     # np.save(os.path.join(root_path, "updated_local_masks.npy"), np.ascontiguousarray(updated_local_masks_np_))
@@ -325,38 +430,43 @@ def _test2():
     pass
 
 
-# def _test():
-#     import torch
-#     from model_store import calc_net_weight_count
-#
-#     pretrained = False
-#
-#     models = [
-#         raft_things,
-#         raft_small,
-#     ]
-#
-#     for model in models:
-#
-#         net = model(pretrained=pretrained)
-#
-#         # net.train()
-#         net.eval()
-#         weight_count = calc_net_weight_count(net)
-#         print("m={}, {}".format(model.__name__, weight_count))
-#         assert (model != raft_things or weight_count == 5257536)
-#         assert (model != raft_small or weight_count == 990162)
-#
-#         batch = 4
-#         height = 240
-#         width = 432
-#         x1 = torch.randn(batch, 3, height, width)
-#         x2 = torch.randn(batch, 3, height, width)
-#         y1, y2 = net(x1, x2)
-#         # y1.sum().backward()
-#         # y2.sum().backward()
-#         assert (tuple(y1.size()) == (batch, 2, height // 8, width // 8))
-#         assert (tuple(y2.size()) == (batch, 2, height, width))
+def _test():
+    import torch
+    from model_store import calc_net_weight_count
+
+    pretrained = False
+
+    models = [
+        propainter_ip,
+    ]
+
+    for model in models:
+
+        net = model(pretrained=pretrained)
+
+        # net.train()
+        net.eval()
+        weight_count = calc_net_weight_count(net)
+        print("m={}, {}".format(model.__name__, weight_count))
+        assert (model != propainter_ip or weight_count == 0)
+
+        # batch = 4
+        time = 5
+        height = 240
+        width = 432
+        frames = torch.randn(time, 3, height, width)
+        masks = torch.randn(time, 1, height, width)
+        comp_flows = torch.randn(time - 1, 4, height, width)
+
+        prop_frames, updated_masks = net(
+            frames=frames,
+            masks=masks,
+            comp_flows=comp_flows,
+            interpolation="nearest")
+        # y1.sum().backward()
+        # y2.sum().backward()
+        assert (tuple(prop_frames.size()) == (time, 3, height, width))
+        assert (tuple(updated_masks.size()) == (time, 1, height, width))
 
 
 if __name__ == "__main__":
