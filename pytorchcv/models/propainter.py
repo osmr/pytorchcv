@@ -4,19 +4,17 @@
     https://arxiv.org/pdf/2309.03897.
 """
 
+__all__ = ['ProPainter', 'propainter']
+
+import os
 import math
 import torch
 import torch.nn as nn
 from functools import reduce
 import torch.nn.functional as F
-from torch.nn.modules.utils import _pair, _single
-from torchvision.ops import DeformConv2d, deform_conv2d
 from einops import rearrange
 from typing import Callable
-from common import (lambda_relu, create_activation_layer, lambda_leakyrelu, lambda_tanh, conv1x1, conv3x3,
-                    conv3x3_block, InterpolationBlock)
-from resnet import ResUnit, ResBlock
-from propainter_rfc import SecondOrderDeformableAlignment
+from common import lambda_leakyrelu, lambda_tanh, conv3x3_block, InterpolationBlock
 from propainter_ip import propainter_ip, BidirectionalPropagation
 
 
@@ -166,6 +164,10 @@ class Decoder(nn.Module):
     ----------
     in_channels : int
         Number of input channels.
+    mid_channels : int
+        Number of middle channels.
+    out_channels : int
+        Number of output channels.
     activation : function
         Lambda-function generator for activation layer in convolution blocks.
     final_activation : function or None
@@ -173,46 +175,21 @@ class Decoder(nn.Module):
     """
     def __init__(self,
                  in_channels: int,
+                 mid_channels: int,
+                 out_channels: int,
                  activation: Callable[..., nn.Module],
                  final_activation: Callable[..., nn.Module | None] | None):
         super(Decoder, self).__init__()
         self.unit1 = PPDecoderUnit(
             in_channels=in_channels,
-            out_channels=64,
+            out_channels=mid_channels,
             activation=activation,
             final_activation=activation)
         self.unit2 = PPDecoderUnit(
-            in_channels=64,
-            out_channels=3,
+            in_channels=mid_channels,
+            out_channels=out_channels,
             activation=activation,
             final_activation=final_activation)
-        # self.body = nn.Sequential(
-        #     InterpolationBlock(scale_factor=2),
-        #     conv3x3_block(
-        #         in_channels=in_channels,
-        #         out_channels=128,
-        #         bias=True,
-        #         normalization=None,
-        #         activation=activation),
-        #     conv3x3_block(
-        #         in_channels=128,
-        #         out_channels=64,
-        #         bias=True,
-        #         normalization=None,
-        #         activation=activation),
-        #     InterpolationBlock(scale_factor=2),
-        #     conv3x3_block(
-        #         in_channels=64,
-        #         out_channels=64,
-        #         bias=True,
-        #         normalization=None,
-        #         activation=activation),
-        #     conv3x3_block(
-        #         in_channels=64,
-        #         out_channels=3,
-        #         bias=True,
-        #         normalization=None,
-        #         activation=final_activation))
 
     def forward(self, x):
         x = self.unit1(x)
@@ -220,97 +197,94 @@ class Decoder(nn.Module):
         return x
 
 
-class deconv(nn.Module):
-    def __init__(self,
-                 input_channel,
-                 output_channel,
-                 kernel_size=3,
-                 padding=0):
-        super().__init__()
-        self.up = InterpolationBlock(scale_factor=2)
-        self.conv = nn.Conv2d(
-            input_channel,
-            output_channel,
-            kernel_size=kernel_size,
-            stride=1,
-            padding=padding)
-
-    def forward(self, x):
-        x = self.up(x)
-        x = self.conv(x)
-        return x
-
-
 class SoftSplit(nn.Module):
     def __init__(self,
-                 channel,
-                 hidden,
-                 kernel_size,
-                 stride,
-                 padding):
+                 channels: int,
+                 hidden_dim: int,
+                 kernel_size: tuple[int, int],
+                 stride: tuple[int, int],
+                 padding: tuple[int, int]):
         super(SoftSplit, self).__init__()
         self.kernel_size = kernel_size
         self.stride = stride
         self.padding = padding
-        self.t2t = nn.Unfold(kernel_size=kernel_size,
-                             stride=stride,
-                             padding=padding)
-        c_in = reduce((lambda x, y: x * y), kernel_size) * channel
-        self.embedding = nn.Linear(c_in, hidden)
 
-    def forward(self, x, b, output_size):
-        f_h = int((output_size[0] + 2 * self.padding[0] -
-                   (self.kernel_size[0] - 1) - 1) / self.stride[0] + 1)
-        f_w = int((output_size[1] + 2 * self.padding[1] -
-                   (self.kernel_size[1] - 1) - 1) / self.stride[1] + 1)
+        self.t2t = nn.Unfold(
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding)
+
+        c_in = reduce((lambda x, y: x * y), kernel_size) * channels
+        self.embedding = nn.Linear(
+            in_features=c_in,
+            out_features=hidden_dim)
+
+    def forward(self,
+                x: torch.Tensor,
+                batch: int,
+                output_size: tuple[int, int]):
+        f_height = int((output_size[0] + 2 * self.padding[0] - (self.kernel_size[0] - 1) - 1) / self.stride[0] + 1)
+        f_width = int((output_size[1] + 2 * self.padding[1] - (self.kernel_size[1] - 1) - 1) / self.stride[1] + 1)
 
         feat = self.t2t(x)
         feat = feat.permute(0, 2, 1)
         # feat shape [b*t, num_vec, ks*ks*c]
         feat = self.embedding(feat)
         # feat shape after embedding [b, t*num_vec, hidden]
-        feat = feat.view(b, -1, f_h, f_w, feat.size(2))
+        feat = feat.view(batch, -1, f_height, f_width, feat.size(2))
         return feat
 
 
 class SoftComp(nn.Module):
     def __init__(self,
-                 channel,
-                 hidden,
-                 kernel_size,
-                 stride,
-                 padding):
+                 channels: int,
+                 hidden_dim: int,
+                 kernel_size: tuple[int, int],
+                 stride: tuple[int, int],
+                 padding: tuple[int, int]):
         super(SoftComp, self).__init__()
-        self.relu = nn.LeakyReLU(0.2, inplace=True)
-        c_out = reduce((lambda x, y: x * y), kernel_size) * channel
-        self.embedding = nn.Linear(hidden, c_out)
         self.kernel_size = kernel_size
         self.stride = stride
         self.padding = padding
-        self.bias_conv = nn.Conv2d(channel,
-                                   channel,
-                                   kernel_size=3,
-                                   stride=1,
-                                   padding=1)
 
-    def forward(self, x, t, output_size):
-        b_, _, _, _, c_ = x.shape
-        x = x.view(b_, -1, c_)
+        self.relu = nn.LeakyReLU(0.2, inplace=True)
+
+        c_out = reduce((lambda x, y: x * y), kernel_size) * channels
+        self.embedding = nn.Linear(
+            in_features=hidden_dim,
+            out_features=c_out)
+
+        self.bias_conv = nn.Conv2d(
+            in_channels=channels,
+            out_channels=channels,
+            kernel_size=3,
+            stride=1,
+            padding=1)
+
+    def forward(self,
+                x: torch.Tensor,
+                time: int,
+                output_size: tuple[int, int]):
+        batch_, _, _, _, channels_ = x.shape
+        x = x.view(batch_, -1, channels_)
+
         feat = self.embedding(x)
-        b, _, c = feat.size()
-        feat = feat.view(b * t, -1, c).permute(0, 2, 1)
-        feat = F.fold(feat,
-                      output_size=output_size,
-                      kernel_size=self.kernel_size,
-                      stride=self.stride,
-                      padding=self.padding)
+
+        batch, _, channels = feat.size()
+        feat = feat.view(batch * time, -1, channels).permute(0, 2, 1)
+        feat = F.fold(
+            input=feat,
+            output_size=output_size,
+            kernel_size=self.kernel_size,
+            stride=self.stride,
+            padding=self.padding)
         feat = self.bias_conv(feat)
         return feat
 
 
-def window_partition(x,
-                     window_size,
-                     n_head):
+def window_partition(x: torch.Tensor,
+                     window_size: tuple[int, int],
+                     n_head: int):
     """
     Args:
         x: shape is (B, T, H, W, C)
@@ -318,8 +292,9 @@ def window_partition(x,
     Returns:
         windows: (B, num_windows_h, num_windows_w, n_head, T, window_size, window_size, C//n_head)
     """
-    B, T, H, W, C = x.shape
-    x = x.view(B, T, H // window_size[0], window_size[0], W // window_size[1], window_size[1], n_head, C // n_head)
+    batch, time, height, width, channels = x.shape
+    win_height, win_width = window_size
+    x = x.view(batch, time, height // win_height, win_height, width // win_width, win_width, n_head, channels // n_head)
     windows = x.permute(0, 2, 4, 6, 1, 3, 5, 7).contiguous()
     return windows
 
@@ -334,7 +309,7 @@ class SparseWindowAttention(nn.Module):
                  attn_drop=0.0,
                  proj_drop=0.0,
                  pooling_token=True):
-        super().__init__()
+        super(SparseWindowAttention, self).__init__()
         assert dim % n_head == 0
         # key, query, value projections for all heads
         self.key = nn.Linear(dim, dim, qkv_bias)
@@ -635,11 +610,11 @@ class TemporalSparseTransformerBlock(nn.Module):
         return x
 
 
-class InpaintGenerator(nn.Module):
+class ProPainter(nn.Module):
     def __init__(self):
-        super(InpaintGenerator, self).__init__()
+        super(ProPainter, self).__init__()
         channels = 128
-        hidden = 512
+        hidden_dim = 512
         activation = lambda_leakyrelu(negative_slope=0.2)
 
         # encoder
@@ -648,6 +623,8 @@ class InpaintGenerator(nn.Module):
         # decoder
         self.decoder = Decoder(
             in_channels=channels,
+            mid_channels=64,
+            out_channels=3,
             activation=activation,
             final_activation=lambda_tanh())
 
@@ -660,19 +637,21 @@ class InpaintGenerator(nn.Module):
             "stride": stride,
             "padding": padding
         }
-        self.ss = SoftSplit(channels, hidden, kernel_size, stride, padding)
-        self.sc = SoftComp(channels, hidden, kernel_size, stride, padding)
+        self.ss = SoftSplit(channels, hidden_dim, kernel_size, stride, padding)
+        self.sc = SoftComp(channels, hidden_dim, kernel_size, stride, padding)
         self.max_pool = nn.MaxPool2d(kernel_size, stride, padding)
 
         # feature propagation module
-        self.feat_prop_module = BidirectionalPropagation(128, learnable=True)
+        self.feat_prop_module = BidirectionalPropagation(
+            channels=channels,
+            learnable=True)
 
         depths = 8
         num_heads = 4
         window_size = (5, 9)
         pool_size = (4, 4)
         self.transformers = TemporalSparseTransformerBlock(
-            dim=hidden,
+            dim=hidden_dim,
             n_head=num_heads,
             window_size=window_size,
             pool_size=pool_size,
@@ -807,6 +786,63 @@ class InpaintGenerator(nn.Module):
         return output
 
 
+def get_propainter(model_name: str | None = None,
+                   pretrained: bool = False,
+                   root: str = os.path.join("~", ".torch", "models"),
+                   **kwargs) -> nn.Module:
+    """
+    Create ProPainter model with specific parameters.
+
+    Parameters
+    ----------
+    model_name : str or None, default None
+        Model name for loading pretrained model.
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.torch/models'
+        Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
+    net = ProPainter(**kwargs)
+
+    if pretrained:
+        if (model_name is None) or (not model_name):
+            raise ValueError("Parameter `model_name` should be properly initialized for loading pretrained model.")
+        from .model_store import download_model
+        download_model(
+            net=net,
+            model_name=model_name,
+            local_model_store_dir_path=root)
+
+    return net
+
+
+def propainter(**kwargs) -> nn.Module:
+    """
+    ProPainter model from 'ProPainter: Improving Propagation and Transformer for Video Inpainting,'
+    https://arxiv.org/pdf/2309.03897.
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.torch/models'
+        Location for keeping the model parameters.
+
+    Returns
+    -------
+    nn.Module
+        Desired module.
+    """
+    return get_propainter(
+        model_name="propainter",
+        **kwargs)
+
+
 def _test2():
     import re
     import os
@@ -880,7 +916,7 @@ def _test2():
     pp_model_file_name = "ProPainter.pth"
 
     model_path = os.path.join(root_path, pp_model_file_name)
-    net_pp = InpaintGenerator()
+    net_pp = ProPainter()
 
     src_checkpoint = torch.load(model_path, map_location="cpu")
     dst_checkpoint = net_pp.state_dict()
@@ -959,38 +995,36 @@ def _test2():
     pass
 
 
-# def _test():
-#     import torch
-#     from model_store import calc_net_weight_count
-#
-#     pretrained = False
-#
-#     models = [
-#         raft_things,
-#         raft_small,
-#     ]
-#
-#     for model in models:
-#
-#         net = model(pretrained=pretrained)
-#
-#         # net.train()
-#         net.eval()
-#         weight_count = calc_net_weight_count(net)
-#         print("m={}, {}".format(model.__name__, weight_count))
-#         assert (model != raft_things or weight_count == 5257536)
-#         assert (model != raft_small or weight_count == 990162)
-#
-#         batch = 4
-#         height = 240
-#         width = 432
-#         x1 = torch.randn(batch, 3, height, width)
-#         x2 = torch.randn(batch, 3, height, width)
-#         y1, y2 = net(x1, x2)
-#         # y1.sum().backward()
-#         # y2.sum().backward()
-#         assert (tuple(y1.size()) == (batch, 2, height // 8, width // 8))
-#         assert (tuple(y2.size()) == (batch, 2, height, width))
+def _test():
+    import torch
+    from model_store import calc_net_weight_count
+
+    pretrained = False
+
+    models = [
+        propainter,
+    ]
+
+    for model in models:
+
+        net = model(pretrained=pretrained)
+
+        # net.train()
+        net.eval()
+        weight_count = calc_net_weight_count(net)
+        print("m={}, {}".format(model.__name__, weight_count))
+        assert (model != propainter or weight_count == 39429667)
+
+        batch = 4
+        time = 5
+        height = 240
+        width = 432
+        x1 = torch.randn(batch, time, 2, height, width)
+        x2 = torch.randn(batch, time, 1, height, width)
+        pred_frame = net(x1, x2)
+        # y1.sum().backward()
+        # y2.sum().backward()
+        assert (tuple(pred_frame.size()) == (batch, time, 2, height, width))
 
 
 if __name__ == "__main__":

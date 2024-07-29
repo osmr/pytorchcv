@@ -1068,13 +1068,13 @@ def _test():
         time = 5
         height = 240
         width = 432
-        x1 = torch.randn(batch, time, 2, height, width)
-        x2 = torch.randn(batch, time, 1, height, width)
-        y1, y2 = net(x1, x2)
-        # y1.sum().backward()
-        # y2.sum().backward()
-        assert (tuple(y1.size()) == (batch, time, 2, height, width))
-        assert (tuple(y2.size()) == (batch, time, 1, height, width))
+        masked_flows = torch.randn(batch, time, 2, height, width)
+        masks = torch.randn(batch, time, 1, height, width)
+        flow, edge = net(masked_flows, masks)
+        # flow.sum().backward()
+        # edge.sum().backward()
+        assert (tuple(flow.size()) == (batch, time, 2, height, width))
+        assert (tuple(edge.size()) == (batch, time, 1, height, width))
 
 
 if __name__ == "__main__":
