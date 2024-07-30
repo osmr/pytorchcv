@@ -770,6 +770,73 @@ class ImagePropWindowBufferedDataLoader(WindowBufferedDataLoader):
         self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
 
 
+class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
+    """
+    Image transformer window buffered data loader.
+
+    Parameters
+    ----------
+    net: nn.Module
+        Video inpainting model.
+    """
+    def __init__(self,
+                 net: nn.Module,
+                 **kwargs):
+        super(ImageTransWindowBufferedDataLoader, self).__init__(**kwargs)
+        self.net = net
+
+    def _load_data_items(self,
+                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
+        """
+        Load data items.
+
+        Parameters
+        ----------
+        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
+            Raw data chunk.
+
+        Returns
+        -------
+        protocol(any)
+            Resulted data.
+        """
+        assert (len(raw_data_chunk_list) == 3)
+
+        updated_frames_masks = raw_data_chunk_list[0]
+        masks = raw_data_chunk_list[1]
+        comp_flows = raw_data_chunk_list[2]
+
+        prop_frames, updated_masks = torch.split(updated_frames_masks, [3, 1], dim=1)
+        comp_flows_f, comp_flows_b = torch.split(comp_flows, [2, 2], dim=1)
+
+        masked_frames = prop_frames * (1 - updated_masks)
+
+        updated_frames = self.net(
+            masked_frames=masked_frames,
+            completed_flows=(comp_flows_f, comp_flows_b),
+            masks_in=masks,
+            masks_updated=updated_masks,
+            num_local_frames=2)
+
+        assert (len(updated_frames.shape) == 5)
+
+        updated_frames = updated_frames[0]
+
+        return updated_frames
+
+    def _expand_buffer_by(self,
+                          data_chunk: Any):
+        """
+        Expand buffer by extra data.
+
+        Parameters
+        ----------
+        data_chunk : protocol(any)
+            Data chunk.
+        """
+        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
+
+
 def check_arrays(gt_arrays_dir_path, pref, tested_array, start_idx, end_idx, c_slice=slice(None)):
     for j, i in enumerate(range(start_idx, end_idx)):
         tested_array_i = tested_array[j, c_slice].cpu().detach().numpy()
@@ -800,30 +867,6 @@ def _test():
     raft_model_path = "../../../pytorchcv_data/test/raft-things_2.pth"
     pprfc_model_path = "../../../pytorchcv_data/test/propainter_rfc.pth"
     pp_model_path = "../../../pytorchcv_data/test/propainter.pth"
-
-    # ind1 = calc_window_data_loader_index(
-    #     length=876,
-    #     window_size=80,
-    #     padding=(5, 5),
-    #     edge_mode="ignore")
-    #
-    # ind1 = calc_window_data_loader_index(
-    #     length=877,
-    #     window_size=12,
-    #     padding=(1, 0),
-    #     edge_mode="trim")
-    #
-    # ind1 = calc_window_data_loader_index(
-    #     length=287,
-    #     window_size=12,
-    #     padding=(1, 0),
-    #     edge_mode="trim")
-    #
-    # ind1 = calc_window_data_loader_index(
-    #     length=80,
-    #     window_size=12,
-    #     padding=(1, 0),
-    #     edge_mode="trim")
 
     # loader = BufferedDataLoader(data=FilePathDirIterator(frames_dir_path))
 
@@ -976,6 +1019,10 @@ def _test():
     pp_net.eval()
     pp_net = pp_net.cuda()
 
+    image_trans_loader = ImageTransWindowBufferedDataLoader(
+        data=[frame_loader, mask_loader, image_prop_loader, flow_comp_loader],
+        window_index=ppip_window_index,
+        net=pp_net)
 
     # # a = loader[:]
     # # a = loader[2:]
