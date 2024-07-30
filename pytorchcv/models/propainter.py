@@ -1,5 +1,5 @@
 """
-    ProPainter (Recurrent Flow Completion), implemented in PyTorch.
+    ProPainter for video inpainting, implemented in PyTorch.
     Original paper: 'ProPainter: Improving Propagation and Transformer for Video Inpainting,'
     https://arxiv.org/pdf/2309.03897.
 """
@@ -310,25 +310,33 @@ class SparseWindowAttention(nn.Module):
                  proj_drop=0.0,
                  pooling_token=True):
         super(SparseWindowAttention, self).__init__()
-        assert dim % n_head == 0
-        # key, query, value projections for all heads
+        assert (dim % n_head == 0)
+
+        # Key, query, value projections for all heads:
         self.key = nn.Linear(dim, dim, qkv_bias)
         self.query = nn.Linear(dim, dim, qkv_bias)
         self.value = nn.Linear(dim, dim, qkv_bias)
-        # regularization
+
+        # Regularization:
         self.attn_drop = nn.Dropout(attn_drop)
         self.proj_drop = nn.Dropout(proj_drop)
-        # output projection
+
+        # Output projection:
         self.proj = nn.Linear(dim, dim)
         self.n_head = n_head
         self.window_size = window_size
         self.pooling_token = pooling_token
         if self.pooling_token:
             ks, stride = pool_size, pool_size
-            self.pool_layer = nn.Conv2d(dim, dim, kernel_size=ks, stride=stride, padding=(0, 0), groups=dim)
-            self.pool_layer.weight.data.fill_(1. / (pool_size[0] * pool_size[1]))
+            self.pool_layer = nn.Conv2d(
+                in_channels=dim,
+                out_channels=dim,
+                kernel_size=ks,
+                stride=stride,
+                padding=(0, 0),
+                groups=dim)
+            self.pool_layer.weight.data.fill_(1.0 / (pool_size[0] * pool_size[1]))
             self.pool_layer.bias.data.fill_(0)
-        # self.expand_size = tuple(i // 2 for i in window_size)
         self.expand_size = tuple((i + 1) // 2 for i in window_size)
 
         if any(i > 0 for i in self.expand_size):
@@ -346,7 +354,10 @@ class SparseWindowAttention(nn.Module):
 
         self.max_pool = nn.MaxPool2d(window_size, window_size, (0, 0))
 
-    def forward(self, x, mask=None, T_ind=None, attn_mask=None):
+    def forward(self,
+                x,
+                mask=None,
+                T_ind=None):
         b, t, h, w, c = x.shape  # 20 36
         w_h, w_w = self.window_size[0], self.window_size[1]
         c_head = c // self.n_head
@@ -358,19 +369,19 @@ class SparseWindowAttention(nn.Module):
         pad_b = new_h - h
         # reverse order
         if pad_r > 0 or pad_b > 0:
-            x = F.pad(x, (0, 0, 0, pad_r, 0, pad_b, 0, 0), mode='constant', value=0)
-            mask = F.pad(mask, (0, 0, 0, pad_r, 0, pad_b, 0, 0), mode='constant', value=0)
+            x = F.pad(x, (0, 0, 0, pad_r, 0, pad_b, 0, 0), mode="constant", value=0)
+            mask = F.pad(mask, (0, 0, 0, pad_r, 0, pad_b, 0, 0), mode="constant", value=0)
 
             # calculate query, key, values for all heads in batch and move head forward to be the batch dim
         q = self.query(x)
         k = self.key(x)
         v = self.value(x)
-        win_q = window_partition(q.contiguous(), self.window_size, self.n_head).view(b, n_wh * n_ww, self.n_head, t,
-                                                                                     w_h * w_w, c_head)
-        win_k = window_partition(k.contiguous(), self.window_size, self.n_head).view(b, n_wh * n_ww, self.n_head, t,
-                                                                                     w_h * w_w, c_head)
-        win_v = window_partition(v.contiguous(), self.window_size, self.n_head).view(b, n_wh * n_ww, self.n_head, t,
-                                                                                     w_h * w_w, c_head)
+        win_q = window_partition(q.contiguous(), self.window_size, self.n_head).view(
+            b, n_wh * n_ww, self.n_head, t, w_h * w_w, c_head)
+        win_k = window_partition(k.contiguous(), self.window_size, self.n_head).view(
+            b, n_wh * n_ww, self.n_head, t, w_h * w_w, c_head)
+        win_v = window_partition(v.contiguous(), self.window_size, self.n_head).view(
+            b, n_wh * n_ww, self.n_head, t, w_h * w_w, c_head)
         # roll_k and roll_v
         if any(i > 0 for i in self.expand_size):
             (k_tl, v_tl) = map(
@@ -383,16 +394,15 @@ class SparseWindowAttention(nn.Module):
                                (k, v))
 
             (k_tl_windows, k_tr_windows, k_bl_windows, k_br_windows) = map(
-                lambda a: window_partition(a, self.window_size, self.n_head).view(b, n_wh * n_ww, self.n_head, t,
-                                                                                  w_h * w_w, c_head),
+                lambda a: window_partition(a, self.window_size, self.n_head).view(
+                    b, n_wh * n_ww, self.n_head, t, w_h * w_w, c_head),
                 (k_tl, k_tr, k_bl, k_br))
             (v_tl_windows, v_tr_windows, v_bl_windows, v_br_windows) = map(
-                lambda a: window_partition(a, self.window_size, self.n_head).view(b, n_wh * n_ww, self.n_head, t,
-                                                                                  w_h * w_w, c_head),
+                lambda a: window_partition(a, self.window_size, self.n_head).view(
+                    b, n_wh * n_ww, self.n_head, t, w_h * w_w, c_head),
                 (v_tl, v_tr, v_bl, v_br))
-            rool_k = torch.cat((k_tl_windows, k_tr_windows, k_bl_windows, k_br_windows), 4).contiguous()
-            rool_v = torch.cat((v_tl_windows, v_tr_windows, v_bl_windows, v_br_windows),
-                               4).contiguous()  # [b, n_wh*n_ww, n_head, t, w_h*w_w, c_head]
+            rool_k = torch.cat((k_tl_windows, k_tr_windows, k_bl_windows, k_br_windows), dim=4).contiguous()
+            rool_v = torch.cat((v_tl_windows, v_tr_windows, v_bl_windows, v_br_windows), dim=4).contiguous()  # [b, n_wh*n_ww, n_head, t, w_h*w_w, c_head]  # noqa
             # mask out tokens in current window
             rool_k = rool_k[:, :, :, :, self.valid_ind_rolled]
             rool_v = rool_v[:, :, :, :, self.valid_ind_rolled]
@@ -416,8 +426,7 @@ class SparseWindowAttention(nn.Module):
             pool_k = pool_k.contiguous().view(b, n_wh * n_ww, self.n_head, t, p_h * p_w, c_head)
             win_k = torch.cat((win_k, pool_k), dim=4)
             # pool_v
-            pool_v = self.value(pool_x).unsqueeze(1).repeat(1, n_wh * n_ww, 1, 1, 1,
-                                                            1)  # [b, n_wh*n_ww, t, p_h, p_w, c]
+            pool_v = self.value(pool_x).unsqueeze(1).repeat(1, n_wh * n_ww, 1, 1, 1, 1)  # [b, n_wh*n_ww, t, p_h, p_w, c]  # noqa
             pool_v = pool_v.view(b, n_wh * n_ww, t, p_h, p_w, self.n_head, c_head).permute(0, 1, 5, 2, 3, 4, 6)
             pool_v = pool_v.contiguous().view(b, n_wh * n_ww, self.n_head, t, p_h * p_w, c_head)
             win_v = torch.cat((win_v, pool_v), dim=4)
@@ -470,14 +479,14 @@ class SparseWindowAttention(nn.Module):
             y_s = att_s @ win_v_s
             out[i, unmask_ind_i] = y_s
 
-        # re-assemble all head outputs side by side
+        # Re-assemble all head outputs side by side:
         out = out.view(b, n_wh, n_ww, self.n_head, t, w_h, w_w, c_head)
         out = out.permute(0, 4, 1, 5, 2, 6, 3, 7).contiguous().view(b, t, new_h, new_w, c)
 
         if pad_r > 0 or pad_b > 0:
             out = out[:, :, :h, :w, :]
 
-        # output projection
+        # Output projection:
         out = self.proj_drop(self.proj(out))
         return out
 
@@ -485,42 +494,54 @@ class SparseWindowAttention(nn.Module):
 class FusionFeedForward(nn.Module):
     def __init__(self,
                  dim,
-                 hidden_dim=1960,
+                 hidden_dim=1960,  # we set hidden_dim as a default to 1960
                  t2t_params=None):
         super(FusionFeedForward, self).__init__()
-        # We set hidden_dim as a default to 1960
-        self.fc1 = nn.Sequential(nn.Linear(dim, hidden_dim))
-        self.fc2 = nn.Sequential(nn.GELU(), nn.Linear(hidden_dim, dim))
-        assert t2t_params is not None
+        assert (t2t_params is not None)
         self.t2t_params = t2t_params
-        self.kernel_shape = reduce((lambda x, y: x * y), t2t_params['kernel_size'])  # 49
 
-    def forward(self, x, output_size):
+        self.fc1 = nn.Sequential(
+            nn.Linear(
+                in_features=dim,
+                out_features=hidden_dim))
+        self.fc2 = nn.Sequential(
+            nn.GELU(),
+            nn.Linear(
+                in_features=hidden_dim,
+                out_features=dim))
+
+        self.kernel_shape = reduce((lambda x, y: x * y), t2t_params["kernel_size"])  # 49
+
+    def forward(self,
+                x,
+                output_size):
         n_vecs = 1
-        for i, d in enumerate(self.t2t_params['kernel_size']):
-            n_vecs *= int((output_size[i] + 2 * self.t2t_params['padding'][i] -
-                           (d - 1) - 1) / self.t2t_params['stride'][i] + 1)
+        for i, d in enumerate(self.t2t_params["kernel_size"]):
+            n_vecs *= int((output_size[i] + 2 * self.t2t_params["padding"][i] - (d - 1) - 1) /
+                          self.t2t_params["stride"][i] + 1)
 
         x = self.fc1(x)
         b, n, c = x.size()
         normalizer = x.new_ones(b, n, self.kernel_shape).view(-1, n_vecs, self.kernel_shape).permute(0, 2, 1)
-        normalizer = F.fold(normalizer,
-                            output_size=output_size,
-                            kernel_size=self.t2t_params['kernel_size'],
-                            padding=self.t2t_params['padding'],
-                            stride=self.t2t_params['stride'])
+        normalizer = F.fold(
+            input=normalizer,
+            output_size=output_size,
+            kernel_size=self.t2t_params["kernel_size"],
+            padding=self.t2t_params["padding"],
+            stride=self.t2t_params["stride"])
+        x = F.fold(
+            input=x.view(-1, n_vecs, c).permute(0, 2, 1),
+            output_size=output_size,
+            kernel_size=self.t2t_params["kernel_size"],
+            padding=self.t2t_params["padding"],
+            stride=self.t2t_params["stride"])
+        x = F.unfold(
+            input=(x / normalizer),
+            kernel_size=self.t2t_params["kernel_size"],
+            padding=self.t2t_params["padding"],
+            stride=self.t2t_params["stride"])
+        x = x.permute(0, 2, 1).contiguous().view(b, n, c)
 
-        x = F.fold(x.view(-1, n_vecs, c).permute(0, 2, 1),
-                   output_size=output_size,
-                   kernel_size=self.t2t_params['kernel_size'],
-                   padding=self.t2t_params['padding'],
-                   stride=self.t2t_params['stride'])
-
-        x = F.unfold(x / normalizer,
-                     kernel_size=self.t2t_params['kernel_size'],
-                     padding=self.t2t_params['padding'],
-                     stride=self.t2t_params['stride']).permute(
-                         0, 2, 1).contiguous().view(b, n, c)
         x = self.fc2(x)
         return x
 
@@ -533,12 +554,20 @@ class TemporalSparseTransformer(nn.Module):
                  pool_size,
                  norm_layer=nn.LayerNorm,
                  t2t_params=None):
-        super().__init__()
+        super(TemporalSparseTransformer, self).__init__()
         self.window_size = window_size
-        self.attention = SparseWindowAttention(dim, n_head, window_size, pool_size)
+
         self.norm1 = norm_layer(dim)
+        self.attention = SparseWindowAttention(
+            dim=dim,
+            n_head=n_head,
+            window_size=window_size,
+            pool_size=pool_size)
+
         self.norm2 = norm_layer(dim)
-        self.mlp = FusionFeedForward(dim, t2t_params=t2t_params)
+        self.mlp = FusionFeedForward(
+            dim=dim,
+            t2t_params=t2t_params)
 
     def forward(self,
                 x,
@@ -553,16 +582,18 @@ class TemporalSparseTransformer(nn.Module):
         Returns:
             out_tokens: shape [B T H W C]
         """
-        B, T, H, W, C = x.shape  # 20 36
+        batch, time, height, width, channels = x.shape  # 20 36
 
-        shortcut = x
-        x = self.norm1(x)
-        att_x = self.attention(x, mask, T_ind)
+        y = self.norm1(x)
+        y = self.attention(x=y, mask=mask, T_ind=T_ind)
+        x = x + y
 
         # FFN
-        x = shortcut + att_x
         y = self.norm2(x)
-        x = x + self.mlp(y.view(B, T * H * W, C), fold_x_size).view(B, T, H, W, C)
+        y = y.view(batch, time * height * width, channels)
+        y = self.mlp(y, fold_x_size)
+        y = y.view(batch, time, height, width, channels)
+        x = x + y
 
         return x
 
@@ -575,23 +606,24 @@ class TemporalSparseTransformerBlock(nn.Module):
                  pool_size,
                  depths,
                  t2t_params=None):
-        super().__init__()
+        super(TemporalSparseTransformerBlock, self).__init__()
+        self.depths = depths
+
         blocks = []
         for i in range(depths):
             blocks.append(TemporalSparseTransformer(
-                dim,
-                n_head,
-                window_size,
-                pool_size,
+                dim=dim,
+                n_head=n_head,
+                window_size=window_size,
+                pool_size=pool_size,
                 t2t_params=t2t_params))
         self.transformer = nn.Sequential(*blocks)
-        self.depths = depths
 
     def forward(self,
                 x,
                 fold_x_size,
                 l_mask=None,
-                t_dilation=2):
+                time_dilation: int = 2):
         """
         Args:
             x: image tokens, shape [B T H W C]
@@ -600,12 +632,13 @@ class TemporalSparseTransformerBlock(nn.Module):
         Returns:
             out_tokens: shape [B T H W C]
         """
-        assert self.depths % t_dilation == 0, "wrong t_dilation input."
-        T = x.size(1)
-        T_ind = [torch.arange(i, T, t_dilation) for i in range(t_dilation)] * (self.depths // t_dilation)
+        assert (self.depths % time_dilation == 0)
+
+        time = x.size(1)
+        time_idx = [torch.arange(i, time, time_dilation) for i in range(time_dilation)] * (self.depths // time_dilation)
 
         for i in range(0, self.depths):
-            x = self.transformer[i](x, fold_x_size, l_mask, T_ind[i])
+            x = self.transformer[i](x, fold_x_size, l_mask, time_idx[i])
 
         return x
 
@@ -617,10 +650,8 @@ class ProPainter(nn.Module):
         hidden_dim = 512
         activation = lambda_leakyrelu(negative_slope=0.2)
 
-        # encoder
         self.encoder = Encoder(activation=activation)
 
-        # decoder
         self.decoder = Decoder(
             in_channels=channels,
             mid_channels=64,
@@ -635,8 +666,7 @@ class ProPainter(nn.Module):
         t2t_params = {
             "kernel_size": kernel_size,
             "stride": stride,
-            "padding": padding
-        }
+            "padding": padding}
         self.ss = SoftSplit(channels, hidden_dim, kernel_size, stride, padding)
         self.sc = SoftComp(channels, hidden_dim, kernel_size, stride, padding)
         self.max_pool = nn.MaxPool2d(kernel_size, stride, padding)
@@ -663,11 +693,11 @@ class ProPainter(nn.Module):
     def _init_weights(self,
                       init_type="normal",
                       gain=0.02):
-        '''
+        """
         initialize network's weights
         init_type: normal | xavier | kaiming | orthogonal
         https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/9451e70673400885567d08a9e97ade2524c700d0/models/networks.py#L39
-        '''
+        """
         def init_func(m):
             classname = m.__class__.__name__
             if classname.find("InstanceNorm2d") != -1:
@@ -675,31 +705,29 @@ class ProPainter(nn.Module):
                     nn.init.constant_(m.weight.data, 1.0)
                 if hasattr(m, "bias") and m.bias is not None:
                     nn.init.constant_(m.bias.data, 0.0)
-            elif hasattr(m, 'weight') and (classname.find('Conv') != -1 or classname.find('Linear') != -1):
-                if init_type == 'normal':
+            elif hasattr(m, "weight") and (classname.find("Conv") != -1 or classname.find("Linear") != -1):
+                if init_type == "normal":
                     nn.init.normal_(m.weight.data, 0.0, gain)
-                elif init_type == 'xavier':
+                elif init_type == "xavier":
                     nn.init.xavier_normal_(m.weight.data, gain=gain)
-                elif init_type == 'xavier_uniform':
+                elif init_type == "xavier_uniform":
                     nn.init.xavier_uniform_(m.weight.data, gain=1.0)
-                elif init_type == 'kaiming':
-                    nn.init.kaiming_normal_(m.weight.data, a=0, mode='fan_in')
-                elif init_type == 'orthogonal':
+                elif init_type == "kaiming":
+                    nn.init.kaiming_normal_(m.weight.data, a=0, mode="fan_in")
+                elif init_type == "orthogonal":
                     nn.init.orthogonal_(m.weight.data, gain=gain)
-                elif init_type == 'none':  # uses pytorch's default init method
+                elif init_type == "none":  # uses pytorch's default init method
                     m.reset_parameters()
                 else:
-                    raise NotImplementedError(
-                        'initialization method [%s] is not implemented' %
-                        init_type)
-                if hasattr(m, 'bias') and m.bias is not None:
+                    raise NotImplementedError( "initialization method [%s] is not implemented" % init_type)
+                if hasattr(m, "bias") and m.bias is not None:
                     nn.init.constant_(m.bias.data, 0.0)
 
         self.apply(init_func)
 
         # propagate to children
         for m in self.children():
-            if hasattr(m, 'init_weights'):
+            if hasattr(m, "init_weights"):
                 m.init_weights(init_type, gain)
 
     def forward(self,
@@ -957,12 +985,6 @@ def _test2():
     pred_flow_b_np = pred_flow_b_np[None, None]
     pred_flow_f = torch.from_numpy(pred_flow_f_np).cuda()
     pred_flow_b = torch.from_numpy(pred_flow_b_np).cuda()
-
-    # prop_imgs, updated_local_masks = net_pp.img_propagation(
-    #     masked_frames=masked_frames,
-    #     completed_flows=(pred_flow_f, pred_flow_b),
-    #     masks=masks_dilated,
-    #     interpolation="nearest")
 
     ppip_net = propainter_ip()
     ppip_net.eval()
