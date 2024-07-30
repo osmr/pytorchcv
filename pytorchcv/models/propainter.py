@@ -14,7 +14,7 @@ from functools import reduce
 import torch.nn.functional as F
 from einops import rearrange
 from typing import Callable
-from common import lambda_leakyrelu, lambda_tanh, conv3x3_block, InterpolationBlock
+from common import lambda_leakyrelu, lambda_tanh, conv3x3, conv3x3_block, InterpolationBlock
 from propainter_ip import propainter_ip, BidirectionalPropagation
 
 
@@ -198,6 +198,9 @@ class Decoder(nn.Module):
 
 
 class SoftSplit(nn.Module):
+    """
+    Soft split.
+    """
     def __init__(self,
                  channels: int,
                  hidden_dim: int,
@@ -211,12 +214,12 @@ class SoftSplit(nn.Module):
 
         self.t2t = nn.Unfold(
             kernel_size=kernel_size,
-            stride=stride,
-            padding=padding)
+            padding=padding,
+            stride=stride)
 
-        c_in = reduce((lambda x, y: x * y), kernel_size) * channels
+        emb_in_channels = reduce((lambda x, y: x * y), kernel_size) * channels
         self.embedding = nn.Linear(
-            in_features=c_in,
+            in_features=emb_in_channels,
             out_features=hidden_dim)
 
     def forward(self,
@@ -226,16 +229,20 @@ class SoftSplit(nn.Module):
         f_height = int((output_size[0] + 2 * self.padding[0] - (self.kernel_size[0] - 1) - 1) / self.stride[0] + 1)
         f_width = int((output_size[1] + 2 * self.padding[1] - (self.kernel_size[1] - 1) - 1) / self.stride[1] + 1)
 
-        feat = self.t2t(x)
-        feat = feat.permute(0, 2, 1)
-        # feat shape [b*t, num_vec, ks*ks*c]
-        feat = self.embedding(feat)
-        # feat shape after embedding [b, t*num_vec, hidden]
-        feat = feat.view(batch, -1, f_height, f_width, feat.size(2))
-        return feat
+        x = self.t2t(x)
+        x = x.permute(0, 2, 1)
+        # x shape [b*t, num_vec, ks*ks*c]
+        x = self.embedding(x)
+
+        # x shape after embedding [b, t*num_vec, hidden]
+        x = x.view(batch, -1, f_height, f_width, x.size(2))
+        return x
 
 
 class SoftComp(nn.Module):
+    """
+    Soft composition.
+    """
     def __init__(self,
                  channels: int,
                  hidden_dim: int,
@@ -247,70 +254,75 @@ class SoftComp(nn.Module):
         self.stride = stride
         self.padding = padding
 
-        self.relu = nn.LeakyReLU(0.2, inplace=True)
-
-        c_out = reduce((lambda x, y: x * y), kernel_size) * channels
+        emb_out_channels = reduce((lambda x, y: x * y), kernel_size) * channels
         self.embedding = nn.Linear(
             in_features=hidden_dim,
-            out_features=c_out)
+            out_features=emb_out_channels)
 
-        self.bias_conv = nn.Conv2d(
+        self.bias_conv = conv3x3(
             in_channels=channels,
             out_channels=channels,
-            kernel_size=3,
-            stride=1,
-            padding=1)
+            bias=True)
 
     def forward(self,
                 x: torch.Tensor,
                 time: int,
                 output_size: tuple[int, int]):
-        batch_, _, _, _, channels_ = x.shape
-        x = x.view(batch_, -1, channels_)
+        batch, _, _, _, x_channels = x.shape
+        x = x.view(batch, -1, x_channels)
 
-        feat = self.embedding(x)
+        y = self.embedding(x)
 
-        batch, _, channels = feat.size()
-        feat = feat.view(batch * time, -1, channels).permute(0, 2, 1)
-        feat = F.fold(
-            input=feat,
+        _, _, y_channels = y.size()
+        y = y.view(batch * time, -1, y_channels).permute(0, 2, 1)
+
+        y = F.fold(
+            input=y,
             output_size=output_size,
             kernel_size=self.kernel_size,
-            stride=self.stride,
-            padding=self.padding)
-        feat = self.bias_conv(feat)
-        return feat
+            padding=self.padding,
+            stride=self.stride)
+        y = self.bias_conv(y)
+        return y
 
 
 def window_partition(x: torch.Tensor,
                      window_size: tuple[int, int],
-                     n_head: int):
+                     num_heads: int):
     """
     Args:
         x: shape is (B, T, H, W, C)
         window_size (tuple[int]): window size
     Returns:
-        windows: (B, num_windows_h, num_windows_w, n_head, T, window_size, window_size, C//n_head)
+        windows: (B, num_windows_h, num_windows_w, num_heads, T, window_size, window_size, C//num_heads)
     """
     batch, time, height, width, channels = x.shape
     win_height, win_width = window_size
-    x = x.view(batch, time, height // win_height, win_height, width // win_width, win_width, n_head, channels // n_head)
+    x = x.view(
+        batch,
+        time,
+        height // win_height,
+        win_height,
+        width // win_width,
+        win_width,
+        num_heads,
+        channels // num_heads)
     windows = x.permute(0, 2, 4, 6, 1, 3, 5, 7).contiguous()
     return windows
 
 
 class SparseWindowAttention(nn.Module):
     def __init__(self,
-                 dim,
-                 n_head,
-                 window_size,
-                 pool_size=(4, 4),
-                 qkv_bias=True,
-                 attn_drop=0.0,
-                 proj_drop=0.0,
-                 pooling_token=True):
+                 dim: int,
+                 num_heads: int,
+                 window_size: tuple[int, int],
+                 pool_size: tuple[int, int] = (4, 4),
+                 qkv_bias: bool = True,
+                 attn_drop: float = 0.0,
+                 proj_drop: float = 0.0,
+                 pooling_token: bool = True):
         super(SparseWindowAttention, self).__init__()
-        assert (dim % n_head == 0)
+        assert (dim % num_heads == 0)
 
         # Key, query, value projections for all heads:
         self.key = nn.Linear(dim, dim, qkv_bias)
@@ -323,7 +335,7 @@ class SparseWindowAttention(nn.Module):
 
         # Output projection:
         self.proj = nn.Linear(dim, dim)
-        self.n_head = n_head
+        self.num_heads = num_heads
         self.window_size = window_size
         self.pooling_token = pooling_token
         if self.pooling_token:
@@ -355,12 +367,12 @@ class SparseWindowAttention(nn.Module):
         self.max_pool = nn.MaxPool2d(window_size, window_size, (0, 0))
 
     def forward(self,
-                x,
-                mask=None,
-                T_ind=None):
+                x: torch.Tensor,
+                mask: torch.Tensor,
+                time_idx=None):
         b, t, h, w, c = x.shape  # 20 36
         w_h, w_w = self.window_size[0], self.window_size[1]
-        c_head = c // self.n_head
+        c_head = c // self.num_heads
         n_wh = math.ceil(h / self.window_size[0])
         n_ww = math.ceil(w / self.window_size[1])
         new_h = n_wh * self.window_size[0]  # 20
@@ -376,12 +388,12 @@ class SparseWindowAttention(nn.Module):
         q = self.query(x)
         k = self.key(x)
         v = self.value(x)
-        win_q = window_partition(q.contiguous(), self.window_size, self.n_head).view(
-            b, n_wh * n_ww, self.n_head, t, w_h * w_w, c_head)
-        win_k = window_partition(k.contiguous(), self.window_size, self.n_head).view(
-            b, n_wh * n_ww, self.n_head, t, w_h * w_w, c_head)
-        win_v = window_partition(v.contiguous(), self.window_size, self.n_head).view(
-            b, n_wh * n_ww, self.n_head, t, w_h * w_w, c_head)
+        win_q = window_partition(q.contiguous(), self.window_size, self.num_heads).view(
+            b, n_wh * n_ww, self.num_heads, t, w_h * w_w, c_head)
+        win_k = window_partition(k.contiguous(), self.window_size, self.num_heads).view(
+            b, n_wh * n_ww, self.num_heads, t, w_h * w_w, c_head)
+        win_v = window_partition(v.contiguous(), self.window_size, self.num_heads).view(
+            b, n_wh * n_ww, self.num_heads, t, w_h * w_w, c_head)
         # roll_k and roll_v
         if any(i > 0 for i in self.expand_size):
             (k_tl, v_tl) = map(
@@ -394,21 +406,21 @@ class SparseWindowAttention(nn.Module):
                                (k, v))
 
             (k_tl_windows, k_tr_windows, k_bl_windows, k_br_windows) = map(
-                lambda a: window_partition(a, self.window_size, self.n_head).view(
-                    b, n_wh * n_ww, self.n_head, t, w_h * w_w, c_head),
+                lambda a: window_partition(a, self.window_size, self.num_heads).view(
+                    b, n_wh * n_ww, self.num_heads, t, w_h * w_w, c_head),
                 (k_tl, k_tr, k_bl, k_br))
             (v_tl_windows, v_tr_windows, v_bl_windows, v_br_windows) = map(
-                lambda a: window_partition(a, self.window_size, self.n_head).view(
-                    b, n_wh * n_ww, self.n_head, t, w_h * w_w, c_head),
+                lambda a: window_partition(a, self.window_size, self.num_heads).view(
+                    b, n_wh * n_ww, self.num_heads, t, w_h * w_w, c_head),
                 (v_tl, v_tr, v_bl, v_br))
             rool_k = torch.cat((k_tl_windows, k_tr_windows, k_bl_windows, k_br_windows), dim=4).contiguous()
-            rool_v = torch.cat((v_tl_windows, v_tr_windows, v_bl_windows, v_br_windows), dim=4).contiguous()  # [b, n_wh*n_ww, n_head, t, w_h*w_w, c_head]  # noqa
+            rool_v = torch.cat((v_tl_windows, v_tr_windows, v_bl_windows, v_br_windows), dim=4).contiguous()  # [b, n_wh*n_ww, num_heads, t, w_h*w_w, c_head]  # noqa
             # mask out tokens in current window
             rool_k = rool_k[:, :, :, :, self.valid_ind_rolled]
             rool_v = rool_v[:, :, :, :, self.valid_ind_rolled]
             roll_N = rool_k.shape[4]
-            rool_k = rool_k.view(b, n_wh * n_ww, self.n_head, t, roll_N, c // self.n_head)
-            rool_v = rool_v.view(b, n_wh * n_ww, self.n_head, t, roll_N, c // self.n_head)
+            rool_k = rool_k.view(b, n_wh * n_ww, self.num_heads, t, roll_N, c // self.num_heads)
+            rool_v = rool_v.view(b, n_wh * n_ww, self.num_heads, t, roll_N, c // self.num_heads)
             win_k = torch.cat((win_k, rool_k), dim=4)
             win_v = torch.cat((win_v, rool_v), dim=4)
         else:
@@ -422,16 +434,16 @@ class SparseWindowAttention(nn.Module):
             pool_x = pool_x.permute(0, 2, 3, 1).view(b, t, p_h, p_w, c)
             # pool_k
             pool_k = self.key(pool_x).unsqueeze(1).repeat(1, n_wh * n_ww, 1, 1, 1, 1)  # [b, n_wh*n_ww, t, p_h, p_w, c]
-            pool_k = pool_k.view(b, n_wh * n_ww, t, p_h, p_w, self.n_head, c_head).permute(0, 1, 5, 2, 3, 4, 6)
-            pool_k = pool_k.contiguous().view(b, n_wh * n_ww, self.n_head, t, p_h * p_w, c_head)
+            pool_k = pool_k.view(b, n_wh * n_ww, t, p_h, p_w, self.num_heads, c_head).permute(0, 1, 5, 2, 3, 4, 6)
+            pool_k = pool_k.contiguous().view(b, n_wh * n_ww, self.num_heads, t, p_h * p_w, c_head)
             win_k = torch.cat((win_k, pool_k), dim=4)
             # pool_v
             pool_v = self.value(pool_x).unsqueeze(1).repeat(1, n_wh * n_ww, 1, 1, 1, 1)  # [b, n_wh*n_ww, t, p_h, p_w, c]  # noqa
-            pool_v = pool_v.view(b, n_wh * n_ww, t, p_h, p_w, self.n_head, c_head).permute(0, 1, 5, 2, 3, 4, 6)
-            pool_v = pool_v.contiguous().view(b, n_wh * n_ww, self.n_head, t, p_h * p_w, c_head)
+            pool_v = pool_v.view(b, n_wh * n_ww, t, p_h, p_w, self.num_heads, c_head).permute(0, 1, 5, 2, 3, 4, 6)
+            pool_v = pool_v.contiguous().view(b, n_wh * n_ww, self.num_heads, t, p_h * p_w, c_head)
             win_v = torch.cat((win_v, pool_v), dim=4)
 
-        # [b, n_wh*n_ww, n_head, t, w_h*w_w, c_head]
+        # [b, n_wh*n_ww, num_heads, t, w_h*w_w, c_head]
         out = torch.zeros_like(win_q)
         l_t = mask.size(1)
 
@@ -442,33 +454,33 @@ class SparseWindowAttention(nn.Module):
             # For masked windows:
             mask_ind_i = mask[i].nonzero(as_tuple=False).view(-1)
             # mask out quary in current window
-            # [b, n_wh*n_ww, n_head, t, w_h*w_w, c_head]
+            # [b, n_wh*n_ww, num_heads, t, w_h*w_w, c_head]
             mask_n = len(mask_ind_i)
             if mask_n > 0:
-                win_q_t = win_q[i, mask_ind_i].view(mask_n, self.n_head, t * w_h * w_w, c_head)
+                win_q_t = win_q[i, mask_ind_i].view(mask_n, self.num_heads, t * w_h * w_w, c_head)
                 win_k_t = win_k[i, mask_ind_i]
                 win_v_t = win_v[i, mask_ind_i]
                 # mask out key and value
-                if T_ind is not None:
-                    # key [n_wh*n_ww, n_head, t, w_h*w_w, c_head]
-                    win_k_t = win_k_t[:, :, T_ind.view(-1)].view(mask_n, self.n_head, -1, c_head)
+                if time_idx is not None:
+                    # key [n_wh*n_ww, num_heads, t, w_h*w_w, c_head]
+                    win_k_t = win_k_t[:, :, time_idx.view(-1)].view(mask_n, self.num_heads, -1, c_head)
                     # value
-                    win_v_t = win_v_t[:, :, T_ind.view(-1)].view(mask_n, self.n_head, -1, c_head)
+                    win_v_t = win_v_t[:, :, time_idx.view(-1)].view(mask_n, self.num_heads, -1, c_head)
                 else:
-                    win_k_t = win_k_t.view(n_wh * n_ww, self.n_head, t * w_h * w_w, c_head)
-                    win_v_t = win_v_t.view(n_wh * n_ww, self.n_head, t * w_h * w_w, c_head)
+                    win_k_t = win_k_t.view(n_wh * n_ww, self.num_heads, t * w_h * w_w, c_head)
+                    win_v_t = win_v_t.view(n_wh * n_ww, self.num_heads, t * w_h * w_w, c_head)
 
                 att_t = (win_q_t @ win_k_t.transpose(-2, -1)) * (1.0 / math.sqrt(win_q_t.size(-1)))
                 att_t = F.softmax(att_t, dim=-1)
                 att_t = self.attn_drop(att_t)
                 y_t = att_t @ win_v_t
 
-                out[i, mask_ind_i] = y_t.view(-1, self.n_head, t, w_h * w_w, c_head)
+                out[i, mask_ind_i] = y_t.view(-1, self.num_heads, t, w_h * w_w, c_head)
 
             # For unmasked windows:
             unmask_ind_i = (mask[i] == 0).nonzero(as_tuple=False).view(-1)
             # mask out quary in current window
-            # [b, n_wh*n_ww, n_head, t, w_h*w_w, c_head]
+            # [b, n_wh*n_ww, num_heads, t, w_h*w_w, c_head]
             win_q_s = win_q[i, unmask_ind_i]
             win_k_s = win_k[i, unmask_ind_i, :, :, :w_h * w_w]
             win_v_s = win_v[i, unmask_ind_i, :, :, :w_h * w_w]
@@ -480,7 +492,7 @@ class SparseWindowAttention(nn.Module):
             out[i, unmask_ind_i] = y_s
 
         # Re-assemble all head outputs side by side:
-        out = out.view(b, n_wh, n_ww, self.n_head, t, w_h, w_w, c_head)
+        out = out.view(b, n_wh, n_ww, self.num_heads, t, w_h, w_w, c_head)
         out = out.permute(0, 4, 1, 5, 2, 6, 3, 7).contiguous().view(b, t, new_h, new_w, c)
 
         if pad_r > 0 or pad_b > 0:
@@ -493,12 +505,15 @@ class SparseWindowAttention(nn.Module):
 
 class FusionFeedForward(nn.Module):
     def __init__(self,
-                 dim,
-                 hidden_dim=1960,  # we set hidden_dim as a default to 1960
-                 t2t_params=None):
+                 dim: int,
+                 hidden_dim: int,
+                 kernel_size: tuple[int, int],
+                 stride: tuple[int, int],
+                 padding: tuple[int, int]):
         super(FusionFeedForward, self).__init__()
-        assert (t2t_params is not None)
-        self.t2t_params = t2t_params
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.padding = padding
 
         self.fc1 = nn.Sequential(
             nn.Linear(
@@ -510,15 +525,14 @@ class FusionFeedForward(nn.Module):
                 in_features=hidden_dim,
                 out_features=dim))
 
-        self.kernel_shape = reduce((lambda x, y: x * y), t2t_params["kernel_size"])  # 49
+        self.kernel_shape = reduce((lambda x, y: x * y), self.kernel_size)  # 49
 
     def forward(self,
-                x,
-                output_size):
+                x: torch.Tensor,
+                output_size: tuple[int, int]):
         n_vecs = 1
-        for i, d in enumerate(self.t2t_params["kernel_size"]):
-            n_vecs *= int((output_size[i] + 2 * self.t2t_params["padding"][i] - (d - 1) - 1) /
-                          self.t2t_params["stride"][i] + 1)
+        for i, d in enumerate(self.kernel_size):
+            n_vecs *= int((output_size[i] + 2 * self.padding[i] - (d - 1) - 1) / self.stride[i] + 1)
 
         x = self.fc1(x)
         b, n, c = x.size()
@@ -526,20 +540,20 @@ class FusionFeedForward(nn.Module):
         normalizer = F.fold(
             input=normalizer,
             output_size=output_size,
-            kernel_size=self.t2t_params["kernel_size"],
-            padding=self.t2t_params["padding"],
-            stride=self.t2t_params["stride"])
+            kernel_size=self.kernel_size,
+            padding=self.padding,
+            stride=self.stride)
         x = F.fold(
             input=x.view(-1, n_vecs, c).permute(0, 2, 1),
             output_size=output_size,
-            kernel_size=self.t2t_params["kernel_size"],
-            padding=self.t2t_params["padding"],
-            stride=self.t2t_params["stride"])
+            kernel_size=self.kernel_size,
+            padding=self.padding,
+            stride=self.stride)
         x = F.unfold(
             input=(x / normalizer),
-            kernel_size=self.t2t_params["kernel_size"],
-            padding=self.t2t_params["padding"],
-            stride=self.t2t_params["stride"])
+            kernel_size=self.kernel_size,
+            padding=self.padding,
+            stride=self.stride)
         x = x.permute(0, 2, 1).contiguous().view(b, n, c)
 
         x = self.fc2(x)
@@ -548,32 +562,36 @@ class FusionFeedForward(nn.Module):
 
 class TemporalSparseTransformer(nn.Module):
     def __init__(self,
-                 dim,
-                 n_head,
-                 window_size,
-                 pool_size,
-                 norm_layer=nn.LayerNorm,
-                 t2t_params=None):
+                 dim: int,
+                 num_heads: int,
+                 window_size: tuple[int, int],
+                 pool_size: tuple[int, int],
+                 kernel_size: tuple[int, int],
+                 stride: tuple[int, int],
+                 padding: tuple[int, int]):
         super(TemporalSparseTransformer, self).__init__()
         self.window_size = window_size
 
-        self.norm1 = norm_layer(dim)
+        self.norm1 = nn.LayerNorm(normalized_shape=dim)
         self.attention = SparseWindowAttention(
             dim=dim,
-            n_head=n_head,
+            num_heads=num_heads,
             window_size=window_size,
             pool_size=pool_size)
 
-        self.norm2 = norm_layer(dim)
+        self.norm2 = nn.LayerNorm(normalized_shape=dim)
         self.mlp = FusionFeedForward(
             dim=dim,
-            t2t_params=t2t_params)
+            hidden_dim=1960,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding)
 
     def forward(self,
-                x,
-                fold_x_size,
-                mask=None,
-                T_ind=None):
+                x: torch.Tensor,
+                fold_x_size: tuple[int, int],
+                mask: torch.Tensor,
+                time_idx=None):
         """
         Args:
             x: image tokens, shape [B T H W C]
@@ -585,7 +603,7 @@ class TemporalSparseTransformer(nn.Module):
         batch, time, height, width, channels = x.shape  # 20 36
 
         y = self.norm1(x)
-        y = self.attention(x=y, mask=mask, T_ind=T_ind)
+        y = self.attention(x=y, mask=mask, time_idx=time_idx)
         x = x + y
 
         # FFN
@@ -600,29 +618,33 @@ class TemporalSparseTransformer(nn.Module):
 
 class TemporalSparseTransformerBlock(nn.Module):
     def __init__(self,
-                 dim,
-                 n_head,
-                 window_size,
-                 pool_size,
-                 depths,
-                 t2t_params=None):
+                 dim: int,
+                 num_heads: int,
+                 window_size: tuple[int, int],
+                 pool_size: tuple[int, int],
+                 kernel_size: tuple[int, int],
+                 stride: tuple[int, int],
+                 padding: tuple[int, int],
+                 depth: int):
         super(TemporalSparseTransformerBlock, self).__init__()
-        self.depths = depths
+        self.depth = depth
 
         blocks = []
-        for i in range(depths):
+        for i in range(depth):
             blocks.append(TemporalSparseTransformer(
                 dim=dim,
-                n_head=n_head,
+                num_heads=num_heads,
                 window_size=window_size,
                 pool_size=pool_size,
-                t2t_params=t2t_params))
+                kernel_size=kernel_size,
+                stride=stride,
+                padding=padding))
         self.transformer = nn.Sequential(*blocks)
 
     def forward(self,
-                x,
-                fold_x_size,
-                l_mask=None,
+                x: torch.Tensor,
+                fold_x_size: tuple[int, int],
+                l_mask: torch.Tensor,
                 time_dilation: int = 2):
         """
         Args:
@@ -632,22 +654,29 @@ class TemporalSparseTransformerBlock(nn.Module):
         Returns:
             out_tokens: shape [B T H W C]
         """
-        assert (self.depths % time_dilation == 0)
+        assert (self.depth % time_dilation == 0)
 
         time = x.size(1)
-        time_idx = [torch.arange(i, time, time_dilation) for i in range(time_dilation)] * (self.depths // time_dilation)
+        time_idx = [torch.arange(i, time, time_dilation) for i in range(time_dilation)] * (self.depth // time_dilation)
 
-        for i in range(0, self.depths):
+        for i in range(0, self.depth):
             x = self.transformer[i](x, fold_x_size, l_mask, time_idx[i])
 
         return x
 
 
 class ProPainter(nn.Module):
-    def __init__(self):
+    def __init__(self,
+                 channels: int = 128,
+                 hidden_dim: int = 512,
+                 num_heads: int = 4,
+                 depth: int = 8,
+                 t2t_kernel_size: tuple[int, int] = (7, 7),
+                 t2t_padding: tuple[int, int] = (3, 3),
+                 t2t_stride: tuple[int, int] = (3, 3),
+                 window_size: tuple[int, int] = (5, 9),
+                 pool_size: tuple[int, int] = (4, 4)):
         super(ProPainter, self).__init__()
-        channels = 128
-        hidden_dim = 512
         activation = lambda_leakyrelu(negative_slope=0.2)
 
         self.encoder = Encoder(activation=activation)
@@ -659,34 +688,37 @@ class ProPainter(nn.Module):
             activation=activation,
             final_activation=lambda_tanh())
 
-        # soft split and soft composition
-        kernel_size = (7, 7)
-        padding = (3, 3)
-        stride = (3, 3)
-        t2t_params = {
-            "kernel_size": kernel_size,
-            "stride": stride,
-            "padding": padding}
-        self.ss = SoftSplit(channels, hidden_dim, kernel_size, stride, padding)
-        self.sc = SoftComp(channels, hidden_dim, kernel_size, stride, padding)
-        self.max_pool = nn.MaxPool2d(kernel_size, stride, padding)
+        self.ss = SoftSplit(
+            channels=channels,
+            hidden_dim=hidden_dim,
+            kernel_size=t2t_kernel_size,
+            stride=t2t_stride,
+            padding=t2t_padding)
+        self.sc = SoftComp(
+            channels=channels,
+            hidden_dim=hidden_dim,
+            kernel_size=t2t_kernel_size,
+            stride=t2t_stride,
+            padding=t2t_padding)
+        self.max_pool = nn.MaxPool2d(
+            kernel_size=t2t_kernel_size,
+            stride=t2t_stride,
+            padding=t2t_padding)
 
-        # feature propagation module
+        # Feature propagation module
         self.feat_prop_module = BidirectionalPropagation(
             channels=channels,
             learnable=True)
 
-        depths = 8
-        num_heads = 4
-        window_size = (5, 9)
-        pool_size = (4, 4)
         self.transformers = TemporalSparseTransformerBlock(
             dim=hidden_dim,
-            n_head=num_heads,
+            num_heads=num_heads,
             window_size=window_size,
             pool_size=pool_size,
-            depths=depths,
-            t2t_params=t2t_params)
+            kernel_size=t2t_kernel_size,
+            stride=t2t_stride,
+            padding=t2t_padding,
+            depth=depth)
 
         self._init_weights()
 
@@ -731,13 +763,13 @@ class ProPainter(nn.Module):
                 m.init_weights(init_type, gain)
 
     def forward(self,
-                masked_frames,
-                completed_flows,
-                masks_in,
-                masks_updated,
-                num_local_frames,
-                interpolation="bilinear",
-                t_dilation=2):
+                masked_frames: torch.Tensor,
+                completed_flows: torch.Tensor,
+                masks_in: torch.Tensor,
+                masks_updated: torch.Tensor,
+                num_local_frames: int,
+                interpolation: str = "bilinear",
+                time_dilation: int = 2):
         """
         Args:
             masks_in: original mask
@@ -798,7 +830,7 @@ class ProPainter(nn.Module):
             x=trans_feat,
             fold_x_size=fold_feat_size,
             l_mask=mask_pool_l,
-            t_dilation=t_dilation)
+            time_dilation=time_dilation)
         trans_feat = self.sc(trans_feat, time, fold_feat_size)
         trans_feat = trans_feat.view(batch, time, -1, height, width)
 
@@ -954,6 +986,7 @@ def _test2():
     net_pp.load_state_dict(dst_checkpoint, strict=True)
     # ckpt = torch.load(model_path, map_location="cpu")
     # net_pp.load_state_dict(ckpt, strict=True)
+    # torch.save(net_pp.state_dict(), "../../../pytorchcv_data/test/propainter.pth")
 
     for p in net_pp.parameters():
         p.requires_grad = False

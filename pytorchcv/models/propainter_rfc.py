@@ -1041,6 +1041,34 @@ def _test2():
         print("*")
     np.testing.assert_array_equal(pred_edges_f_np, pred_edges_f_np_)
 
+    flow_f = torch.from_numpy(np.load("/home/osmr/projects/pytorchcv_data/testa/pprfc_gt_flows_f.npy")).cuda()[0]
+    flow_b = torch.from_numpy(np.load("/home/osmr/projects/pytorchcv_data/testa/pprfc_gt_flows_b.npy")).cuda()[0]
+    flow_masks = torch.from_numpy(np.load("/home/osmr/projects/pytorchcv_data/testa/pprfc_flow_masks.npy")).cuda()[0]
+
+    masks_forward = flow_masks[:-1].contiguous()
+    masks_backward = flow_masks[1:].contiguous()
+    flow_masks = torch.cat((masks_forward, masks_backward), dim=1)
+
+    flow_comp, _ = calc_bidirectional_opt_flow_completion_by_pprfc(
+        net=net_rfc,
+        flows=torch.cat((flow_f, flow_b), dim=1),
+        flow_masks=flow_masks,
+        combine_flows=True)
+    flow_f_comp, flow_b_comp = torch.split(flow_comp, [2, 2], dim=1)
+
+    flow_f_cmp_ = torch.from_numpy(np.load("/home/osmr/projects/pytorchcv_data/testa/pprfc_pred_flows_f.npy")).cuda()[0]
+    flow_b_cmp_ = torch.from_numpy(np.load("/home/osmr/projects/pytorchcv_data/testa/pprfc_pred_flows_b.npy")).cuda()[0]
+
+    a = (flow_f_comp - flow_f_cmp_).abs().max()
+    a = (flow_b_comp - flow_b_cmp_).abs().max()
+
+    if not np.array_equal(flow_f_comp.cpu().detach().numpy(), flow_f_cmp_.cpu().detach().numpy()):
+        print("*")
+    np.testing.assert_array_equal(flow_f_comp.cpu().detach().numpy(), flow_f_cmp_.cpu().detach().numpy())
+    if not np.array_equal(flow_b_comp.cpu().detach().numpy(), flow_b_cmp_.cpu().detach().numpy()):
+        print("*")
+    np.testing.assert_array_equal(flow_b_comp.cpu().detach().numpy(), flow_b_cmp_.cpu().detach().numpy())
+
     pass
 
 

@@ -37,7 +37,7 @@ def create_coords_grid(batch: int,
     torch.Tensor
         Resulted tensor.
     """
-    coords = torch.meshgrid(torch.arange(height), torch.arange(width))
+    coords = torch.meshgrid(torch.arange(height), torch.arange(width),  indexing="ij")
     coords = torch.stack(coords[::-1], dim=0).float()
     return coords[None].repeat(batch, 1, 1, 1)
 
@@ -213,7 +213,7 @@ class CorrCalculator:
             corr = self.corr_pyramid[i]
             dx = torch.linspace(-r, r, 2 * r + 1)
             dy = torch.linspace(-r, r, 2 * r + 1)
-            delta = torch.stack(torch.meshgrid(dy, dx), axis=-1).to(coords.device)
+            delta = torch.stack(torch.meshgrid(dy, dx,  indexing="ij"), axis=-1).to(coords.device)
 
             centroid_lvl = coords.reshape(batch * h1 * w1, 1, 1, 2) / 2**i
             delta_lvl = delta.view(1, 2 * r + 1, 2 * r + 1, 2)
@@ -792,9 +792,6 @@ class RAFT(nn.Module):
         # run the feature network
         fmap1, fmap2 = self.fnet([image1, image2])
 
-        fmap1 = fmap1.float()
-        fmap2 = fmap2.float()
-
         corr_calc = CorrCalculator(fmap1, fmap2, radius=self.corr_radius)
 
         # run the context network
@@ -1204,7 +1201,8 @@ def _test2():
             small=raft_small,
             iters=raft_iter)
 
-        x_file_path = os.path.join(root_path, "x.npy")
+        # x_file_path = os.path.join(root_path, "x.npy")
+        x_file_path = "/home/osmr/projects/pytorchcv_data/testa/f1.npy"
         x = np.load(x_file_path)
 
         frames = torch.from_numpy(x).cuda()
@@ -1218,8 +1216,11 @@ def _test2():
         # np.save(os.path.join(root_path, y1_file_name), np.ascontiguousarray(y1_))
         # np.save(os.path.join(root_path, y2_file_name), np.ascontiguousarray(y2_))
 
-        y1_file_path = os.path.join(root_path, y1_file_name)
-        y2_file_path = os.path.join(root_path, y2_file_name)
+        # y1_file_path = os.path.join(root_path, y1_file_name)
+        # y2_file_path = os.path.join(root_path, y2_file_name)
+        y1_file_path = "/home/osmr/projects/pytorchcv_data/testa/ff1.npy"
+        y2_file_path = "/home/osmr/projects/pytorchcv_data/testa/fb1.npy"
+
         y1 = np.load(y1_file_path)
         y2 = np.load(y2_file_path)
 
@@ -1230,9 +1231,23 @@ def _test2():
             print("*")
         np.testing.assert_array_equal(y2, y2_)
 
+        flows = calc_bidirectional_optical_flow_on_video_by_raft(
+            net=fix_raft.fix_raft,
+            frames=frames[0])
+        flows_f, flows_b = torch.split(flows, [2, 2], dim=1)
+        y1_ = flows_f.cpu().detach().numpy()
+        y2_ = flows_b.cpu().detach().numpy()
+
+        if not np.array_equal(y1[0], y1_):
+            print("*")
+        np.testing.assert_array_equal(y1[0], y1_)
+        if not np.array_equal(y2[0], y2_):
+            print("*")
+        np.testing.assert_array_equal(y2[0], y2_)
+
         pass
 
-    sub_test(raft_small=True)
+    # sub_test(raft_small=True)
     sub_test(raft_small=False)
 
 
@@ -1261,13 +1276,13 @@ def _test():
         batch = 4
         height = 240
         width = 432
-        x1 = torch.randn(batch, 3, height, width)
-        x2 = torch.randn(batch, 3, height, width)
-        y1, y2 = net(x1, x2)
-        # y1.sum().backward()
-        # y2.sum().backward()
-        assert (tuple(y1.size()) == (batch, 2, height // 8, width // 8))
-        assert (tuple(y2.size()) == (batch, 2, height, width))
+        image1 = torch.randn(batch, 3, height, width)
+        image2 = torch.randn(batch, 3, height, width)
+        flow8, flow = net(image1, image2)
+        # flow8.sum().backward()
+        # flowsum().backward()
+        assert (tuple(flow8.size()) == (batch, 2, height // 8, width // 8))
+        assert (tuple(flow.size()) == (batch, 2, height, width))
 
 
 if __name__ == "__main__":

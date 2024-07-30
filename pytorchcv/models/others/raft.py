@@ -1385,9 +1385,13 @@ def _test():
             device="cuda",
             small=raft_small)
 
-        x_file_path = os.path.join(root_path, "x.npy")
-        y1_file_path = os.path.join(root_path, y1_file_name)
-        y2_file_path = os.path.join(root_path, y2_file_name)
+        # x_file_path = os.path.join(root_path, "x.npy")
+        # y1_file_path = os.path.join(root_path, y1_file_name)
+        # y2_file_path = os.path.join(root_path, y2_file_name)
+        x_file_path = "/home/osmr/projects/pytorchcv_data/testa/f1.npy"
+        y1_file_path = "/home/osmr/projects/pytorchcv_data/testa/ff1.npy"
+        y2_file_path = "/home/osmr/projects/pytorchcv_data/testa/fb1.npy"
+
         x = np.load(x_file_path)
         y1 = np.load(y1_file_path)
         y2 = np.load(y2_file_path)

@@ -14,6 +14,7 @@ from enum import IntEnum
 from raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
 from propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
 from propainter_ip import propainter_ip
+from propainter import propainter
 
 
 class FilePathDirIterator(object):
@@ -204,18 +205,23 @@ class WindowMap(object):
         Target window range.
     source: WindowRange
         Source window range.
+    target_start: int
+        Start position for target.
     """
     def __init__(self,
                  target: WindowRange,
-                 source: WindowRange):
+                 source: WindowRange,
+                 target_start: int):
         super(WindowMap, self).__init__()
         self.target = target
         self.source = source
+        self.target_start = target_start
 
     def __repr__(self):
-        return "{target} <- {source}".format(
+        return "{target}:{target_start} <- {source}".format(
             target=self.target,
-            source=self.source)
+            source=self.source,
+            target_start=self.target_start)
 
 
 class WindowMultiMap(object):
@@ -228,19 +234,24 @@ class WindowMultiMap(object):
         Target window range.
     sources: list(WindowRange)
         Source window range.
+    target_start: int
+        Start position for target.
     """
     def __init__(self,
                  target: WindowRange,
-                 sources: list[WindowRange]):
+                 sources: list[WindowRange],
+                 target_start: int):
         super(WindowMultiMap, self).__init__()
         self.target = target
         self.sources = sources
+        self.target_start = target_start
 
     def __repr__(self):
         s = "/".join(["{}".format(s) for s in self.sources])
-        return "{target} <- {sources}".format(
+        return "{target}:{target_start} <- {sources}".format(
             target=self.target,
-            sources=s)
+            sources=s,
+            target_start=self.target_start)
 
 
 WindowIndex = list[WindowMap]
@@ -284,10 +295,12 @@ def calc_window_data_loader_index(length: int,
         src_e = min(i + window_size + padding[1], length)
         s = max(i - trim_values[0], 0)
         e = min(i - trim_values[0] + window_size, length - trim_values[0] - trim_values[1])
+        target_start = 0 if edge_mode == "trim" else (i if i - padding[0] < 0 else padding[0])
         assert (e > s)
         index.append(WindowMap(
             target=WindowRange(start=s, stop=e),
-            source=WindowRange(start=src_s, stop=src_e)))
+            source=WindowRange(start=src_s, stop=src_e),
+            target_start=target_start))
     return index
 
 
@@ -305,7 +318,7 @@ def cat_window_data_loader_indices(indices: list[WindowIndex]) -> WindowMultiInd
     WindowMultiIndex
         Resulted multiindex.
     """
-    index = [WindowMultiMap(x[0].target, [y.source for y in x]) for x in zip(*indices)]
+    index = [WindowMultiMap(x[0].target, [y.source for y in x], x[0].target_start) for x in zip(*indices)]
     return index
 
 
@@ -375,8 +388,9 @@ class WindowBufferedDataLoader(BufferedDataLoader):
             raw_data_chunk_list = [r_data[map_s.start:map_s.stop] for r_data, map_s in
                                    zip(self.raw_data_list, win_mmap.sources)]
             data_chunk = self._load_data_items(raw_data_chunk_list)
-            assert (win_mmap.target.start - self.end_pos >= 0)
-            data_chunk = data_chunk[(win_mmap.target.start - self.end_pos):(win_mmap.target.stop - self.end_pos)]
+            assert (win_mmap.target.start - self.end_pos == 0)
+            # data_chunk = data_chunk[(win_mmap.target.start - self.end_pos):(win_mmap.target.stop - self.end_pos)]
+            data_chunk = data_chunk[win_mmap.target_start:(win_mmap.target.stop - self.end_pos + win_mmap.target_start)]
             if self.buffer is None:
                 self.buffer = data_chunk
             else:
@@ -608,61 +622,15 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
         """
         assert (len(raw_data_chunk_list) == 1)
 
+        frames = raw_data_chunk_list[0]
         flows = calc_bidirectional_optical_flow_on_video_by_raft(
             net=self.net,
-            frames=raw_data_chunk_list[0])
+            frames=frames)
         assert (len(flows.shape) == 4)
         assert (flows.shape[1] == 4)
 
         # torch.cuda.empty_cache()
         return flows
-
-    def _expand_buffer_by(self,
-                          data_chunk: Any):
-        """
-        Expand buffer by extra data.
-
-        Parameters
-        ----------
-        data_chunk : protocol(any)
-            Data chunk.
-        """
-        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
-
-
-class FlowMaskWindowBufferedDataLoader(WindowBufferedDataLoader):
-    """
-    Optical flow mask window buffered data loader.
-    """
-    def __init__(self,
-                 **kwargs):
-        super(FlowMaskWindowBufferedDataLoader, self).__init__(**kwargs)
-
-    def _load_data_items(self,
-                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
-        """
-        Load data items.
-
-        Parameters
-        ----------
-        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
-            Raw data chunk.
-
-        Returns
-        -------
-        protocol(any)
-            Resulted data.
-        """
-        assert (len(raw_data_chunk_list) == 1)
-
-        masks = raw_data_chunk_list[0]
-        assert (masks.shape[0] > 1)
-
-        masks_forward = masks[:-1].contiguous()
-        masks_backward = masks[1:].contiguous()
-        flow_masks = torch.cat((masks_forward, masks_backward), dim=1)
-
-        return flow_masks
 
     def _expand_buffer_by(self,
                           data_chunk: Any):
@@ -709,10 +677,17 @@ class FlowCompWindowBufferedDataLoader(WindowBufferedDataLoader):
         """
         assert (len(raw_data_chunk_list) == 2)
 
+        flows = raw_data_chunk_list[0]
+        masks = raw_data_chunk_list[1]
+
+        masks_forward = masks[:-1].contiguous()
+        masks_backward = masks[1:].contiguous()
+        flow_masks = torch.cat((masks_forward, masks_backward), dim=1)
+
         comp_flows, _ = calc_bidirectional_opt_flow_completion_by_pprfc(
             net=self.net,
-            flows=raw_data_chunk_list[0],
-            flow_masks=raw_data_chunk_list[1])
+            flows=flows,
+            flow_masks=flow_masks)
         assert (len(comp_flows.shape) == 4)
         assert (comp_flows.shape[1] == 4)
 
@@ -795,6 +770,16 @@ class ImagePropWindowBufferedDataLoader(WindowBufferedDataLoader):
         self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
 
 
+def check_arrays(gt_arrays_dir_path, pref, tested_array, start_idx, end_idx, c_slice=slice(None)):
+    for j, i in enumerate(range(start_idx, end_idx)):
+        tested_array_i = tested_array[j, c_slice].cpu().detach().numpy()
+        tested_array_i_file_path = os.path.join(gt_arrays_dir_path, pref + "{:05d}.npy".format(i))
+        gt_array_i = np.load(tested_array_i_file_path)
+        if not np.array_equal(tested_array_i, gt_array_i):
+            print(f"{gt_arrays_dir_path}, {pref}, {tested_array}, {start_idx}, {end_idx}, {j}, {i}")
+        np.testing.assert_array_equal(tested_array_i, gt_array_i)
+
+
 def _test():
     # root_path = "../../../pytorchcv_data/test0"
     # image_resize_ratio = 1.0
@@ -809,11 +794,12 @@ def _test():
     frames_dir_path = os.path.join(root_path, frames_dir_name)
     masks_dir_path = os.path.join(root_path, masks_dir_name)
 
-    mask_dilation = 4
     use_cuda = True
+    mask_dilation = 4
     raft_iters = 20
     raft_model_path = "../../../pytorchcv_data/test/raft-things_2.pth"
     pprfc_model_path = "../../../pytorchcv_data/test/propainter_rfc.pth"
+    pp_model_path = "../../../pytorchcv_data/test/propainter.pth"
 
     # ind1 = calc_window_data_loader_index(
     #     length=876,
@@ -840,48 +826,73 @@ def _test():
     #     edge_mode="trim")
 
     # loader = BufferedDataLoader(data=FilePathDirIterator(frames_dir_path))
-    frames_loader = FrameBufferedDataLoader(
+
+    frame_loader = FrameBufferedDataLoader(
         data=FilePathDirIterator(frames_dir_path),
         image_resize_ratio=image_resize_ratio,
         use_cuda=use_cuda)
-    # a = frames_loader[:]
 
-    masks_loader = MaskBufferedDataLoader(
+    # a = frames_loader[:]
+    # check_arrays(
+    #     gt_arrays_dir_path=os.path.join(root_path, "frames"),
+    #     pref="frame_",
+    #     tested_array=a,
+    #     start_idx=0,
+    #     end_idx=video_length)
+
+    mask_loader = MaskBufferedDataLoader(
         mask_dilation=mask_dilation,
         data=FilePathDirIterator(masks_dir_path),
         image_resize_ratio=image_resize_ratio,
         use_cuda=use_cuda)
+
     # a = masks_loader[:]
+    # check_arrays(
+    #     gt_arrays_dir_path=os.path.join(root_path, "masks_dilated"),
+    #     pref="mask_dilated_",
+    #     tested_array=a,
+    #     start_idx=0,
+    #     end_idx=video_length)
 
     raft_net = raft_things(
         in_normalize=False,
         iters=raft_iters)
-    raft_net.load_state_dict(torch.load(raft_model_path, map_location="cpu"))
+    raft_net.load_state_dict(torch.load(raft_model_path, map_location="cpu", weights_only=True))
     for p in raft_net.parameters():
         p.requires_grad = False
     raft_net.eval()
     raft_net = raft_net.cuda()
 
-    raft_window_index = calc_window_data_loader_index(
+    flow_window_index = calc_window_data_loader_index(
         length=video_length,
         window_size=12,
         padding=(1, 0),
         edge_mode="trim")
 
-    raft_loader = FlowWindowBufferedDataLoader(
-        data=frames_loader,
-        window_index=raft_window_index,
+    flow_loader = FlowWindowBufferedDataLoader(
+        data=frame_loader,
+        window_index=flow_window_index,
         net=raft_net)
-    # a = raft_loader[:]
-    # a = raft_loader[raft_window_index[0].target.start:raft_window_index[0].target.stop]
+    # a = flow_loader[raft_window_index[0].target.start:raft_window_index[0].target.stop]
 
-    flow_mask_loader = FlowMaskWindowBufferedDataLoader(
-        data=masks_loader,
-        window_index=raft_window_index)
-    # a = flow_mask_loader[:]
+    # a = flow_loader[:]
+    # check_arrays(
+    #     gt_arrays_dir_path=os.path.join(root_path, "gt_flows_f"),
+    #     pref="gt_flow_f_",
+    #     tested_array=a,
+    #     start_idx=0,
+    #     end_idx=video_length - 1,
+    #     c_slice=slice(0, 2))
+    # check_arrays(
+    #     gt_arrays_dir_path=os.path.join(root_path, "gt_flows_b"),
+    #     pref="gt_flow_b_",
+    #     tested_array=a,
+    #     start_idx=0,
+    #     end_idx=video_length - 1,
+    #     c_slice=slice(2, 4))
 
     pprfc_net = propainter_rfc()
-    pprfc_net.load_state_dict(torch.load(pprfc_model_path, map_location="cpu"))
+    pprfc_net.load_state_dict(torch.load(pprfc_model_path, map_location="cpu", weights_only=True))
     for p in pprfc_net.parameters():
         p.requires_grad = False
     pprfc_net.eval()
@@ -892,13 +903,33 @@ def _test():
         window_size=80,
         padding=(5, 5),
         edge_mode="ignore")
+    pprfc_mask_window_index = calc_window_data_loader_index(
+        length=video_length,
+        window_size=80,
+        padding=(5, 6),
+        edge_mode="ignore")
+    pprfc_window_index = cat_window_data_loader_indices([pprfc_flows_window_index, pprfc_mask_window_index])
 
-    pprfc_window_index = cat_window_data_loader_indices([pprfc_flows_window_index, pprfc_flows_window_index])
-    pprfc_loader = FlowCompWindowBufferedDataLoader(
-        data=[raft_loader, flow_mask_loader],
+    flow_comp_loader = FlowCompWindowBufferedDataLoader(
+        data=[flow_loader, mask_loader],
         window_index=pprfc_window_index,
         net=pprfc_net)
-    # a = pprfc_loader[:]
+
+    # a = flow_comp_loader[:]
+    # check_arrays(
+    #     gt_arrays_dir_path=os.path.join(root_path, "pred_flows_f"),
+    #     pref="pred_flow_f_",
+    #     tested_array=a,
+    #     start_idx=0,
+    #     end_idx=video_length - 1,
+    #     c_slice=slice(0, 2))
+    # check_arrays(
+    #     gt_arrays_dir_path=os.path.join(root_path, "pred_flows_b"),
+    #     pref="pred_flow_b_",
+    #     tested_array=a,
+    #     start_idx=0,
+    #     end_idx=video_length - 1,
+    #     c_slice=slice(2, 4))
 
     ppip_net = propainter_ip()
     ppip_net.eval()
@@ -917,11 +948,33 @@ def _test():
     ppip_window_index = cat_window_data_loader_indices([ppip_images_window_index, ppip_images_window_index,
                                                         ppip_flows_window_index])
 
-    ppip_loader = ImagePropWindowBufferedDataLoader(
-        data=[frames_loader, masks_loader, pprfc_loader],
+    image_prop_loader = ImagePropWindowBufferedDataLoader(
+        data=[frame_loader, mask_loader, flow_comp_loader],
         window_index=ppip_window_index,
         net=ppip_net)
-    a = ppip_loader[:]
+
+    # a = image_prop_loader[:]
+    # check_arrays(
+    #     gt_arrays_dir_path=os.path.join(root_path, "updated_frames"),
+    #     pref="updated_frame_",
+    #     tested_array=a,
+    #     start_idx=0,
+    #     end_idx=video_length,
+    #     c_slice=slice(0, 3))
+    # check_arrays(
+    #     gt_arrays_dir_path=os.path.join(root_path, "updated_masks"),
+    #     pref="updated_mask_",
+    #     tested_array=a,
+    #     start_idx=0,
+    #     end_idx=video_length,
+    #     c_slice=slice(3, 4))
+
+    pp_net = propainter()
+    pp_net.load_state_dict(torch.load(pp_model_path, map_location="cpu", weights_only=True))
+    for p in pp_net.parameters():
+        p.requires_grad = False
+    pp_net.eval()
+    pp_net = pp_net.cuda()
 
 
     # # a = loader[:]
