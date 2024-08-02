@@ -304,6 +304,49 @@ def calc_window_data_loader_index(length: int,
     return index
 
 
+def calc_window_data_loader_index2(length: int,
+                                   stride: int = 1,
+                                   src_padding: tuple[int, int] = (0, 1),
+                                   padding: tuple[int, int] = (0, 1)) -> WindowIndex:
+    """
+    Calculate window data loader index (the second version).
+
+    Parameters
+    ----------
+    length : int
+        Data length.
+    stride : int, default 1
+        Stride value.
+    src_padding : tuple(int, int), default (0, 1)
+        Padding (overlap) values for source data.
+    padding : tuple(int, int), default (0, 1)
+        Padding (overlap) values for target data.
+
+    Returns
+    -------
+    WindowIndex
+        Resulted index.
+    """
+    assert (length > 0)
+    assert (stride > 0)
+    assert (src_padding[0] >= 0) and (src_padding[1] >= 0)
+    assert (padding[0] >= 0) and (padding[1] >= 0)
+
+    index = []
+    for i in range(0, length, stride):
+        src_s = max(i - src_padding[0], 0)
+        src_e = min(i + src_padding[1], length)
+        assert (src_e > src_s)
+        s = max(i - padding[0], 0)
+        e = min(i + padding[1], length)
+        assert (e > s)
+        index.append(WindowMap(
+            target=WindowRange(start=s, stop=e),
+            source=WindowRange(start=src_s, stop=src_e),
+            target_start=0))
+    return index
+
+
 def cat_window_data_loader_indices(indices: list[WindowIndex]) -> WindowMultiIndex:
     """
     Concatenates window data loader indices.
@@ -345,7 +388,7 @@ class WindowBufferedDataLoader(BufferedDataLoader):
 
         self.length = self.window_index[-1].target.stop
         self.window_length = len(self.window_index)
-        self.window_pose = -1
+        self.window_pos = -1
 
     def __len__(self):
         return self.length
@@ -365,10 +408,10 @@ class WindowBufferedDataLoader(BufferedDataLoader):
         int
             Window position.
         """
-        for win_pose in range(max(self.window_pose + 1, 0), self.window_length):
-            win_stop = self.window_index[win_pose].target.stop
+        for win_pos in range(max(self.window_pos + 1, 0), self.window_length):
+            win_stop = self.window_index[win_pos].target.stop
             if pos <= win_stop:
-                return win_pose
+                return win_pos
         return self.window_length - 1
 
     def _expand_buffer_to(self,
@@ -383,8 +426,8 @@ class WindowBufferedDataLoader(BufferedDataLoader):
         """
         assert (end > self.end_pos)
         win_end = self._calc_window_pose(end)
-        for win_pose in range(max(self.window_pose + 1, 0), win_end + 1):
-            win_mmap = self.window_index[win_pose]
+        for win_pos in range(max(self.window_pos + 1, 0), win_end + 1):
+            win_mmap = self.window_index[win_pos]
             raw_data_chunk_list = [r_data[map_s.start:map_s.stop] for r_data, map_s in
                                    zip(self.raw_data_list, win_mmap.sources)]
             data_chunk = self._load_data_items(raw_data_chunk_list)
@@ -396,7 +439,7 @@ class WindowBufferedDataLoader(BufferedDataLoader):
             else:
                 self._expand_buffer_by(data_chunk)
             self.end_pos = win_mmap.target.stop
-            self.window_pose = win_pose
+            self.window_pos = win_pos
 
 
 class FrameBufferedDataLoader(BufferedDataLoader):
@@ -781,9 +824,15 @@ class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
     """
     def __init__(self,
                  net: nn.Module,
+                 stride,
+                 ref_stride,
+                 num_refs,
                  **kwargs):
         super(ImageTransWindowBufferedDataLoader, self).__init__(**kwargs)
         self.net = net
+        self.stride = stride
+        self.ref_stride = ref_stride
+        self.num_refs = num_refs
 
     def _load_data_items(self,
                          raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
@@ -807,22 +856,53 @@ class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
         comp_flows = raw_data_chunk_list[2]
 
         prop_frames, updated_masks = torch.split(updated_frames_masks, [3, 1], dim=1)
-        comp_flows_f, comp_flows_b = torch.split(comp_flows, [2, 2], dim=1)
 
-        masked_frames = prop_frames * (1 - updated_masks)
+        win_pos = self.window_pos + 1
+        s_idx = win_pos * self.stride
 
-        updated_frames = self.net(
+        neighbor_ids = ImageTransWindowBufferedDataLoader.calc_image_trans_neighbor_index(
+            mid_neighbor_id=s_idx,
+            length=self.length,
+            neighbor_stride=self.stride)
+        ref_ids = ImageTransWindowBufferedDataLoader.calc_image_trans_ref_index(
+            mid_neighbor_id=s_idx,
+            neighbor_ids=neighbor_ids,
+            length=self.length,
+            ref_stride=self.ref_stride,
+            ref_num=self.num_refs)
+
+        win_mmap = self.window_index[win_pos]
+
+        assert (min(ref_ids) >= win_mmap.sources[0].start)
+        assert (max(ref_ids) < win_mmap.sources[0].stop)
+        assert (min(neighbor_ids) == win_mmap.sources[2].start)
+        assert (max(neighbor_ids) == win_mmap.sources[2].stop)
+        assert (len(neighbor_ids) == win_mmap.sources[2].stop - win_mmap.sources[2].start + 1)
+
+        ref_neighbor_ids = sorted(neighbor_ids + ref_ids)
+        ref_neighbor_ids = [i - win_mmap.sources[0].start for i in ref_neighbor_ids]
+
+        masked_frames = prop_frames[ref_neighbor_ids][None]
+        masks_updated = updated_masks[ref_neighbor_ids][None]
+        masks_in = masks[ref_neighbor_ids][None]
+        completed_flows = comp_flows[None]
+
+        l_t = len(comp_flows) + 1
+
+        pred_frames = self.net(
             masked_frames=masked_frames,
-            completed_flows=(comp_flows_f, comp_flows_b),
-            masks_in=masks,
-            masks_updated=updated_masks,
-            num_local_frames=2)
+            masks_updated=masks_updated,
+            masks_in=masks_in,
+            completed_flows=completed_flows,
+            num_local_frames=l_t)
+
+        pred_frames = pred_frames[0]
 
         assert (len(updated_frames.shape) == 5)
 
         updated_frames = updated_frames[0]
 
-        return updated_frames
+        return pred_frames
 
     def _expand_buffer_by(self,
                           data_chunk: Any):
@@ -835,6 +915,99 @@ class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
             Data chunk.
         """
         self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
+
+    @staticmethod
+    def calc_image_trans_neighbor_index(mid_neighbor_id,
+                                        length,
+                                        neighbor_stride):
+        neighbor_ids = [i for i in range(
+            max(0, mid_neighbor_id - neighbor_stride), min(length, mid_neighbor_id + neighbor_stride + 1))]
+        return neighbor_ids
+
+    @staticmethod
+    def calc_image_trans_ref_index(mid_neighbor_id,
+                                   neighbor_ids,
+                                   length,
+                                   ref_stride,
+                                   ref_num):
+        ref_index = []
+        if ref_num == -1:
+            for i in range(0, length, ref_stride):
+                if i not in neighbor_ids:
+                    ref_index.append(i)
+        else:
+            start_idx = max(0, mid_neighbor_id - ref_stride * (ref_num // 2))
+            end_idx = min(length, mid_neighbor_id + ref_stride * (ref_num // 2))
+            for i in range(start_idx, end_idx, ref_stride):
+                if i not in neighbor_ids:
+                    if len(ref_index) > ref_num:
+                        break
+                    ref_index.append(i)
+        return ref_index
+
+
+def calc_image_trans_wdl_index(num_frames: int,
+                               output_max_batch_size: int,
+                               neighbor_length: int,
+                               ref_stride: int):
+    """
+    Calculate window data loader index.
+
+    Parameters
+    ----------
+    num_frames : int
+        Number of frames in video.
+    output_max_batch_size : int
+        Length of sub-video for long video inference.
+    neighbor_length : int
+        Length of local neighboring frames.
+    ref_stride : int
+        Stride of global reference frames.
+
+    Returns
+    -------
+    WindowIndex
+        Resulted index.
+    """
+    neighbor_stride = neighbor_length // 2
+    ref_num = output_max_batch_size // ref_stride if num_frames > output_max_batch_size else -1
+    for s_idx in range(0, num_frames, neighbor_stride):
+        neighbor_ids = calc_image_trans_neighbor_index(
+            mid_neighbor_id=s_idx,
+            length=num_frames,
+            neighbor_stride=neighbor_stride)
+        ref_ids = calc_image_trans_ref_index(
+            mid_neighbor_id=s_idx,
+            neighbor_ids=neighbor_ids,
+            length=num_frames,
+            ref_stride=ref_stride,
+            ref_num=ref_num)
+        # print(neighbor_ids)
+        # print("{}:{}".format(neighbor_ids[0], neighbor_ids[-1] + 1))
+        print("{}:{}".format(ref_ids[0], ref_ids[-1] + 1))
+        pass
+
+    src_padding = (5, 6)
+    padding = (5, 6)
+    length = num_frames
+    stride = 5
+    target_start = 0
+
+    index = []
+    for i in range(0, length, stride):
+        src_s = max(i - src_padding[0], 0)
+        src_e = min(i + src_padding[1], length)
+        assert (src_e > src_s)
+        s = max(i - padding[0], 0)
+        e = min(i + padding[1], length)
+        assert (e > s)
+        index.append(WindowMap(
+            target=WindowRange(start=s, stop=e),
+            source=WindowRange(start=src_s, stop=src_e),
+            target_start=target_start))
+        # print("{}:{}".format(src_s, src_e))
+
+    pass
 
 
 def check_arrays(gt_arrays_dir_path, pref, tested_array, start_idx, end_idx, c_slice=slice(None)):
@@ -868,14 +1041,12 @@ def _test():
     pprfc_model_path = "../../../pytorchcv_data/test/propainter_rfc.pth"
     pp_model_path = "../../../pytorchcv_data/test/propainter.pth"
 
-    # loader = BufferedDataLoader(data=FilePathDirIterator(frames_dir_path))
-
     frame_loader = FrameBufferedDataLoader(
         data=FilePathDirIterator(frames_dir_path),
         image_resize_ratio=image_resize_ratio,
         use_cuda=use_cuda)
 
-    # a = frames_loader[:]
+    # a = frame_loader[:]
     # check_arrays(
     #     gt_arrays_dir_path=os.path.join(root_path, "frames"),
     #     pref="frame_",
@@ -1019,10 +1190,44 @@ def _test():
     pp_net.eval()
     pp_net = pp_net.cuda()
 
+    pp_stride = 5
+    pp_ref_stride = 10
+    pp_local_window_size = 10
+    pp_ref_window_size = 80
+    pp_num_refs = pp_ref_window_size // pp_ref_stride if video_length > pp_ref_window_size else -1
+
+    pp_local_frames_window_index = calc_window_data_loader_index2(
+        length=video_length,
+        stride=pp_stride,
+        src_padding=(5, 6),
+        padding=(5, 6))
+    pp_local_flows_window_index = calc_window_data_loader_index2(
+        length=video_length,
+        stride=pp_stride,
+        src_padding=(5, 5),
+        padding=(5, 6))
+    pp_ref_frames_window_index = calc_window_data_loader_index2(
+        length=video_length,
+        stride=pp_stride,
+        src_padding=(40, 41),
+        padding=(5, 6))
+    ppip_window_index = cat_window_data_loader_indices([pp_ref_frames_window_index, pp_ref_frames_window_index,
+                                                        pp_local_flows_window_index])
+
+    # calc_image_trans_wdl_index(
+    #     num_frames=video_length,
+    #     output_max_batch_size=80,
+    #     neighbor_length=10,
+    #     ref_stride=10)
+
     image_trans_loader = ImageTransWindowBufferedDataLoader(
-        data=[frame_loader, mask_loader, image_prop_loader, flow_comp_loader],
+        data=[image_prop_loader, mask_loader, flow_comp_loader],
         window_index=ppip_window_index,
-        net=pp_net)
+        net=pp_net,
+        stride=pp_stride,
+        ref_stride=pp_ref_stride,
+        num_refs=pp_num_refs)
+    a = image_trans_loader[:]
 
     # # a = loader[:]
     # # a = loader[2:]

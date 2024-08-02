@@ -764,9 +764,9 @@ class ProPainter(nn.Module):
 
     def forward(self,
                 masked_frames: torch.Tensor,
-                completed_flows: torch.Tensor,
-                masks_in: torch.Tensor,
                 masks_updated: torch.Tensor,
+                masks_in: torch.Tensor,
+                completed_flows: torch.Tensor,
                 num_local_frames: int,
                 interpolation: str = "bilinear",
                 time_dilation: int = 2):
@@ -775,6 +775,8 @@ class ProPainter(nn.Module):
             masks_in: original mask
             masks_updated: updated mask after image propagation
         """
+        comp_flows_forward, comp_flows_backward = torch.split(completed_flows, [2, 2], dim=2)
+
         l_t = num_local_frames
         batch, time, _, orig_height, orig_width = masked_frames.size()
 
@@ -789,12 +791,12 @@ class ProPainter(nn.Module):
         fold_feat_size = (height, width)
 
         ds_flows_f = F.interpolate(
-            input=completed_flows[0].view(-1, 2, orig_height, orig_width),
+            input=comp_flows_forward.view(-1, 2, orig_height, orig_width),
             scale_factor=(1 / 4),
             mode="bilinear",
             align_corners=False).view(batch, l_t - 1, 2, height, width) / 4.0
         ds_flows_b = F.interpolate(
-            completed_flows[1].view(-1, 2, orig_height, orig_width),
+            input=comp_flows_backward.view(-1, 2, orig_height, orig_width),
             scale_factor=(1 / 4),
             mode="bilinear",
             align_corners=False).view(batch, l_t - 1, 2, height, width) / 4.0
@@ -1029,11 +1031,12 @@ def _test2():
         comp_flows=comp_flows,
         interpolation="nearest")
 
+    pred_flows = torch.cat((pred_flow_f, pred_flow_b), dim=2)
     pred_img = net_pp(
         masked_frames=masked_frames,
-        completed_flows=(pred_flow_f, pred_flow_b),
-        masks_in=masks_dilated,
         masks_updated=masks_dilated,
+        masks_in=masks_dilated,
+        completed_flows=pred_flows,
         num_local_frames=2)
 
     pred_img_np_ = pred_img[0].cpu().detach().numpy()
