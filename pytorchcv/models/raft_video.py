@@ -332,10 +332,12 @@ def calc_window_data_loader_index2(length: int,
     assert (src_padding[0] >= 0) and (src_padding[1] >= 0)
     assert (padding[0] >= 0) and (padding[1] >= 0)
 
+    padding_diff = max((padding[1] - src_padding[1]), 0)
+
     index = []
     for i in range(0, length, stride):
         src_s = max(i - src_padding[0], 0)
-        src_e = min(i + src_padding[1], length)
+        src_e = min(i + src_padding[1], length - padding_diff)
         assert (src_e > src_s)
         s = max(i - padding[0], 0)
         e = min(i + padding[1], length)
@@ -431,9 +433,15 @@ class WindowBufferedDataLoader(BufferedDataLoader):
             raw_data_chunk_list = [r_data[map_s.start:map_s.stop] for r_data, map_s in
                                    zip(self.raw_data_list, win_mmap.sources)]
             data_chunk = self._load_data_items(raw_data_chunk_list)
-            assert (win_mmap.target.start - self.end_pos == 0)
+
             # data_chunk = data_chunk[(win_mmap.target.start - self.end_pos):(win_mmap.target.stop - self.end_pos)]
-            data_chunk = data_chunk[win_mmap.target_start:(win_mmap.target.stop - self.end_pos + win_mmap.target_start)]
+
+            # assert (win_mmap.target.start - self.end_pos == 0)
+            # data_chunk = data_chunk[win_mmap.target_start:(win_mmap.target.stop - self.end_pos + win_mmap.target_start)]  # noqa
+
+            # assert (win_mmap.target.start == self.end_pos)
+            data_chunk = data_chunk[win_mmap.target_start:(win_mmap.target.stop - win_mmap.target.start + win_mmap.target_start)]  # noqa
+
             if self.buffer is None:
                 self.buffer = data_chunk
             else:
@@ -898,10 +906,6 @@ class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
 
         pred_frames = pred_frames[0]
 
-        assert (len(updated_frames.shape) == 5)
-
-        updated_frames = updated_frames[0]
-
         return pred_frames
 
     def _expand_buffer_by(self,
@@ -914,7 +918,27 @@ class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
         data_chunk : protocol(any)
             Data chunk.
         """
-        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
+        win_pos = self.window_pos + 1
+        win_mmap = self.window_index[win_pos]
+
+        assert (win_mmap.target_start == 0)
+        assert (win_mmap.target.start - self.pos >= 0)
+
+        s = win_mmap.target.start - self.pos
+
+        assert (s <= len(self.buffer))
+
+        if s == len(self.buffer):
+            self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
+        else:
+            buffer_tail = self.buffer[s:]
+            buffer_tail_len = len(buffer_tail)
+            assert (buffer_tail_len <= len(data_chunk))
+            data_chunk1 = data_chunk[:buffer_tail_len]
+            data_chunk2 = data_chunk[buffer_tail_len:]
+            self.buffer[s:] = 0.5 * (buffer_tail + data_chunk1)
+            self.buffer = torch.cat([self.buffer, data_chunk2], dim=0)
+
 
     @staticmethod
     def calc_image_trans_neighbor_index(mid_neighbor_id,
@@ -1196,20 +1220,20 @@ def _test():
     pp_ref_window_size = 80
     pp_num_refs = pp_ref_window_size // pp_ref_stride if video_length > pp_ref_window_size else -1
 
-    pp_local_frames_window_index = calc_window_data_loader_index2(
+    # pp_local_frames_window_index = calc_window_data_loader_index2(
+    #     length=video_length,
+    #     stride=pp_stride,
+    #     src_padding=(5, 6),
+    #     padding=(5, 6))
+    pp_ref_frames_window_index = calc_window_data_loader_index2(
         length=video_length,
         stride=pp_stride,
-        src_padding=(5, 6),
+        src_padding=(40, 41),
         padding=(5, 6))
     pp_local_flows_window_index = calc_window_data_loader_index2(
         length=video_length,
         stride=pp_stride,
         src_padding=(5, 5),
-        padding=(5, 6))
-    pp_ref_frames_window_index = calc_window_data_loader_index2(
-        length=video_length,
-        stride=pp_stride,
-        src_padding=(40, 41),
         padding=(5, 6))
     ppip_window_index = cat_window_data_loader_indices([pp_ref_frames_window_index, pp_ref_frames_window_index,
                                                         pp_local_flows_window_index])
