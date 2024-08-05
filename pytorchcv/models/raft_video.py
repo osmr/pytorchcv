@@ -868,11 +868,11 @@ class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
         win_pos = self.window_pos + 1
         s_idx = win_pos * self.stride
 
-        neighbor_ids = ImageTransWindowBufferedDataLoader.calc_image_trans_neighbor_index(
+        neighbor_ids = ImageTransWindowBufferedDataLoader._calc_image_trans_neighbor_index(
             mid_neighbor_id=s_idx,
             length=self.length,
             neighbor_stride=self.stride)
-        ref_ids = ImageTransWindowBufferedDataLoader.calc_image_trans_ref_index(
+        ref_ids = ImageTransWindowBufferedDataLoader._calc_image_trans_ref_index(
             mid_neighbor_id=s_idx,
             neighbor_ids=neighbor_ids,
             length=self.length,
@@ -887,7 +887,8 @@ class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
         assert (max(neighbor_ids) == win_mmap.sources[2].stop)
         assert (len(neighbor_ids) == win_mmap.sources[2].stop - win_mmap.sources[2].start + 1)
 
-        ref_neighbor_ids = sorted(neighbor_ids + ref_ids)
+        # ref_neighbor_ids = sorted(neighbor_ids + ref_ids)
+        ref_neighbor_ids = neighbor_ids + ref_ids
         ref_neighbor_ids = [i - win_mmap.sources[0].start for i in ref_neighbor_ids]
 
         masked_frames = prop_frames[ref_neighbor_ids][None]
@@ -906,7 +907,46 @@ class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
 
         pred_frames = pred_frames[0]
 
+        # masked_frames0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/masked_frames0.npy")).cuda()
+        # completed_flows0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/completed_flows0.npy")).cuda()
+        # masks_in0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/masks_in0.npy")).cuda()
+        # masks_updated0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/masks_updated0.npy")).cuda()
+        # pred_img0a = torch.from_numpy(np.load("../../../pytorchcv_data/testa/pred_img0.npy")).cuda()
+        # pred_frames0a = torch.from_numpy(np.load("../../../pytorchcv_data/testa/pred_frames0.npy")).cuda()
+        # l_t0 = 6
+        # pred_img0 = self.net(
+        #     masked_frames=masked_frames0,
+        #     completed_flows=completed_flows0,
+        #     masks_in=masks_in0,
+        #     masks_updated=masks_updated0,
+        #     num_local_frames=l_t0)[0]
+        # q1 = (pred_img0 - pred_img0a).abs().max()
+        # q2 = (pred_img0 - pred_frames0a).abs().max()
+
+        # torch.cuda.empty_cache()
         return pred_frames
+
+    def _calc_window_pose(self,
+                          pos: int) -> int:
+        """
+        Calculate window pose.
+
+        Parameters
+        ----------
+        pos : int
+            Position of target data.
+
+        Returns
+        -------
+        int
+            Window position.
+        """
+        for win_pos in range(max(self.window_pos + 1, 0), self.window_length):
+            win_start = self.window_index[win_pos].target.start
+            if pos <= win_start:
+                assert (win_pos > 0)
+                return win_pos - 1
+        return self.window_length - 1
 
     def _expand_buffer_by(self,
                           data_chunk: Any):
@@ -939,21 +979,20 @@ class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
             self.buffer[s:] = 0.5 * (buffer_tail + data_chunk1)
             self.buffer = torch.cat([self.buffer, data_chunk2], dim=0)
 
-
     @staticmethod
-    def calc_image_trans_neighbor_index(mid_neighbor_id,
-                                        length,
-                                        neighbor_stride):
+    def _calc_image_trans_neighbor_index(mid_neighbor_id,
+                                         length,
+                                         neighbor_stride):
         neighbor_ids = [i for i in range(
             max(0, mid_neighbor_id - neighbor_stride), min(length, mid_neighbor_id + neighbor_stride + 1))]
         return neighbor_ids
 
     @staticmethod
-    def calc_image_trans_ref_index(mid_neighbor_id,
-                                   neighbor_ids,
-                                   length,
-                                   ref_stride,
-                                   ref_num):
+    def _calc_image_trans_ref_index(mid_neighbor_id,
+                                    neighbor_ids,
+                                    length,
+                                    ref_stride,
+                                    ref_num):
         ref_index = []
         if ref_num == -1:
             for i in range(0, length, ref_stride):
@@ -970,73 +1009,61 @@ class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
         return ref_index
 
 
-def calc_image_trans_wdl_index(num_frames: int,
-                               output_max_batch_size: int,
-                               neighbor_length: int,
-                               ref_stride: int):
+class VideoInpaintBufferedDataLoader(BufferedDataLoader):
     """
-    Calculate window data loader index.
-
-    Parameters
-    ----------
-    num_frames : int
-        Number of frames in video.
-    output_max_batch_size : int
-        Length of sub-video for long video inference.
-    neighbor_length : int
-        Length of local neighboring frames.
-    ref_stride : int
-        Stride of global reference frames.
-
-    Returns
-    -------
-    WindowIndex
-        Resulted index.
+    Video inpainting buffered data loader.
     """
-    neighbor_stride = neighbor_length // 2
-    ref_num = output_max_batch_size // ref_stride if num_frames > output_max_batch_size else -1
-    for s_idx in range(0, num_frames, neighbor_stride):
-        neighbor_ids = calc_image_trans_neighbor_index(
-            mid_neighbor_id=s_idx,
-            length=num_frames,
-            neighbor_stride=neighbor_stride)
-        ref_ids = calc_image_trans_ref_index(
-            mid_neighbor_id=s_idx,
-            neighbor_ids=neighbor_ids,
-            length=num_frames,
-            ref_stride=ref_stride,
-            ref_num=ref_num)
-        # print(neighbor_ids)
-        # print("{}:{}".format(neighbor_ids[0], neighbor_ids[-1] + 1))
-        print("{}:{}".format(ref_ids[0], ref_ids[-1] + 1))
-        pass
+    def __init__(self,
+                 **kwargs):
+        super(VideoInpaintBufferedDataLoader, self).__init__(**kwargs)
 
-    src_padding = (5, 6)
-    padding = (5, 6)
-    length = num_frames
-    stride = 5
-    target_start = 0
+    def _load_data_items(self,
+                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
+        """
+        Load data items.
 
-    index = []
-    for i in range(0, length, stride):
-        src_s = max(i - src_padding[0], 0)
-        src_e = min(i + src_padding[1], length)
-        assert (src_e > src_s)
-        s = max(i - padding[0], 0)
-        e = min(i + padding[1], length)
-        assert (e > s)
-        index.append(WindowMap(
-            target=WindowRange(start=s, stop=e),
-            source=WindowRange(start=src_s, stop=src_e),
-            target_start=target_start))
-        # print("{}:{}".format(src_s, src_e))
+        Parameters
+        ----------
+        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
+            Raw data chunk.
 
-    pass
+        Returns
+        -------
+        protocol(any)
+            Resulted data.
+        """
+        assert (len(raw_data_chunk_list) == 3)
+
+        pred_frames = raw_data_chunk_list[0]
+        frames = raw_data_chunk_list[1]
+        masks = raw_data_chunk_list[2]
+
+        pred_frames = pred_frames * masks + frames * (1 - masks)
+
+        pred_frames = (((pred_frames + 1.0) / 2.0) * 255).to(torch.uint8)
+        pred_frames = pred_frames.permute(0, 2, 3, 1).cpu().detach().numpy()
+
+        return pred_frames
+
+    def _expand_buffer_by(self,
+                          data_chunk: Any):
+        """
+        Expand buffer by extra data.
+
+        Parameters
+        ----------
+        data_chunk : protocol(any)
+            Data chunk.
+        """
+        self.buffer = np.concatenate([self.buffer, data_chunk])
 
 
 def check_arrays(gt_arrays_dir_path, pref, tested_array, start_idx, end_idx, c_slice=slice(None)):
     for j, i in enumerate(range(start_idx, end_idx)):
-        tested_array_i = tested_array[j, c_slice].cpu().detach().numpy()
+        if isinstance(tested_array, torch.Tensor):
+            tested_array_i = tested_array[j, c_slice].cpu().detach().numpy()
+        else:
+            tested_array_i = tested_array[j]
         tested_array_i_file_path = os.path.join(gt_arrays_dir_path, pref + "{:05d}.npy".format(i))
         gt_array_i = np.load(tested_array_i_file_path)
         if not np.array_equal(tested_array_i, gt_array_i):
@@ -1216,7 +1243,7 @@ def _test():
 
     pp_stride = 5
     pp_ref_stride = 10
-    pp_local_window_size = 10
+    # pp_local_window_size = 10
     pp_ref_window_size = 80
     pp_num_refs = pp_ref_window_size // pp_ref_stride if video_length > pp_ref_window_size else -1
 
@@ -1238,12 +1265,6 @@ def _test():
     ppip_window_index = cat_window_data_loader_indices([pp_ref_frames_window_index, pp_ref_frames_window_index,
                                                         pp_local_flows_window_index])
 
-    # calc_image_trans_wdl_index(
-    #     num_frames=video_length,
-    #     output_max_batch_size=80,
-    #     neighbor_length=10,
-    #     ref_stride=10)
-
     image_trans_loader = ImageTransWindowBufferedDataLoader(
         data=[image_prop_loader, mask_loader, flow_comp_loader],
         window_index=ppip_window_index,
@@ -1251,7 +1272,28 @@ def _test():
         stride=pp_stride,
         ref_stride=pp_ref_stride,
         num_refs=pp_num_refs)
-    a = image_trans_loader[:]
+
+    # a = image_trans_loader[:]
+    # check_arrays(
+    #     gt_arrays_dir_path=os.path.join(root_path, "raw_comp_frames"),
+    #     pref="raw_comp_frame_",
+    #     tested_array=a,
+    #     start_idx=0,
+    #     end_idx=video_length)
+
+    video_inpaint_loader = VideoInpaintBufferedDataLoader(
+        data=[image_trans_loader, frame_loader, mask_loader])
+
+    a = video_inpaint_loader[:]
+    # a = video_inpaint_loader[:10]
+    # a = video_inpaint_loader[:20]
+    check_arrays(
+        gt_arrays_dir_path=os.path.join(root_path, "comp_frames"),
+        pref="comp_frame_",
+        tested_array=a,
+        start_idx=0,
+        end_idx=video_length)
+
 
     # # a = loader[:]
     # # a = loader[2:]

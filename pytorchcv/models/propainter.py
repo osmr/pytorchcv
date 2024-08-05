@@ -977,15 +977,18 @@ def _test2():
     root_path = "../../../pytorchcv_data/test_a"
     pp_model_file_name = "ProPainter.pth"
 
-    model_path = os.path.join(root_path, pp_model_file_name)
+    # model_path = os.path.join(root_path, pp_model_file_name)
+    model_path = "../../../pytorchcv_data/test/propainter.pth"
     net_pp = ProPainter()
 
     src_checkpoint = torch.load(model_path, map_location="cpu")
-    dst_checkpoint = net_pp.state_dict()
-    convert_state_dict(
-        src_checkpoint,
-        dst_checkpoint)
-    net_pp.load_state_dict(dst_checkpoint, strict=True)
+    dst_checkpoint = src_checkpoint
+    # dst_checkpoint = net_pp.state_dict()
+    # convert_state_dict(
+    #     src_checkpoint,
+    #     dst_checkpoint)
+    # net_pp.load_state_dict(dst_checkpoint, strict=True)
+    net_pp.load_state_dict(dst_checkpoint)
     # ckpt = torch.load(model_path, map_location="cpu")
     # net_pp.load_state_dict(ckpt, strict=True)
     # torch.save(net_pp.state_dict(), "../../../pytorchcv_data/test/propainter.pth")
@@ -1049,6 +1052,22 @@ def _test2():
     if not np.array_equal(pred_img_np, pred_img_np_):
         print("*")
     np.testing.assert_array_equal(pred_img_np, pred_img_np_)
+
+    # masked_frames0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/masked_frames0.npy")).cuda()
+    # completed_flows0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/completed_flows0.npy")).cuda()
+    # masks_in0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/masks_in0.npy")).cuda()
+    # masks_updated0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/masks_updated0.npy")).cuda()
+    # pred_img0a = torch.from_numpy(np.load("../../../pytorchcv_data/testa/pred_img0.npy")).cuda()
+    # pred_frames0a = torch.from_numpy(np.load("../../../pytorchcv_data/testa/pred_frames0.npy")).cuda()
+    # l_t0 = 6
+    # pred_img0 = net_pp(
+    #     masked_frames=masked_frames0,
+    #     completed_flows=completed_flows0,
+    #     masks_in=masks_in0,
+    #     masks_updated=masks_updated0,
+    #     num_local_frames=l_t0)[0]
+    # q1 = (pred_img0 - pred_img0a).abs().max()
+    # q2 = (pred_img0 - pred_frames0a).abs().max()
 
     pass
 
