@@ -1073,17 +1073,38 @@ class VideoInpaintBufferedDataLoader(BufferedDataLoader):
         self.buffer = np.concatenate([self.buffer, data_chunk])
 
 
-def check_arrays(gt_arrays_dir_path, pref, tested_array, start_idx, end_idx, c_slice=slice(None)):
+def check_arrays(gt_arrays_dir_path,
+                 pref,
+                 tested_array,
+                 start_idx,
+                 end_idx,
+                 c_slice=slice(None),
+                 do_save=False,
+                 precise=True):
+    if do_save and (not os.path.exists(gt_arrays_dir_path)):
+        os.mkdir(gt_arrays_dir_path)
+
     for j, i in enumerate(range(start_idx, end_idx)):
         if isinstance(tested_array, torch.Tensor):
             tested_array_i = tested_array[j, c_slice].cpu().detach().numpy()
         else:
             tested_array_i = tested_array[j]
+
         tested_array_i_file_path = os.path.join(gt_arrays_dir_path, pref + "{:05d}.npy".format(i))
+        if do_save:
+            np.save(tested_array_i_file_path, np.ascontiguousarray(tested_array_i))
+            continue
+
         gt_array_i = np.load(tested_array_i_file_path)
-        if not np.array_equal(tested_array_i, gt_array_i):
-            print(f"{gt_arrays_dir_path}, {pref}, {tested_array}, {start_idx}, {end_idx}, {j}, {i}")
-        np.testing.assert_array_equal(tested_array_i, gt_array_i)
+
+        if precise:
+            if not np.array_equal(tested_array_i, gt_array_i):
+                print(f"{gt_arrays_dir_path}, {pref}, {tested_array}, {start_idx}, {end_idx}, {j}, {i}")
+            np.testing.assert_array_equal(tested_array_i, gt_array_i)
+        else:
+            if not np.allclose(tested_array_i, gt_array_i, rtol=0, atol=1):
+                print(f"{gt_arrays_dir_path}, {pref}, {tested_array}, {start_idx}, {end_idx}, {j}, {i}")
+            np.testing.assert_allclose(tested_array_i, gt_array_i, rtol=0, atol=1)
 
 
 def _test():
