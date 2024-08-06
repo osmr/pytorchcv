@@ -10,9 +10,9 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from common import lambda_leakyrelu
-from resnet import ResBlock
-from propainter_rfc import SecondOrderDeformableAlignment
+from .common import lambda_leakyrelu
+from .resnet import ResBlock
+from .propainter_rfc import SecondOrderDeformableAlignment
 
 
 def flow_warp(x,

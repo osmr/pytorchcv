@@ -11,10 +11,10 @@ import torch
 import torch.nn as nn
 from typing import Any
 from enum import IntEnum
-from raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
-from propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
-from propainter_ip import propainter_ip
-from propainter import propainter
+from .raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
+from .propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
+from .propainter_ip import propainter_ip
+from .propainter import propainter
 
 
 class FilePathDirIterator(object):
@@ -1080,7 +1080,8 @@ def check_arrays(gt_arrays_dir_path,
                  end_idx,
                  c_slice=slice(None),
                  do_save=False,
-                 precise=True):
+                 precise=True,
+                 atol: float = 1.0):
     if do_save and (not os.path.exists(gt_arrays_dir_path)):
         os.mkdir(gt_arrays_dir_path)
 
@@ -1102,9 +1103,9 @@ def check_arrays(gt_arrays_dir_path,
                 print(f"{gt_arrays_dir_path}, {pref}, {tested_array}, {start_idx}, {end_idx}, {j}, {i}")
             np.testing.assert_array_equal(tested_array_i, gt_array_i)
         else:
-            if not np.allclose(tested_array_i, gt_array_i, rtol=0, atol=1):
+            if not np.allclose(tested_array_i, gt_array_i, rtol=0, atol=atol):
                 print(f"{gt_arrays_dir_path}, {pref}, {tested_array}, {start_idx}, {end_idx}, {j}, {i}")
-            np.testing.assert_allclose(tested_array_i, gt_array_i, rtol=0, atol=1)
+            np.testing.assert_allclose(tested_array_i, gt_array_i, rtol=0, atol=atol)
 
 
 def _test():
@@ -1281,7 +1282,8 @@ def _test():
     pp_ref_stride = 10
     # pp_local_window_size = 10
     pp_ref_window_size = 80
-    pp_num_refs = pp_ref_window_size // pp_ref_stride if video_length > pp_ref_window_size else -1
+    # pp_num_refs = pp_ref_window_size // pp_ref_stride if video_length > pp_ref_window_size else -1
+    pp_num_refs = pp_ref_window_size // pp_ref_stride
 
     # pp_local_frames_window_index = calc_window_data_loader_index2(
     #     length=video_length,
@@ -1348,7 +1350,8 @@ def _test():
         pref="comp_frame_",
         tested_array=a,
         start_idx=0,
-        end_idx=video_length)
+        end_idx=video_length,
+        precise=False)
 
     # # a = loader[:]
     # # a = loader[2:]

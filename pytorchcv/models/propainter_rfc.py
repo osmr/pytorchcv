@@ -13,9 +13,9 @@ import torch
 import torch.nn as nn
 from torchvision.ops import DeformConv2d
 from typing import Callable
-from common import (lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3_block, InterpolationBlock,
+from .common import (lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3_block, InterpolationBlock,
                     BreakBlock, Hourglass)
-from resnet import ResUnit, ResBlock
+from .resnet import ResUnit, ResBlock
 
 
 class SecondOrderDeformableAlignment(nn.Module):

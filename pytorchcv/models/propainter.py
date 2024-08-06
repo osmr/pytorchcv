@@ -14,8 +14,8 @@ from functools import reduce
 import torch.nn.functional as F
 from einops import rearrange
 from typing import Callable
-from common import lambda_leakyrelu, lambda_tanh, conv3x3, conv3x3_block, InterpolationBlock
-from propainter_ip import propainter_ip, BidirectionalPropagation
+from .common import lambda_leakyrelu, lambda_tanh, conv3x3, conv3x3_block, InterpolationBlock
+from .propainter_ip import propainter_ip, BidirectionalPropagation
 
 
 class Encoder(nn.Module):
