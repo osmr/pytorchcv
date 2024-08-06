@@ -68,7 +68,7 @@ class BufferedDataLoader(object):
 
         self.start_pos = 0
         self.end_pos = 0
-        self.pos = 0
+        # self.pos = 0
         self.buffer = None
 
     def __len__(self):
@@ -149,6 +149,16 @@ class BufferedDataLoader(object):
         else:
             raise ValueError()
 
+        if isinstance(index, slice):
+            if not ((index.start is None) or (index.start >= 0)):
+                pass
+            assert (index.start is None) or (index.start >= 0)
+            assert (index.stop is None) or (index.stop >= 0)
+        elif isinstance(index, int):
+            assert (index >= 0)
+        else:
+            raise ValueError()
+
         return self.buffer[index]
 
     def trim_buffer_to(self,
@@ -162,6 +172,8 @@ class BufferedDataLoader(object):
             Start index for saved buffer.
         """
         assert (start >= 0)
+        if not (start < self.end_pos - 1):
+            pass
         assert (start < self.end_pos - 1)
 
         if start > self.start_pos:
@@ -962,9 +974,12 @@ class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
         win_mmap = self.window_index[win_pos]
 
         assert (win_mmap.target_start == 0)
-        assert (win_mmap.target.start - self.pos >= 0)
+        assert (win_mmap.target.start - self.start_pos >= 0)
 
-        s = win_mmap.target.start - self.pos
+        s = win_mmap.target.start - self.start_pos
+
+        if not (s <= len(self.buffer)):
+            pass
 
         assert (s <= len(self.buffer))
 
@@ -1284,16 +1299,35 @@ def _test():
     video_inpaint_loader = VideoInpaintBufferedDataLoader(
         data=[image_trans_loader, frame_loader, mask_loader])
 
-    a = video_inpaint_loader[:]
+    # a = video_inpaint_loader[:]
     # a = video_inpaint_loader[:10]
     # a = video_inpaint_loader[:20]
+
+    vi_step = 10
+    image_trans_loader_trim_pad = 6
+    image_prop_loader_trim_pad = 35
+    flow_comp_loader_trim_pad = 3
+    flow_loader_trim_pad = 3
+    mask_loader_trim_pad = 35
+    frame_loader_trim_pad = 2
+    for s in range(0, video_length, vi_step):
+        e = min(s + vi_step, video_length)
+        vi_frames_i = video_inpaint_loader[s:e]
+        image_trans_loader.trim_buffer_to(max(e - image_trans_loader_trim_pad, 0))
+        image_prop_loader.trim_buffer_to(max(e - image_prop_loader_trim_pad, 0))
+        flow_comp_loader.trim_buffer_to(max(e - flow_comp_loader_trim_pad, 0))
+        flow_loader.trim_buffer_to(max(e - flow_loader_trim_pad, 0))
+        mask_loader.trim_buffer_to(max(e - mask_loader_trim_pad, 0))
+        frame_loader.trim_buffer_to(max(e - frame_loader_trim_pad, 0))
+
+    assert (video_inpaint_loader.start_pos == 0)
+    a = video_inpaint_loader.buffer
     check_arrays(
         gt_arrays_dir_path=os.path.join(root_path, "comp_frames"),
         pref="comp_frame_",
         tested_array=a,
         start_idx=0,
         end_idx=video_length)
-
 
     # # a = loader[:]
     # # a = loader[2:]
