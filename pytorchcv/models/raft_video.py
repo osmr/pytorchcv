@@ -363,7 +363,7 @@ def calc_window_data_loader_index2(length: int,
 
 def cat_window_data_loader_indices(indices: list[WindowIndex]) -> WindowMultiIndex:
     """
-    Concatenates window data loader indices.
+    Concatenate window data loader indices.
 
     Parameters
     ----------
@@ -1106,6 +1106,179 @@ def check_arrays(gt_arrays_dir_path,
             if not np.allclose(tested_array_i, gt_array_i, rtol=0, atol=atol):
                 print(f"{gt_arrays_dir_path}, {pref}, {tested_array}, {start_idx}, {end_idx}, {j}, {i}")
             np.testing.assert_allclose(tested_array_i, gt_array_i, rtol=0, atol=atol)
+
+
+def run_streaming_propainter(frames_dir_path: str,
+                             masks_dir_path: str,
+                             image_resize_ratio: float,
+                             raft_model_path: str,
+                             pprfc_model_path: str,
+                             pp_model_path: str,
+                             mask_dilation: int = 4,
+                             raft_iters: int = 20) -> np.ndarray:
+    """
+    Run ProPainter in streaming mode.
+
+    Parameters
+    ----------
+    frames_dir_path : str
+        Frames directory path.
+    masks_dir_path : str
+        Masks directory path.
+    image_resize_ratio : float
+        Resize ratio.
+    raft_model_path : str
+        Path to RAFT model parameters.
+    pprfc_model_path : str
+        Path to ProPainter-RFC model parameters.
+    pp_model_path : str
+        Path to ProPainter model parameters.
+    use_cuda : bool, default True
+        Whether to use CUDA.
+    mask_dilation : int, default 4
+        Mask dilation.
+    raft_iters : int, default 20
+        Number of iterations in RAFT.
+
+    Returns
+    -------
+    WindowMultiIndex
+        Resulted multiindex.
+    """
+    raft_net = raft_things(
+        in_normalize=False,
+        iters=raft_iters)
+    raft_net.load_state_dict(torch.load(raft_model_path, map_location="cpu", weights_only=True))
+    for p in raft_net.parameters():
+        p.requires_grad = False
+    raft_net.eval()
+    raft_net = raft_net.cuda()
+
+    pprfc_net = propainter_rfc()
+    pprfc_net.load_state_dict(torch.load(pprfc_model_path, map_location="cpu", weights_only=True))
+    for p in pprfc_net.parameters():
+        p.requires_grad = False
+    pprfc_net.eval()
+    pprfc_net = pprfc_net.cuda()
+
+    ppip_net = propainter_ip()
+    ppip_net.eval()
+    ppip_net = ppip_net.cuda()
+
+    pp_net = propainter()
+    pp_net.load_state_dict(torch.load(pp_model_path, map_location="cpu", weights_only=True))
+    for p in pp_net.parameters():
+        p.requires_grad = False
+    pp_net.eval()
+    pp_net = pp_net.cuda()
+
+    frame_loader = FrameBufferedDataLoader(
+        data=FilePathDirIterator(frames_dir_path),
+        image_resize_ratio=image_resize_ratio,
+        use_cuda=True)
+
+    mask_loader = MaskBufferedDataLoader(
+        mask_dilation=mask_dilation,
+        data=FilePathDirIterator(masks_dir_path),
+        image_resize_ratio=image_resize_ratio,
+        use_cuda=True)
+
+    video_length = len(frame_loader)
+
+    flow_window_size = 12
+    flow_window_index = calc_window_data_loader_index(
+        length=video_length,
+        window_size=flow_window_size,
+        padding=(1, 0),
+        edge_mode="trim")
+
+    flow_loader = FlowWindowBufferedDataLoader(
+        data=frame_loader,
+        window_index=flow_window_index,
+        net=raft_net)
+
+    pprfc_flows_window_index = calc_window_data_loader_index(
+        length=video_length - 1,
+        window_size=80,
+        padding=(5, 5),
+        edge_mode="ignore")
+    pprfc_mask_window_index = calc_window_data_loader_index(
+        length=video_length,
+        window_size=80,
+        padding=(5, 6),
+        edge_mode="ignore")
+    pprfc_window_index = cat_window_data_loader_indices([pprfc_flows_window_index, pprfc_mask_window_index])
+
+    flow_comp_loader = FlowCompWindowBufferedDataLoader(
+        data=[flow_loader, mask_loader],
+        window_index=pprfc_window_index,
+        net=pprfc_net)
+
+    ppip_images_window_index = calc_window_data_loader_index(
+        length=video_length,
+        window_size=80,
+        padding=(10, 10),
+        edge_mode="ignore")
+    ppip_flows_window_index = calc_window_data_loader_index(
+        length=video_length - 1,
+        window_size=80,
+        padding=(10, 9),
+        edge_mode="ignore")
+    ppip_window_index = cat_window_data_loader_indices([ppip_images_window_index, ppip_images_window_index,
+                                                        ppip_flows_window_index])
+
+    image_prop_loader = ImagePropWindowBufferedDataLoader(
+        data=[frame_loader, mask_loader, flow_comp_loader],
+        window_index=ppip_window_index,
+        net=ppip_net)
+
+    pp_stride = 5
+    pp_ref_stride = 10
+    pp_ref_window_size = 80
+    pp_num_refs = pp_ref_window_size // pp_ref_stride
+    pp_ref_frames_window_index = calc_window_data_loader_index2(
+        length=video_length,
+        stride=pp_stride,
+        src_padding=(40, 41),
+        padding=(5, 6))
+    pp_local_flows_window_index = calc_window_data_loader_index2(
+        length=video_length,
+        stride=pp_stride,
+        src_padding=(5, 5),
+        padding=(5, 6))
+    ppip_window_index = cat_window_data_loader_indices([pp_ref_frames_window_index, pp_ref_frames_window_index,
+                                                        pp_local_flows_window_index])
+
+    image_trans_loader = ImageTransWindowBufferedDataLoader(
+        data=[image_prop_loader, mask_loader, flow_comp_loader],
+        window_index=ppip_window_index,
+        net=pp_net,
+        stride=pp_stride,
+        ref_stride=pp_ref_stride,
+        num_refs=pp_num_refs)
+
+    video_inpaint_loader = VideoInpaintBufferedDataLoader(
+        data=[image_trans_loader, frame_loader, mask_loader])
+
+    vi_step = 10
+    image_trans_loader_trim_pad = 6
+    image_prop_loader_trim_pad = 35
+    flow_comp_loader_trim_pad = 3
+    flow_loader_trim_pad = 3
+    mask_loader_trim_pad = 35
+    frame_loader_trim_pad = 2
+    for s in range(0, video_length, vi_step):
+        e = min(s + vi_step, video_length)
+        vi_frames_i = video_inpaint_loader[s:e]
+        image_trans_loader.trim_buffer_to(max(e - image_trans_loader_trim_pad, 0))
+        image_prop_loader.trim_buffer_to(max(e - image_prop_loader_trim_pad, 0))
+        flow_comp_loader.trim_buffer_to(max(e - flow_comp_loader_trim_pad, 0))
+        flow_loader.trim_buffer_to(max(e - flow_loader_trim_pad, 0))
+        mask_loader.trim_buffer_to(max(e - mask_loader_trim_pad, 0))
+        frame_loader.trim_buffer_to(max(e - frame_loader_trim_pad, 0))
+
+    assert (video_inpaint_loader.start_pos == 0)
+    return video_inpaint_loader.buffer
 
 
 def _test():
