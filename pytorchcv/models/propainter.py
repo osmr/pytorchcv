@@ -12,7 +12,6 @@ import torch
 import torch.nn as nn
 from functools import reduce
 import torch.nn.functional as F
-from einops import rearrange
 from typing import Callable
 from .common import lambda_leakyrelu, lambda_tanh, conv3x3, conv3x3_block, InterpolationBlock
 from .propainter_ip import propainter_ip, BidirectionalPropagation
@@ -751,7 +750,7 @@ class ProPainter(nn.Module):
                 elif init_type == "none":  # uses pytorch's default init method
                     m.reset_parameters()
                 else:
-                    raise NotImplementedError( "initialization method [%s] is not implemented" % init_type)
+                    raise NotImplementedError("Initialization method [%s] is not implemented" % init_type)
                 if hasattr(m, "bias") and m.bias is not None:
                     nn.init.constant_(m.bias.data, 0.0)
 
@@ -827,7 +826,9 @@ class ProPainter(nn.Module):
         enc_feat = torch.cat((local_feat, ref_feat), dim=1)
 
         trans_feat = self.ss(enc_feat.view(-1, channels, height, width), batch, fold_feat_size)
-        mask_pool_l = rearrange(mask_pool_l, "b t c h w -> b t h w c").contiguous()
+        # from einops import rearrange
+        # mask_pool_l = rearrange(mask_pool_l, "b t c h w -> b t h w c").contiguous()
+        mask_pool_l = mask_pool_l.permute(0, 1, 3, 4, 2).contiguous()
         trans_feat = self.transformers(
             x=trans_feat,
             fold_x_size=fold_feat_size,

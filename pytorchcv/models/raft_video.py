@@ -15,6 +15,7 @@ from .raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
 from .propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
 from .propainter_ip import propainter_ip
 from .propainter import propainter
+from .raft_stream import RAFTDataLoader
 
 
 class FilePathDirIterator(object):
@@ -1145,15 +1146,6 @@ def run_streaming_propainter(frames_dir_path: str,
     np.ndarray
         Resulted frames.
     """
-    raft_net = raft_things(
-        in_normalize=False,
-        iters=raft_iters)
-    raft_net.load_state_dict(torch.load(raft_model_path, map_location="cpu", weights_only=True))
-    for p in raft_net.parameters():
-        p.requires_grad = False
-    raft_net.eval()
-    raft_net = raft_net.cuda()
-
     pprfc_net = propainter_rfc()
     pprfc_net.load_state_dict(torch.load(pprfc_model_path, map_location="cpu", weights_only=True))
     for p in pprfc_net.parameters():
@@ -1185,17 +1177,10 @@ def run_streaming_propainter(frames_dir_path: str,
 
     video_length = len(frame_loader)
 
-    flow_window_size = 12
-    flow_window_index = calc_window_data_loader_index(
-        length=video_length,
-        window_size=flow_window_size,
-        padding=(1, 0),
-        edge_mode="trim")
-
-    flow_loader = FlowWindowBufferedDataLoader(
-        data=frame_loader,
-        window_index=flow_window_index,
-        net=raft_net)
+    flow_loader = RAFTDataLoader(
+        frame_loader=frame_loader,
+        raft_model_path=raft_model_path,
+        raft_iters=raft_iters)
 
     pprfc_flows_window_index = calc_window_data_loader_index(
         length=video_length - 1,

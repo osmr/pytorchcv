@@ -12,7 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import Callable
 from .common import (lambda_relu, lambda_sigmoid, lambda_tanh, lambda_batchnorm2d, lambda_instancenorm2d, conv1x1,
-                    conv3x3, conv3x3_block, conv7x7_block, ConvBlock)
+                     conv3x3, conv3x3_block, conv7x7_block, ConvBlock)
 from .resnet import ResUnit
 from .inceptionv3 import ConvSeqBranch
 
@@ -37,7 +37,7 @@ def create_coords_grid(batch: int,
     torch.Tensor
         Resulted tensor.
     """
-    coords = torch.meshgrid(torch.arange(height), torch.arange(width),  indexing="ij")
+    coords = torch.meshgrid(torch.arange(height), torch.arange(width), indexing="ij")
     coords = torch.stack(coords[::-1], dim=0).float()
     return coords[None].repeat(batch, 1, 1, 1)
 
@@ -213,7 +213,7 @@ class CorrCalculator:
             corr = self.corr_pyramid[i]
             dx = torch.linspace(-r, r, 2 * r + 1)
             dy = torch.linspace(-r, r, 2 * r + 1)
-            delta = torch.stack(torch.meshgrid(dy, dx,  indexing="ij"), axis=-1).to(coords.device)
+            delta = torch.stack(torch.meshgrid(dy, dx, indexing="ij"), axis=-1).to(coords.device)
 
             centroid_lvl = coords.reshape(batch * h1 * w1, 1, 1, 2) / 2**i
             delta_lvl = delta.view(1, 2 * r + 1, 2 * r + 1, 2)
