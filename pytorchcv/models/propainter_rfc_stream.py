@@ -82,22 +82,21 @@ class PPRFCDataLoader(FlowCompWindowBufferedDataLoader):
 
     Parameters
     ----------
-    flow_loader : RAFTDataLoader
-        Flow data loader.
+    flow_loader : Sequence
+        Flow data loader (RAFT).
     mask_loader : sequence
         Mask data loader.
     pprfc_model_path : str or None, default None
         Path to ProPainter-RFC model parameters.
     """
     def __init__(self,
-                 flow_loader: RAFTDataLoader,
+                 flow_loader: Sequence,
                  mask_loader: Sequence,
                  pprfc_model_path: str | None = None,
                  **kwargs):
         super(PPRFCDataLoader, self).__init__(
             data=[flow_loader, mask_loader],
-            window_index=PPRFCDataLoader._calc_window_index(
-                video_length=len(mask_loader)),
+            window_index=PPRFCDataLoader._calc_window_index(video_length=len(mask_loader)),
             net=PPRFCDataLoader._load_model(pprfc_model_path=pprfc_model_path),
             **kwargs)
 
@@ -138,8 +137,6 @@ class PPRFCDataLoader(FlowCompWindowBufferedDataLoader):
         ----------
         video_length : int
             Number of frames.
-        frame_size : tuple(int, int)
-            Frame size.
 
         Returns
         -------
@@ -159,56 +156,28 @@ class PPRFCDataLoader(FlowCompWindowBufferedDataLoader):
         pprfc_window_index = cat_window_data_loader_indices([pprfc_flows_window_index, pprfc_mask_window_index])
         return pprfc_window_index
 
-    @staticmethod
-    def _calc_window_size(frame_size: tuple[int, int]) -> int:
-        """
-        Calculate window size.
-
-        Parameters
-        ----------
-        frame_size : tuple(int, int)
-            Frame size.
-
-        Returns
-        -------
-        int
-            Desired window size.
-        """
-        assert (frame_size[0] > 0)
-        assert (frame_size[1] > 0)
-        max_frame_size = max(frame_size[0], frame_size[1])
-        if max_frame_size <= 640:
-            window_size = 12
-        elif max_frame_size <= 720:
-            window_size = 8
-        elif max_frame_size <= 1280:
-            window_size = 4
-        elif max_frame_size <= 1980:
-            window_size = 2
-        else:
-            window_size = 1
-        return window_size
-
 
 def _test():
-    raft_model_path = "../../../pytorchcv_data/test/raft-things_2.pth"
+    pprfc_model_path = "../../../pytorchcv_data/test/propainter_rfc.pth"
 
     time = 140
     height = 240
     width = 432
-    frames = torch.randn(time, 3, height, width)
+    flows = torch.randn(time - 1, 4, height, width)
+    masks = torch.randn(time, 2, height, width)
 
-    flow_loader = PPRFCDataLoader(
-        frame_loader=frames,
-        raft_model_path=raft_model_path)
+    flow_comp_loader = PPRFCDataLoader(
+        flow_loader=flows,
+        mask_loader=masks,
+        pprfc_model_path=pprfc_model_path)
 
     video_length = time
     time_step = 10
     flow_loader_trim_pad = 3
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
-        flows_i = flow_loader[s:e]
-        flow_loader.trim_buffer_to(max(e - flow_loader_trim_pad, 0))
+        comp_flows_i = flow_comp_loader[s:e]
+        flow_comp_loader.trim_buffer_to(max(e - flow_loader_trim_pad, 0))
         torch.cuda.empty_cache()
 
     pass
