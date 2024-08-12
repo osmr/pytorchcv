@@ -10,7 +10,8 @@ import os
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common.common import (lambda_batchnorm2d, lambda_prelu, NormActivation, conv1x1, conv1x1_block, conv3x3_block,
+from .common.activ import lambda_prelu
+from .common.common import (lambda_batchnorm2d, NormActivation, conv1x1, conv1x1_block, conv3x3_block,
                             depthwise_conv3x3, SEBlock, Concurrent, DualPathSequential, InterpolationBlock)
 
 

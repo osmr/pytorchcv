@@ -9,7 +9,8 @@ import os
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common.common import lambda_leakyrelu, create_activation_layer, conv1x1_block, conv3x3_block
+from .common.activ import lambda_leakyrelu, create_activation_layer
+from .common.common import conv1x1_block, conv3x3_block
 
 
 def dark_convYxY(in_channels: int,

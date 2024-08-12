@@ -13,8 +13,8 @@ import torch
 import torch.nn as nn
 from torchvision.ops import DeformConv2d
 from typing import Callable
-from .common.common import (lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3_block,
-                            InterpolationBlock, BreakBlock, Hourglass)
+from .common.activ import lambda_relu, lambda_leakyrelu, create_activation_layer
+from .common.common import conv1x1, conv3x3_block, InterpolationBlock, BreakBlock, Hourglass
 from .resnet import ResUnit, ResBlock
 
 

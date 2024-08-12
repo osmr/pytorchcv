@@ -9,8 +9,9 @@ import os
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common.common import (round_channels, lambda_relu, lambda_swish, lambda_batchnorm2d, create_activation_layer,
-                            create_normalization_layer, conv1x1_block, conv3x3_block, dwconv3x3_block, SEBlock)
+from .common.activ import lambda_relu, lambda_swish, create_activation_layer
+from .common.common import (round_channels, lambda_batchnorm2d, create_normalization_layer, conv1x1_block,
+                            conv3x3_block, dwconv3x3_block, SEBlock)
 
 
 class MixConv(nn.Module):

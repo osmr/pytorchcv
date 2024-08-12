@@ -10,8 +10,9 @@ import os
 import torch
 from torch import nn
 from typing import Callable
-from .common.common import (lambda_relu, lambda_leakyrelu, lambda_batchnorm2d, create_activation_layer, conv1x1_block,
-                            conv3x3_block, conv7x7_block, SEBlock, Hourglass, InterpolationBlock)
+from .common.activ import lambda_relu, lambda_leakyrelu, create_activation_layer
+from .common.common import (lambda_batchnorm2d, conv1x1_block, conv3x3_block, conv7x7_block, SEBlock, Hourglass,
+                            InterpolationBlock)
 
 
 class IbpResBottleneck(nn.Module):
