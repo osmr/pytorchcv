@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Callable
-from .common import conv1x1_block, conv3x3_block, SEBlock
+from .common.common import conv1x1_block, conv3x3_block, SEBlock
 
 
 def anti_aliased_downsample(x: torch.Tensor) -> torch.Tensor:

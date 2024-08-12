@@ -7,7 +7,7 @@ __all__ = ['SqueezeNext', 'sqnxt23_w1', 'sqnxt23_w3d2', 'sqnxt23_w2', 'sqnxt23v5
 
 import os
 import torch.nn as nn
-from .common import ConvBlock, conv1x1_block, conv7x7_block
+from .common.common import ConvBlock, conv1x1_block, conv7x7_block
 
 
 class SqnxtUnit(nn.Module):

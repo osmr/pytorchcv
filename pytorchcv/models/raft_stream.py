@@ -4,8 +4,9 @@
     https://arxiv.org/pdf/2003.12039.
 """
 
-__all__ = ['RAFTDataLoader', 'WindowBufferedDataLoader', 'WindowIndex', 'WindowMultiIndex',
-           'calc_window_data_loader_index', 'cat_window_data_loader_indices']
+__all__ = ['RAFTIterator', 'BufferedIterator', 'WindowBufferedIterator', 'WindowIndex', 'WindowMultiIndex',
+           'WindowMap', 'calc_serial_window_iterator_index', 'calc_sliding_window_iterator_index',
+           'concat_window_iterator_indices']
 
 import torch
 import torch.nn as nn
@@ -13,18 +14,18 @@ from typing import Sequence
 from .raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
 
 
-class BufferedDataLoader(object):
+class BufferedIterator(object):
     """
-    Buffered data loader.
+    Buffered sequence-like iterator/calculator.
 
     Parameters
     ----------
     data : tuple(sequence, ...) or list(sequence) or sequence
-        Data.
+        Source data or data iterators (arguments of calculator).
     """
     def __init__(self,
                  data: tuple[Sequence, ...] | list[Sequence] | Sequence):
-        super(BufferedDataLoader, self).__init__()
+        super(BufferedIterator, self).__init__()
         if isinstance(data, (tuple, list)):
             assert (len(data) > 0)
             self.raw_data_list = data
@@ -38,19 +39,19 @@ class BufferedDataLoader(object):
     def __len__(self):
         return len(self.raw_data_list[0])
 
-    def _load_data_items(self,
-                         raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence):
+    def _calc_data_items(self,
+                         raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
         """
-        Load data items.
+        Calculate/load data items.
 
         Parameters
         ----------
         raw_data_chunk_list : tuple(sequence, ...) or list(sequence) or sequence
-            Raw data chunk.
+            List of source data chunks.
 
         Returns
         -------
-        protocol(any)
+        sequence
             Target data.
         """
         if len(raw_data_chunk_list) == 1:
@@ -83,13 +84,27 @@ class BufferedDataLoader(object):
         assert (end > self.end_pos)
         raw_data_chunk_list = [raw_data[self.end_pos:end] for raw_data in self.raw_data_list]
         if self.buffer is None:
-            self.buffer = self._load_data_items(raw_data_chunk_list)
+            self.buffer = self._calc_data_items(raw_data_chunk_list)
         else:
-            data_chunk = self._load_data_items(raw_data_chunk_list)
+            data_chunk = self._calc_data_items(raw_data_chunk_list)
             self._expand_buffer_by(data_chunk)
         self.end_pos = end
 
-    def __getitem__(self, index: int | slice):
+    def __getitem__(self,
+                    index: int | slice) -> Sequence:
+        """
+        Get items by index.
+
+        Parameters
+        ----------
+        index : int or slice
+            Index.
+
+        Returns
+        -------
+        sequence
+            Desired items.
+        """
         if isinstance(index, slice):
             end = index.stop
         elif isinstance(index, int):
@@ -234,12 +249,12 @@ WindowIndex = list[WindowMap]
 WindowMultiIndex = list[WindowMultiMap]
 
 
-def calc_window_data_loader_index(length: int,
-                                  window_size: int = 1,
-                                  padding: tuple[int, int] = (0, 0),
-                                  edge_mode: str = "ignore") -> WindowIndex:
+def calc_serial_window_iterator_index(length: int,
+                                      window_size: int = 1,
+                                      padding: tuple[int, int] = (0, 0),
+                                      edge_mode: str = "ignore") -> WindowIndex:
     """
-    Calculate window data loader index.
+    Calculate serial window iterator index.
 
     Parameters
     ----------
@@ -280,12 +295,12 @@ def calc_window_data_loader_index(length: int,
     return index
 
 
-def calc_window_data_loader_index2(length: int,
-                                   stride: int = 1,
-                                   src_padding: tuple[int, int] = (0, 1),
-                                   padding: tuple[int, int] = (0, 1)) -> WindowIndex:
+def calc_sliding_window_iterator_index(length: int,
+                                       stride: int = 1,
+                                       src_padding: tuple[int, int] = (0, 1),
+                                       padding: tuple[int, int] = (0, 1)) -> WindowIndex:
     """
-    Calculate window data loader index (the second version).
+    Calculate sliding window iterator index.
 
     Parameters
     ----------
@@ -325,9 +340,9 @@ def calc_window_data_loader_index2(length: int,
     return index
 
 
-def cat_window_data_loader_indices(indices: list[WindowIndex]) -> WindowMultiIndex:
+def concat_window_iterator_indices(indices: list[WindowIndex]) -> WindowMultiIndex:
     """
-    Concatenate window data loader indices.
+    Concatenate window iterator indices.
 
     Parameters
     ----------
@@ -343,9 +358,9 @@ def cat_window_data_loader_indices(indices: list[WindowIndex]) -> WindowMultiInd
     return index
 
 
-class WindowBufferedDataLoader(BufferedDataLoader):
+class WindowBufferedIterator(BufferedIterator):
     """
-    Window buffered data loader.
+    Buffered sequence-like iterator/calculator with window arguments/calculations.
 
     Parameters
     ----------
@@ -355,10 +370,10 @@ class WindowBufferedDataLoader(BufferedDataLoader):
     def __init__(self,
                  window_index: WindowIndex | WindowMultiIndex,
                  **kwargs):
-        super(WindowBufferedDataLoader, self).__init__(**kwargs)
+        super(WindowBufferedIterator, self).__init__(**kwargs)
         assert (len(window_index) > 0)
         if isinstance(window_index[0], WindowMap):
-            self.window_index = cat_window_data_loader_indices([window_index])
+            self.window_index = concat_window_iterator_indices([window_index])
         else:
             self.window_index = window_index
 
@@ -408,15 +423,9 @@ class WindowBufferedDataLoader(BufferedDataLoader):
             win_mmap = self.window_index[win_pos]
             raw_data_chunk_list = [r_data[map_s.start:map_s.stop] for r_data, map_s in
                                    zip(self.raw_data_list, win_mmap.sources)]
-            data_chunk = self._load_data_items(raw_data_chunk_list)
-
-            # data_chunk = data_chunk[(win_mmap.target.start - self.end_pos):(win_mmap.target.stop - self.end_pos)]
-
-            # assert (win_mmap.target.start - self.end_pos == 0)
-            # data_chunk = data_chunk[win_mmap.target_start:(win_mmap.target.stop - self.end_pos + win_mmap.target_start)]  # noqa
-
-            # assert (win_mmap.target.start == self.end_pos)
-            data_chunk = data_chunk[win_mmap.target_start:(win_mmap.target.stop - win_mmap.target.start + win_mmap.target_start)]  # noqa
+            data_chunk = self._calc_data_items(raw_data_chunk_list)
+            data_chunk = data_chunk[win_mmap.target_start:
+                                    (win_mmap.target.stop - win_mmap.target.start + win_mmap.target_start)]
 
             if self.buffer is None:
                 self.buffer = data_chunk
@@ -426,34 +435,34 @@ class WindowBufferedDataLoader(BufferedDataLoader):
             self.window_pos = win_pos
 
 
-class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
+class FlowIterator(WindowBufferedIterator):
     """
-    Optical flow window buffered data loader.
+    Optical flow window buffered iterator.
 
     Parameters
     ----------
-    net: nn.Module
+    net : nn.Module
         Optical flow model.
     """
     def __init__(self,
                  net: nn.Module,
                  **kwargs):
-        super(FlowWindowBufferedDataLoader, self).__init__(**kwargs)
+        super(FlowIterator, self).__init__(**kwargs)
         self.net = net
 
-    def _load_data_items(self,
-                         raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence):
+    def _calc_data_items(self,
+                         raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
         """
-        Load data items.
+        Calculate/load data items.
 
         Parameters
         ----------
         raw_data_chunk_list : tuple(sequence, ...) or list(sequence) or sequence
-            Raw data chunk.
+            List of source data chunks.
 
         Returns
         -------
-        protocol(any)
+        sequence
             Resulted data.
         """
         assert (len(raw_data_chunk_list) == 1)
@@ -465,7 +474,6 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
         assert (len(flows.shape) == 4)
         assert (flows.shape[1] == 4)
 
-        # torch.cuda.empty_cache()
         return flows
 
     def _expand_buffer_by(self,
@@ -481,31 +489,31 @@ class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
         self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
 
 
-class RAFTDataLoader(FlowWindowBufferedDataLoader):
+class RAFTIterator(FlowIterator):
     """
-    RAFT window buffered data loader.
+    RAFT window buffered iterator.
 
     Parameters
     ----------
-    frame_loader : sequence
-        Frame data loader.
+    frames : sequence
+        Frame iterator.
     raft_model_path : str or None, default None
         Path to RAFT model parameters.
     raft_iters : int, default 20
         Number of iterations in RAFT.
     """
     def __init__(self,
-                 frame_loader: Sequence,
+                 frames: Sequence,
                  raft_model_path: str | None = None,
                  raft_iters: int = 20,
                  **kwargs):
-        assert (len(frame_loader) > 0) 
-        super(RAFTDataLoader, self).__init__(
-            data=frame_loader,
-            window_index=RAFTDataLoader._calc_window_index(
-                video_length=len(frame_loader),
-                frame_size=frame_loader[0].shape[1:]),
-            net=RAFTDataLoader._load_model(
+        assert (len(frames) > 0)
+        super(RAFTIterator, self).__init__(
+            data=frames,
+            window_index=RAFTIterator._calc_window_index(
+                video_length=len(frames),
+                frame_size=frames[0].shape[1:]),
+            net=RAFTIterator._load_model(
                 raft_model_path=raft_model_path,
                 raft_iters=raft_iters),
             **kwargs)
@@ -564,9 +572,9 @@ class RAFTDataLoader(FlowWindowBufferedDataLoader):
         WindowIndex
             Desired window index.
         """
-        return calc_window_data_loader_index(
+        return calc_serial_window_iterator_index(
             length=video_length,
-            window_size=RAFTDataLoader._calc_window_size(frame_size),
+            window_size=RAFTIterator._calc_window_size(frame_size),
             padding=(1, 0),
             edge_mode="trim")
 
@@ -609,8 +617,8 @@ def _test():
     width = 432
     frames = torch.randn(time, 3, height, width)
 
-    flow_loader = RAFTDataLoader(
-        frame_loader=frames,
+    flow_loader = RAFTIterator(
+        frames=frames,
         raft_model_path=raft_model_path)
 
     video_length = time

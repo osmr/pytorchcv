@@ -10,7 +10,7 @@ __all__ = ['InceptionResNetV1', 'inceptionresnetv1', 'InceptionAUnit', 'Inceptio
 import os
 import torch.nn as nn
 from typing import Callable
-from .common import lambda_batchnorm2d, conv1x1, conv1x1_block, conv3x3_block, Concurrent
+from .common.common import lambda_batchnorm2d, conv1x1, conv1x1_block, conv3x3_block, Concurrent
 from .inceptionv3 import MaxPoolBranch, Conv1x1Branch, ConvSeqBranch
 
 

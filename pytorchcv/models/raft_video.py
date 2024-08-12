@@ -8,15 +8,12 @@ from PIL import Image
 import scipy.ndimage
 import numpy as np
 import torch
-import torch.nn as nn
-from typing import Any
+from typing import Sequence
 from enum import IntEnum
-# from .raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
-# from .propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
-from .propainter_ip import propainter_ip
-from .propainter import propainter
-from .raft_stream import RAFTDataLoader
-from .propainter_rfc_stream import PPRFCDataLoader
+from .raft_stream import RAFTIterator, BufferedIterator
+from .propainter_rfc_stream import PPRFCIterator
+from .propainter_ip_stream import PPIPIterator
+from .propainter_stream import ProPainterIterator
 
 
 class FilePathDirIterator(object):
@@ -40,7 +37,7 @@ class FilePathDirIterator(object):
         return len(self.file_name_list)
 
     def __getitem__(self,
-                    index: int | slice):
+                    index: int | slice) -> list[str]:
         selected_file_name_list = self.file_name_list[index]
         if isinstance(selected_file_name_list, str):
             return os.path.join(self.dir_path, selected_file_name_list)
@@ -50,423 +47,9 @@ class FilePathDirIterator(object):
             raise ValueError()
 
 
-class BufferedDataLoader(object):
+class FrameIterator(BufferedIterator):
     """
-    Buffered data loader.
-
-    Parameters
-    ----------
-    data : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
-        Data.
-    """
-    def __init__(self,
-                 data: tuple[Any, ...] | list[Any] | Any):
-        super(BufferedDataLoader, self).__init__()
-        if isinstance(data, (tuple, list)):
-            assert (len(data) > 0)
-            self.raw_data_list = data
-        else:
-            self.raw_data_list = [data]
-
-        self.start_pos = 0
-        self.end_pos = 0
-        # self.pos = 0
-        self.buffer = None
-
-    def __len__(self):
-        return len(self.raw_data_list[0])
-
-    def _load_data_items(self,
-                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
-        """
-        Load data items.
-
-        Parameters
-        ----------
-        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
-            Raw data chunk.
-
-        Returns
-        -------
-        protocol(any)
-            Target data.
-        """
-        if len(raw_data_chunk_list) == 1:
-            return raw_data_chunk_list
-        else:
-            raise Exception()
-
-    def _expand_buffer_by(self,
-                          data_chunk):
-        """
-        Expand buffer by extra data.
-
-        Parameters
-        ----------
-        data_chunk : protocol(any)
-            Data chunk.
-        """
-        self.buffer += data_chunk
-
-    def _expand_buffer_to(self,
-                          end: int):
-        """
-        Expand buffer to the end index.
-
-        Parameters
-        ----------
-        end : int
-            End index.
-        """
-        assert (end > self.end_pos)
-        raw_data_chunk_list = [raw_data[self.end_pos:end] for raw_data in self.raw_data_list]
-        if self.buffer is None:
-            self.buffer = self._load_data_items(raw_data_chunk_list)
-        else:
-            data_chunk = self._load_data_items(raw_data_chunk_list)
-            self._expand_buffer_by(data_chunk)
-        self.end_pos = end
-
-    def __getitem__(self, index: int | slice):
-        if isinstance(index, slice):
-            end = index.stop
-        elif isinstance(index, int):
-            end = index + 1
-        else:
-            raise ValueError()
-
-        if end is None:
-            end = len(self)
-
-        if end > self.end_pos:
-            self._expand_buffer_to(end=end)
-
-        if isinstance(index, slice):
-            if self.start_pos > 0:
-                new_start = index.start - self.start_pos if index.start is not None else None
-                new_stop = index.stop - self.start_pos if index.stop is not None else None
-                index = slice(new_start, new_stop, index.step)
-        elif isinstance(index, int):
-            index -= self.start_pos
-        else:
-            raise ValueError()
-
-        if isinstance(index, slice):
-            if not ((index.start is None) or (index.start >= 0)):
-                pass
-            assert (index.start is None) or (index.start >= 0)
-            assert (index.stop is None) or (index.stop >= 0)
-        elif isinstance(index, int):
-            assert (index >= 0)
-        else:
-            raise ValueError()
-
-        return self.buffer[index]
-
-    def trim_buffer_to(self,
-                       start: int):
-        """
-        Trim buffer.
-
-        Parameters
-        ----------
-        start : int
-            Start index for saved buffer.
-        """
-        assert (start >= 0)
-        if not (start < self.end_pos - 1):
-            pass
-        assert (start < self.end_pos - 1)
-
-        if start > self.start_pos:
-            assert (self.buffer is not None)
-            s_idx = start - self.start_pos
-            self.buffer = self.buffer[s_idx:]
-            self.start_pos = start
-
-
-class WindowRange(object):
-    """
-    Window range.
-
-    Parameters
-    ----------
-    start: int
-        Start position.
-    stop: int
-        Stop position.
-    """
-    def __init__(self,
-                 start: int,
-                 stop: int):
-        super(WindowRange, self).__init__()
-        self.start = start
-        self.stop = stop
-
-    def __repr__(self):
-        return "{start}:{stop}".format(
-            start=self.start,
-            stop=self.stop)
-
-
-class WindowMap(object):
-    """
-    Window map.
-
-    Parameters
-    ----------
-    target: WindowRange
-        Target window range.
-    source: WindowRange
-        Source window range.
-    target_start: int
-        Start position for target.
-    """
-    def __init__(self,
-                 target: WindowRange,
-                 source: WindowRange,
-                 target_start: int):
-        super(WindowMap, self).__init__()
-        self.target = target
-        self.source = source
-        self.target_start = target_start
-
-    def __repr__(self):
-        return "{target}:{target_start} <- {source}".format(
-            target=self.target,
-            source=self.source,
-            target_start=self.target_start)
-
-
-class WindowMultiMap(object):
-    """
-    Window multimap.
-
-    Parameters
-    ----------
-    target: WindowRange
-        Target window range.
-    sources: list(WindowRange)
-        Source window range.
-    target_start: int
-        Start position for target.
-    """
-    def __init__(self,
-                 target: WindowRange,
-                 sources: list[WindowRange],
-                 target_start: int):
-        super(WindowMultiMap, self).__init__()
-        self.target = target
-        self.sources = sources
-        self.target_start = target_start
-
-    def __repr__(self):
-        s = "/".join(["{}".format(s) for s in self.sources])
-        return "{target}:{target_start} <- {sources}".format(
-            target=self.target,
-            sources=s,
-            target_start=self.target_start)
-
-
-WindowIndex = list[WindowMap]
-WindowMultiIndex = list[WindowMultiMap]
-
-
-def calc_window_data_loader_index(length: int,
-                                  window_size: int = 1,
-                                  padding: tuple[int, int] = (0, 0),
-                                  edge_mode: str = "ignore") -> WindowIndex:
-    """
-    Calculate window data loader index.
-
-    Parameters
-    ----------
-    length : int
-        Data length.
-    window_size : int, default 1
-        Calculation window size.
-    padding : tuple(int, int), default (0, 0)
-        Padding (overlap) values for raw data.
-    edge_mode : str, options: 'ignore', 'trim', default 'ignore'
-        Data edge processing mode:
-        'ignore' - ignore padding on edges,
-        'trim' - trim edges due to padding.
-
-    Returns
-    -------
-    WindowIndex
-        Resulted index.
-    """
-    assert (length > 0)
-    assert (window_size > 0)
-    assert (padding[0] >= 0) and (padding[1] >= 0)
-    assert (edge_mode in ("ignore", "trim"))
-
-    trim_values = padding if edge_mode == "trim" else (0, 0)
-    index = []
-    for i in range(0, length, window_size):
-        src_s = max(i - padding[0], 0)
-        src_e = min(i + window_size + padding[1], length)
-        s = max(i - trim_values[0], 0)
-        e = min(i - trim_values[0] + window_size, length - trim_values[0] - trim_values[1])
-        target_start = 0 if edge_mode == "trim" else (i if i - padding[0] < 0 else padding[0])
-        assert (e > s)
-        index.append(WindowMap(
-            target=WindowRange(start=s, stop=e),
-            source=WindowRange(start=src_s, stop=src_e),
-            target_start=target_start))
-    return index
-
-
-def calc_window_data_loader_index2(length: int,
-                                   stride: int = 1,
-                                   src_padding: tuple[int, int] = (0, 1),
-                                   padding: tuple[int, int] = (0, 1)) -> WindowIndex:
-    """
-    Calculate window data loader index (the second version).
-
-    Parameters
-    ----------
-    length : int
-        Data length.
-    stride : int, default 1
-        Stride value.
-    src_padding : tuple(int, int), default (0, 1)
-        Padding (overlap) values for source data.
-    padding : tuple(int, int), default (0, 1)
-        Padding (overlap) values for target data.
-
-    Returns
-    -------
-    WindowIndex
-        Resulted index.
-    """
-    assert (length > 0)
-    assert (stride > 0)
-    assert (src_padding[0] >= 0) and (src_padding[1] >= 0)
-    assert (padding[0] >= 0) and (padding[1] >= 0)
-
-    padding_diff = max((padding[1] - src_padding[1]), 0)
-
-    index = []
-    for i in range(0, length, stride):
-        src_s = max(i - src_padding[0], 0)
-        src_e = min(i + src_padding[1], length - padding_diff)
-        assert (src_e > src_s)
-        s = max(i - padding[0], 0)
-        e = min(i + padding[1], length)
-        assert (e > s)
-        index.append(WindowMap(
-            target=WindowRange(start=s, stop=e),
-            source=WindowRange(start=src_s, stop=src_e),
-            target_start=0))
-    return index
-
-
-def cat_window_data_loader_indices(indices: list[WindowIndex]) -> WindowMultiIndex:
-    """
-    Concatenate window data loader indices.
-
-    Parameters
-    ----------
-    indices : list(WindowIndex)
-        Indices.
-
-    Returns
-    -------
-    WindowMultiIndex
-        Resulted multiindex.
-    """
-    index = [WindowMultiMap(x[0].target, [y.source for y in x], x[0].target_start) for x in zip(*indices)]
-    return index
-
-
-class WindowBufferedDataLoader(BufferedDataLoader):
-    """
-    Window buffered data loader.
-
-    Parameters
-    ----------
-    window_index : WindowIndex or WindowMultiIndex
-        Window index.
-    """
-    def __init__(self,
-                 window_index: WindowIndex | WindowMultiIndex,
-                 **kwargs):
-        super(WindowBufferedDataLoader, self).__init__(**kwargs)
-        assert (len(window_index) > 0)
-        if isinstance(window_index[0], WindowMap):
-            self.window_index = cat_window_data_loader_indices([window_index])
-        else:
-            self.window_index = window_index
-
-        assert (len(self.raw_data_list) == len(self.window_index[0].sources))
-
-        self.length = self.window_index[-1].target.stop
-        self.window_length = len(self.window_index)
-        self.window_pos = -1
-
-    def __len__(self):
-        return self.length
-
-    def _calc_window_pose(self,
-                          pos: int) -> int:
-        """
-        Calculate window pose.
-
-        Parameters
-        ----------
-        pos : int
-            Position of target data.
-
-        Returns
-        -------
-        int
-            Window position.
-        """
-        for win_pos in range(max(self.window_pos + 1, 0), self.window_length):
-            win_stop = self.window_index[win_pos].target.stop
-            if pos <= win_stop:
-                return win_pos
-        return self.window_length - 1
-
-    def _expand_buffer_to(self,
-                          end: int):
-        """
-        Expand buffer to the end index.
-
-        Parameters
-        ----------
-        end : int
-            End index.
-        """
-        assert (end > self.end_pos)
-        win_end = self._calc_window_pose(end)
-        for win_pos in range(max(self.window_pos + 1, 0), win_end + 1):
-            win_mmap = self.window_index[win_pos]
-            raw_data_chunk_list = [r_data[map_s.start:map_s.stop] for r_data, map_s in
-                                   zip(self.raw_data_list, win_mmap.sources)]
-            data_chunk = self._load_data_items(raw_data_chunk_list)
-
-            # data_chunk = data_chunk[(win_mmap.target.start - self.end_pos):(win_mmap.target.stop - self.end_pos)]
-
-            # assert (win_mmap.target.start - self.end_pos == 0)
-            # data_chunk = data_chunk[win_mmap.target_start:(win_mmap.target.stop - self.end_pos + win_mmap.target_start)]  # noqa
-
-            # assert (win_mmap.target.start == self.end_pos)
-            data_chunk = data_chunk[win_mmap.target_start:(win_mmap.target.stop - win_mmap.target.start + win_mmap.target_start)]  # noqa
-
-            if self.buffer is None:
-                self.buffer = data_chunk
-            else:
-                self._expand_buffer_by(data_chunk)
-            self.end_pos = win_mmap.target.stop
-            self.window_pos = win_pos
-
-
-class FrameBufferedDataLoader(BufferedDataLoader):
-    """
-    Frame buffered data loader.
+    Frame buffered iterator.
 
     Parameters
     ----------
@@ -479,7 +62,7 @@ class FrameBufferedDataLoader(BufferedDataLoader):
                  image_resize_ratio: float,
                  use_cuda: bool,
                  **kwargs):
-        super(FrameBufferedDataLoader, self).__init__(**kwargs)
+        super(FrameIterator, self).__init__(**kwargs)
         assert (image_resize_ratio > 0.0)
         self.image_resize_ratio = image_resize_ratio
         self.use_cuda = use_cuda
@@ -539,19 +122,19 @@ class FrameBufferedDataLoader(BufferedDataLoader):
         frame = self._rescale_image(image=frame)
         return frame
 
-    def _load_data_items(self,
-                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
+    def _calc_data_items(self,
+                         raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
         """
-        Load data items.
+        Calculate/load data items.
 
         Parameters
         ----------
-        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
-            Raw data chunk.
+        raw_data_chunk_list : tuple(sequence, ...) or list(sequence) or sequence
+            List of source data chunks.
 
         Returns
         -------
-        protocol(any)
+        sequence
             Resulted data.
         """
         assert (len(raw_data_chunk_list) == 1)
@@ -569,21 +152,21 @@ class FrameBufferedDataLoader(BufferedDataLoader):
         return frames
 
     def _expand_buffer_by(self,
-                          data_chunk: Any):
+                          data_chunk: Sequence):
         """
         Expand buffer by extra data.
 
         Parameters
         ----------
-        data_chunk : protocol(any)
+        data_chunk : sequence
             Data chunk.
         """
         self.buffer = torch.cat([self.buffer, data_chunk])
 
 
-class MaskBufferedDataLoader(FrameBufferedDataLoader):
+class MaskIterator(FrameIterator):
     """
-    Mask buffered data loader.
+    Mask buffered iterator.
 
     Parameters
     ----------
@@ -597,7 +180,7 @@ class MaskBufferedDataLoader(FrameBufferedDataLoader):
     def __init__(self,
                  mask_dilation: int,
                  **kwargs):
-        super(MaskBufferedDataLoader, self).__init__(**kwargs)
+        super(MaskIterator, self).__init__(**kwargs)
         self.mask_dilation = mask_dilation
         assert (self.mask_dilation > 0)
 
@@ -625,19 +208,19 @@ class MaskBufferedDataLoader(FrameBufferedDataLoader):
 
         return mask
 
-    def _load_data_items(self,
-                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
+    def _calc_data_items(self,
+                         raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
         """
-        Load data items.
+        Calculate/load data items.
 
         Parameters
         ----------
-        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
-            Raw data chunk.
+        raw_data_chunk_list : tuple(sequence, ...) or list(sequence) or sequence
+            List of source data chunks.
 
         Returns
         -------
-        protocol(any)
+        sequence
             Resulted data.
         """
         assert (len(raw_data_chunk_list) == 1)
@@ -655,281 +238,27 @@ class MaskBufferedDataLoader(FrameBufferedDataLoader):
         return masks
 
 
-class ImagePropWindowBufferedDataLoader(WindowBufferedDataLoader):
+class VideoInpaintIterator(BufferedIterator):
     """
-    Image propagation window buffered data loader.
-
-    Parameters
-    ----------
-    net: nn.Module
-        Image propagation model.
-    """
-    def __init__(self,
-                 net: nn.Module,
-                 **kwargs):
-        super(ImagePropWindowBufferedDataLoader, self).__init__(**kwargs)
-        self.net = net
-
-    def _load_data_items(self,
-                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
-        """
-        Load data items.
-
-        Parameters
-        ----------
-        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
-            Raw data chunk.
-
-        Returns
-        -------
-        protocol(any)
-            Resulted data.
-        """
-        assert (len(raw_data_chunk_list) == 3)
-
-        frames = raw_data_chunk_list[0]
-        masks = raw_data_chunk_list[1]
-        comp_flows = raw_data_chunk_list[2]
-
-        prop_frames, updated_masks = self.net(
-            frames=frames,
-            masks=masks,
-            comp_flows=comp_flows,
-            interpolation="nearest")
-
-        assert (len(prop_frames.shape) == 4)
-        assert (len(updated_masks.shape) == 4)
-
-        updated_frames_masks = torch.cat((prop_frames, updated_masks), dim=1)
-        assert (updated_frames_masks.shape[1] == 4)
-
-        return updated_frames_masks
-
-    def _expand_buffer_by(self,
-                          data_chunk: Any):
-        """
-        Expand buffer by extra data.
-
-        Parameters
-        ----------
-        data_chunk : protocol(any)
-            Data chunk.
-        """
-        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
-
-
-class ImageTransWindowBufferedDataLoader(WindowBufferedDataLoader):
-    """
-    Image transformer window buffered data loader.
-
-    Parameters
-    ----------
-    net: nn.Module
-        Video inpainting model.
-    """
-    def __init__(self,
-                 net: nn.Module,
-                 stride,
-                 ref_stride,
-                 num_refs,
-                 **kwargs):
-        super(ImageTransWindowBufferedDataLoader, self).__init__(**kwargs)
-        self.net = net
-        self.stride = stride
-        self.ref_stride = ref_stride
-        self.num_refs = num_refs
-
-    def _load_data_items(self,
-                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
-        """
-        Load data items.
-
-        Parameters
-        ----------
-        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
-            Raw data chunk.
-
-        Returns
-        -------
-        protocol(any)
-            Resulted data.
-        """
-        assert (len(raw_data_chunk_list) == 3)
-
-        updated_frames_masks = raw_data_chunk_list[0]
-        masks = raw_data_chunk_list[1]
-        comp_flows = raw_data_chunk_list[2]
-
-        prop_frames, updated_masks = torch.split(updated_frames_masks, [3, 1], dim=1)
-
-        win_pos = self.window_pos + 1
-        s_idx = win_pos * self.stride
-
-        neighbor_ids = ImageTransWindowBufferedDataLoader._calc_image_trans_neighbor_index(
-            mid_neighbor_id=s_idx,
-            length=self.length,
-            neighbor_stride=self.stride)
-        ref_ids = ImageTransWindowBufferedDataLoader._calc_image_trans_ref_index(
-            mid_neighbor_id=s_idx,
-            neighbor_ids=neighbor_ids,
-            length=self.length,
-            ref_stride=self.ref_stride,
-            ref_num=self.num_refs)
-
-        win_mmap = self.window_index[win_pos]
-
-        assert (min(ref_ids) >= win_mmap.sources[0].start)
-        assert (max(ref_ids) < win_mmap.sources[0].stop)
-        assert (min(neighbor_ids) == win_mmap.sources[2].start)
-        assert (max(neighbor_ids) == win_mmap.sources[2].stop)
-        assert (len(neighbor_ids) == win_mmap.sources[2].stop - win_mmap.sources[2].start + 1)
-
-        # ref_neighbor_ids = sorted(neighbor_ids + ref_ids)
-        ref_neighbor_ids = neighbor_ids + ref_ids
-        ref_neighbor_ids = [i - win_mmap.sources[0].start for i in ref_neighbor_ids]
-
-        masked_frames = prop_frames[ref_neighbor_ids][None]
-        masks_updated = updated_masks[ref_neighbor_ids][None]
-        masks_in = masks[ref_neighbor_ids][None]
-        completed_flows = comp_flows[None]
-
-        l_t = len(comp_flows) + 1
-
-        pred_frames = self.net(
-            masked_frames=masked_frames,
-            masks_updated=masks_updated,
-            masks_in=masks_in,
-            completed_flows=completed_flows,
-            num_local_frames=l_t)
-
-        pred_frames = pred_frames[0]
-
-        # masked_frames0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/masked_frames0.npy")).cuda()
-        # completed_flows0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/completed_flows0.npy")).cuda()
-        # masks_in0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/masks_in0.npy")).cuda()
-        # masks_updated0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/masks_updated0.npy")).cuda()
-        # pred_img0a = torch.from_numpy(np.load("../../../pytorchcv_data/testa/pred_img0.npy")).cuda()
-        # pred_frames0a = torch.from_numpy(np.load("../../../pytorchcv_data/testa/pred_frames0.npy")).cuda()
-        # l_t0 = 6
-        # pred_img0 = self.net(
-        #     masked_frames=masked_frames0,
-        #     completed_flows=completed_flows0,
-        #     masks_in=masks_in0,
-        #     masks_updated=masks_updated0,
-        #     num_local_frames=l_t0)[0]
-        # q1 = (pred_img0 - pred_img0a).abs().max()
-        # q2 = (pred_img0 - pred_frames0a).abs().max()
-
-        # torch.cuda.empty_cache()
-        return pred_frames
-
-    def _calc_window_pose(self,
-                          pos: int) -> int:
-        """
-        Calculate window pose.
-
-        Parameters
-        ----------
-        pos : int
-            Position of target data.
-
-        Returns
-        -------
-        int
-            Window position.
-        """
-        for win_pos in range(max(self.window_pos + 1, 0), self.window_length):
-            win_start = self.window_index[win_pos].target.start
-            if pos <= win_start:
-                assert (win_pos > 0)
-                return win_pos - 1
-        return self.window_length - 1
-
-    def _expand_buffer_by(self,
-                          data_chunk: Any):
-        """
-        Expand buffer by extra data.
-
-        Parameters
-        ----------
-        data_chunk : protocol(any)
-            Data chunk.
-        """
-        win_pos = self.window_pos + 1
-        win_mmap = self.window_index[win_pos]
-
-        assert (win_mmap.target_start == 0)
-        assert (win_mmap.target.start - self.start_pos >= 0)
-
-        s = win_mmap.target.start - self.start_pos
-
-        if not (s <= len(self.buffer)):
-            pass
-
-        assert (s <= len(self.buffer))
-
-        if s == len(self.buffer):
-            self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
-        else:
-            buffer_tail = self.buffer[s:]
-            buffer_tail_len = len(buffer_tail)
-            assert (buffer_tail_len <= len(data_chunk))
-            data_chunk1 = data_chunk[:buffer_tail_len]
-            data_chunk2 = data_chunk[buffer_tail_len:]
-            self.buffer[s:] = 0.5 * (buffer_tail + data_chunk1)
-            self.buffer = torch.cat([self.buffer, data_chunk2], dim=0)
-
-    @staticmethod
-    def _calc_image_trans_neighbor_index(mid_neighbor_id,
-                                         length,
-                                         neighbor_stride):
-        neighbor_ids = [i for i in range(
-            max(0, mid_neighbor_id - neighbor_stride), min(length, mid_neighbor_id + neighbor_stride + 1))]
-        return neighbor_ids
-
-    @staticmethod
-    def _calc_image_trans_ref_index(mid_neighbor_id,
-                                    neighbor_ids,
-                                    length,
-                                    ref_stride,
-                                    ref_num):
-        ref_index = []
-        if ref_num == -1:
-            for i in range(0, length, ref_stride):
-                if i not in neighbor_ids:
-                    ref_index.append(i)
-        else:
-            start_idx = max(0, mid_neighbor_id - ref_stride * (ref_num // 2))
-            end_idx = min(length, mid_neighbor_id + ref_stride * (ref_num // 2))
-            for i in range(start_idx, end_idx, ref_stride):
-                if i not in neighbor_ids:
-                    if len(ref_index) > ref_num:
-                        break
-                    ref_index.append(i)
-        return ref_index
-
-
-class VideoInpaintBufferedDataLoader(BufferedDataLoader):
-    """
-    Video inpainting buffered data loader.
+    Video inpainting buffered iterator.
     """
     def __init__(self,
                  **kwargs):
-        super(VideoInpaintBufferedDataLoader, self).__init__(**kwargs)
+        super(VideoInpaintIterator, self).__init__(**kwargs)
 
-    def _load_data_items(self,
-                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
+    def _calc_data_items(self,
+                         raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
         """
-        Load data items.
+        Calculate/load data items.
 
         Parameters
         ----------
-        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
-            Raw data chunk.
+        raw_data_chunk_list : tuple(sequence, ...) or list(sequence) or sequence
+            List of source data chunks.
 
         Returns
         -------
-        protocol(any)
+        sequence
             Resulted data.
         """
         assert (len(raw_data_chunk_list) == 3)
@@ -940,19 +269,61 @@ class VideoInpaintBufferedDataLoader(BufferedDataLoader):
 
         pred_frames = pred_frames * masks + frames * (1 - masks)
 
+        return pred_frames
+
+    def _expand_buffer_by(self,
+                          data_chunk: Sequence):
+        """
+        Expand buffer by extra data.
+
+        Parameters
+        ----------
+        data_chunk : sequence
+            Data chunk.
+        """
+        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
+
+
+class FrameCollectIterator(BufferedIterator):
+    """
+    Frame collecting as numpy-array buffered iterator.
+    """
+    def __init__(self,
+                 **kwargs):
+        super(FrameCollectIterator, self).__init__(**kwargs)
+
+    def _calc_data_items(self,
+                         raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
+        """
+        Calculate/load data items.
+
+        Parameters
+        ----------
+        raw_data_chunk_list : tuple(sequence, ...) or list(sequence) or sequence
+            List of source data chunks.
+
+        Returns
+        -------
+        sequence
+            Resulted data.
+        """
+        assert (len(raw_data_chunk_list) == 1)
+
+        pred_frames = raw_data_chunk_list[0]
+
         pred_frames = (((pred_frames + 1.0) / 2.0) * 255).to(torch.uint8)
         pred_frames = pred_frames.permute(0, 2, 3, 1).cpu().detach().numpy()
 
         return pred_frames
 
     def _expand_buffer_by(self,
-                          data_chunk: Any):
+                          data_chunk: Sequence):
         """
         Expand buffer by extra data.
 
         Parameters
         ----------
-        data_chunk : protocol(any)
+        data_chunk : sequence
             Data chunk.
         """
         self.buffer = np.concatenate([self.buffer, data_chunk])
@@ -1030,23 +401,12 @@ def run_streaming_propainter(frames_dir_path: str,
     np.ndarray
         Resulted frames.
     """
-    ppip_net = propainter_ip()
-    ppip_net.eval()
-    ppip_net = ppip_net.cuda()
-
-    pp_net = propainter()
-    pp_net.load_state_dict(torch.load(pp_model_path, map_location="cpu", weights_only=True))
-    for p in pp_net.parameters():
-        p.requires_grad = False
-    pp_net.eval()
-    pp_net = pp_net.cuda()
-
-    frame_loader = FrameBufferedDataLoader(
+    frame_loader = FrameIterator(
         data=FilePathDirIterator(frames_dir_path),
         image_resize_ratio=image_resize_ratio,
         use_cuda=True)
 
-    mask_loader = MaskBufferedDataLoader(
+    mask_loader = MaskIterator(
         mask_dilation=mask_dilation,
         data=FilePathDirIterator(masks_dir_path),
         image_resize_ratio=image_resize_ratio,
@@ -1054,63 +414,35 @@ def run_streaming_propainter(frames_dir_path: str,
 
     video_length = len(frame_loader)
 
-    flow_loader = RAFTDataLoader(
-        frame_loader=frame_loader,
+    flow_loader = RAFTIterator(
+        frames=frame_loader,
         raft_model_path=raft_model_path,
         raft_iters=raft_iters)
 
-    flow_comp_loader = PPRFCDataLoader(
-        flow_loader=flow_loader,
-        mask_loader=mask_loader,
+    flow_comp_loader = PPRFCIterator(
+        flows=flow_loader,
+        masks=mask_loader,
         pprfc_model_path=pprfc_model_path)
 
-    ppip_images_window_index = calc_window_data_loader_index(
-        length=video_length,
-        window_size=80,
-        padding=(10, 10),
-        edge_mode="ignore")
-    ppip_flows_window_index = calc_window_data_loader_index(
-        length=video_length - 1,
-        window_size=80,
-        padding=(10, 9),
-        edge_mode="ignore")
-    ppip_window_index = cat_window_data_loader_indices([ppip_images_window_index, ppip_images_window_index,
-                                                        ppip_flows_window_index])
+    image_prop_loader = PPIPIterator(
+        frames=frame_loader,
+        masks=mask_loader,
+        comp_flows=flow_comp_loader)
 
-    image_prop_loader = ImagePropWindowBufferedDataLoader(
-        data=[frame_loader, mask_loader, flow_comp_loader],
-        window_index=ppip_window_index,
-        net=ppip_net)
+    image_trans_loader = ProPainterIterator(
+        image_prop_loader=image_prop_loader,
+        mask_loader=mask_loader,
+        flow_comp_loader=flow_comp_loader,
+        pp_model_path=pp_model_path)
 
-    pp_stride = 5
-    pp_ref_stride = 10
-    pp_ref_window_size = 80
-    pp_num_refs = pp_ref_window_size // pp_ref_stride
-    pp_ref_frames_window_index = calc_window_data_loader_index2(
-        length=video_length,
-        stride=pp_stride,
-        src_padding=(40, 41),
-        padding=(5, 6))
-    pp_local_flows_window_index = calc_window_data_loader_index2(
-        length=video_length,
-        stride=pp_stride,
-        src_padding=(5, 5),
-        padding=(5, 6))
-    ppip_window_index = cat_window_data_loader_indices([pp_ref_frames_window_index, pp_ref_frames_window_index,
-                                                        pp_local_flows_window_index])
-
-    image_trans_loader = ImageTransWindowBufferedDataLoader(
-        data=[image_prop_loader, mask_loader, flow_comp_loader],
-        window_index=ppip_window_index,
-        net=pp_net,
-        stride=pp_stride,
-        ref_stride=pp_ref_stride,
-        num_refs=pp_num_refs)
-
-    video_inpaint_loader = VideoInpaintBufferedDataLoader(
+    video_inpaint_loader = VideoInpaintIterator(
         data=[image_trans_loader, frame_loader, mask_loader])
 
+    frame_collect_loader = FrameCollectIterator(
+        data=[video_inpaint_loader])
+
     vi_step = 10
+    video_inpaint_loader_trim_pad = 2
     image_trans_loader_trim_pad = 6
     image_prop_loader_trim_pad = 35
     flow_comp_loader_trim_pad = 3
@@ -1119,7 +451,8 @@ def run_streaming_propainter(frames_dir_path: str,
     frame_loader_trim_pad = 2
     for s in range(0, video_length, vi_step):
         e = min(s + vi_step, video_length)
-        vi_frames_i = video_inpaint_loader[s:e]
+        vi_frames_i = frame_collect_loader[s:e]
+        video_inpaint_loader.trim_buffer_to(max(e - video_inpaint_loader_trim_pad, 0))
         image_trans_loader.trim_buffer_to(max(e - image_trans_loader_trim_pad, 0))
         image_prop_loader.trim_buffer_to(max(e - image_prop_loader_trim_pad, 0))
         flow_comp_loader.trim_buffer_to(max(e - flow_comp_loader_trim_pad, 0))
@@ -1128,8 +461,8 @@ def run_streaming_propainter(frames_dir_path: str,
         frame_loader.trim_buffer_to(max(e - frame_loader_trim_pad, 0))
         torch.cuda.empty_cache()
 
-    assert (video_inpaint_loader.start_pos == 0)
-    return video_inpaint_loader.buffer
+    assert (frame_collect_loader.start_pos == 0)
+    return frame_collect_loader.buffer
 
 
 def _test():

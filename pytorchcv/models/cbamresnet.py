@@ -8,7 +8,7 @@ __all__ = ['CbamResNet', 'cbam_resnet18', 'cbam_resnet34', 'cbam_resnet50', 'cba
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1_block, conv7x7_block
+from .common.common import conv1x1_block, conv7x7_block
 from .resnet import ResInitBlock, ResBlock, ResBottleneck
 
 

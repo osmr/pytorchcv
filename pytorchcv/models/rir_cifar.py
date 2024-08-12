@@ -8,7 +8,7 @@ __all__ = ['CIFARRiR', 'rir_cifar10', 'rir_cifar100', 'rir_svhn', 'RiRFinalBlock
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, conv3x3, conv1x1_block, conv3x3_block, DualPathSequential
+from .common.common import conv1x1, conv3x3, conv1x1_block, conv3x3_block, DualPathSequential
 
 
 class PostActivation(nn.Module):

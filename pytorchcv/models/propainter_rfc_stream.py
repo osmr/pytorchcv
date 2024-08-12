@@ -4,44 +4,44 @@
     https://arxiv.org/pdf/2309.03897.
 """
 
-__all__ = ['PPRFCDataLoader']
+__all__ = ['PPRFCIterator']
 
 import torch
 import torch.nn as nn
 from typing import Sequence
-from .raft_stream import (RAFTDataLoader, WindowBufferedDataLoader, WindowMultiIndex, calc_window_data_loader_index,
-                          cat_window_data_loader_indices)
+from .raft_stream import (WindowBufferedIterator, WindowMultiIndex, calc_serial_window_iterator_index,
+                          concat_window_iterator_indices)
 from .propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
 
 
-class FlowCompWindowBufferedDataLoader(WindowBufferedDataLoader):
+class FlowCompIterator(WindowBufferedIterator):
     """
-    Optical flow completion window buffered data loader.
+    Optical flow completion window buffered iterator.
 
     Parameters
     ----------
-    net: nn.Module
+    net : nn.Module
         Optical flow completion model.
     """
     def __init__(self,
                  net: nn.Module,
                  **kwargs):
-        super(FlowCompWindowBufferedDataLoader, self).__init__(**kwargs)
+        super(FlowCompIterator, self).__init__(**kwargs)
         self.net = net
 
-    def _load_data_items(self,
-                         raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence):
+    def _calc_data_items(self,
+                         raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
         """
-        Load data items.
+        Calculate/load data items.
 
         Parameters
         ----------
         raw_data_chunk_list : tuple(sequence, ...) or list(sequence) or sequence
-            Raw data chunk.
+            List of source data chunks.
 
         Returns
         -------
-        protocol(any)
+        sequence
             Resulted data.
         """
         assert (len(raw_data_chunk_list) == 2)
@@ -60,7 +60,6 @@ class FlowCompWindowBufferedDataLoader(WindowBufferedDataLoader):
         assert (len(comp_flows.shape) == 4)
         assert (comp_flows.shape[1] == 4)
 
-        # torch.cuda.empty_cache()
         return comp_flows
 
     def _expand_buffer_by(self,
@@ -76,34 +75,34 @@ class FlowCompWindowBufferedDataLoader(WindowBufferedDataLoader):
         self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
 
 
-class PPRFCDataLoader(FlowCompWindowBufferedDataLoader):
+class PPRFCIterator(FlowCompIterator):
     """
-    Recurrent flow completion (from ProPainter) window buffered data loader.
+    Recurrent flow completion (from ProPainter) window buffered iterator.
 
     Parameters
     ----------
-    flow_loader : Sequence
-        Flow data loader (RAFT).
-    mask_loader : sequence
-        Mask data loader.
+    flows : Sequence
+        Flow iterator (RAFT).
+    masks : sequence
+        Mask iterator.
     pprfc_model_path : str or None, default None
         Path to ProPainter-RFC model parameters.
     """
     def __init__(self,
-                 flow_loader: Sequence,
-                 mask_loader: Sequence,
+                 flows: Sequence,
+                 masks: Sequence,
                  pprfc_model_path: str | None = None,
                  **kwargs):
-        super(PPRFCDataLoader, self).__init__(
-            data=[flow_loader, mask_loader],
-            window_index=PPRFCDataLoader._calc_window_index(video_length=len(mask_loader)),
-            net=PPRFCDataLoader._load_model(pprfc_model_path=pprfc_model_path),
+        super(PPRFCIterator, self).__init__(
+            data=[flows, masks],
+            window_index=PPRFCIterator._calc_window_index(video_length=len(masks)),
+            net=PPRFCIterator._load_model(pprfc_model_path=pprfc_model_path),
             **kwargs)
 
     @staticmethod
     def _load_model(pprfc_model_path: str | None = None) -> nn.Module:
         """
-        Load RAFT model.
+        Load ProPainter-RFC model.
 
         Parameters
         ----------
@@ -143,17 +142,17 @@ class PPRFCDataLoader(FlowCompWindowBufferedDataLoader):
         WindowMultiIndex
             Desired window multiindex.
         """
-        pprfc_flows_window_index = calc_window_data_loader_index(
+        pprfc_flows_window_index = calc_serial_window_iterator_index(
             length=video_length - 1,
             window_size=80,
             padding=(5, 5),
             edge_mode="ignore")
-        pprfc_mask_window_index = calc_window_data_loader_index(
+        pprfc_mask_window_index = calc_serial_window_iterator_index(
             length=video_length,
             window_size=80,
             padding=(5, 6),
             edge_mode="ignore")
-        pprfc_window_index = cat_window_data_loader_indices([pprfc_flows_window_index, pprfc_mask_window_index])
+        pprfc_window_index = concat_window_iterator_indices([pprfc_flows_window_index, pprfc_mask_window_index])
         return pprfc_window_index
 
 
@@ -166,9 +165,9 @@ def _test():
     flows = torch.randn(time - 1, 4, height, width)
     masks = torch.randn(time, 2, height, width)
 
-    flow_comp_loader = PPRFCDataLoader(
-        flow_loader=flows,
-        mask_loader=masks,
+    flow_comp_loader = PPRFCIterator(
+        flows=flows,
+        masks=masks,
         pprfc_model_path=pprfc_model_path)
 
     video_length = time

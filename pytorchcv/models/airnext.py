@@ -9,7 +9,7 @@ __all__ = ['AirNeXt', 'airnext50_32x4d_r2', 'airnext101_32x4d_r2', 'airnext101_3
 import os
 import math
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block
+from .common.common import conv1x1_block, conv3x3_block
 from .airnet import AirBlock, AirInitBlock
 
 

@@ -9,7 +9,7 @@ __all__ = ['FishNet', 'fishnet99', 'fishnet150', 'ChannelSqueeze']
 import os
 import torch
 import torch.nn as nn
-from .common import (pre_conv1x1_block, pre_conv3x3_block, conv1x1, SesquialteralHourglass, Identity,
+from .common.common import (pre_conv1x1_block, pre_conv3x3_block, conv1x1, SesquialteralHourglass, Identity,
                      InterpolationBlock)
 from .preresnet import PreResActivation
 from .senet import SEInitBlock

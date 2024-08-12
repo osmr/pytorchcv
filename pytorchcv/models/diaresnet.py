@@ -11,7 +11,7 @@ __all__ = ['DIAResNet', 'diaresnet10', 'diaresnet12', 'diaresnet14', 'diaresnetb
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1_block, DualPathSequential
+from .common.common import conv1x1_block, DualPathSequential
 from .resnet import ResBlock, ResBottleneck, ResInitBlock
 
 

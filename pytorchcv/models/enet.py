@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Callable
-from .common import (lambda_batchnorm2d, lambda_relu, lambda_prelu, conv3x3, ConvBlock, AsymConvBlock, DeconvBlock,
+from .common.common import (lambda_batchnorm2d, lambda_relu, lambda_prelu, conv3x3, ConvBlock, AsymConvBlock, DeconvBlock,
                      NormActivation, conv1x1_block)
 
 

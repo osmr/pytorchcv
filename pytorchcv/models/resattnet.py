@@ -9,7 +9,7 @@ __all__ = ['ResAttNet', 'resattnet56', 'resattnet92', 'resattnet128', 'resattnet
 import os
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import conv1x1, conv7x7_block, pre_conv1x1_block, pre_conv3x3_block, Hourglass
+from .common.common import conv1x1, conv7x7_block, pre_conv1x1_block, pre_conv3x3_block, Hourglass
 
 
 class PreResBottleneck(nn.Module):

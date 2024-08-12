@@ -9,7 +9,7 @@ __all__ = ['CIFARRoR', 'ror3_56_cifar10', 'ror3_56_cifar100', 'ror3_56_svhn', 'r
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, conv3x3_block
+from .common.common import conv1x1_block, conv3x3_block
 
 
 class RoRBlock(nn.Module):

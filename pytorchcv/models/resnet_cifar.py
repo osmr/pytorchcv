@@ -14,7 +14,7 @@ __all__ = ['CIFARResNet', 'resnet20_cifar10', 'resnet20_cifar100', 'resnet20_svh
 
 import os
 import torch.nn as nn
-from .common import conv3x3_block
+from .common.common import conv3x3_block
 from .resnet import ResUnit
 
 

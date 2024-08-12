@@ -11,7 +11,7 @@ __all__ = ['CIFARXDenseNet', 'xdensenet40_2_k24_bc_cifar10', 'xdensenet40_2_k24_
 import os
 import torch
 import torch.nn as nn
-from .common import conv3x3
+from .common.common import conv3x3
 from .preresnet import PreResActivation
 from .densenet import TransitionBlock
 from .xdensenet import pre_xconv3x3_block, XDenseUnit

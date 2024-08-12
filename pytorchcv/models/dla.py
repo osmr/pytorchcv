@@ -8,7 +8,7 @@ __all__ = ['DLA', 'dla34', 'dla46c', 'dla46xc', 'dla60', 'dla60x', 'dla60xc', 'd
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, conv1x1_block, conv3x3_block, conv7x7_block
+from .common.common import conv1x1, conv1x1_block, conv3x3_block, conv7x7_block
 from .resnet import ResBlock, ResBottleneck
 from .resnext import ResNeXtBottleneck
 

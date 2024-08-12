@@ -7,7 +7,7 @@ __all__ = ['FastSEResNet', 'fastseresnet101b']
 
 import os
 import torch.nn as nn
-from .common import conv1x1_block, SEBlock
+from .common.common import conv1x1_block, SEBlock
 from .resnet import ResBlock, ResBottleneck, ResInitBlock
 
 

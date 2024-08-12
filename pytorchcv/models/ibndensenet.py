@@ -9,7 +9,7 @@ __all__ = ['IBNDenseNet', 'ibn_densenet121', 'ibn_densenet161', 'ibn_densenet169
 import os
 import torch
 import torch.nn as nn
-from .common import pre_conv3x3_block, IBN
+from .common.common import pre_conv3x3_block, IBN
 from .preresnet import PreResInitBlock, PreResActivation
 from .densenet import TransitionBlock
 

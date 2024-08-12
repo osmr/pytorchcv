@@ -8,7 +8,7 @@ __all__ = ['DarkNet53', 'darknet53']
 import os
 import torch.nn as nn
 from typing import Callable
-from .common import lambda_leakyrelu, conv1x1_block, conv3x3_block
+from .common.common import lambda_leakyrelu, conv1x1_block, conv3x3_block
 
 
 class DarkUnit(nn.Module):

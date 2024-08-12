@@ -8,7 +8,7 @@ __all__ = ['BagNet', 'bagnet9', 'bagnet17', 'bagnet33']
 
 import os
 import torch.nn as nn
-from .common import conv1x1, conv1x1_block, conv3x3_block, ConvBlock
+from .common.common import conv1x1, conv1x1_block, conv3x3_block, ConvBlock
 
 
 class BagNetBottleneck(nn.Module):

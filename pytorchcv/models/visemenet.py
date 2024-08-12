@@ -8,7 +8,7 @@ __all__ = ['VisemeNet', 'visemenet20']
 import os
 import torch
 import torch.nn as nn
-from .common import DenseBlock
+from .common.common import DenseBlock
 
 
 class VisemeDenseBranch(nn.Module):

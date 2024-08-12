@@ -9,7 +9,7 @@ __all__ = ['InceptionResNetV2', 'inceptionresnetv2']
 import os
 import torch.nn as nn
 from typing import Callable
-from .common import lambda_batchnorm2d, conv1x1_block, conv3x3_block, Concurrent
+from .common.common import lambda_batchnorm2d, conv1x1_block, conv3x3_block, Concurrent
 from .inceptionv3 import AvgPoolBranch, Conv1x1Branch, ConvSeqBranch
 from .inceptionresnetv1 import InceptionAUnit, InceptionBUnit, InceptionCUnit, ReductionAUnit, ReductionBUnit
 

@@ -10,7 +10,7 @@ import os
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common import conv1x1, conv1x1_block, conv3x3_block, InterpolationBlock, MultiOutputSequential
+from .common.common import conv1x1, conv1x1_block, conv3x3_block, InterpolationBlock, MultiOutputSequential
 from .resnet import resnet18
 
 

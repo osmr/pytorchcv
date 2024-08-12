@@ -11,7 +11,7 @@ import os
 from inspect import isfunction
 import torch.nn as nn
 from typing import Callable
-from .common import lambda_relu, conv1x1_block, conv3x3_block
+from .common.common import lambda_relu, conv1x1_block, conv3x3_block
 from .resnet import ResInitBlock
 
 

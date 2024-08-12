@@ -9,7 +9,7 @@ __all__ = ['SPNASNet', 'spnasnet']
 import os
 import torch.nn as nn
 from typing import Callable
-from .common import lambda_relu, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block
+from .common.common import lambda_relu, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block
 
 
 class SPNASUnit(nn.Module):

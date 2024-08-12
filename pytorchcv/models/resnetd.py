@@ -7,7 +7,7 @@ __all__ = ['ResNetD', 'resnetd50b', 'resnetd101b', 'resnetd152b']
 
 import os
 import torch.nn as nn
-from .common import MultiOutputSequential
+from .common.common import MultiOutputSequential
 from .resnet import ResUnit, ResInitBlock
 from .senet import SEInitBlock
 

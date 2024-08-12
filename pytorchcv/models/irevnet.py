@@ -8,7 +8,7 @@ __all__ = ['IRevNet', 'irevnet301', 'IRevDownscale', 'IRevSplitBlock', 'IRevMerg
 import os
 import torch
 import torch.nn as nn
-from .common import conv3x3, pre_conv3x3_block, DualPathSequential
+from .common.common import conv3x3, pre_conv3x3_block, DualPathSequential
 
 
 class IRevDualPathSequential(DualPathSequential):

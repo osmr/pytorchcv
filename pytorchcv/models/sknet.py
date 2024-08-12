@@ -7,7 +7,7 @@ __all__ = ['SKNet', 'sknet50', 'sknet101', 'sknet152']
 
 import os
 import torch.nn as nn
-from .common import conv1x1, conv1x1_block, conv3x3_block, Concurrent
+from .common.common import conv1x1, conv1x1_block, conv3x3_block, Concurrent
 from .resnet import ResInitBlock
 
 

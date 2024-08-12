@@ -9,7 +9,7 @@ __all__ = ['SegNet', 'segnet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common import conv3x3, conv3x3_block, DualPathSequential
+from .common.common import conv3x3, conv3x3_block, DualPathSequential
 
 
 class SegNet(nn.Module):

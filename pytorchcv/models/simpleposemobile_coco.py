@@ -10,7 +10,7 @@ __all__ = ['SimplePoseMobile', 'simplepose_mobile_resnet18_coco', 'simplepose_mo
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1, DucBlock, HeatmapMaxDetBlock
+from .common.common import conv1x1, DucBlock, HeatmapMaxDetBlock
 from .resnet import resnet18, resnet50b
 from .mobilenet import mobilenet_w1
 from .mobilenetv2 import mobilenetv2b_w1

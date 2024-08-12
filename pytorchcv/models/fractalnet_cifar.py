@@ -9,7 +9,7 @@ import os
 import numpy as np
 import torch
 import torch.nn as nn
-from .common import ParametricSequential
+from .common.common import ParametricSequential
 
 
 class DropConvBlock(nn.Module):

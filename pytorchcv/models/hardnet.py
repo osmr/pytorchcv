@@ -9,7 +9,7 @@ import os
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common import (lambda_relu, lambda_relu6, lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block,
+from .common.common import (lambda_relu, lambda_relu6, lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block,
                      dwconv_block)
 
 

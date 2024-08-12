@@ -9,7 +9,7 @@ __all__ = ['PNASNet', 'pnasnet5large']
 import os
 import torch
 import torch.nn as nn
-from .common import conv1x1
+from .common.common import conv1x1
 from .nasnet import nasnet_dual_path_sequential, nasnet_batch_norm, NasConv, NasDwsConv, NasPathBlock, NASNetInitBlock
 
 

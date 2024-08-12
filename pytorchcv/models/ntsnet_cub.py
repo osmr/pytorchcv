@@ -10,7 +10,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .common import conv1x1, conv3x3, Flatten
+from .common.common import conv1x1, conv3x3, Flatten
 from .resnet import resnet50b
 
 

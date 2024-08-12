@@ -8,7 +8,7 @@ __all__ = ['DenseNet', 'densenet121', 'densenet161', 'densenet169', 'densenet201
 import os
 import torch
 import torch.nn as nn
-from .common import pre_conv1x1_block, pre_conv3x3_block
+from .common.common import pre_conv1x1_block, pre_conv3x3_block
 from .preresnet import PreResInitBlock, PreResActivation
 
 

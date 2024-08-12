@@ -8,7 +8,7 @@ __all__ = ['PFPCNet', 'pfpcnet']
 
 import os
 import torch.nn as nn
-from .common import lambda_batchnorm2d, conv3x3_block
+from .common.common import lambda_batchnorm2d, conv3x3_block
 
 
 class PFPCNet(nn.Module):
