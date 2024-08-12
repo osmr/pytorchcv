@@ -11,11 +11,12 @@ import torch
 import torch.nn as nn
 from typing import Any
 from enum import IntEnum
-from .raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
-from .propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
+# from .raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
+# from .propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
 from .propainter_ip import propainter_ip
 from .propainter import propainter
 from .raft_stream import RAFTDataLoader
+from .propainter_rfc_stream import PPRFCDataLoader
 
 
 class FilePathDirIterator(object):
@@ -654,123 +655,6 @@ class MaskBufferedDataLoader(FrameBufferedDataLoader):
         return masks
 
 
-class FlowWindowBufferedDataLoader(WindowBufferedDataLoader):
-    """
-    Optical flow window buffered data loader.
-
-    Parameters
-    ----------
-    net: nn.Module
-        Optical flow model.
-    """
-    def __init__(self,
-                 net: nn.Module,
-                 **kwargs):
-        super(FlowWindowBufferedDataLoader, self).__init__(**kwargs)
-        self.net = net
-
-    def _load_data_items(self,
-                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
-        """
-        Load data items.
-
-        Parameters
-        ----------
-        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
-            Raw data chunk.
-
-        Returns
-        -------
-        protocol(any)
-            Resulted data.
-        """
-        assert (len(raw_data_chunk_list) == 1)
-
-        frames = raw_data_chunk_list[0]
-        flows = calc_bidirectional_optical_flow_on_video_by_raft(
-            net=self.net,
-            frames=frames)
-        assert (len(flows.shape) == 4)
-        assert (flows.shape[1] == 4)
-
-        # torch.cuda.empty_cache()
-        return flows
-
-    def _expand_buffer_by(self,
-                          data_chunk: Any):
-        """
-        Expand buffer by extra data.
-
-        Parameters
-        ----------
-        data_chunk : protocol(any)
-            Data chunk.
-        """
-        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
-
-
-class FlowCompWindowBufferedDataLoader(WindowBufferedDataLoader):
-    """
-    Optical flow completion window buffered data loader.
-
-    Parameters
-    ----------
-    net: nn.Module
-        Optical flow completion model.
-    """
-    def __init__(self,
-                 net: nn.Module,
-                 **kwargs):
-        super(FlowCompWindowBufferedDataLoader, self).__init__(**kwargs)
-        self.net = net
-
-    def _load_data_items(self,
-                         raw_data_chunk_list: tuple[Any, ...] | list[Any] | Any):
-        """
-        Load data items.
-
-        Parameters
-        ----------
-        raw_data_chunk_list : tuple(protocol(any), ...) or list(protocol(any)) or protocol(any)
-            Raw data chunk.
-
-        Returns
-        -------
-        protocol(any)
-            Resulted data.
-        """
-        assert (len(raw_data_chunk_list) == 2)
-
-        flows = raw_data_chunk_list[0]
-        masks = raw_data_chunk_list[1]
-
-        masks_forward = masks[:-1].contiguous()
-        masks_backward = masks[1:].contiguous()
-        flow_masks = torch.cat((masks_forward, masks_backward), dim=1)
-
-        comp_flows, _ = calc_bidirectional_opt_flow_completion_by_pprfc(
-            net=self.net,
-            flows=flows,
-            flow_masks=flow_masks)
-        assert (len(comp_flows.shape) == 4)
-        assert (comp_flows.shape[1] == 4)
-
-        # torch.cuda.empty_cache()
-        return comp_flows
-
-    def _expand_buffer_by(self,
-                          data_chunk: Any):
-        """
-        Expand buffer by extra data.
-
-        Parameters
-        ----------
-        data_chunk : protocol(any)
-            Data chunk.
-        """
-        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
-
-
 class ImagePropWindowBufferedDataLoader(WindowBufferedDataLoader):
     """
     Image propagation window buffered data loader.
@@ -1146,13 +1030,6 @@ def run_streaming_propainter(frames_dir_path: str,
     np.ndarray
         Resulted frames.
     """
-    pprfc_net = propainter_rfc()
-    pprfc_net.load_state_dict(torch.load(pprfc_model_path, map_location="cpu", weights_only=True))
-    for p in pprfc_net.parameters():
-        p.requires_grad = False
-    pprfc_net.eval()
-    pprfc_net = pprfc_net.cuda()
-
     ppip_net = propainter_ip()
     ppip_net.eval()
     ppip_net = ppip_net.cuda()
@@ -1182,22 +1059,10 @@ def run_streaming_propainter(frames_dir_path: str,
         raft_model_path=raft_model_path,
         raft_iters=raft_iters)
 
-    pprfc_flows_window_index = calc_window_data_loader_index(
-        length=video_length - 1,
-        window_size=80,
-        padding=(5, 5),
-        edge_mode="ignore")
-    pprfc_mask_window_index = calc_window_data_loader_index(
-        length=video_length,
-        window_size=80,
-        padding=(5, 6),
-        edge_mode="ignore")
-    pprfc_window_index = cat_window_data_loader_indices([pprfc_flows_window_index, pprfc_mask_window_index])
-
-    flow_comp_loader = FlowCompWindowBufferedDataLoader(
-        data=[flow_loader, mask_loader],
-        window_index=pprfc_window_index,
-        net=pprfc_net)
+    flow_comp_loader = PPRFCDataLoader(
+        flow_loader=flow_loader,
+        mask_loader=mask_loader,
+        pprfc_model_path=pprfc_model_path)
 
     ppip_images_window_index = calc_window_data_loader_index(
         length=video_length,
