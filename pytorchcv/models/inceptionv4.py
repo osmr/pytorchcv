@@ -11,7 +11,8 @@ import torch
 import torch.nn as nn
 from typing import Callable
 from .common.norm import lambda_batchnorm2d
-from .common.common import ConvBlock, conv3x3_block, Concurrent
+from .common.conv import ConvBlock, conv3x3_block
+from .common.common import Concurrent
 from .inceptionv3 import MaxPoolBranch, AvgPoolBranch, Conv1x1Branch, ConvSeqBranch
 
 

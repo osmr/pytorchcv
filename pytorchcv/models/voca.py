@@ -9,7 +9,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .common.common import ConvBlock
+from .common.conv import ConvBlock
 
 
 class VocaEncoder(nn.Module):

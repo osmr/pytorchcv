@@ -9,7 +9,8 @@ import os
 import torch.nn as nn
 from typing import Callable
 from .common.norm import lambda_batchnorm2d
-from .common.common import conv3x3, conv1x1_block, conv3x3_block, Concurrent, MultiOutputSequential, ParallelConcurent
+from .common.conv import conv3x3, conv1x1_block, conv3x3_block
+from .common.common import Concurrent, MultiOutputSequential, ParallelConcurent
 from .resnet import ResUnit
 from .preresnet import PreResUnit
 

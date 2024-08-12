@@ -14,7 +14,7 @@ __all__ = ['CIFARSEResNet', 'seresnet20_cifar10', 'seresnet20_cifar100', 'seresn
 
 import os
 import torch.nn as nn
-from .common.common import conv3x3_block
+from .common.conv import conv3x3_block
 from .seresnet import SEResUnit
 
 

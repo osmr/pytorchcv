@@ -13,7 +13,8 @@ import torch.nn.functional as F
 from typing import Callable
 from .common.activ import lambda_relu, lambda_prelu
 from .common.norm import lambda_batchnorm2d
-from .common.common import conv3x3, ConvBlock, AsymConvBlock, DeconvBlock, NormActivation, conv1x1_block
+from .common.conv import conv3x3, ConvBlock, AsymConvBlock, DeconvBlock, conv1x1_block
+from .common.common import NormActivation
 
 
 class ENetMaxDownBlock(nn.Module):

@@ -13,7 +13,7 @@ __all__ = ['CIFARResNeXt', 'resnext20_16x4d_cifar10', 'resnext20_16x4d_cifar100'
 
 import os
 import torch.nn as nn
-from .common.common import conv3x3_block
+from .common.conv import conv3x3_block
 from .resnext import ResNeXtUnit
 
 

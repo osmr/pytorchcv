@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
-from .common.common import conv1x1, conv3x3_block
+from .common.conv import conv1x1, conv3x3_block
 from .resnetd import resnetd50b, resnetd101b
 
 

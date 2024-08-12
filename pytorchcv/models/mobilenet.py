@@ -11,7 +11,7 @@ import torch.nn as nn
 from typing import Callable
 from .common.activ import lambda_relu
 from .common.norm import lambda_batchnorm2d
-from .common.common import conv3x3_block, dwsconv3x3_block
+from .common.conv import conv3x3_block, dwsconv3x3_block
 
 
 class MobileNet(nn.Module):

@@ -10,7 +10,8 @@ import os
 import torch.nn as nn
 from typing import Callable
 from .common.norm import lambda_batchnorm2d
-from .common.common import conv1x1_block, conv3x3_block, Concurrent
+from .common.conv import conv1x1_block, conv3x3_block
+from .common.common import Concurrent
 from .inceptionv3 import AvgPoolBranch, Conv1x1Branch, ConvSeqBranch
 from .inceptionresnetv1 import InceptionAUnit, InceptionBUnit, InceptionCUnit, ReductionAUnit, ReductionBUnit
 

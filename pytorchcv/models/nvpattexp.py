@@ -8,7 +8,8 @@ __all__ = ['NvpAttExp', 'nvpattexp116bazel76']
 import os
 import torch
 import torch.nn as nn
-from .common.common import DenseBlock, ConvBlock, ConvBlock1d, SelectableDense
+from .common.conv import ConvBlock, ConvBlock1d
+from .common.common import DenseBlock, SelectableDense
 
 
 class NvpAttExpEncoder(nn.Module):

@@ -16,7 +16,7 @@ __all__ = ['CIFARDenseNet', 'densenet40_k12_cifar10', 'densenet40_k12_cifar100',
 import os
 import torch
 import torch.nn as nn
-from .common.common import conv3x3, pre_conv3x3_block
+from .common.conv import conv3x3, pre_conv3x3_block
 from .preresnet import PreResActivation
 from .densenet import DenseUnit, TransitionBlock
 

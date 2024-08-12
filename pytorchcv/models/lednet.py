@@ -11,8 +11,8 @@ import torch
 import torch.nn as nn
 from typing import Callable
 from .common.norm import lambda_batchnorm2d
-from .common.common import (conv1x1_block, conv3x3_block, conv5x5_block, conv7x7_block, asym_conv3x3_block,
-                            ChannelShuffle, InterpolationBlock, Hourglass, BreakBlock)
+from .common.conv import conv1x1_block, conv3x3_block, conv5x5_block, conv7x7_block, asym_conv3x3_block
+from .common.common import ChannelShuffle, InterpolationBlock, Hourglass, BreakBlock
 from .enet import ENetMixDownBlock
 
 

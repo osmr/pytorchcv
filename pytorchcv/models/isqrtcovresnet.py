@@ -10,7 +10,7 @@ __all__ = ['iSQRTCOVResNet', 'isqrtcovresnet18', 'isqrtcovresnet34', 'isqrtcovre
 import os
 import torch
 import torch.nn as nn
-from .common.common import conv1x1_block
+from .common.conv import conv1x1_block
 from .resnet import ResUnit, ResInitBlock
 
 

@@ -9,7 +9,7 @@ __all__ = ['CIFAR10MSDNet', 'msdnet22_cifar10']
 import os
 import math
 import torch.nn as nn
-from .common.common import conv3x3_block
+from .common.conv import conv3x3_block
 from .msdnet import MultiOutputSequential, MSDFeatureBlock
 
 

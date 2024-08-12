@@ -11,7 +11,8 @@ __all__ = ['RegNet', 'regnetx002', 'regnetx004', 'regnetx006', 'regnetx008', 're
 import os
 import numpy as np
 import torch.nn as nn
-from .common.common import conv1x1_block, conv3x3_block, SEBlock
+from .common.conv import conv1x1_block, conv3x3_block
+from .common.common import SEBlock
 
 
 class RegNetBottleneck(nn.Module):

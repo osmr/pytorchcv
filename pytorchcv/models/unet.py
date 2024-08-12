@@ -10,7 +10,8 @@ import os
 import torch
 import torch.nn as nn
 from .common.activ import Identity
-from .common.common import conv1x1, conv3x3_block, InterpolationBlock, Hourglass
+from .common.conv import conv1x1, conv3x3_block
+from .common.common import InterpolationBlock, Hourglass
 
 
 class UNetBlock(nn.Module):

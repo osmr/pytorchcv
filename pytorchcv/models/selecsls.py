@@ -9,7 +9,8 @@ __all__ = ['SelecSLS', 'selecsls42', 'selecsls42b', 'selecsls60', 'selecsls60b',
 import os
 import torch
 import torch.nn as nn
-from .common.common import conv1x1_block, conv3x3_block, DualPathSequential
+from .common.conv import conv1x1_block, conv3x3_block
+from .common.common import DualPathSequential
 
 
 class SelecSLSBlock(nn.Module):

@@ -13,7 +13,7 @@ import torch.nn as nn
 from typing import Callable
 from .common.activ import lambda_relu
 from .common.norm import lambda_batchnorm2d
-from .common.common import conv1x1_block, conv3x3_block, conv7x7_block
+from .common.conv import conv1x1_block, conv3x3_block, conv7x7_block
 
 
 class ResBlock(nn.Module):

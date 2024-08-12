@@ -9,7 +9,7 @@ import os
 import math
 import torch
 import torch.nn as nn
-from .common.common import pre_conv1x1_block, pre_conv3x3_block
+from .common.conv import pre_conv1x1_block, pre_conv3x3_block
 from .preresnet import PreResInitBlock, PreResActivation
 from .densenet import TransitionBlock
 

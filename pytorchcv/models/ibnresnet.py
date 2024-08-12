@@ -8,7 +8,8 @@ __all__ = ['IBNResNet', 'ibn_resnet50', 'ibn_resnet101', 'ibn_resnet152', 'ibn_c
 
 import os
 import torch.nn as nn
-from .common.common import conv1x1_block, conv3x3_block, IBN
+from .common.norm import IBN
+from .common.conv import conv1x1_block, conv3x3_block
 from .resnet import ResInitBlock
 
 

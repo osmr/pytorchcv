@@ -9,7 +9,7 @@ import os
 import torch
 import torch.nn as nn
 from .common.activ import Identity
-from .common.common import conv1x1
+from .common.conv import conv1x1
 from .nasnet import nasnet_dual_path_sequential
 
 

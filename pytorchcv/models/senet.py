@@ -8,7 +8,8 @@ __all__ = ['SENet', 'senet16', 'senet28', 'senet40', 'senet52', 'senet103', 'sen
 import os
 import math
 import torch.nn as nn
-from .common.common import conv1x1_block, conv3x3_block, SEBlock
+from .common.conv import conv1x1_block, conv3x3_block
+from .common.common import SEBlock
 
 
 class SENetBottleneck(nn.Module):

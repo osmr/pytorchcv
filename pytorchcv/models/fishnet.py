@@ -10,7 +10,8 @@ import os
 import torch
 import torch.nn as nn
 from .common.activ import Identity
-from .common.common import pre_conv1x1_block, pre_conv3x3_block, conv1x1, SesquialteralHourglass, InterpolationBlock
+from .common.conv import pre_conv1x1_block, pre_conv3x3_block, conv1x1
+from .common.common import SesquialteralHourglass, InterpolationBlock
 from .preresnet import PreResActivation
 from .senet import SEInitBlock
 

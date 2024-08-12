@@ -9,7 +9,7 @@ import os
 import torch.nn as nn
 from typing import Callable
 from .common.activ import lambda_leakyrelu
-from .common.common import conv1x1_block, conv3x3_block
+from .common.conv import conv1x1_block, conv3x3_block
 
 
 class DarkUnit(nn.Module):

@@ -10,7 +10,8 @@ __all__ = ['MENet', 'menet108_8x1_g3', 'menet128_8x1_g4', 'menet160_8x1_g8', 'me
 import os
 import torch
 import torch.nn as nn
-from .common.common import conv1x1, conv3x3, depthwise_conv3x3, ChannelShuffle
+from .common.conv import conv1x1, conv3x3, depthwise_conv3x3
+from .common.common import ChannelShuffle
 
 
 class MEUnit(nn.Module):

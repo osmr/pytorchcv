@@ -8,7 +8,7 @@ __all__ = ['CIFARShakeDropResNet', 'shakedropresnet20_cifar10', 'shakedropresnet
 import os
 import torch
 import torch.nn as nn
-from .common.common import conv1x1_block, conv3x3_block
+from .common.conv import conv1x1_block, conv3x3_block
 from .resnet import ResBlock, ResBottleneck
 
 

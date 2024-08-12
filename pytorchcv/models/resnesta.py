@@ -10,7 +10,8 @@ import os
 import torch.nn as nn
 from typing import Callable
 from .common.norm import lambda_batchnorm2d
-from .common.common import conv1x1_block, conv3x3_block, saconv3x3_block
+from .common.conv import conv1x1_block, conv3x3_block
+from .common.common import saconv3x3_block
 from .senet import SEInitBlock
 
 

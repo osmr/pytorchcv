@@ -12,8 +12,8 @@ import torch.nn as nn
 from typing import Callable
 from .common.activ import lambda_relu, lambda_prelu
 from .common.norm import lambda_batchnorm2d
-from .common.common import (conv1x1, conv3x3, conv3x3_block, ConvBlock, NormActivation, Concurrent, InterpolationBlock,
-                            DualPathSequential)
+from .common.conv import conv1x1, conv3x3, conv3x3_block, ConvBlock
+from .common.common import NormActivation, Concurrent, InterpolationBlock, DualPathSequential
 
 
 class DwaConvBlock(nn.Module):

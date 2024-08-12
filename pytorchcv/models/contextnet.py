@@ -9,7 +9,8 @@ __all__ = ['ContextNet', 'ctxnet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common.common import conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block, dwsconv3x3_block, InterpolationBlock
+from .common.conv import conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block, dwsconv3x3_block
+from .common.common import InterpolationBlock
 
 
 class CtxShallowNet(nn.Module):

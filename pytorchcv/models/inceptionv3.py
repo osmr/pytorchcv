@@ -12,7 +12,8 @@ import torch.nn as nn
 from typing import Callable
 from .common.activ import lambda_relu
 from .common.norm import lambda_batchnorm2d
-from .common.common import ConvBlock, conv1x1_block, conv3x3_block, Concurrent
+from .common.conv import ConvBlock, conv1x1_block, conv3x3_block
+from .common.common import Concurrent
 
 
 class MaxPoolBranch(nn.Module):

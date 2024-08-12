@@ -10,7 +10,8 @@ __all__ = ['SimplePose', 'simplepose_resnet18_coco', 'simplepose_resnet50b_coco'
 import os
 import torch
 import torch.nn as nn
-from .common.common import DeconvBlock, conv1x1, HeatmapMaxDetBlock
+from .common.conv import DeconvBlock, conv1x1
+from .common.common import HeatmapMaxDetBlock
 from .resnet import resnet18, resnet50b, resnet101b, resnet152b
 from .resneta import resneta50b, resneta101b, resneta152b
 

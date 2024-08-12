@@ -11,7 +11,8 @@ import torch
 import torch.nn as nn
 from typing import Callable
 from .common.norm import lambda_batchnorm2d
-from .common.common import conv1x1_block, conv3x3_block, deconv3x3_block, Concurrent, Hourglass
+from .common.conv import conv1x1_block, conv3x3_block, deconv3x3_block
+from .common.common import Concurrent, Hourglass
 
 
 class FireBlock(nn.Module):

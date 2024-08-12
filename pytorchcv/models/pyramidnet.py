@@ -8,7 +8,7 @@ __all__ = ['PyramidNet', 'pyramidnet101_a360', 'PyrUnit']
 import os
 import torch.nn as nn
 import torch.nn.functional as F
-from .common.common import pre_conv1x1_block, pre_conv3x3_block
+from .common.conv import pre_conv1x1_block, pre_conv3x3_block
 from .preresnet import PreResActivation
 
 

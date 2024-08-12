@@ -7,7 +7,7 @@ __all__ = ['Xception', 'xception']
 
 import os
 import torch.nn as nn
-from .common.common import conv1x1_block, conv3x3_block
+from .common.conv import conv1x1_block, conv3x3_block
 
 
 class DwsConv(nn.Module):

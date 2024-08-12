@@ -8,7 +8,8 @@ __all__ = ['DPN', 'dpn68', 'dpn68b', 'dpn98', 'dpn107', 'dpn131']
 import os
 import torch
 import torch.nn as nn
-from .common.common import conv1x1, DualPathSequential
+from .common.conv import conv1x1
+from .common.common import DualPathSequential
 
 
 class GlobalAvgMaxPool2D(nn.Module):

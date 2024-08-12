@@ -12,8 +12,8 @@ import torch.nn as nn
 from typing import Callable
 from .common.activ import lambda_prelu
 from .common.norm import lambda_batchnorm2d
-from .common.common import (NormActivation, conv1x1, conv1x1_block, conv3x3_block, depthwise_conv3x3, SEBlock,
-                            Concurrent, DualPathSequential, InterpolationBlock)
+from .common.conv import conv1x1, conv1x1_block, conv3x3_block, depthwise_conv3x3
+from .common.common import NormActivation, SEBlock, Concurrent, DualPathSequential, InterpolationBlock
 
 
 class CGBlock(nn.Module):

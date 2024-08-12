@@ -14,7 +14,7 @@ __all__ = ['CIFARPreResNet', 'preresnet20_cifar10', 'preresnet20_cifar100', 'pre
 
 import os
 import torch.nn as nn
-from .common.common import conv3x3
+from .common.conv import conv3x3
 from .preresnet import PreResUnit, PreResActivation
 
 

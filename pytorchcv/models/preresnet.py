@@ -13,7 +13,7 @@ import os
 import torch.nn as nn
 from typing import Callable
 from .common.norm import lambda_batchnorm2d
-from .common.common import pre_conv1x1_block, pre_conv3x3_block, conv1x1
+from .common.conv import pre_conv1x1_block, pre_conv3x3_block, conv1x1
 
 
 class PreResBlock(nn.Module):

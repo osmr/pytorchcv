@@ -11,7 +11,8 @@ __all__ = ['DeepLabv3', 'deeplabv3_resnetd50b_voc', 'deeplabv3_resnetd101b_voc',
 import os
 import torch.nn as nn
 import torch.nn.functional as F
-from .common.common import conv1x1, conv1x1_block, conv3x3_block, Concurrent
+from .common.conv import conv1x1, conv1x1_block, conv3x3_block
+from .common.common import Concurrent
 from .resnetd import resnetd50b, resnetd101b, resnetd152b
 
 

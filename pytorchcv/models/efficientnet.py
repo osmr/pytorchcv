@@ -20,7 +20,8 @@ import torch.nn.functional as F
 from typing import Callable
 from .common.activ import lambda_swish
 from .common.norm import lambda_batchnorm2d
-from .common.common import round_channels, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, SEBlock
+from .common.conv import conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block
+from .common.common import round_channels, SEBlock
 
 
 def calc_tf_padding(x: torch.Tensor,

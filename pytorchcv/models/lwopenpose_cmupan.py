@@ -10,7 +10,7 @@ __all__ = ['LwOpenPose', 'lwopenpose2d_mobilenet_cmupan_coco', 'lwopenpose3d_mob
 import os
 import torch
 from torch import nn
-from .common.common import conv1x1, conv1x1_block, conv3x3_block, dwsconv3x3_block
+from .common.conv import conv1x1, conv1x1_block, conv3x3_block, dwsconv3x3_block
 
 
 class LwopResBottleneck(nn.Module):

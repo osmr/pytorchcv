@@ -8,7 +8,7 @@ __all__ = ['CIFARWRN', 'wrn16_10_cifar10', 'wrn16_10_cifar100', 'wrn16_10_svhn',
 
 import os
 import torch.nn as nn
-from .common.common import conv3x3
+from .common.conv import conv3x3
 from .preresnet import PreResUnit, PreResActivation
 
 

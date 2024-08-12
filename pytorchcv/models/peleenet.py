@@ -8,7 +8,8 @@ __all__ = ['PeleeNet', 'peleenet']
 import os
 import torch
 import torch.nn as nn
-from .common.common import conv1x1_block, conv3x3_block, Concurrent
+from .common.conv import conv1x1_block, conv3x3_block
+from .common.common import Concurrent
 
 
 class PeleeBranch1(nn.Module):

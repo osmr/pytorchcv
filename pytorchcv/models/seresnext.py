@@ -7,7 +7,8 @@ __all__ = ['SEResNeXt', 'seresnext50_32x4d', 'seresnext101_32x4d', 'seresnext101
 
 import os
 import torch.nn as nn
-from .common.common import conv1x1_block, SEBlock
+from .common.conv import conv1x1_block
+from .common.common import SEBlock
 from .resnet import ResInitBlock
 from .resnext import ResNeXtBottleneck
 

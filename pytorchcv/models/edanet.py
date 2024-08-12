@@ -11,7 +11,8 @@ import torch
 import torch.nn as nn
 from typing import Callable
 from .common.norm import lambda_batchnorm2d
-from .common.common import conv1x1, conv3x3, conv1x1_block, asym_conv3x3_block, NormActivation, InterpolationBlock
+from .common.conv import conv1x1, conv3x3, conv1x1_block, asym_conv3x3_block
+from .common.common import NormActivation, InterpolationBlock
 
 
 class DownBlock(nn.Module):

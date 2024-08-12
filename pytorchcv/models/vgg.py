@@ -10,7 +10,7 @@ __all__ = ['VGG', 'vgg11', 'vgg13', 'vgg16', 'vgg19', 'bn_vgg11', 'bn_vgg13', 'b
 import os
 import torch.nn as nn
 from .common.norm import lambda_batchnorm2d
-from .common.common import conv3x3_block
+from .common.conv import conv3x3_block
 
 
 class VGGDense(nn.Module):

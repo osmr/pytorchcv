@@ -12,7 +12,8 @@ import torch
 from torch.nn import init
 from torch import nn
 import torch.nn.functional as F
-from .common.common import conv1x1, conv3x3, conv1x1_block, conv3x3_block, NormActivation, ChannelShuffle, Concurrent
+from .common.conv import conv1x1, conv3x3, conv1x1_block, conv3x3_block
+from .common.common import NormActivation, ChannelShuffle, Concurrent
 
 
 class SpatialDiceBranch(nn.Module):
