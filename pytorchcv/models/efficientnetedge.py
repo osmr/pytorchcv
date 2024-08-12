@@ -10,7 +10,9 @@ import os
 import math
 import torch.nn as nn
 from typing import Callable
-from .common.common import round_channels, lambda_relu, lambda_batchnorm2d, conv1x1_block, conv3x3_block, SEBlock
+from .common.activ import lambda_relu
+from .common.norm import lambda_batchnorm2d
+from .common.common import round_channels, conv1x1_block, conv3x3_block, SEBlock
 from .efficientnet import EffiInvResUnit, EffiInitBlock
 
 

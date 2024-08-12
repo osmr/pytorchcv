@@ -10,8 +10,8 @@ import os
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common.common import (lambda_batchnorm2d, conv1x1, conv3x3, conv1x1_block, asym_conv3x3_block, NormActivation,
-                            InterpolationBlock)
+from .common.norm import lambda_batchnorm2d
+from .common.common import conv1x1, conv3x3, conv1x1_block, asym_conv3x3_block, NormActivation, InterpolationBlock
 
 
 class DownBlock(nn.Module):

@@ -10,8 +10,9 @@ import os
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Callable
-from .common.common import (lambda_relu, lambda_batchnorm2d, create_activation_layer, create_normalization_layer,
-                            DualPathSequential)
+from .common.activ import lambda_relu, create_activation_layer
+from .common.norm import lambda_batchnorm2d, create_normalization_layer
+from .common.common import DualPathSequential
 from .resnet import ResInitBlock
 
 

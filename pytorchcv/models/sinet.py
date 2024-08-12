@@ -11,8 +11,9 @@ import torch
 import torch.nn as nn
 from typing import Callable
 from .common.activ import lambda_relu, lambda_prelu, lambda_sigmoid, create_activation_layer
-from .common.common import (lambda_batchnorm2d, create_normalization_layer, conv1x1, conv1x1_block, conv3x3_block,
-                            round_channels, dwconv_block, Concurrent, InterpolationBlock, ChannelShuffle)
+from .common.norm import lambda_batchnorm2d, create_normalization_layer
+from .common.common import (conv1x1, conv1x1_block, conv3x3_block, round_channels, dwconv_block, Concurrent,
+                            InterpolationBlock, ChannelShuffle)
 
 
 class SEBlock(nn.Module):

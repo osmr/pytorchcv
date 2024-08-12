@@ -2,9 +2,8 @@
     Common routines for models in PyTorch.
 """
 
-__all__ = ['round_channels', 'BreakBlock', 'lambda_batchnorm1d', 'lambda_batchnorm2d', 'lambda_instancenorm2d',
-           'lambda_groupnorm', 'create_normalization_layer', 'SelectableDense', 'DenseBlock', 'ConvBlock1d',
-           'conv1x1', 'conv3x3', 'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block', 'conv5x5_block',
+__all__ = ['round_channels', 'BreakBlock', 'SelectableDense', 'DenseBlock', 'ConvBlock1d', 'conv1x1', 'conv3x3',
+           'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block', 'conv5x5_block',
            'conv7x7_block', 'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block', 'dwsconv3x3_block', 'PreConvBlock',
            'pre_conv1x1_block', 'pre_conv3x3_block', 'AsymConvBlock', 'asym_conv3x3_block', 'DeconvBlock',
            'deconv3x3_block', 'NormActivation', 'InterpolationBlock', 'ChannelShuffle', 'ChannelShuffle2', 'SEBlock',
@@ -14,13 +13,13 @@ __all__ = ['round_channels', 'BreakBlock', 'lambda_batchnorm1d', 'lambda_batchno
            'Flatten', 'HeatmapMaxDetBlock']
 
 import math
-from inspect import isfunction
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 from typing import Callable
 from .activ import lambda_relu, lambda_sigmoid, create_activation_layer
+from .norm import lambda_batchnorm1d, lambda_batchnorm2d, create_normalization_layer
 
 
 def round_channels(channels: int | float,
@@ -58,109 +57,6 @@ class BreakBlock(nn.Module):
 
     def __repr__(self):
         return "{name}()".format(name=self.__class__.__name__)
-
-
-def lambda_batchnorm1d(eps: float = 1e-5) -> Callable[[int], nn.Module]:
-    """
-    Create lambda-function generator for nn.BatchNorm1d normalization layer.
-
-    Parameters
-    ----------
-    eps : float, default 1e-5
-        Batch-norm epsilon.
-
-    Returns
-    -------
-    function
-        Desired function.
-    """
-    return lambda num_features: nn.BatchNorm1d(
-        num_features=num_features,
-        eps=eps)
-
-
-def lambda_batchnorm2d(eps: float = 1e-5) -> Callable[[int], nn.Module]:
-    """
-    Create lambda-function generator for nn.BatchNorm2d normalization layer.
-
-    Parameters
-    ----------
-    eps : float, default 1e-5
-        Batch-norm epsilon.
-
-    Returns
-    -------
-    function
-        Desired function.
-    """
-    return lambda num_features: nn.BatchNorm2d(
-        num_features=num_features,
-        eps=eps)
-
-
-def lambda_instancenorm2d(eps: float = 1e-5) -> Callable[[int], nn.Module]:
-    """
-    Create lambda-function generator for nn.InstanceNorm2d normalization layer.
-
-    Parameters
-    ----------
-    eps : float, default 1e-5
-        Instance-norm epsilon.
-
-    Returns
-    -------
-    function
-        Desired function.
-    """
-    return lambda num_features: nn.InstanceNorm2d(
-        num_features=num_features,
-        eps=eps)
-
-
-def lambda_groupnorm(num_groups: int,
-                     eps: float = 1e-5) -> Callable[[int], nn.Module]:
-    """
-    Create lambda-function generator for nn.GroupNorm normalization layer.
-
-    Parameters
-    ----------
-    num_groups : int
-        Group-norm number of groups.
-    eps : float, default 1e-5
-        Group-norm epsilon.
-
-    Returns
-    -------
-    function
-        Desired function.
-    """
-    return lambda num_features: nn.GroupNorm(
-        num_groups=num_groups,
-        num_channels=num_features,
-        eps=eps)
-
-
-def create_normalization_layer(normalization: Callable[..., nn.Module | None] | nn.Module,
-                               **kwargs) -> nn.Module | None:
-    """
-    Create normalization layer from lambda-function generator or module.
-
-    Parameters
-    ----------
-    normalization : function or nn.Module
-        Lambda-function generator or module for normalization layer.
-
-    Returns
-    -------
-    nn.Module or None
-        Normalization layer.
-    """
-    assert (normalization is not None)
-    if isfunction(normalization):
-        return normalization(**kwargs)
-    else:
-        assert isinstance(normalization, nn.Module)
-        return normalization
 
 
 class SelectableDense(nn.Module):

@@ -12,7 +12,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Callable
-from .common.common import lambda_batchnorm1d, lambda_relu, DualPathSequential, DualPathParallelConcurent
+from .common.activ import lambda_relu
+from .common.norm import lambda_batchnorm1d
+from .common.common import DualPathSequential, DualPathParallelConcurent
 
 
 def outmask_fill(x: torch.Tensor,

@@ -9,7 +9,8 @@ __all__ = ['ResNeStA', 'resnestabc14', 'resnesta18', 'resnestabc26', 'resnesta50
 import os
 import torch.nn as nn
 from typing import Callable
-from .common.common import lambda_batchnorm2d, conv1x1_block, conv3x3_block, saconv3x3_block
+from .common.norm import lambda_batchnorm2d
+from .common.common import conv1x1_block, conv3x3_block, saconv3x3_block
 from .senet import SEInitBlock
 
 

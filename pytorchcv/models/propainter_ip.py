@@ -10,7 +10,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .common.common import lambda_leakyrelu
+from .common.activ import lambda_leakyrelu
 from .resnet import ResBlock
 from .propainter_rfc import SecondOrderDeformableAlignment
 

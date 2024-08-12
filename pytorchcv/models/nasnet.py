@@ -4,7 +4,8 @@
     https://arxiv.org/abs/1707.07012.
 """
 
-__all__ = ['NASNet', 'nasnet_4a1056', 'nasnet_6a4032', 'nasnet_dual_path_sequential']
+__all__ = ['NASNet', 'nasnet_4a1056', 'nasnet_6a4032', 'nasnet_dual_path_sequential', 'nasnet_batch_norm', 'NasConv',
+           'NasDwsConv', 'NasPathBlock', 'NASNetInitBlock']
 
 import os
 import torch

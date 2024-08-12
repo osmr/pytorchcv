@@ -4,7 +4,7 @@
     https://arxiv.org/abs/1807.09441.
 """
 
-__all__ = ['IBNResNet', 'ibn_resnet50', 'ibn_resnet101', 'ibn_resnet152']
+__all__ = ['IBNResNet', 'ibn_resnet50', 'ibn_resnet101', 'ibn_resnet152', 'ibn_conv1x1_block']
 
 import os
 import torch.nn as nn

@@ -13,7 +13,8 @@ import torch.nn as nn
 from functools import reduce
 import torch.nn.functional as F
 from typing import Callable
-from .common.common import lambda_leakyrelu, lambda_tanh, conv3x3, conv3x3_block, InterpolationBlock
+from .common.activ import lambda_leakyrelu, lambda_tanh
+from .common.common import conv3x3, conv3x3_block, InterpolationBlock
 from .propainter_ip import propainter_ip, BidirectionalPropagation
 
 

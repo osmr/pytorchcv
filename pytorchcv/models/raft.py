@@ -12,8 +12,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import Callable
 from .common.activ import lambda_relu, lambda_sigmoid, lambda_tanh
-from .common.common import (lambda_batchnorm2d, lambda_instancenorm2d, conv1x1, conv3x3, conv3x3_block, conv7x7_block,
-                            ConvBlock)
+from .common.norm import lambda_batchnorm2d, lambda_instancenorm2d
+from .common.common import conv1x1, conv3x3, conv3x3_block, conv7x7_block, ConvBlock
 from .resnet import ResUnit
 from .inceptionv3 import ConvSeqBranch
 

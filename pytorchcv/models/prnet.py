@@ -9,7 +9,9 @@ __all__ = ['PRNet', 'prnet']
 import os
 import torch.nn as nn
 from typing import Callable
-from .common.common import lambda_relu, lambda_batchnorm2d, ConvBlock, DeconvBlock, conv1x1, conv1x1_block, NormActivation
+from .common.activ import lambda_relu
+from .common.norm import lambda_batchnorm2d
+from .common.common import ConvBlock, DeconvBlock, conv1x1, conv1x1_block, NormActivation
 
 
 def conv4x4_block(in_channels: int,

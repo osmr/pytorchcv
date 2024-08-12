@@ -9,7 +9,8 @@ __all__ = ['BNInception', 'bninception']
 import os
 import torch.nn as nn
 from typing import Callable
-from .common.common import lambda_batchnorm2d, conv1x1_block, conv3x3_block, conv7x7_block, Concurrent
+from .common.norm import lambda_batchnorm2d
+from .common.common import conv1x1_block, conv3x3_block, conv7x7_block, Concurrent
 
 
 class Inception3x3Branch(nn.Module):

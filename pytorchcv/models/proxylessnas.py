@@ -10,7 +10,8 @@ __all__ = ['ProxylessNAS', 'proxylessnas_cpu', 'proxylessnas_gpu', 'proxylessnas
 import os
 import torch.nn as nn
 from typing import Callable
-from .common.common import lambda_batchnorm2d, ConvBlock, conv1x1_block, conv3x3_block
+from .common.norm import lambda_batchnorm2d
+from .common.common import ConvBlock, conv1x1_block, conv3x3_block
 
 
 class ProxylessBlock(nn.Module):

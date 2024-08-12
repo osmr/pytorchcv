@@ -10,8 +10,9 @@ import math
 import torch
 import torch.nn as nn
 from typing import Callable
-from .common.common import (round_channels, lambda_relu, conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block,
-                            dwconv5x5_block, dwsconv3x3_block, SEBlock)
+from .common.activ import lambda_relu
+from .common.common import (round_channels, conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block,
+                            dwsconv3x3_block, SEBlock)
 
 
 class GhostHSigmoid(nn.Module):

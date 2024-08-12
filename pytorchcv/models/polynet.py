@@ -9,7 +9,8 @@ __all__ = ['PolyNet', 'polynet']
 import os
 import torch.nn as nn
 from typing import Callable
-from .common.common import ConvBlock, conv1x1_block, conv3x3_block, Concurrent, ParametricSequential, ParametricConcurrent
+from .common.common import (ConvBlock, conv1x1_block, conv3x3_block, Concurrent, ParametricSequential,
+                            ParametricConcurrent)
 
 
 class PolyConv(nn.Module):

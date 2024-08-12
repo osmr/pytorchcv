@@ -9,7 +9,9 @@ __all__ = ['MobileNet', 'get_mobilenet', 'mobilenet_w1', 'mobilenet_w3d4', 'mobi
 import os
 import torch.nn as nn
 from typing import Callable
-from .common.common import lambda_relu, lambda_batchnorm2d, conv3x3_block, dwsconv3x3_block
+from .common.activ import lambda_relu
+from .common.norm import lambda_batchnorm2d
+from .common.common import conv3x3_block, dwsconv3x3_block
 
 
 class MobileNet(nn.Module):

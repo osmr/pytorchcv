@@ -9,7 +9,9 @@ __all__ = ['FBNet', 'fbnet_cb']
 import os
 import torch.nn as nn
 from typing import Callable
-from .common.common import lambda_relu, lambda_batchnorm2d, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block
+from .common.activ import lambda_relu
+from .common.norm import lambda_batchnorm2d
+from .common.common import conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block
 
 
 class FBNetUnit(nn.Module):

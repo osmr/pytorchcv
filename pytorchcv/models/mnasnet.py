@@ -8,7 +8,8 @@ __all__ = ['MnasNet', 'mnasnet_b1', 'mnasnet_a1', 'mnasnet_small']
 import os
 import torch.nn as nn
 from typing import Callable
-from .common.common import round_channels, lambda_relu, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, SEBlock
+from .common.activ import lambda_relu
+from .common.common import round_channels, conv1x1_block, conv3x3_block, dwconv3x3_block, dwconv5x5_block, SEBlock
 
 
 class DwsExpSEResUnit(nn.Module):
