@@ -165,6 +165,7 @@ def _test():
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
         updated_frames_masks_i = image_prop_loader[s:e]
+        assert (updated_frames_masks_i is not None)
         image_prop_loader.trim_buffer_to(max(e - flow_loader_trim_pad, 0))
         torch.cuda.empty_cache()
 

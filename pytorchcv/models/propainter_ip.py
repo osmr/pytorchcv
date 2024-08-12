@@ -364,7 +364,7 @@ def _test2():
     import numpy as np
 
     root_path = "../../../pytorchcv_data/test_a"
-    pp_model_file_name = "ProPainter.pth"
+    # pp_model_file_name = "ProPainter.pth"
 
     # model_path = os.path.join(root_path, pp_model_file_name)
     net_ppip = PPImagePropagation()

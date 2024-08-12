@@ -452,6 +452,7 @@ def run_streaming_propainter(frames_dir_path: str,
     for s in range(0, video_length, vi_step):
         e = min(s + vi_step, video_length)
         vi_frames_i = frame_collect_loader[s:e]
+        assert (vi_frames_i is not None)
         video_inpaint_loader.trim_buffer_to(max(e - video_inpaint_loader_trim_pad, 0))
         image_trans_loader.trim_buffer_to(max(e - image_trans_loader_trim_pad, 0))
         image_prop_loader.trim_buffer_to(max(e - image_prop_loader_trim_pad, 0))

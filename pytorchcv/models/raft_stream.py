@@ -627,6 +627,7 @@ def _test():
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
         flows_i = flow_loader[s:e]
+        assert (flows_i is not None)
         flow_loader.trim_buffer_to(max(e - flow_loader_trim_pad, 0))
         torch.cuda.empty_cache()
 

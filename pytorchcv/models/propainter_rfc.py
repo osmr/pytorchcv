@@ -13,8 +13,8 @@ import torch
 import torch.nn as nn
 from torchvision.ops import DeformConv2d
 from typing import Callable
-from .common.common import (lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3_block, InterpolationBlock,
-                     BreakBlock, Hourglass)
+from .common.common import (lambda_relu, create_activation_layer, lambda_leakyrelu, conv1x1, conv3x3_block,
+                            InterpolationBlock, BreakBlock, Hourglass)
 from .resnet import ResUnit, ResBlock
 
 
@@ -1059,8 +1059,8 @@ def _test2():
     flow_f_cmp_ = torch.from_numpy(np.load("/home/osmr/projects/pytorchcv_data/testa/pprfc_pred_flows_f.npy")).cuda()[0]
     flow_b_cmp_ = torch.from_numpy(np.load("/home/osmr/projects/pytorchcv_data/testa/pprfc_pred_flows_b.npy")).cuda()[0]
 
-    a = (flow_f_comp - flow_f_cmp_).abs().max()
-    a = (flow_b_comp - flow_b_cmp_).abs().max()
+    # a = (flow_f_comp - flow_f_cmp_).abs().max()
+    # a = (flow_b_comp - flow_b_cmp_).abs().max()
 
     if not np.array_equal(flow_f_comp.cpu().detach().numpy(), flow_f_cmp_.cpu().detach().numpy()):
         print("*")

@@ -2,10 +2,10 @@
     Common routines for models in PyTorch.
 """
 
-__all__ = ['round_channels', 'Identity', 'BreakBlock', 'Swish', 'HSigmoid', 'HSwish', 'lambda_relu', 'lambda_relu6',
+__all__ = ['round_channels', 'BreakBlock', 'Swish', 'HSigmoid', 'HSwish', 'lambda_relu', 'lambda_relu6',
            'lambda_prelu', 'lambda_leakyrelu', 'lambda_sigmoid', 'lambda_tanh', 'lambda_hsigmoid', 'lambda_swish',
            'lambda_hswish', 'lambda_batchnorm1d', 'lambda_batchnorm2d', 'lambda_instancenorm2d', 'lambda_groupnorm',
-           'create_activation_layer', 'create_normalization_layer', 'SelectableDense', 'DenseBlock', 'ConvBlock1d',
+           'create_normalization_layer', 'SelectableDense', 'DenseBlock', 'ConvBlock1d',
            'conv1x1', 'conv3x3', 'depthwise_conv3x3', 'ConvBlock', 'conv1x1_block', 'conv3x3_block', 'conv5x5_block',
            'conv7x7_block', 'dwconv_block', 'dwconv3x3_block', 'dwconv5x5_block', 'dwsconv3x3_block', 'PreConvBlock',
            'pre_conv1x1_block', 'pre_conv3x3_block', 'AsymConvBlock', 'asym_conv3x3_block', 'DeconvBlock',
@@ -22,6 +22,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 from typing import Callable
+from .activ import create_activation_layer
 
 
 def round_channels(channels: int | float,
@@ -45,20 +46,6 @@ def round_channels(channels: int | float,
     if float(rounded_channels) < 0.9 * channels:
         rounded_channels += divisor
     return rounded_channels
-
-
-class Identity(nn.Module):
-    """
-    Identity block.
-    """
-    def __init__(self):
-        super(Identity, self).__init__()
-
-    def forward(self, x):
-        return x
-
-    def __repr__(self):
-        return "{name}()".format(name=self.__class__.__name__)
 
 
 class BreakBlock(nn.Module):
@@ -325,45 +312,6 @@ def lambda_groupnorm(num_groups: int,
         num_groups=num_groups,
         num_channels=num_features,
         eps=eps)
-
-
-def create_activation_layer(activation: Callable[..., nn.Module | None] | nn.Module | str) -> nn.Module | None:
-    """
-    Create activation layer from lambda-function generator or module.
-
-    Parameters
-    ----------
-    activation : function or nn.Module or str
-        Lambda-function generator or module for activation layer.
-
-    Returns
-    -------
-    nn.Module or None
-        Activation layer.
-    """
-    assert (activation is not None)
-    if isfunction(activation):
-        return activation()
-    elif isinstance(activation, str):
-        if activation == "relu":
-            return nn.ReLU(inplace=True)
-        elif activation == "relu6":
-            return nn.ReLU6(inplace=True)
-        elif activation == "swish":
-            return Swish()
-        elif activation == "hswish":
-            return HSwish(inplace=True)
-        elif activation == "sigmoid":
-            return nn.Sigmoid()
-        elif activation == "hsigmoid":
-            return HSigmoid()
-        elif activation == "identity":
-            return Identity()
-        else:
-            raise NotImplementedError()
-    else:
-        assert isinstance(activation, nn.Module)
-        return activation
 
 
 def create_normalization_layer(normalization: Callable[..., nn.Module | None] | nn.Module,

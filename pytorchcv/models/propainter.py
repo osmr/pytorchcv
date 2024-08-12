@@ -976,7 +976,7 @@ def _test2():
                     pass
 
     root_path = "../../../pytorchcv_data/test_a"
-    pp_model_file_name = "ProPainter.pth"
+    # pp_model_file_name = "ProPainter.pth"
 
     # model_path = os.path.join(root_path, pp_model_file_name)
     model_path = "../../../pytorchcv_data/test/propainter.pth"

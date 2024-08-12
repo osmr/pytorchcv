@@ -11,8 +11,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Callable
-from .common.common import (lambda_relu, lambda_sigmoid, lambda_tanh, lambda_batchnorm2d, lambda_instancenorm2d, conv1x1,
-                     conv3x3, conv3x3_block, conv7x7_block, ConvBlock)
+from .common.common import (lambda_relu, lambda_sigmoid, lambda_tanh, lambda_batchnorm2d, lambda_instancenorm2d,
+                            conv1x1, conv3x3, conv3x3_block, conv7x7_block, ConvBlock)
 from .resnet import ResUnit
 from .inceptionv3 import ConvSeqBranch
 
@@ -1188,12 +1188,12 @@ def _test2():
 
         if raft_small:
             raft_model_file_name = "raft-small_2.pth"
-            y1_file_name = "y1_s.npy"
-            y2_file_name = "y2_s.npy"
+            # y1_file_name = "y1_s.npy"
+            # y2_file_name = "y2_s.npy"
         else:
             raft_model_file_name = "raft-things_2.pth"
-            y1_file_name = "y1.npy"
-            y2_file_name = "y2.npy"
+            # y1_file_name = "y1.npy"
+            # y2_file_name = "y2.npy"
 
         fix_raft = RAFT_bi(
             model_path=os.path.join(root_path, raft_model_file_name),

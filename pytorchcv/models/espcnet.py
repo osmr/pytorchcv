@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 from typing import Callable
 from .common.common import (lambda_prelu, lambda_batchnorm2d, NormActivation, conv1x1, conv3x3, conv3x3_block,
-                     DualPathSequential, InterpolationBlock)
+                            DualPathSequential, InterpolationBlock)
 
 
 class HierarchicalConcurrent(nn.Sequential):

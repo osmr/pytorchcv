@@ -8,8 +8,8 @@ __all__ = ['LFFD', 'lffd20x5s320v2_widerface', 'lffd25x8s560v1_widerface']
 import os
 import torch.nn as nn
 from typing import Callable
-from .common.common import (lambda_batchnorm2d, conv3x3, conv1x1_block, conv3x3_block, Concurrent, MultiOutputSequential,
-                     ParallelConcurent)
+from .common.common import (lambda_batchnorm2d, conv3x3, conv1x1_block, conv3x3_block, Concurrent,
+                            MultiOutputSequential, ParallelConcurent)
 from .resnet import ResUnit
 from .preresnet import PreResUnit
 
