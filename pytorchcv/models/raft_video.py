@@ -239,51 +239,6 @@ class MaskIterator(FrameIterator):
         return masks
 
 
-class FrameCollectIterator(BufferedIterator):
-    """
-    Frame collecting as numpy-array buffered iterator.
-    """
-    def __init__(self,
-                 **kwargs):
-        super(FrameCollectIterator, self).__init__(**kwargs)
-
-    def _calc_data_items(self,
-                         raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
-        """
-        Calculate/load data items.
-
-        Parameters
-        ----------
-        raw_data_chunk_list : tuple(sequence, ...) or list(sequence) or sequence
-            List of source data chunks.
-
-        Returns
-        -------
-        sequence
-            Resulted data.
-        """
-        assert (len(raw_data_chunk_list) == 1)
-
-        pred_frames = raw_data_chunk_list[0]
-
-        pred_frames = (((pred_frames + 1.0) / 2.0) * 255).to(torch.uint8)
-        pred_frames = pred_frames.permute(0, 2, 3, 1).cpu().detach().numpy()
-
-        return pred_frames
-
-    def _expand_buffer_by(self,
-                          data_chunk: Sequence):
-        """
-        Expand buffer by extra data.
-
-        Parameters
-        ----------
-        data_chunk : sequence
-            Data chunk.
-        """
-        self.buffer = np.concatenate([self.buffer, data_chunk])
-
-
 def check_arrays(gt_arrays_dir_path,
                  pref,
                  tested_array,
@@ -336,110 +291,6 @@ def conv_propainter_frames_into_numpy(frames: torch.Tensor) -> np.ndarray:
     frames = (((frames + 1.0) / 2.0) * 255).to(torch.uint8)
     frames = frames.permute(0, 2, 3, 1).cpu().detach().numpy()
     return frames
-
-
-def run_streaming_propainter2(frames_dir_path: str,
-                              masks_dir_path: str,
-                              image_resize_ratio: float,
-                              raft_model_path: str,
-                              pprfc_model_path: str,
-                              pp_model_path: str,
-                              mask_dilation: int = 4,
-                              raft_iters: int = 20) -> np.ndarray:
-    """
-    Run ProPainter in streaming mode.
-
-    Parameters
-    ----------
-    frames_dir_path : str
-        Frames directory path.
-    masks_dir_path : str
-        Masks directory path.
-    image_resize_ratio : float
-        Resize ratio.
-    raft_model_path : str
-        Path to RAFT model parameters.
-    pprfc_model_path : str
-        Path to ProPainter-RFC model parameters.
-    pp_model_path : str
-        Path to ProPainter model parameters.
-    use_cuda : bool, default True
-        Whether to use CUDA.
-    mask_dilation : int, default 4
-        Mask dilation.
-    raft_iters : int, default 20
-        Number of iterations in RAFT.
-
-    Returns
-    -------
-    np.ndarray
-        Resulted frames.
-    """
-    frame_loader = FrameIterator(
-        data=FilePathDirIterator(frames_dir_path),
-        image_resize_ratio=image_resize_ratio,
-        use_cuda=True)
-
-    mask_loader = MaskIterator(
-        mask_dilation=mask_dilation,
-        data=FilePathDirIterator(masks_dir_path),
-        image_resize_ratio=image_resize_ratio,
-        use_cuda=True)
-
-    video_length = len(frame_loader)
-
-    flow_loader = RAFTIterator(
-        frames=frame_loader,
-        raft_model_path=raft_model_path,
-        raft_iters=raft_iters)
-
-    flow_comp_loader = ProPainterRFCIterator(
-        flows=flow_loader,
-        masks=mask_loader,
-        pprfc_model_path=pprfc_model_path)
-
-    image_prop_loader = ProPainterIPIterator(
-        frames=frame_loader,
-        masks=mask_loader,
-        comp_flows=flow_comp_loader)
-
-    image_trans_loader = ProPainterITIterator(
-        prop_framemasks=image_prop_loader,
-        masks=mask_loader,
-        comp_flows=flow_comp_loader,
-        pp_model_path=pp_model_path)
-
-    video_inpaint_loader = ProPainterIMIterator(
-        pred_frames=image_trans_loader,
-        frames=frame_loader,
-        masks=mask_loader)
-
-    frame_collect_loader = FrameCollectIterator(
-        data=[video_inpaint_loader])
-
-    vi_step = 10
-    video_inpaint_loader_trim_pad = 2
-    image_trans_loader_trim_pad = 6
-    image_prop_loader_trim_pad = 35
-    flow_comp_loader_trim_pad = 3
-    flow_loader_trim_pad = 3
-    mask_loader_trim_pad = 35
-    frame_loader_trim_pad = 2
-    for s in range(0, video_length, vi_step):
-        e = min(s + vi_step, video_length)
-        vi_frames_i = frame_collect_loader[s:e]
-        assert (vi_frames_i is not None)
-        video_inpaint_loader.trim_buffer_to(max(e - video_inpaint_loader_trim_pad, 0))
-        image_trans_loader.trim_buffer_to(max(e - image_trans_loader_trim_pad, 0))
-        image_prop_loader.trim_buffer_to(max(e - image_prop_loader_trim_pad, 0))
-        flow_comp_loader.trim_buffer_to(max(e - flow_comp_loader_trim_pad, 0))
-        flow_loader.trim_buffer_to(max(e - flow_loader_trim_pad, 0))
-        mask_loader.trim_buffer_to(max(e - mask_loader_trim_pad, 0))
-        frame_loader.trim_buffer_to(max(e - frame_loader_trim_pad, 0))
-        torch.cuda.empty_cache()
-
-    assert (frame_collect_loader.start_pos == 0)
-    return frame_collect_loader.buffer
 
 
 def run_streaming_propainter(frames_dir_path: str,
@@ -526,7 +377,7 @@ def _test():
     pprfc_model_path = "../../../pytorchcv_data/test/propainter_rfc.pth"
     pp_model_path = "../../../pytorchcv_data/test/propainter.pth"
 
-    vi_frames = run_streaming_propainter2(
+    vi_frames = run_streaming_propainter(
         frames_dir_path=frames_dir_path,
         masks_dir_path=masks_dir_path,
         image_resize_ratio=image_resize_ratio,
