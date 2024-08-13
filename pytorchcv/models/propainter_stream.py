@@ -4,7 +4,7 @@
     https://arxiv.org/pdf/2309.03897.
 """
 
-__all__ = ['ProPainterITIterator', 'ProPainterIterator']
+__all__ = ['ProPainterITIterator', 'ProPainterIMIterator', 'ProPainterIterator']
 
 import torch
 import torch.nn as nn
@@ -12,6 +12,9 @@ from typing import Sequence
 from .common.steam import (BufferedIterator, WindowBufferedIterator, WindowMultiIndex,
                            calc_sliding_window_iterator_index, concat_window_iterator_indices)
 from .propainter import propainter
+from .raft_stream import RAFTIterator
+from .propainter_rfc_stream import ProPainterRFCIterator
+from .propainter_ip_stream import ProPainterIPIterator
 
 
 class ProPainterITIterator(WindowBufferedIterator):
@@ -111,16 +114,16 @@ class ProPainterITIterator(WindowBufferedIterator):
 
         l_t = len(comp_flows) + 1
 
-        pred_frames = self.net(
+        trans_frames = self.net(
             masked_frames=masked_frames,
             masks_updated=masks_updated,
             masks_in=masks_in,
             completed_flows=completed_flows,
             num_local_frames=l_t)
 
-        pred_frames = pred_frames[0]
+        trans_frames = trans_frames[0]
 
-        return pred_frames
+        return trans_frames
 
     def _calc_window_pose(self,
                           pos: int) -> int:
@@ -268,13 +271,13 @@ class ProPainterITIterator(WindowBufferedIterator):
         return pp_window_index
 
 
-class ProPainterIterator(BufferedIterator):
+class ProPainterIMIterator(BufferedIterator):
     """
-    Video inpainting (ProPainter) buffered iterator.
+    Inpaint Masking (ProPainter-IM) buffered iterator.
 
     Parameters
     ----------
-    pred_frames : Sequence
+    trans_frames : Sequence
         Image transform iterator (ProPainter-IT).
     frames : sequence
         Frame iterator.
@@ -282,13 +285,13 @@ class ProPainterIterator(BufferedIterator):
         Mask iterator.
     """
     def __init__(self,
-                 pred_frames: Sequence,
+                 trans_frames: Sequence,
                  frames: Sequence,
                  masks: Sequence,
                  **kwargs):
         assert (len(frames) > 0)
-        super(ProPainterIterator, self).__init__(
-            data=[pred_frames, frames, masks],
+        super(ProPainterIMIterator, self).__init__(
+            data=[trans_frames, frames, masks],
             **kwargs)
 
     def _calc_data_items(self,
@@ -308,13 +311,13 @@ class ProPainterIterator(BufferedIterator):
         """
         assert (len(raw_data_chunk_list) == 3)
 
-        pred_frames = raw_data_chunk_list[0]
+        trans_frames = raw_data_chunk_list[0]
         frames = raw_data_chunk_list[1]
         masks = raw_data_chunk_list[2]
 
-        vi_frames = pred_frames * masks + frames * (1 - masks)
+        inp_frames = trans_frames * masks + frames * (1 - masks)
 
-        return vi_frames
+        return inp_frames
 
     def _expand_buffer_by(self,
                           data_chunk: Sequence):
@@ -329,6 +332,109 @@ class ProPainterIterator(BufferedIterator):
         self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
 
 
+class ProPainterIterator:
+    """
+    Video Inpainting (ProPainter) iterator.
+
+    Parameters
+    ----------
+    frames : BufferedIterator
+        Frame iterator.
+    masks : BufferedIterator
+        Mask iterator.
+    raft_model_path : str or None, default None
+        Path to RAFT model parameters.
+    pprfc_model_path : str or None, default None
+        Path to ProPainter-RFC model parameters.
+    pp_model_path : str or None, default None
+        Path to ProPainter model parameters.
+    step : int, default 10
+        Iteration window size.
+    """
+    def __init__(self,
+                 frames: BufferedIterator,
+                 masks: BufferedIterator,
+                 raft_model_path: str | None = None,
+                 pprfc_model_path: str | None = None,
+                 pp_model_path: str | None = None,
+                 step: int = 10):
+        super(ProPainterIterator, self).__init__()
+        assert (len(frames) > 0)
+        assert (len(frames) == len(masks))
+        assert (step > 0)
+
+        self.video_length = len(frames)
+        self.step = step
+
+        self.frames = frames
+        self.masks = masks
+
+        self.flow_iterator = RAFTIterator(
+            frames=frames,
+            raft_model_path=raft_model_path)
+        self.comp_flow_iterator = ProPainterRFCIterator(
+            flows=self.flow_iterator,
+            masks=masks,
+            pprfc_model_path=pprfc_model_path)
+        self.prop_framemask_iterator = ProPainterIPIterator(
+            frames=frames,
+            masks=masks,
+            comp_flows=self.comp_flow_iterator)
+        self.trans_frame_iterator = ProPainterITIterator(
+            prop_framemasks=self.prop_framemask_iterator,
+            masks=masks,
+            comp_flows=self.comp_flow_iterator,
+            pp_model_path=pp_model_path)
+        self.inp_frame_iterator = ProPainterIMIterator(
+            trans_frames=self.trans_frame_iterator,
+            frames=frames,
+            masks=masks)
+
+        self.inp_frame_iterator_trim_pad = 2
+        self.trans_frame_iterator_trim_pad = 6
+        self.prop_framemask_iterator_trim_pad = 35
+        self.comp_flow_iterator_trim_pad = 3
+        self.flow_iterator_trim_pad = 3
+        self.mask_iterator_trim_pad = 35
+        self.frame_iterator_trim_pad = 2
+
+    def __iter__(self):
+        self.s = -self.step
+
+        self.inp_frame_iterator.clear_buffer()
+        self.trans_frame_iterator.clear_buffer()
+        self.prop_framemask_iterator.clear_buffer()
+        self.comp_flow_iterator.clear_buffer()
+        self.flow_iterator.clear_buffer()
+        self.masks.clear_buffer()
+        self.frames.clear_buffer()
+
+        torch.cuda.empty_cache()
+
+        return self
+
+    def __next__(self):
+        if self.s == self.video_length - 1:
+            raise StopIteration
+
+        self.s = min(self.s + self.step, self.video_length - 1)
+        e = min(self.s + self.step, self.video_length)
+
+        data = self.inp_frame_iterator[self.s:e]
+
+        self.inp_frame_iterator.trim_buffer_to(max(e - self.inp_frame_iterator_trim_pad, 0))
+        self.trans_frame_iterator.trim_buffer_to(max(e - self.trans_frame_iterator_trim_pad, 0))
+        self.prop_framemask_iterator.trim_buffer_to(max(e - self.prop_framemask_iterator_trim_pad, 0))
+        self.comp_flow_iterator.trim_buffer_to(max(e - self.comp_flow_iterator_trim_pad, 0))
+        self.flow_iterator.trim_buffer_to(max(e - self.flow_iterator_trim_pad, 0))
+        self.masks.trim_buffer_to(max(e - self.mask_iterator_trim_pad, 0))
+        self.frames.trim_buffer_to(max(e - self.frame_iterator_trim_pad, 0))
+
+        torch.cuda.empty_cache()
+
+        return data
+
+
 def _test():
     pp_model_path = "../../../pytorchcv_data/test/propainter.pth"
 
@@ -340,7 +446,7 @@ def _test():
     comp_flows = torch.randn(time - 1, 4, height, width)
     frames = torch.randn(time, 3, height, width)
 
-    pred_frame_iterator = ProPainterITIterator(
+    trans_frame_iterator = ProPainterITIterator(
         prop_framemasks=prop_framemasks,
         masks=masks,
         comp_flows=comp_flows,
@@ -348,27 +454,27 @@ def _test():
 
     video_length = time
     time_step = 10
-    pred_frame_iterator_trim_pad = 6
+    trans_frame_iterator_trim_pad = 6
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
-        pred_frames_i = pred_frame_iterator[s:e]
-        assert (pred_frames_i is not None)
-        pred_frame_iterator.trim_buffer_to(max(e - pred_frame_iterator_trim_pad, 0))
+        trans_frames_i = trans_frame_iterator[s:e]
+        assert (trans_frames_i is not None)
+        trans_frame_iterator.trim_buffer_to(max(e - trans_frame_iterator_trim_pad, 0))
         torch.cuda.empty_cache()
 
-    pred_frame_iterator.clear_buffer()
+    trans_frame_iterator.clear_buffer()
 
-    vi_frame_iterator = ProPainterIterator(
-        pred_frames=pred_frame_iterator,
+    inp_frame_iterator = ProPainterIMIterator(
+        trans_frames=trans_frame_iterator,
         frames=frames,
         masks=masks)
 
-    vi_frame_iterator_trim_pad = 2
+    inp_frame_iterator_trim_pad = 2
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
-        vi_frames_i = vi_frame_iterator[s:e]
-        assert (vi_frames_i is not None)
-        vi_frame_iterator.trim_buffer_to(max(e - vi_frame_iterator_trim_pad, 0))
+        inp_frames_i = inp_frame_iterator[s:e]
+        assert (inp_frames_i is not None)
+        inp_frame_iterator.trim_buffer_to(max(e - inp_frame_iterator_trim_pad, 0))
         torch.cuda.empty_cache()
 
     pass

@@ -14,7 +14,7 @@ from .common.steam import BufferedIterator
 from .raft_stream import RAFTIterator
 from .propainter_rfc_stream import ProPainterRFCIterator
 from .propainter_ip_stream import ProPainterIPIterator
-from .propainter_stream import ProPainterITIterator, ProPainterIterator
+from .propainter_stream import ProPainterITIterator, ProPainterIMIterator, ProPainterIterator
 
 
 class FilePathDirIterator(object):
@@ -319,14 +319,33 @@ def check_arrays(gt_arrays_dir_path,
             np.testing.assert_allclose(tested_array_i, gt_array_i, rtol=0, atol=atol)
 
 
-def run_streaming_propainter(frames_dir_path: str,
-                             masks_dir_path: str,
-                             image_resize_ratio: float,
-                             raft_model_path: str,
-                             pprfc_model_path: str,
-                             pp_model_path: str,
-                             mask_dilation: int = 4,
-                             raft_iters: int = 20) -> np.ndarray:
+def conv_propainter_frames_into_numpy(frames: torch.Tensor) -> np.ndarray:
+    """
+    Convert ProPainter output frames from torch to numpy format.
+
+    Parameters
+    ----------
+    frames : torch.Tensor
+        ProPainter output frames in torch format.
+
+    Returns
+    -------
+    np.ndarray
+        Resulted numpy frames.
+    """
+    frames = (((frames + 1.0) / 2.0) * 255).to(torch.uint8)
+    frames = frames.permute(0, 2, 3, 1).cpu().detach().numpy()
+    return frames
+
+
+def run_streaming_propainter2(frames_dir_path: str,
+                              masks_dir_path: str,
+                              image_resize_ratio: float,
+                              raft_model_path: str,
+                              pprfc_model_path: str,
+                              pp_model_path: str,
+                              mask_dilation: int = 4,
+                              raft_iters: int = 20) -> np.ndarray:
     """
     Run ProPainter in streaming mode.
 
@@ -390,7 +409,7 @@ def run_streaming_propainter(frames_dir_path: str,
         comp_flows=flow_comp_loader,
         pp_model_path=pp_model_path)
 
-    video_inpaint_loader = ProPainterIterator(
+    video_inpaint_loader = ProPainterIMIterator(
         pred_frames=image_trans_loader,
         frames=frame_loader,
         masks=mask_loader)
@@ -423,6 +442,72 @@ def run_streaming_propainter(frames_dir_path: str,
     return frame_collect_loader.buffer
 
 
+def run_streaming_propainter(frames_dir_path: str,
+                             masks_dir_path: str,
+                             image_resize_ratio: float,
+                             raft_model_path: str,
+                             pprfc_model_path: str,
+                             pp_model_path: str,
+                             mask_dilation: int = 4,
+                             raft_iters: int = 20) -> np.ndarray:
+    """
+    Run ProPainter in streaming mode.
+
+    Parameters
+    ----------
+    frames_dir_path : str
+        Frames directory path.
+    masks_dir_path : str
+        Masks directory path.
+    image_resize_ratio : float
+        Resize ratio.
+    raft_model_path : str
+        Path to RAFT model parameters.
+    pprfc_model_path : str
+        Path to ProPainter-RFC model parameters.
+    pp_model_path : str
+        Path to ProPainter model parameters.
+    use_cuda : bool, default True
+        Whether to use CUDA.
+    mask_dilation : int, default 4
+        Mask dilation.
+    raft_iters : int, default 20
+        Number of iterations in RAFT.
+
+    Returns
+    -------
+    np.ndarray
+        Resulted frames.
+    """
+    frame_iterator = FrameIterator(
+        data=FilePathDirIterator(frames_dir_path),
+        image_resize_ratio=image_resize_ratio,
+        use_cuda=True)
+
+    mask_iterator = MaskIterator(
+        mask_dilation=mask_dilation,
+        data=FilePathDirIterator(masks_dir_path),
+        image_resize_ratio=image_resize_ratio,
+        use_cuda=True)
+
+    vi_iterator = ProPainterIterator(
+        frames=frame_iterator,
+        masks=mask_iterator,
+        raft_model_path=raft_model_path,
+        pprfc_model_path=pprfc_model_path,
+        pp_model_path=pp_model_path)
+
+    vi_frames_np = None
+    for frames_i in vi_iterator:
+        frames_np_i = conv_propainter_frames_into_numpy(frames_i)
+        if vi_frames_np is None:
+            vi_frames_np = frames_np_i
+        else:
+            vi_frames_np = np.concatenate([vi_frames_np, frames_np_i])
+
+    return vi_frames_np
+
+
 def _test():
     # root_path = "../../../pytorchcv_data/test0"
     # image_resize_ratio = 1.0
@@ -441,7 +526,7 @@ def _test():
     pprfc_model_path = "../../../pytorchcv_data/test/propainter_rfc.pth"
     pp_model_path = "../../../pytorchcv_data/test/propainter.pth"
 
-    vi_frames = run_streaming_propainter(
+    vi_frames = run_streaming_propainter2(
         frames_dir_path=frames_dir_path,
         masks_dir_path=masks_dir_path,
         image_resize_ratio=image_resize_ratio,
