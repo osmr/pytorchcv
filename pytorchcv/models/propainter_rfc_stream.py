@@ -4,7 +4,7 @@
     https://arxiv.org/pdf/2309.03897.
 """
 
-__all__ = ['PPRFCIterator']
+__all__ = ['ProPainterRFCIterator']
 
 import torch
 import torch.nn as nn
@@ -14,20 +14,30 @@ from .common.steam import (WindowBufferedIterator, WindowMultiIndex, calc_serial
 from .propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
 
 
-class FlowCompIterator(WindowBufferedIterator):
+class ProPainterRFCIterator(WindowBufferedIterator):
     """
-    Optical flow completion window buffered iterator.
+    Optical flow completion (ProPainter-RFC) window buffered iterator.
 
     Parameters
     ----------
-    net : nn.Module
-        Optical flow completion model.
+    flows : Sequence
+        Flow iterator (RAFT).
+    masks : sequence
+        Mask iterator.
+    pprfc_model_path : str or None, default None
+        Path to ProPainter-RFC model parameters.
     """
     def __init__(self,
-                 net: nn.Module,
+                 flows: Sequence,
+                 masks: Sequence,
+                 pprfc_model_path: str | None = None,
                  **kwargs):
-        super(FlowCompIterator, self).__init__(**kwargs)
-        self.net = net
+        assert (len(masks) > 0)
+        super(ProPainterRFCIterator, self).__init__(
+            data=[flows, masks],
+            window_index=ProPainterRFCIterator._calc_window_index(video_length=len(masks)),
+            **kwargs)
+        self.net = ProPainterRFCIterator._load_model(pprfc_model_path=pprfc_model_path)
 
     def _calc_data_items(self,
                          raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
@@ -73,31 +83,6 @@ class FlowCompIterator(WindowBufferedIterator):
             Data chunk.
         """
         self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
-
-
-class PPRFCIterator(FlowCompIterator):
-    """
-    Recurrent flow completion (from ProPainter) window buffered iterator.
-
-    Parameters
-    ----------
-    flows : Sequence
-        Flow iterator (RAFT).
-    masks : sequence
-        Mask iterator.
-    pprfc_model_path : str or None, default None
-        Path to ProPainter-RFC model parameters.
-    """
-    def __init__(self,
-                 flows: Sequence,
-                 masks: Sequence,
-                 pprfc_model_path: str | None = None,
-                 **kwargs):
-        super(PPRFCIterator, self).__init__(
-            data=[flows, masks],
-            window_index=PPRFCIterator._calc_window_index(video_length=len(masks)),
-            net=PPRFCIterator._load_model(pprfc_model_path=pprfc_model_path),
-            **kwargs)
 
     @staticmethod
     def _load_model(pprfc_model_path: str | None = None) -> nn.Module:
@@ -165,19 +150,19 @@ def _test():
     flows = torch.randn(time - 1, 4, height, width)
     masks = torch.randn(time, 2, height, width)
 
-    flow_comp_loader = PPRFCIterator(
+    comp_flow_iterator = ProPainterRFCIterator(
         flows=flows,
         masks=masks,
         pprfc_model_path=pprfc_model_path)
 
     video_length = time
     time_step = 10
-    flow_loader_trim_pad = 3
+    comp_flow_iterator_trim_pad = 3
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
-        comp_flows_i = flow_comp_loader[s:e]
+        comp_flows_i = comp_flow_iterator[s:e]
         assert (comp_flows_i is not None)
-        flow_comp_loader.trim_buffer_to(max(e - flow_loader_trim_pad, 0))
+        comp_flow_iterator.trim_buffer_to(max(e - comp_flow_iterator_trim_pad, 0))
         torch.cuda.empty_cache()
 
     pass

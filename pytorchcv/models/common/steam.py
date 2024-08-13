@@ -155,6 +155,14 @@ class BufferedIterator(object):
             self.buffer = self.buffer[s_idx:]
             self.start_pos = start
 
+    def clear_buffer(self):
+        """
+        Clear buffer.
+        """
+        self.start_pos = 0
+        self.end_pos = 0
+        self.buffer = None
+
 
 class WindowRange(object):
     """
@@ -427,3 +435,10 @@ class WindowBufferedIterator(BufferedIterator):
                 self._expand_buffer_by(data_chunk)
             self.end_pos = win_mmap.target.stop
             self.window_pos = win_pos
+
+    def clear_buffer(self):
+        """
+        Clear buffer.
+        """
+        super(WindowBufferedIterator, self).clear_buffer()
+        self.window_pos = -1

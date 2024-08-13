@@ -360,76 +360,6 @@ def propainter_ip(**kwargs) -> nn.Module:
         **kwargs)
 
 
-def _test2():
-    import numpy as np
-
-    root_path = "../../../pytorchcv_data/test_a"
-    # pp_model_file_name = "ProPainter.pth"
-
-    # model_path = os.path.join(root_path, pp_model_file_name)
-    net_ppip = PPImagePropagation()
-
-    for p in net_ppip.parameters():
-        p.requires_grad = False
-    net_ppip.eval()
-    net_ppip = net_ppip.cuda()
-
-    frame1_file_path = os.path.join(root_path, "frame_00100.npy")
-    frame2_file_path = os.path.join(root_path, "frame_00101.npy")
-    frame1_np = np.load(frame1_file_path)
-    frame2_np = np.load(frame2_file_path)
-
-    mask_dilated1_file_path = os.path.join(root_path, "mask_dilated_00100.npy")
-    mask_dilated2_file_path = os.path.join(root_path, "mask_dilated_00101.npy")
-    mask_dilated1_np = np.load(mask_dilated1_file_path)
-    mask_dilated2_np = np.load(mask_dilated2_file_path)
-
-    pred_flow_f_file_path = os.path.join(root_path, "pred_flow_f_00100.npy")
-    pred_flow_b_file_path = os.path.join(root_path, "pred_flow_b_00100.npy")
-    pred_flow_f_np = np.load(pred_flow_f_file_path)
-    pred_flow_b_np = np.load(pred_flow_b_file_path)
-
-    frames_np = np.stack([frame1_np, frame2_np])
-    frames = torch.from_numpy(frames_np).cuda()
-    masks_dilated_np = np.stack([mask_dilated1_np, mask_dilated2_np])
-    masks_dilated = torch.from_numpy(masks_dilated_np).cuda()
-    # masked_frames = frames * (1 - masks_dilated)
-
-    pred_flow_f_np = pred_flow_f_np[None]
-    pred_flow_b_np = pred_flow_b_np[None]
-    pred_flow_f = torch.from_numpy(pred_flow_f_np).cuda()
-    pred_flow_b = torch.from_numpy(pred_flow_b_np).cuda()
-
-    comp_flows = torch.cat((pred_flow_f, pred_flow_b), dim=1)
-    prop_imgs, updated_local_masks = net_ppip(
-        frames=frames,
-        masks=masks_dilated,
-        comp_flows=comp_flows,
-        interpolation="nearest")
-
-    prop_imgs_np_ = prop_imgs.cpu().detach().numpy()
-    updated_local_masks_np_ = updated_local_masks.cpu().detach().numpy()
-
-    # np.save(os.path.join(root_path, "prop_imgs.npy"), np.ascontiguousarray(prop_imgs_np_))
-    # np.save(os.path.join(root_path, "updated_local_masks.npy"), np.ascontiguousarray(updated_local_masks_np_))
-
-    prop_imgs_file_path = os.path.join(root_path, "prop_imgs.npy")
-    prop_imgs_np = np.load(prop_imgs_file_path)
-
-    updated_local_masks_file_path = os.path.join(root_path, "updated_local_masks.npy")
-    updated_local_masks_np = np.load(updated_local_masks_file_path)
-
-    if not np.array_equal(prop_imgs_np, prop_imgs_np_):
-        print("*")
-    np.testing.assert_array_equal(prop_imgs_np, prop_imgs_np_)
-
-    if not np.array_equal(updated_local_masks_np, updated_local_masks_np_):
-        print("*")
-    np.testing.assert_array_equal(updated_local_masks_np, updated_local_masks_np_)
-
-    pass
-
-
 def _test():
     import torch
     from .common.model_store import calc_net_weight_count
@@ -470,4 +400,4 @@ def _test():
 
 
 if __name__ == "__main__":
-    _test2()
+    _test()

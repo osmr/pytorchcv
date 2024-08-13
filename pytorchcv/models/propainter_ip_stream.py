@@ -4,7 +4,7 @@
     https://arxiv.org/pdf/2309.03897.
 """
 
-__all__ = ['PPIPIterator']
+__all__ = ['ProPainterIPIterator']
 
 import torch
 import torch.nn as nn
@@ -14,20 +14,30 @@ from .common.steam import (WindowBufferedIterator, WindowMultiIndex, calc_serial
 from .propainter_ip import propainter_ip
 
 
-class ImagePropIterator(WindowBufferedIterator):
+class ProPainterIPIterator(WindowBufferedIterator):
     """
-    Image propagation window buffered iterator.
+    Image propagation (ProPainter-IP) window buffered iterator.
 
     Parameters
     ----------
-    net : nn.Module
-        Image propagation model.
+    frames : sequence
+        Frame iterator.
+    masks : sequence
+        Mask iterator.
+    comp_flows : Sequence
+        Flow completion iterator (ProPainter-RFC).
     """
     def __init__(self,
-                 net: nn.Module,
+                 frames: Sequence,
+                 masks: Sequence,
+                 comp_flows: Sequence,
                  **kwargs):
-        super(ImagePropIterator, self).__init__(**kwargs)
-        self.net = net
+        assert (len(frames) > 0)
+        super(ProPainterIPIterator, self).__init__(
+            data=[frames, masks, comp_flows],
+            window_index=ProPainterIPIterator._calc_window_index(video_length=len(masks)),
+            **kwargs)
+        self.net = ProPainterIPIterator._load_model()
 
     def _calc_data_items(self,
                          raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
@@ -75,31 +85,6 @@ class ImagePropIterator(WindowBufferedIterator):
             Data chunk.
         """
         self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
-
-
-class PPIPIterator(ImagePropIterator):
-    """
-    Image propagation (from ProPainter) window buffered iterator.
-
-    Parameters
-    ----------
-    frames : sequence
-        Frame iterator.
-    masks : sequence
-        Mask iterator.
-    comp_flows : Sequence
-        Flow completion iterator (ProPainter-RFC).
-    """
-    def __init__(self,
-                 frames: Sequence,
-                 masks: Sequence,
-                 comp_flows: Sequence,
-                 **kwargs):
-        super(PPIPIterator, self).__init__(
-            data=[frames, masks, comp_flows],
-            window_index=PPIPIterator._calc_window_index(video_length=len(masks)),
-            net=PPIPIterator._load_model(),
-            **kwargs)
 
     @staticmethod
     def _load_model() -> nn.Module:
@@ -154,19 +139,19 @@ def _test():
     masks = torch.randn(time, 2, height, width)
     comp_flows = torch.randn(time - 1, 4, height, width)
 
-    image_prop_loader = PPIPIterator(
+    prop_framemask_iterator = ProPainterIPIterator(
         frames=frames,
         masks=masks,
         comp_flows=comp_flows)
 
     video_length = time
     time_step = 10
-    flow_loader_trim_pad = 3
+    prop_framemask_iterator_trim_pad = 35
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
-        updated_frames_masks_i = image_prop_loader[s:e]
-        assert (updated_frames_masks_i is not None)
-        image_prop_loader.trim_buffer_to(max(e - flow_loader_trim_pad, 0))
+        prop_framemasks_i = prop_framemask_iterator[s:e]
+        assert (prop_framemasks_i is not None)
+        prop_framemask_iterator.trim_buffer_to(max(e - prop_framemask_iterator_trim_pad, 0))
         torch.cuda.empty_cache()
 
     pass

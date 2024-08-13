@@ -16,7 +16,7 @@ from typing import Callable
 from .common.activ import lambda_leakyrelu, lambda_tanh
 from .common.conv import conv3x3, conv3x3_block
 from .common.tutti import InterpolationBlock
-from .propainter_ip import propainter_ip, BidirectionalPropagation
+from .propainter_ip import BidirectionalPropagation
 
 
 class Encoder(nn.Module):
@@ -908,173 +908,6 @@ def propainter(**kwargs) -> nn.Module:
         **kwargs)
 
 
-def _test2():
-    import re
-    import os
-    import numpy as np
-
-    def convert_state_dict(src_checkpoint,
-                           dst_checkpoint):
-
-        src_param_keys = list(src_checkpoint.keys())
-
-        upd_dict = {}
-
-        list2 = list(filter(re.compile("feat_prop_module.deform_align.").search, src_param_keys))
-        list2_u = [key.replace(".backward_1.weight", ".backward_1.deform_conv.weight") for key in list2]
-        list2_u = [key.replace(".backward_1.bias", ".backward_1.deform_conv.bias") for key in list2_u]
-        list2_u = [key.replace(".forward_1.weight", ".forward_1.deform_conv.weight") for key in list2_u]
-        list2_u = [key.replace(".forward_1.bias", ".forward_1.deform_conv.bias") for key in list2_u]
-        list2_u = [key.replace(".conv_offset.0.", ".conv_offset.conv1.conv.") for key in list2_u]
-        list2_u = [key.replace(".conv_offset.2.", ".conv_offset.conv2.conv.") for key in list2_u]
-        list2_u = [key.replace(".conv_offset.4.", ".conv_offset.conv3.conv.") for key in list2_u]
-        list2_u = [key.replace(".conv_offset.6.", ".conv_offset.conv4.conv.") for key in list2_u]
-        for src_i, dst_i in zip(list2, list2_u):
-            upd_dict[src_i] = dst_i
-
-        list3 = list(filter(re.compile("feat_prop_module.fuse.").search, src_param_keys))
-        list3_u = [key.replace(".0.", ".conv1.conv.") for key in list3]
-        list3_u = [key.replace(".2.", ".conv2.conv.") for key in list3_u]
-        for src_i, dst_i in zip(list3, list3_u):
-            upd_dict[src_i] = dst_i
-
-        list8 = list(filter(re.compile("feat_prop_module.backbone.").search, src_param_keys))
-        list8_u = [key.replace(".0.", ".conv1.conv.") for key in list8]
-        list8_u = [key.replace(".2.", ".conv2.conv.") for key in list8_u]
-        for src_i, dst_i in zip(list8, list8_u):
-            upd_dict[src_i] = dst_i
-
-        list4 = list(filter(re.compile("encoder.layers.").search, src_param_keys))
-        list4_u = [key.replace(".0.", ".0.conv.") for key in list4]
-        list4_u = [key.replace(".2.", ".1.conv.") for key in list4_u]
-        list4_u = [key.replace(".4.", ".2.conv.") for key in list4_u]
-        list4_u = [key.replace(".6.", ".3.conv.") for key in list4_u]
-        list4_u = [key.replace(".8.", ".4.conv.") for key in list4_u]
-        list4_u = [key.replace(".10.", ".5.conv.") for key in list4_u]
-        list4_u = [key.replace(".12.", ".6.conv.") for key in list4_u]
-        list4_u = [key.replace(".14.", ".7.conv.") for key in list4_u]
-        list4_u = [key.replace(".16.", ".8.conv.") for key in list4_u]
-        for src_i, dst_i in zip(list4, list4_u):
-            upd_dict[src_i] = dst_i
-
-        list4 = list(filter(re.compile("decoder.").search, src_param_keys))
-        list4_u = [key.replace(".0.", ".unit1.conv1.") for key in list4]
-        list4_u = [key.replace(".2.", ".unit1.conv2.conv.") for key in list4_u]
-        list4_u = [key.replace(".4.", ".unit2.conv1.") for key in list4_u]
-        list4_u = [key.replace(".6.", ".unit2.conv2.conv.") for key in list4_u]
-        for src_i, dst_i in zip(list4, list4_u):
-            upd_dict[src_i] = dst_i
-
-        list4_r = []
-
-        for k, v in src_checkpoint.items():
-            if k in upd_dict.keys():
-                dst_checkpoint[upd_dict[k]] = src_checkpoint[k]
-            else:
-                if k not in list4_r:
-                    dst_checkpoint[k] = src_checkpoint[k]
-                else:
-                    print("Remove: {}".format(k))
-                    pass
-
-    root_path = "../../../pytorchcv_data/test_a"
-    # pp_model_file_name = "ProPainter.pth"
-
-    # model_path = os.path.join(root_path, pp_model_file_name)
-    model_path = "../../../pytorchcv_data/test/propainter.pth"
-    net_pp = ProPainter()
-
-    src_checkpoint = torch.load(model_path, map_location="cpu")
-    dst_checkpoint = src_checkpoint
-    # dst_checkpoint = net_pp.state_dict()
-    # convert_state_dict(
-    #     src_checkpoint,
-    #     dst_checkpoint)
-    # net_pp.load_state_dict(dst_checkpoint, strict=True)
-    net_pp.load_state_dict(dst_checkpoint)
-    # ckpt = torch.load(model_path, map_location="cpu")
-    # net_pp.load_state_dict(ckpt, strict=True)
-    # torch.save(net_pp.state_dict(), "../../../pytorchcv_data/test/propainter.pth")
-
-    for p in net_pp.parameters():
-        p.requires_grad = False
-    net_pp.eval()
-    net_pp = net_pp.cuda()
-
-    frame1_file_path = os.path.join(root_path, "frame_00100.npy")
-    frame2_file_path = os.path.join(root_path, "frame_00101.npy")
-    frame1_np = np.load(frame1_file_path)
-    frame2_np = np.load(frame2_file_path)
-
-    mask_dilated1_file_path = os.path.join(root_path, "mask_dilated_00100.npy")
-    mask_dilated2_file_path = os.path.join(root_path, "mask_dilated_00101.npy")
-    mask_dilated1_np = np.load(mask_dilated1_file_path)
-    mask_dilated2_np = np.load(mask_dilated2_file_path)
-
-    pred_flow_f_file_path = os.path.join(root_path, "pred_flow_f_00100.npy")
-    pred_flow_b_file_path = os.path.join(root_path, "pred_flow_b_00100.npy")
-    pred_flow_f_np = np.load(pred_flow_f_file_path)
-    pred_flow_b_np = np.load(pred_flow_b_file_path)
-
-    frames_np = np.stack([frame1_np, frame2_np])[None]
-    frames = torch.from_numpy(frames_np).cuda()
-    masks_dilated_np = np.stack([mask_dilated1_np, mask_dilated2_np])[None]
-    masks_dilated = torch.from_numpy(masks_dilated_np).cuda()
-    masked_frames = frames * (1 - masks_dilated)
-
-    pred_flow_f_np = pred_flow_f_np[None, None]
-    pred_flow_b_np = pred_flow_b_np[None, None]
-    pred_flow_f = torch.from_numpy(pred_flow_f_np).cuda()
-    pred_flow_b = torch.from_numpy(pred_flow_b_np).cuda()
-
-    ppip_net = propainter_ip()
-    ppip_net.eval()
-    ppip_net = ppip_net.cuda()
-    comp_flows = torch.cat((pred_flow_f[0], pred_flow_b[0]), dim=1)
-    prop_imgs, updated_local_masks = ppip_net(
-        frames=frames[0],
-        masks=masks_dilated[0],
-        comp_flows=comp_flows,
-        interpolation="nearest")
-
-    pred_flows = torch.cat((pred_flow_f, pred_flow_b), dim=2)
-    pred_img = net_pp(
-        masked_frames=masked_frames,
-        masks_updated=masks_dilated,
-        masks_in=masks_dilated,
-        completed_flows=pred_flows,
-        num_local_frames=2)
-
-    pred_img_np_ = pred_img[0].cpu().detach().numpy()
-
-    # np.save(os.path.join(root_path, "pred_img.npy"), np.ascontiguousarray(pred_img_np_))
-
-    pred_img_file_path = os.path.join(root_path, "pred_img.npy")
-    pred_img_np = np.load(pred_img_file_path)
-
-    if not np.array_equal(pred_img_np, pred_img_np_):
-        print("*")
-    np.testing.assert_array_equal(pred_img_np, pred_img_np_)
-
-    # masked_frames0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/masked_frames0.npy")).cuda()
-    # completed_flows0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/completed_flows0.npy")).cuda()
-    # masks_in0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/masks_in0.npy")).cuda()
-    # masks_updated0 = torch.from_numpy(np.load("../../../pytorchcv_data/testa/masks_updated0.npy")).cuda()
-    # pred_img0a = torch.from_numpy(np.load("../../../pytorchcv_data/testa/pred_img0.npy")).cuda()
-    # pred_frames0a = torch.from_numpy(np.load("../../../pytorchcv_data/testa/pred_frames0.npy")).cuda()
-    # l_t0 = 6
-    # pred_img0 = net_pp(
-    #     masked_frames=masked_frames0,
-    #     completed_flows=completed_flows0,
-    #     masks_in=masks_in0,
-    #     masks_updated=masks_updated0,
-    #     num_local_frames=l_t0)[0]
-    # q1 = (pred_img0 - pred_img0a).abs().max()
-    # q2 = (pred_img0 - pred_frames0a).abs().max()
-
-    pass
-
-
 def _test():
     import torch
     from .common.model_store import calc_net_weight_count
@@ -1108,4 +941,4 @@ def _test():
 
 
 if __name__ == "__main__":
-    _test2()
+    _test()

@@ -13,20 +13,34 @@ from .common.steam import WindowBufferedIterator, WindowIndex, calc_serial_windo
 from .raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
 
 
-class FlowIterator(WindowBufferedIterator):
+class RAFTIterator(WindowBufferedIterator):
     """
-    Optical flow window buffered iterator.
+    Optical flow calculation (RAFT) window buffered iterator.
 
     Parameters
     ----------
-    net : nn.Module
-        Optical flow model.
+    frames : sequence
+        Frame iterator.
+    raft_model_path : str or None, default None
+        Path to RAFT model parameters.
+    raft_iters : int, default 20
+        Number of iterations in RAFT.
     """
     def __init__(self,
-                 net: nn.Module,
+                 frames: Sequence,
+                 raft_model_path: str | None = None,
+                 raft_iters: int = 20,
                  **kwargs):
-        super(FlowIterator, self).__init__(**kwargs)
-        self.net = net
+        assert (len(frames) > 0)
+        super(RAFTIterator, self).__init__(
+            data=frames,
+            window_index=RAFTIterator._calc_window_index(
+                video_length=len(frames),
+                frame_size=frames[0].shape[1:]),
+            **kwargs)
+        self.net = RAFTIterator._load_model(
+            raft_model_path=raft_model_path,
+            raft_iters=raft_iters)
 
     def _calc_data_items(self,
                          raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
@@ -65,36 +79,6 @@ class FlowIterator(WindowBufferedIterator):
             Data chunk.
         """
         self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
-
-
-class RAFTIterator(FlowIterator):
-    """
-    RAFT window buffered iterator.
-
-    Parameters
-    ----------
-    frames : sequence
-        Frame iterator.
-    raft_model_path : str or None, default None
-        Path to RAFT model parameters.
-    raft_iters : int, default 20
-        Number of iterations in RAFT.
-    """
-    def __init__(self,
-                 frames: Sequence,
-                 raft_model_path: str | None = None,
-                 raft_iters: int = 20,
-                 **kwargs):
-        assert (len(frames) > 0)
-        super(RAFTIterator, self).__init__(
-            data=frames,
-            window_index=RAFTIterator._calc_window_index(
-                video_length=len(frames),
-                frame_size=frames[0].shape[1:]),
-            net=RAFTIterator._load_model(
-                raft_model_path=raft_model_path,
-                raft_iters=raft_iters),
-            **kwargs)
 
     @staticmethod
     def _load_model(raft_model_path: str | None = None,
@@ -195,18 +179,18 @@ def _test():
     width = 432
     frames = torch.randn(time, 3, height, width)
 
-    flow_loader = RAFTIterator(
+    flow_iterator = RAFTIterator(
         frames=frames,
         raft_model_path=raft_model_path)
 
     video_length = time
     time_step = 10
-    flow_loader_trim_pad = 3
+    flow_iterator_trim_pad = 3
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
-        flows_i = flow_loader[s:e]
+        flows_i = flow_iterator[s:e]
         assert (flows_i is not None)
-        flow_loader.trim_buffer_to(max(e - flow_loader_trim_pad, 0))
+        flow_iterator.trim_buffer_to(max(e - flow_iterator_trim_pad, 0))
         torch.cuda.empty_cache()
 
     pass

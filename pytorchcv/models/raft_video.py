@@ -12,9 +12,9 @@ from typing import Sequence
 from enum import IntEnum
 from .common.steam import BufferedIterator
 from .raft_stream import RAFTIterator
-from .propainter_rfc_stream import PPRFCIterator
-from .propainter_ip_stream import PPIPIterator
-from .propainter_stream import ProPainterIterator
+from .propainter_rfc_stream import ProPainterRFCIterator
+from .propainter_ip_stream import ProPainterIPIterator
+from .propainter_stream import ProPainterITIterator, ProPainterIterator
 
 
 class FilePathDirIterator(object):
@@ -239,52 +239,6 @@ class MaskIterator(FrameIterator):
         return masks
 
 
-class VideoInpaintIterator(BufferedIterator):
-    """
-    Video inpainting buffered iterator.
-    """
-    def __init__(self,
-                 **kwargs):
-        super(VideoInpaintIterator, self).__init__(**kwargs)
-
-    def _calc_data_items(self,
-                         raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
-        """
-        Calculate/load data items.
-
-        Parameters
-        ----------
-        raw_data_chunk_list : tuple(sequence, ...) or list(sequence) or sequence
-            List of source data chunks.
-
-        Returns
-        -------
-        sequence
-            Resulted data.
-        """
-        assert (len(raw_data_chunk_list) == 3)
-
-        pred_frames = raw_data_chunk_list[0]
-        frames = raw_data_chunk_list[1]
-        masks = raw_data_chunk_list[2]
-
-        pred_frames = pred_frames * masks + frames * (1 - masks)
-
-        return pred_frames
-
-    def _expand_buffer_by(self,
-                          data_chunk: Sequence):
-        """
-        Expand buffer by extra data.
-
-        Parameters
-        ----------
-        data_chunk : sequence
-            Data chunk.
-        """
-        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
-
-
 class FrameCollectIterator(BufferedIterator):
     """
     Frame collecting as numpy-array buffered iterator.
@@ -420,24 +374,26 @@ def run_streaming_propainter(frames_dir_path: str,
         raft_model_path=raft_model_path,
         raft_iters=raft_iters)
 
-    flow_comp_loader = PPRFCIterator(
+    flow_comp_loader = ProPainterRFCIterator(
         flows=flow_loader,
         masks=mask_loader,
         pprfc_model_path=pprfc_model_path)
 
-    image_prop_loader = PPIPIterator(
+    image_prop_loader = ProPainterIPIterator(
         frames=frame_loader,
         masks=mask_loader,
         comp_flows=flow_comp_loader)
 
-    image_trans_loader = ProPainterIterator(
-        image_prop_loader=image_prop_loader,
-        mask_loader=mask_loader,
-        flow_comp_loader=flow_comp_loader,
+    image_trans_loader = ProPainterITIterator(
+        prop_framemasks=image_prop_loader,
+        masks=mask_loader,
+        comp_flows=flow_comp_loader,
         pp_model_path=pp_model_path)
 
-    video_inpaint_loader = VideoInpaintIterator(
-        data=[image_trans_loader, frame_loader, mask_loader])
+    video_inpaint_loader = ProPainterIterator(
+        pred_frames=image_trans_loader,
+        frames=frame_loader,
+        masks=mask_loader)
 
     frame_collect_loader = FrameCollectIterator(
         data=[video_inpaint_loader])
