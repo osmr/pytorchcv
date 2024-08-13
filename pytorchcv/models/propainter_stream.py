@@ -414,7 +414,7 @@ class ProPainterIterator:
         return self
 
     def __next__(self):
-        if self.s == self.video_length - 1:
+        if self.s is None:
             raise StopIteration
 
         self.s = min(self.s + self.step, self.video_length - 1)
@@ -431,6 +431,9 @@ class ProPainterIterator:
         self.frames.trim_buffer_to(max(e - self.frame_iterator_trim_pad, 0))
 
         torch.cuda.empty_cache()
+
+        if e == self.video_length:
+            self.s = None
 
         return data
 
