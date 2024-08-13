@@ -9,7 +9,7 @@ import os
 import math
 import torch.nn as nn
 from .common.conv import conv1x1_block, conv3x3_block
-from .common.common import SEBlock
+from .common.att import SEBlock
 
 
 class SENetBottleneck(nn.Module):

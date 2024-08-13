@@ -11,7 +11,7 @@ __all__ = ['SEPreResNet', 'sepreresnet10', 'sepreresnet12', 'sepreresnet14', 'se
 import os
 import torch.nn as nn
 from .common.conv import conv1x1
-from .common.common import SEBlock
+from .common.att import SEBlock
 from .preresnet import PreResBlock, PreResBottleneck, PreResInitBlock, PreResActivation
 
 

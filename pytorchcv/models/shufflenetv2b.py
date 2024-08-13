@@ -10,7 +10,8 @@ import os
 import torch
 import torch.nn as nn
 from .common.conv import conv1x1_block, conv3x3_block, dwconv3x3_block
-from .common.common import ChannelShuffle, ChannelShuffle2, SEBlock
+from .common.att import SEBlock
+from .common.common import ChannelShuffle, ChannelShuffle2
 
 
 class ShuffleUnit(nn.Module):

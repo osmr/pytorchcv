@@ -12,7 +12,7 @@ import os
 import numpy as np
 import torch.nn as nn
 from .common.conv import conv1x1_block, conv3x3_block
-from .common.common import SEBlock
+from .common.att import SEBlock
 
 
 class RegNetBottleneck(nn.Module):

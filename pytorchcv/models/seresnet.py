@@ -10,7 +10,7 @@ __all__ = ['SEResNet', 'seresnet10', 'seresnet12', 'seresnet14', 'seresnet16', '
 import os
 import torch.nn as nn
 from .common.conv import conv1x1_block
-from .common.common import SEBlock
+from .common.att import SEBlock
 from .resnet import ResBlock, ResBottleneck, ResInitBlock
 
 

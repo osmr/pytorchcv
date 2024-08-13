@@ -11,7 +11,8 @@ import torch
 import torch.nn as nn
 from .common.conv import conv1x1, conv1x1_block, conv3x3_block
 from .common.arch import MultiOutputSequential
-from .common.common import SEBlock, InterpolationBlock
+from .common.att import SEBlock
+from .common.common import InterpolationBlock
 
 
 class FPEBlock(nn.Module):

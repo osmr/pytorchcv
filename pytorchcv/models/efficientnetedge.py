@@ -13,7 +13,7 @@ from typing import Callable
 from .common.activ import lambda_relu
 from .common.norm import lambda_batchnorm2d
 from .common.conv import conv1x1_block, conv3x3_block
-from .common.common import round_channels, SEBlock
+from .common.att import round_channels, SEBlock
 from .efficientnet import EffiInvResUnit, EffiInitBlock
 
 

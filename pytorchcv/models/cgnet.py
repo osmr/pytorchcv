@@ -14,7 +14,8 @@ from .common.activ import lambda_prelu
 from .common.norm import lambda_batchnorm2d
 from .common.conv import conv1x1, conv1x1_block, conv3x3_block, depthwise_conv3x3
 from .common.arch import Concurrent, DualPathSequential
-from .common.common import NormActivation, SEBlock, InterpolationBlock
+from .common.att import SEBlock
+from .common.common import NormActivation, InterpolationBlock
 
 
 class CGBlock(nn.Module):
