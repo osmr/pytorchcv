@@ -558,7 +558,7 @@ def get_ibppose(model_name: str | None = None,
     if pretrained:
         if (model_name is None) or (not model_name):
             raise ValueError("Parameter `model_name` should be properly initialized for loading pretrained model.")
-        from .model_store import download_model
+        from .common.model_store import download_model
         download_model(
             net=net,
             model_name=model_name,
@@ -590,7 +590,7 @@ def ibppose_coco(**kwargs) -> nn.Module:
 
 
 def _test():
-    from .model_store import calc_net_weight_count
+    from .common.model_store import calc_net_weight_count
 
     in_size = (256, 256)
     pretrained = False

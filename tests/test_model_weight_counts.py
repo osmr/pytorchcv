@@ -1,5 +1,5 @@
 from pytorchcv.model_provider import get_model as ptcv_get_model
-from pytorchcv.models.model_store import get_model_metainfo_dict, calc_net_weight_count
+from pytorchcv.models.common.model_store import get_model_metainfo_dict, calc_net_weight_count
 
 
 def test_model_weight_counts(pretrained: bool = False):

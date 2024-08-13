@@ -440,7 +440,7 @@ def get_fastscnn(model_name: str | None = None,
     if pretrained:
         if (model_name is None) or (not model_name):
             raise ValueError("Parameter `model_name` should be properly initialized for loading pretrained model.")
-        from .model_store import download_model
+        from .common.model_store import download_model
         download_model(
             net=net,
             model_name=model_name,
@@ -483,7 +483,7 @@ def fastscnn_cityscapes(num_classes: int = 19,
 
 def _test():
     import torch
-    from .model_store import calc_net_weight_count
+    from .common.model_store import calc_net_weight_count
 
     in_size = (1024, 2048)
     aux = True

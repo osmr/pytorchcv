@@ -232,7 +232,7 @@ def fdmobilenet_wd4_cub(num_classes: int = 200,
 
 def _test():
     import torch
-    from .model_store import calc_net_weight_count
+    from .common.model_store import calc_net_weight_count
 
     pretrained = False
 

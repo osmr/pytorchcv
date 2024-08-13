@@ -68,7 +68,7 @@ def jasperdr10x5_en_nr(num_classes: int = 29,
 def _test():
     import numpy as np
     import torch
-    from .model_store import calc_net_weight_count
+    from .common.model_store import calc_net_weight_count
 
     pretrained = False
     audio_features = 64

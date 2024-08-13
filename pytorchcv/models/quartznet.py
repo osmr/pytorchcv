@@ -355,7 +355,7 @@ def quartznet15x5_ru34(num_classes: int = 34,
 
 
 def _test():
-    from .model_store import calc_net_weight_count
+    from .common.model_store import calc_net_weight_count
 
     import numpy as np
     import torch

@@ -634,7 +634,7 @@ def get_wrn1bit_cifar(num_classes: int,
     if pretrained:
         if (model_name is None) or (not model_name):
             raise ValueError("Parameter `model_name` should be properly initialized for loading pretrained model.")
-        from .model_store import download_model
+        from .common.model_store import download_model
         download_model(
             net=net,
             model_name=model_name,
@@ -813,7 +813,7 @@ def wrn20_10_32bit_svhn(num_classes: int = 10,
 
 def _test():
     import torch
-    from .model_store import calc_net_weight_count
+    from .common.model_store import calc_net_weight_count
 
     pretrained = False
 
