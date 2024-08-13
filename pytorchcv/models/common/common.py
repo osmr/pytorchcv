@@ -2,9 +2,9 @@
     Common routines for models in PyTorch.
 """
 
-__all__ = ['round_channels', 'BreakBlock', 'SelectableDense', 'DenseBlock', 'NormActivation', 'InterpolationBlock',
-           'ChannelShuffle', 'ChannelShuffle2', 'SEBlock', 'SABlock', 'SAConvBlock', 'saconv3x3_block', 'DucBlock',
-           'Flatten', 'HeatmapMaxDetBlock']
+__all__ = ['round_channels', 'Identity', 'BreakBlock', 'SelectableDense', 'DenseBlock', 'NormActivation',
+           'InterpolationBlock', 'ChannelShuffle', 'ChannelShuffle2', 'SEBlock', 'SABlock', 'SAConvBlock',
+           'saconv3x3_block', 'DucBlock', 'Flatten', 'HeatmapMaxDetBlock']
 
 import torch
 import torch.nn as nn
@@ -37,6 +37,20 @@ def round_channels(channels: int | float,
     if float(rounded_channels) < 0.9 * channels:
         rounded_channels += divisor
     return rounded_channels
+
+
+class Identity(nn.Module):
+    """
+    Identity block.
+    """
+    def __init__(self):
+        super(Identity, self).__init__()
+
+    def forward(self, x):
+        return x
+
+    def __repr__(self):
+        return "{name}()".format(name=self.__class__.__name__)
 
 
 class BreakBlock(nn.Module):

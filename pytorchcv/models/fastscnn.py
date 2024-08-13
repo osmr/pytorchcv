@@ -7,10 +7,9 @@ __all__ = ['FastSCNN', 'fastscnn_cityscapes']
 
 import os
 import torch.nn as nn
-from .common.activ import Identity
 from .common.conv import conv1x1, conv1x1_block, conv3x3_block, dwconv3x3_block, dwsconv3x3_block
 from .common.arch import Concurrent
-from .common.common import InterpolationBlock
+from .common.common import InterpolationBlock, Identity
 
 
 class Stem(nn.Module):

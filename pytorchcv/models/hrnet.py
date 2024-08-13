@@ -9,8 +9,8 @@ __all__ = ['HRNet', 'hrnet_w18_small_v1', 'hrnet_w18_small_v2', 'hrnetv2_w18', '
 
 import os
 import torch.nn as nn
-from .common.activ import Identity
 from .common.conv import conv1x1_block, conv3x3_block
+from .common.common import Identity
 from .resnet import ResUnit
 
 

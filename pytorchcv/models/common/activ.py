@@ -2,7 +2,7 @@
     Activation common routines for models in PyTorch.
 """
 
-__all__ = ['Identity', 'Swish', 'HSigmoid', 'HSwish', 'lambda_relu', 'lambda_relu6', 'lambda_prelu', 'lambda_leakyrelu',
+__all__ = ['Swish', 'HSigmoid', 'HSwish', 'lambda_relu', 'lambda_relu6', 'lambda_prelu', 'lambda_leakyrelu',
            'lambda_sigmoid', 'lambda_tanh', 'lambda_hsigmoid', 'lambda_swish', 'lambda_hswish',
            'create_activation_layer']
 
@@ -11,20 +11,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Callable
-
-
-class Identity(nn.Module):
-    """
-    Identity block.
-    """
-    def __init__(self):
-        super(Identity, self).__init__()
-
-    def forward(self, x):
-        return x
-
-    def __repr__(self):
-        return "{name}()".format(name=self.__class__.__name__)
 
 
 class Swish(nn.Module):

@@ -9,9 +9,9 @@ __all__ = ['LinkNet', 'linknet_cityscapes']
 import os
 import torch
 import torch.nn as nn
-from .common.activ import Identity
 from .common.conv import conv1x1_block, conv3x3_block, deconv3x3_block
 from .common.arch import Hourglass
+from .common.common import Identity
 from .resnet import resnet18
 
 

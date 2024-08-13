@@ -10,9 +10,9 @@ __all__ = ['PSPNet', 'pspnet_resnetd50b_voc', 'pspnet_resnetd101b_voc', 'pspnet_
 import os
 import torch.nn as nn
 import torch.nn.functional as F
-from .common.activ import Identity
 from .common.conv import conv1x1, conv1x1_block, conv3x3_block
 from .common.arch import Concurrent
+from .common.common import Identity
 from .resnetd import resnetd50b, resnetd101b
 
 

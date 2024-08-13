@@ -8,8 +8,8 @@ __all__ = ['DARTS', 'darts']
 import os
 import torch
 import torch.nn as nn
-from .common.activ import Identity
 from .common.conv import conv1x1
+from .common.common import Identity
 from .nasnet import nasnet_dual_path_sequential
 
 
