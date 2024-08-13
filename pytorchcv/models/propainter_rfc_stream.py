@@ -9,8 +9,8 @@ __all__ = ['PPRFCIterator']
 import torch
 import torch.nn as nn
 from typing import Sequence
-from .raft_stream import (WindowBufferedIterator, WindowMultiIndex, calc_serial_window_iterator_index,
-                          concat_window_iterator_indices)
+from .common.steam import (WindowBufferedIterator, WindowMultiIndex, calc_serial_window_iterator_index,
+                           concat_window_iterator_indices)
 from .propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
 
 

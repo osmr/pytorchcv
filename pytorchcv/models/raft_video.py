@@ -10,7 +10,8 @@ import numpy as np
 import torch
 from typing import Sequence
 from enum import IntEnum
-from .raft_stream import RAFTIterator, BufferedIterator
+from .common.steam import BufferedIterator
+from .raft_stream import RAFTIterator
 from .propainter_rfc_stream import PPRFCIterator
 from .propainter_ip_stream import PPIPIterator
 from .propainter_stream import ProPainterIterator

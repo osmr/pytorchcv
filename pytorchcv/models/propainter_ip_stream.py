@@ -9,8 +9,8 @@ __all__ = ['PPIPIterator']
 import torch
 import torch.nn as nn
 from typing import Sequence
-from .raft_stream import (WindowBufferedIterator, WindowMultiIndex, calc_serial_window_iterator_index,
-                          concat_window_iterator_indices)
+from .common.steam import (WindowBufferedIterator, WindowMultiIndex, calc_serial_window_iterator_index,
+                           concat_window_iterator_indices)
 from .propainter_ip import propainter_ip
 
 

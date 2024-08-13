@@ -9,8 +9,8 @@ __all__ = ['ProPainterIterator']
 import torch
 import torch.nn as nn
 from typing import Sequence
-from .raft_stream import (WindowBufferedIterator, WindowMultiIndex, calc_sliding_window_iterator_index,
-                          concat_window_iterator_indices)
+from .common.steam import (WindowBufferedIterator, WindowMultiIndex, calc_sliding_window_iterator_index,
+                           concat_window_iterator_indices)
 from .propainter import propainter
 
 
