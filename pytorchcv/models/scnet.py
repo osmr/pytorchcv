@@ -10,7 +10,7 @@ import os
 import torch
 import torch.nn as nn
 from .common.conv import conv1x1_block, conv3x3_block
-from .common.common import InterpolationBlock
+from .common.tutti import InterpolationBlock
 from .resnet import ResInitBlock
 from .senet import SEInitBlock
 from .resnesta import ResNeStADownBlock

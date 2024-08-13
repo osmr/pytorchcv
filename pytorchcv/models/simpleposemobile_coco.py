@@ -11,7 +11,7 @@ import os
 import torch
 import torch.nn as nn
 from .common.conv import conv1x1
-from .common.common import DucBlock, HeatmapMaxDetBlock
+from .common.tutti import DucBlock, HeatmapMaxDetBlock
 from .resnet import resnet18, resnet50b
 from .mobilenet import mobilenet_w1
 from .mobilenetv2 import mobilenetv2b_w1

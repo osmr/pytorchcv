@@ -11,7 +11,7 @@ import torch.nn as nn
 from typing import Callable
 from .common.activ import lambda_relu6
 from .common.conv import conv1x1_block, conv3x3_block, dwconv3x3_block
-from .common.common import ChannelShuffle
+from .common.tutti import ChannelShuffle
 
 
 class InvResUnit(nn.Module):

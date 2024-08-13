@@ -9,7 +9,7 @@ import os
 import torch
 import torch.nn as nn
 from .common.conv import ConvBlock, ConvBlock1d
-from .common.common import DenseBlock, SelectableDense
+from .common.tutti import DenseBlock, SelectableDense
 
 
 class NvpAttExpEncoder(nn.Module):

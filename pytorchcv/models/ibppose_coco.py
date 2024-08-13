@@ -15,7 +15,7 @@ from .common.norm import lambda_batchnorm2d
 from .common.conv import conv1x1_block, conv3x3_block, conv7x7_block
 from .common.arch import Hourglass
 from .common.att import SEBlock
-from .common.common import InterpolationBlock
+from .common.tutti import InterpolationBlock
 
 
 class IbpResBottleneck(nn.Module):

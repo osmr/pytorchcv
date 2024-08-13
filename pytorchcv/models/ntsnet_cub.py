@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from .common.conv import conv1x1, conv3x3
-from .common.common import Flatten
+from .common.tutti import Flatten
 from .resnet import resnet50b
 
 

@@ -15,7 +15,7 @@ from .common.norm import lambda_batchnorm2d, create_normalization_layer
 from .common.conv import conv1x1, conv1x1_block, conv3x3_block, dwconv_block
 from .common.arch import Concurrent
 from .common.att import round_channels
-from .common.common import InterpolationBlock, ChannelShuffle
+from .common.tutti import InterpolationBlock, ChannelShuffle
 
 
 class SEBlock(nn.Module):

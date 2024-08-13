@@ -1,18 +1,18 @@
 """
-    Common routines for models in PyTorch.
+    Unclassified common routines for models in PyTorch.
 """
 
-__all__ = ['Identity', 'BreakBlock', 'SelectableDense', 'DenseBlock', 'NormActivation',
-           'InterpolationBlock', 'ChannelShuffle', 'ChannelShuffle2', 'DucBlock', 'Flatten', 'HeatmapMaxDetBlock']
+__all__ = ['Identity', 'BreakBlock', 'Flatten', 'SelectableDense', 'DenseBlock', 'NormActivation',
+           'InterpolationBlock', 'ChannelShuffle', 'ChannelShuffle2', 'DucBlock', 'HeatmapMaxDetBlock']
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 from typing import Callable
-from .activ import lambda_relu, lambda_sigmoid, create_activation_layer
+from .activ import lambda_relu, create_activation_layer
 from .norm import lambda_batchnorm1d, lambda_batchnorm2d, create_normalization_layer
-from .conv import conv1x1, ConvBlock, conv3x3_block
+from .conv import conv3x3_block
 
 
 class Identity(nn.Module):
@@ -41,6 +41,15 @@ class BreakBlock(nn.Module):
 
     def __repr__(self):
         return "{name}()".format(name=self.__class__.__name__)
+
+
+class Flatten(nn.Module):
+    """
+    Simple flatten module.
+    """
+
+    def forward(self, x):
+        return x.view(x.size(0), -1)
 
 
 class SelectableDense(nn.Module):
@@ -394,15 +403,6 @@ class DucBlock(nn.Module):
         x = self.conv(x)
         x = self.pix_shuffle(x)
         return x
-
-
-class Flatten(nn.Module):
-    """
-    Simple flatten module.
-    """
-
-    def forward(self, x):
-        return x.view(x.size(0), -1)
 
 
 class HeatmapMaxDetBlock(nn.Module):

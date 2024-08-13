@@ -14,7 +14,7 @@ from typing import Callable
 from .common.activ import lambda_relu, lambda_prelu
 from .common.norm import lambda_batchnorm2d
 from .common.conv import conv3x3, ConvBlock, AsymConvBlock, DeconvBlock, conv1x1_block
-from .common.common import NormActivation
+from .common.tutti import NormActivation
 
 
 class ENetMaxDownBlock(nn.Module):

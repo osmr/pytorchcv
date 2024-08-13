@@ -12,7 +12,7 @@ import os
 import torch
 import torch.nn as nn
 from .common.conv import conv1x1, conv3x3, depthwise_conv3x3
-from .common.common import ChannelShuffle
+from .common.tutti import ChannelShuffle
 
 
 class ShuffleUnit(nn.Module):

@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 from .common.conv import conv1x1, depthwise_conv3x3, conv1x1_block, conv3x3_block
 from .common.att import SEBlock
-from .common.common import ChannelShuffle
+from .common.tutti import ChannelShuffle
 
 
 class ShuffleUnit(nn.Module):

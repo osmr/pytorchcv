@@ -10,7 +10,7 @@ import os
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from .common.common import ChannelShuffle
+from .common.tutti import ChannelShuffle
 
 
 class CondenseSimpleConv(nn.Module):

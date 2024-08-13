@@ -15,7 +15,7 @@ import torch.nn.functional as F
 from typing import Callable
 from .common.activ import lambda_leakyrelu, lambda_tanh
 from .common.conv import conv3x3, conv3x3_block
-from .common.common import InterpolationBlock
+from .common.tutti import InterpolationBlock
 from .propainter_ip import propainter_ip, BidirectionalPropagation
 
 

@@ -16,7 +16,7 @@ from typing import Callable
 from .common.activ import lambda_relu, lambda_leakyrelu, create_activation_layer
 from .common.conv import conv1x1, conv3x3_block
 from .common.arch import Hourglass
-from .common.common import InterpolationBlock, BreakBlock
+from .common.tutti import InterpolationBlock, BreakBlock
 from .resnet import ResUnit, ResBlock
 
 

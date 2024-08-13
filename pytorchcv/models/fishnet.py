@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 from .common.conv import pre_conv1x1_block, pre_conv3x3_block, conv1x1
 from .common.arch import SesquialteralHourglass
-from .common.common import InterpolationBlock, Identity
+from .common.tutti import InterpolationBlock, Identity
 from .preresnet import PreResActivation
 from .senet import SEInitBlock
 

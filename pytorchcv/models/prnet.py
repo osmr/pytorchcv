@@ -12,7 +12,7 @@ from typing import Callable
 from .common.activ import lambda_relu
 from .common.norm import lambda_batchnorm2d
 from .common.conv import ConvBlock, DeconvBlock, conv1x1, conv1x1_block
-from .common.common import NormActivation
+from .common.tutti import NormActivation
 
 
 def conv4x4_block(in_channels: int,

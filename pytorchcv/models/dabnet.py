@@ -14,7 +14,7 @@ from .common.activ import lambda_relu, lambda_prelu
 from .common.norm import lambda_batchnorm2d
 from .common.conv import conv1x1, conv3x3, conv3x3_block, ConvBlock
 from .common.arch import Concurrent, DualPathSequential
-from .common.common import NormActivation, InterpolationBlock
+from .common.tutti import NormActivation, InterpolationBlock
 
 
 class DwaConvBlock(nn.Module):

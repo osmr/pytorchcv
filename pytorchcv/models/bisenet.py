@@ -12,7 +12,7 @@ import torch.nn as nn
 from typing import Callable
 from .common.conv import conv1x1, conv1x1_block, conv3x3_block
 from .common.arch import MultiOutputSequential
-from .common.common import InterpolationBlock
+from .common.tutti import InterpolationBlock
 from .resnet import resnet18
 
 
