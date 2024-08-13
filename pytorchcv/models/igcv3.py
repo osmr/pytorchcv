@@ -8,6 +8,8 @@ __all__ = ['IGCV3', 'igcv3_w1', 'igcv3_w3d4', 'igcv3_wd2', 'igcv3_wd4']
 
 import os
 import torch.nn as nn
+from typing import Callable
+from .common.activ import lambda_relu6
 from .common.conv import conv1x1_block, conv3x3_block, dwconv3x3_block
 from .common.common import ChannelShuffle
 
@@ -26,12 +28,15 @@ class InvResUnit(nn.Module):
         Strides of the second convolution layer.
     expansion : bool
         Whether to do expansion of channels.
+    activation : function
+        Lambda-function generator for activation layer.
     """
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
                  stride: int | tuple[int, int],
-                 expansion: bool):
+                 expansion: bool,
+                 activation: Callable[..., nn.Module]):
         super(InvResUnit, self).__init__()
         self.residual = (in_channels == out_channels) and (stride == 1)
         mid_channels = in_channels * 6 if expansion else in_channels
@@ -49,7 +54,7 @@ class InvResUnit(nn.Module):
             in_channels=mid_channels,
             out_channels=mid_channels,
             stride=stride,
-            activation="relu6")
+            activation=activation)
         self.conv3 = conv1x1_block(
             in_channels=mid_channels,
             out_channels=out_channels,
@@ -98,13 +103,14 @@ class IGCV3(nn.Module):
         super(IGCV3, self).__init__()
         self.in_size = in_size
         self.num_classes = num_classes
+        activation = lambda_relu6()
 
         self.features = nn.Sequential()
         self.features.add_module("init_block", conv3x3_block(
             in_channels=in_channels,
             out_channels=init_block_channels,
             stride=2,
-            activation="relu6"))
+            activation=activation))
         in_channels = init_block_channels
         for i, channels_per_stage in enumerate(channels):
             stage = nn.Sequential()
@@ -115,13 +121,14 @@ class IGCV3(nn.Module):
                     in_channels=in_channels,
                     out_channels=out_channels,
                     stride=stride,
-                    expansion=expansion))
+                    expansion=expansion,
+                    activation=activation))
                 in_channels = out_channels
             self.features.add_module("stage{}".format(i + 1), stage)
         self.features.add_module("final_block", conv1x1_block(
             in_channels=in_channels,
             out_channels=final_block_channels,
-            activation="relu6"))
+            activation=activation))
         in_channels = final_block_channels
         self.features.add_module("final_pool", nn.AvgPool2d(
             kernel_size=7,

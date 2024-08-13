@@ -229,8 +229,6 @@ def create_activation_layer(activation: Callable[..., nn.Module | None] | nn.Mod
             return nn.Sigmoid()
         elif activation == "hsigmoid":
             return HSigmoid()
-        elif activation == "identity":
-            return Identity()
         else:
             raise NotImplementedError()
     else:

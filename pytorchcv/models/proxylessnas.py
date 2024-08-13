@@ -10,6 +10,7 @@ __all__ = ['ProxylessNAS', 'proxylessnas_cpu', 'proxylessnas_gpu', 'proxylessnas
 import os
 import torch.nn as nn
 from typing import Callable
+from .common.activ import lambda_relu6
 from .common.norm import lambda_batchnorm2d
 from .common.conv import ConvBlock, conv1x1_block, conv3x3_block
 
@@ -30,6 +31,8 @@ class ProxylessBlock(nn.Module):
         Strides of the convolution.
     normalization : function
         Lambda-function generator for normalization layer.
+    activation : function
+        Lambda-function generator for activation layer.
     expansion : int
         Expansion ratio.
     """
@@ -39,6 +42,7 @@ class ProxylessBlock(nn.Module):
                  kernel_size: int,
                  stride: int,
                  normalization: Callable[..., nn.Module],
+                 activation: Callable[..., nn.Module],
                  expansion: int):
         super(ProxylessBlock, self).__init__()
         self.use_bc = (expansion > 1)
@@ -49,7 +53,7 @@ class ProxylessBlock(nn.Module):
                 in_channels=in_channels,
                 out_channels=mid_channels,
                 normalization=normalization,
-                activation="relu6")
+                activation=activation)
 
         padding = (kernel_size - 1) // 2
         self.dw_conv = ConvBlock(
@@ -60,7 +64,7 @@ class ProxylessBlock(nn.Module):
             padding=padding,
             groups=mid_channels,
             normalization=normalization,
-            activation="relu6")
+            activation=activation)
         self.pw_conv = conv1x1_block(
             in_channels=mid_channels,
             out_channels=out_channels,
@@ -91,6 +95,8 @@ class ProxylessUnit(nn.Module):
         Strides of the convolution.
     normalization : function
         Lambda-function generator for normalization layer.
+    activation : function
+        Lambda-function generator for activation layer.
     expansion : int
         Expansion ratio for body block.
     residual : bool
@@ -104,6 +110,7 @@ class ProxylessUnit(nn.Module):
                  kernel_size: int,
                  stride: int,
                  normalization: Callable[..., nn.Module],
+                 activation: Callable[..., nn.Module],
                  expansion: int,
                  residual: bool,
                  shortcut: bool):
@@ -119,6 +126,7 @@ class ProxylessUnit(nn.Module):
                 kernel_size=kernel_size,
                 stride=stride,
                 normalization=normalization,
+                activation=activation,
                 expansion=expansion)
 
     def forward(self, x):
@@ -178,6 +186,7 @@ class ProxylessNAS(nn.Module):
         self.in_size = in_size
         self.num_classes = num_classes
         normalization = lambda_batchnorm2d(eps=bn_eps)
+        activation = lambda_relu6()
 
         self.features = nn.Sequential()
         self.features.add_module("init_block", conv3x3_block(
@@ -185,7 +194,7 @@ class ProxylessNAS(nn.Module):
             out_channels=init_block_channels,
             stride=2,
             normalization=normalization,
-            activation="relu6"))
+            activation=activation))
         in_channels = init_block_channels
         for i, channels_per_stage in enumerate(channels):
             stage = nn.Sequential()
@@ -205,6 +214,7 @@ class ProxylessNAS(nn.Module):
                     kernel_size=kernel_size,
                     stride=stride,
                     normalization=normalization,
+                    activation=activation,
                     expansion=expansion,
                     residual=residual,
                     shortcut=shortcut))
@@ -214,7 +224,7 @@ class ProxylessNAS(nn.Module):
             in_channels=in_channels,
             out_channels=final_block_channels,
             normalization=normalization,
-            activation="relu6"))
+            activation=activation))
         in_channels = final_block_channels
         self.features.add_module("final_pool", nn.AvgPool2d(
             kernel_size=7,
