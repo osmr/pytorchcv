@@ -11,7 +11,8 @@ import torch
 import torch.nn as nn
 from typing import Callable
 from .common.conv import conv1x1, conv1x1_block, conv3x3_block
-from .common.common import InterpolationBlock, MultiOutputSequential
+from .common.arch import MultiOutputSequential
+from .common.common import InterpolationBlock
 from .resnet import resnet18
 
 

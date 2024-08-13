@@ -9,7 +9,7 @@ __all__ = ['VoVNet', 'vovnet27s', 'vovnet39', 'vovnet57']
 import os
 import torch.nn as nn
 from .common.conv import conv1x1_block, conv3x3_block
-from .common.common import SequentialConcurrent
+from .common.arch import SequentialConcurrent
 
 
 class VoVUnit(nn.Module):

@@ -9,7 +9,7 @@ import os
 import torch
 import torch.nn as nn
 from .common.conv import conv1x1
-from .common.common import DualPathSequential
+from .common.arch import DualPathSequential
 
 
 class GlobalAvgMaxPool2D(nn.Module):

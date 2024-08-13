@@ -10,7 +10,7 @@ import os
 import torch
 import torch.nn as nn
 from .common.conv import conv3x3, conv3x3_block
-from .common.common import DualPathSequential
+from .common.arch import DualPathSequential
 
 
 class SegNet(nn.Module):

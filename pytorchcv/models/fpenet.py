@@ -10,7 +10,8 @@ import os
 import torch
 import torch.nn as nn
 from .common.conv import conv1x1, conv1x1_block, conv3x3_block
-from .common.common import SEBlock, InterpolationBlock, MultiOutputSequential
+from .common.arch import MultiOutputSequential
+from .common.common import SEBlock, InterpolationBlock
 
 
 class FPEBlock(nn.Module):

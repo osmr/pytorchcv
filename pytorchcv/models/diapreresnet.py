@@ -11,7 +11,7 @@ __all__ = ['DIAPreResNet', 'diapreresnet10', 'diapreresnet12', 'diapreresnet14',
 import os
 import torch.nn as nn
 from .common.conv import conv1x1
-from .common.common import DualPathSequential
+from .common.arch import DualPathSequential
 from .preresnet import PreResBlock, PreResBottleneck, PreResInitBlock, PreResActivation
 from .diaresnet import DIAAttention
 

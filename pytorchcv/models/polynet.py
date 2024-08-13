@@ -10,7 +10,7 @@ import os
 import torch.nn as nn
 from typing import Callable
 from .common.conv import ConvBlock, conv1x1_block, conv3x3_block
-from .common.common import Concurrent, ParametricSequential, ParametricConcurrent
+from .common.arch import Concurrent, ParametricSequential, ParametricConcurrent
 
 
 class PolyConv(nn.Module):

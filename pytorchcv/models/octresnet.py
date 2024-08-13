@@ -12,7 +12,7 @@ import torch.nn.functional as F
 from typing import Callable
 from .common.activ import lambda_relu, create_activation_layer
 from .common.norm import lambda_batchnorm2d, create_normalization_layer
-from .common.common import DualPathSequential
+from .common.arch import DualPathSequential
 from .resnet import ResInitBlock
 
 

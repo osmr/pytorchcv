@@ -10,7 +10,7 @@ import os
 import torch.nn as nn
 import torch.nn.functional as F
 from .common.conv import conv1x1, conv7x7_block, pre_conv1x1_block, pre_conv3x3_block
-from .common.common import Hourglass
+from .common.arch import Hourglass
 
 
 class PreResBottleneck(nn.Module):

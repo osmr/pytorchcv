@@ -13,7 +13,8 @@ from typing import Callable
 from .common.activ import lambda_relu, lambda_prelu, lambda_sigmoid, create_activation_layer
 from .common.norm import lambda_batchnorm2d, create_normalization_layer
 from .common.conv import conv1x1, conv1x1_block, conv3x3_block, dwconv_block
-from .common.common import round_channels, Concurrent, InterpolationBlock, ChannelShuffle
+from .common.arch import Concurrent
+from .common.common import round_channels, InterpolationBlock, ChannelShuffle
 
 
 class SEBlock(nn.Module):

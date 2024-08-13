@@ -12,7 +12,7 @@ __all__ = ['CIFARDIAResNet', 'diaresnet20_cifar10', 'diaresnet20_cifar100', 'dia
 import os
 import torch.nn as nn
 from .common.conv import conv3x3_block
-from .common.common import DualPathSequential
+from .common.arch import DualPathSequential
 from .diaresnet import DIAAttention, DIAResUnit
 
 

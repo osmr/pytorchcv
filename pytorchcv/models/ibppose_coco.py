@@ -13,7 +13,8 @@ from typing import Callable
 from .common.activ import lambda_relu, lambda_leakyrelu, create_activation_layer
 from .common.norm import lambda_batchnorm2d
 from .common.conv import conv1x1_block, conv3x3_block, conv7x7_block
-from .common.common import SEBlock, Hourglass, InterpolationBlock
+from .common.arch import Hourglass
+from .common.common import SEBlock, InterpolationBlock
 
 
 class IbpResBottleneck(nn.Module):

@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 from .common.activ import Identity
 from .common.conv import conv1x1_block, conv3x3_block, deconv3x3_block
-from .common.common import Hourglass
+from .common.arch import Hourglass
 from .resnet import resnet18
 
 

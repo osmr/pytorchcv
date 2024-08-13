@@ -14,7 +14,7 @@ import torch.nn.functional as F
 from typing import Callable
 from .common.activ import lambda_relu
 from .common.norm import lambda_batchnorm1d
-from .common.common import DualPathSequential, DualPathParallelConcurent
+from .common.arch import DualPathSequential, DualPathParallelConcurent
 
 
 def outmask_fill(x: torch.Tensor,

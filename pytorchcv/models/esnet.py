@@ -12,7 +12,7 @@ import torch.nn as nn
 from typing import Callable
 from .common.norm import lambda_batchnorm2d
 from .common.conv import AsymConvBlock, deconv3x3_block
-from .common.common import Concurrent
+from .common.arch import Concurrent
 from .enet import ENetMixDownBlock
 from .erfnet import FCU
 

@@ -12,7 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from .common.activ import Identity
 from .common.conv import conv1x1, conv1x1_block, conv3x3_block
-from .common.common import Concurrent
+from .common.arch import Concurrent
 from .resnetd import resnetd50b, resnetd101b
 
 

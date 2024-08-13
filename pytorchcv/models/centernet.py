@@ -11,7 +11,7 @@ import os
 import torch
 import torch.nn as nn
 from .common.conv import conv1x1, conv3x3_block, DeconvBlock
-from .common.common import Concurrent
+from .common.arch import Concurrent
 from .resnet import resnet18, resnet50b, resnet101b
 
 

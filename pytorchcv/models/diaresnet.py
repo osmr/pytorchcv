@@ -12,7 +12,7 @@ import os
 import torch
 import torch.nn as nn
 from .common.conv import conv1x1_block
-from .common.common import DualPathSequential
+from .common.arch import DualPathSequential
 from .resnet import ResBlock, ResBottleneck, ResInitBlock
 
 
