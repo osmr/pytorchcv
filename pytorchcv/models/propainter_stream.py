@@ -344,21 +344,21 @@ class ProPainterIterator:
         Frame iterator.
     masks : BufferedIterator
         Mask iterator.
-    raft_model_path : str or None, default None
-        Path to RAFT model parameters.
-    pprfc_model_path : str or None, default None
-        Path to ProPainter-RFC model parameters.
-    pp_model_path : str or None, default None
-        Path to ProPainter model parameters.
+    raft_model : nn.Module or str or None, default None
+        RAFT model or path to RAFT model parameters.
+    pprfc_model : nn.Module or str or None, default None
+        ProPainter-RFC model or path to ProPainter-RFC model parameters.
+    pp_model : nn.Module or str or None, default None
+        ProPainter model or path to ProPainter model parameters.
     step : int, default 10
         Iteration window size.
     """
     def __init__(self,
                  frames: BufferedIterator,
                  masks: BufferedIterator,
-                 raft_model_path: str | None = None,
-                 pprfc_model_path: str | None = None,
-                 pp_model_path: str | None = None,
+                 raft_model: nn.Module | str | None = None,
+                 pprfc_model: nn.Module | str | None = None,
+                 pp_model: nn.Module | str | None = None,
                  step: int = 10):
         super(ProPainterIterator, self).__init__()
         assert (len(frames) > 0)
@@ -373,11 +373,11 @@ class ProPainterIterator:
 
         self.flow_iterator = RAFTIterator(
             frames=frames,
-            raft_model_path=raft_model_path)
+            raft_model=raft_model)
         self.comp_flow_iterator = ProPainterRFCIterator(
             flows=self.flow_iterator,
             masks=masks,
-            pprfc_model=pprfc_model_path)
+            pprfc_model=pprfc_model)
         self.prop_framemask_iterator = ProPainterIPIterator(
             frames=frames,
             masks=masks,
@@ -386,7 +386,7 @@ class ProPainterIterator:
             prop_framemasks=self.prop_framemask_iterator,
             masks=masks,
             comp_flows=self.comp_flow_iterator,
-            pp_model=pp_model_path)
+            pp_model=pp_model)
         self.inp_frame_iterator = ProPainterIMIterator(
             trans_frames=self.trans_frame_iterator,
             frames=frames,

@@ -344,9 +344,9 @@ def run_streaming_propainter(frames_dir_path: str,
     vi_iterator = ProPainterIterator(
         frames=frame_iterator,
         masks=mask_iterator,
-        raft_model_path=raft_model_path,
-        pprfc_model_path=pprfc_model_path,
-        pp_model_path=pp_model_path)
+        raft_model=raft_model_path,
+        pprfc_model=pprfc_model_path,
+        pp_model=pp_model_path)
 
     vi_frames_np = None
     for frames_i in vi_iterator:
