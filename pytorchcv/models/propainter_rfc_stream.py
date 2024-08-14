@@ -144,8 +144,6 @@ class ProPainterRFCIterator(WindowBufferedIterator):
 
 
 def _test():
-    pprfc_model_path = "../../../pytorchcv_data/test/propainter_rfc.pth"
-
     time = 140
     height = 240
     width = 432
@@ -155,7 +153,7 @@ def _test():
     comp_flow_iterator = ProPainterRFCIterator(
         flows=flows,
         masks=masks,
-        pprfc_model=pprfc_model_path)
+        pprfc_model=None)
 
     video_length = time
     time_step = 10

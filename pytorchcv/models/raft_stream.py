@@ -175,8 +175,6 @@ class RAFTIterator(WindowBufferedIterator):
 
 
 def _test():
-    raft_model_path = "../../../pytorchcv_data/test/raft-things_2.pth"
-
     time = 140
     height = 240
     width = 432
@@ -184,7 +182,7 @@ def _test():
 
     flow_iterator = RAFTIterator(
         frames=frames,
-        raft_model_path=raft_model_path)
+        raft_model=None)
 
     video_length = time
     time_step = 10

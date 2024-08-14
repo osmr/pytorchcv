@@ -441,8 +441,6 @@ class ProPainterIterator:
 
 
 def _test():
-    pp_model_path = "../../../pytorchcv_data/test/propainter.pth"
-
     time = 140
     height = 240
     width = 432
@@ -455,7 +453,7 @@ def _test():
         prop_framemasks=prop_framemasks,
         masks=masks,
         comp_flows=comp_flows,
-        pp_model=pp_model_path)
+        pp_model=None)
 
     video_length = time
     time_step = 10
