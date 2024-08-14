@@ -24,20 +24,20 @@ class ProPainterRFCIterator(WindowBufferedIterator):
         Flow iterator (RAFT).
     masks : sequence
         Mask iterator.
-    pprfc_model_path : str or None, default None
-        Path to ProPainter-RFC model parameters.
+    pprfc_model : nn.Module or str or None, default None
+        ProPainter-RFC model or path to ProPainter-RFC model parameters.
     """
     def __init__(self,
                  flows: Sequence,
                  masks: Sequence,
-                 pprfc_model_path: str | None = None,
+                 pprfc_model: nn.Module | str | None = None,
                  **kwargs):
         assert (len(masks) > 0)
         super(ProPainterRFCIterator, self).__init__(
             data=[flows, masks],
             window_index=ProPainterRFCIterator._calc_window_index(video_length=len(masks)),
             **kwargs)
-        self.net = ProPainterRFCIterator._load_model(pprfc_model_path=pprfc_model_path)
+        self.net = ProPainterRFCIterator._load_model(pprfc_model=pprfc_model)
 
     def _calc_data_items(self,
                          raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
@@ -85,23 +85,25 @@ class ProPainterRFCIterator(WindowBufferedIterator):
         self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
 
     @staticmethod
-    def _load_model(pprfc_model_path: str | None = None) -> nn.Module:
+    def _load_model(pprfc_model: nn.Module | str | None = None) -> nn.Module:
         """
         Load ProPainter-RFC model.
 
         Parameters
         ----------
-        pprfc_model_path : str or None, default None
-            Path to ProPainter-RFC model parameters.
+        pprfc_model : nn.Module or str or None, default None
+            ProPainter-RFC model or path to ProPainter-RFC model parameters.
 
         Returns
         -------
         nn.Module
             ProPainter-RFC model.
         """
-        if pprfc_model_path is not None:
+        if isinstance(pprfc_model, nn.Module):
+            return pprfc_model
+        if pprfc_model is not None:
             pprfc_net = propainter_rfc()
-            pprfc_net.load_state_dict(torch.load(pprfc_model_path, map_location="cpu", weights_only=True))
+            pprfc_net.load_state_dict(torch.load(pprfc_model, map_location="cpu", weights_only=True))
         else:
             pprfc_net = propainter_rfc(pretrained=True)
         pprfc_net.eval()
@@ -153,7 +155,7 @@ def _test():
     comp_flow_iterator = ProPainterRFCIterator(
         flows=flows,
         masks=masks,
-        pprfc_model_path=pprfc_model_path)
+        pprfc_model=pprfc_model_path)
 
     video_length = time
     time_step = 10

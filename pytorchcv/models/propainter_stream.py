@@ -29,8 +29,8 @@ class ProPainterITIterator(WindowBufferedIterator):
         Mask iterator.
     comp_flows : Sequence
         Flow completion iterator (ProPainter-RFC).
-    pp_model_path : str or None, default None
-        Path to ProPainter model parameters.
+    pp_model : nn.Module or str or None, default None
+        ProPainter model or path to ProPainter model parameters.
     pp_stride : int, default 5
         Stride value for sliding window.
     pp_ref_stride : int, default 10
@@ -42,7 +42,7 @@ class ProPainterITIterator(WindowBufferedIterator):
                  prop_framemasks: Sequence,
                  masks: Sequence,
                  comp_flows: Sequence,
-                 pp_model_path: str | None = None,
+                 pp_model: nn.Module | str | None = None,
                  pp_stride: int = 5,
                  pp_ref_stride: int = 10,
                  pp_ref_window_size: int = 80,
@@ -54,7 +54,7 @@ class ProPainterITIterator(WindowBufferedIterator):
                 video_length=len(masks),
                 pp_stride=pp_stride),
             **kwargs)
-        self.net = ProPainterITIterator._load_model(pp_model_path=pp_model_path)
+        self.net = ProPainterITIterator._load_model(pp_model=pp_model)
         self.stride = pp_stride
         self.ref_stride = pp_ref_stride
         self.num_refs = pp_ref_window_size // pp_ref_stride
@@ -211,23 +211,25 @@ class ProPainterITIterator(WindowBufferedIterator):
         return ref_index
 
     @staticmethod
-    def _load_model(pp_model_path: str | None = None) -> nn.Module:
+    def _load_model(pp_model: nn.Module | str | None = None) -> nn.Module:
         """
         Load ProPainter model.
 
         Parameters
         ----------
-        pp_model_path : str or None, default None
-            Path to ProPainter-RFC model parameters.
+        pp_model : nn.Module or str or None, default None
+            ProPainter model or path to ProPainter model parameters.
 
         Returns
         -------
         nn.Module
             ProPainter model.
         """
-        if pp_model_path is not None:
+        if isinstance(pp_model, nn.Module):
+            return pp_model
+        if pp_model is not None:
             pp_net = propainter()
-            pp_net.load_state_dict(torch.load(pp_model_path, map_location="cpu", weights_only=True))
+            pp_net.load_state_dict(torch.load(pp_model, map_location="cpu", weights_only=True))
         else:
             pp_net = propainter(pretrained=True)
         pp_net.eval()
@@ -375,7 +377,7 @@ class ProPainterIterator:
         self.comp_flow_iterator = ProPainterRFCIterator(
             flows=self.flow_iterator,
             masks=masks,
-            pprfc_model_path=pprfc_model_path)
+            pprfc_model=pprfc_model_path)
         self.prop_framemask_iterator = ProPainterIPIterator(
             frames=frames,
             masks=masks,
@@ -384,7 +386,7 @@ class ProPainterIterator:
             prop_framemasks=self.prop_framemask_iterator,
             masks=masks,
             comp_flows=self.comp_flow_iterator,
-            pp_model_path=pp_model_path)
+            pp_model=pp_model_path)
         self.inp_frame_iterator = ProPainterIMIterator(
             trans_frames=self.trans_frame_iterator,
             frames=frames,
@@ -453,7 +455,7 @@ def _test():
         prop_framemasks=prop_framemasks,
         masks=masks,
         comp_flows=comp_flows,
-        pp_model_path=pp_model_path)
+        pp_model=pp_model_path)
 
     video_length = time
     time_step = 10

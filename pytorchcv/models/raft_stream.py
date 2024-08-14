@@ -21,14 +21,14 @@ class RAFTIterator(WindowBufferedIterator):
     ----------
     frames : sequence
         Frame iterator.
-    raft_model_path : str or None, default None
-        Path to RAFT model parameters.
+    raft_model : nn.Module or str or None, default None
+        RAFT model or path to RAFT model parameters.
     raft_iters : int, default 20
         Number of iterations in RAFT.
     """
     def __init__(self,
                  frames: Sequence,
-                 raft_model_path: str | None = None,
+                 raft_model: nn.Module | str | None = None,
                  raft_iters: int = 20,
                  **kwargs):
         assert (len(frames) > 0)
@@ -39,7 +39,7 @@ class RAFTIterator(WindowBufferedIterator):
                 frame_size=frames[0].shape[1:]),
             **kwargs)
         self.net = RAFTIterator._load_model(
-            raft_model_path=raft_model_path,
+            raft_model=raft_model,
             raft_iters=raft_iters)
 
     def _calc_data_items(self,
@@ -81,15 +81,15 @@ class RAFTIterator(WindowBufferedIterator):
         self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
 
     @staticmethod
-    def _load_model(raft_model_path: str | None = None,
+    def _load_model(raft_model: nn.Module | str | None = None,
                     raft_iters: int = 20) -> nn.Module:
         """
         Load RAFT model.
 
         Parameters
         ----------
-        raft_model_path : str or None, default None
-            Path to RAFT model parameters.
+        raft_model : nn.Module or str or None, default None
+            RAFT model or path to RAFT model parameters.
         raft_iters : int, default 20
             Number of iterations in RAFT.
 
@@ -98,11 +98,14 @@ class RAFTIterator(WindowBufferedIterator):
         nn.Module
             RAFT model.
         """
-        if raft_model_path is not None:
+        if isinstance(raft_model, nn.Module):
+            assert (raft_model.iters == raft_iters)
+            return raft_model
+        if raft_model is not None:
             raft_net = raft_things(
                 in_normalize=False,
                 iters=raft_iters)
-            raft_net.load_state_dict(torch.load(raft_model_path, map_location="cpu", weights_only=True))
+            raft_net.load_state_dict(torch.load(raft_model, map_location="cpu", weights_only=True))
         else:
             raft_net = raft_things(
                 pretrained=True,
