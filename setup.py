@@ -8,7 +8,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='pytorchcv',
-    description='Image classification and segmentation models for PyTorch',
+    description='Computer vision models for PyTorch',
     url='https://github.com/osmr/pytorchcv',
     author='Oleg Sémery',
     author_email='osemery@gmail.com',
@@ -28,7 +28,7 @@ setup(
              'squeezenext shufflenet menet mobilenet igcv3 mnasnet darts xception inception polynet nasnet pnasnet ror '
              'proxylessnas dianet efficientnet mixnet image-segmentation voc ade20k cityscapes coco pspnet deeplabv3 '
              'fcn',
-    packages=find_packages(exclude=['datasets', 'metrics', 'others', '*.others', 'others.*', '*.others.*']),
+    packages=find_packages(exclude=['*.others']),
     install_requires=['numpy', 'requests', 'torch', 'torchvision'],
     python_requires='>=3.10',
     include_package_data=True,
