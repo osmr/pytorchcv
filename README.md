@@ -3,7 +3,8 @@
 [![PyPI](https://img.shields.io/pypi/v/pytorchcv.svg)](https://pypi.python.org/pypi/pytorchcv)
 [![Downloads](https://pepy.tech/badge/pytorchcv)](https://pepy.tech/project/pytorchcv)
 
-This is a collection of image classification, segmentation, detection, and pose estimation models. Many of them are pretrained on
+This is a collection of image classification, segmentation, detection, pose estimation, video inpainting models. Many of
+them are pretrained on
 [ImageNet-1K](http://www.image-net.org), [CIFAR-10/100](https://www.cs.toronto.edu/~kriz/cifar.html),
 [SVHN](http://ufldl.stanford.edu/housenumbers), [CUB-200-2011](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html),
 [Pascal VOC2012](http://host.robots.ox.ac.uk/pascal/VOC/voc2012), [ADE20K](http://groups.csail.mit.edu/vision/datasets/ADE20K),
@@ -124,6 +125,8 @@ models are in the [`imgclsmob`](https://github.com/osmr/imgclsmob) repo.
 - Neural Voice Puppetry Audio-to-Expression net (['Neural Voice Puppetry: Audio-driven Facial Reenactment'](https://arxiv.org/abs/1912.05566))
 - Jasper/JasperDR (['Jasper: An End-to-End Convolutional Neural Acoustic Model'](https://arxiv.org/abs/1904.03288))
 - QuartzNet (['QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel Separable Convolutions'](https://arxiv.org/abs/1910.10261))
+- RAFT (['RAFT: Recurrent All-Pairs Field Transforms for Optical Flow'](https://arxiv.org/pdf/2003.12039))
+- ProPainter (['ProPainter: Improving Propagation and Transformer for Video Inpainting'](https://arxiv.org/pdf/2309.03897))
 
 ## Installation
 
