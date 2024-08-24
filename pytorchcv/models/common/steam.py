@@ -2,15 +2,16 @@
     Streaming common routines for models in PyTorch.
 """
 
-__all__ = ['BufferedIterator', 'WindowBufferedIterator', 'WindowIndex', 'WindowMultiIndex', 'WindowMap',
-           'calc_serial_window_iterator_index', 'calc_sliding_window_iterator_index', 'concat_window_iterator_indices']
+__all__ = ['Sequencer', 'BufferedSequencer', 'WindowBufferedSequencer', 'WindowIndex', 'WindowMultiIndex', 'WindowMap',
+           'calc_serial_window_sequencer_index', 'calc_sliding_window_sequencer_index',
+           'concat_window_sequencer_indices']
 
 from typing import Sequence
 
 
-class BufferedIterator(object):
+class Sequencer(object):
     """
-    Buffered sequence-like iterator/calculator.
+    Sequence-like iterator/calculator.
 
     Parameters
     ----------
@@ -19,16 +20,12 @@ class BufferedIterator(object):
     """
     def __init__(self,
                  data: tuple[Sequence, ...] | list[Sequence] | Sequence):
-        super(BufferedIterator, self).__init__()
+        super(Sequencer, self).__init__()
         if isinstance(data, (tuple, list)):
             assert (len(data) > 0)
             self.raw_data_list = data
         else:
             self.raw_data_list = [data]
-
-        self.start_pos = 0
-        self.end_pos = 0
-        self.buffer = None
 
     def __len__(self):
         return len(self.raw_data_list[0])
@@ -49,9 +46,45 @@ class BufferedIterator(object):
             Target data.
         """
         if len(raw_data_chunk_list) == 1:
-            return raw_data_chunk_list
+            return raw_data_chunk_list[0]
         else:
             raise Exception()
+
+    def __getitem__(self,
+                    index: int | slice) -> Sequence:
+        """
+        Get items by index.
+
+        Parameters
+        ----------
+        index : int or slice
+            Index.
+
+        Returns
+        -------
+        sequence
+            Desired items.
+        """
+        raw_data_chunk_list = [raw_data[index] for raw_data in self.raw_data_list]
+        calc_data = self._calc_data_items(raw_data_chunk_list)
+        return calc_data
+
+
+class BufferedSequencer(Sequencer):
+    """
+    Buffered sequence-like iterator/calculator.
+
+    Parameters
+    ----------
+    data : tuple(sequence, ...) or list(sequence) or sequence
+        Source data or data iterators (arguments of calculator).
+    """
+    def __init__(self,
+                 data: tuple[Sequence, ...] | list[Sequence] | Sequence):
+        super(BufferedSequencer, self).__init__(data)
+        self.start_pos = 0
+        self.end_pos = 0
+        self.buffer = None
 
     def _expand_buffer_by(self,
                           data_chunk: Sequence):
@@ -251,12 +284,12 @@ WindowIndex = list[WindowMap]
 WindowMultiIndex = list[WindowMultiMap]
 
 
-def calc_serial_window_iterator_index(length: int,
-                                      window_size: int = 1,
-                                      padding: tuple[int, int] = (0, 0),
-                                      edge_mode: str = "ignore") -> WindowIndex:
+def calc_serial_window_sequencer_index(length: int,
+                                       window_size: int = 1,
+                                       padding: tuple[int, int] = (0, 0),
+                                       edge_mode: str = "ignore") -> WindowIndex:
     """
-    Calculate serial window iterator index.
+    Calculate serial window sequencer index.
 
     Parameters
     ----------
@@ -297,12 +330,12 @@ def calc_serial_window_iterator_index(length: int,
     return index
 
 
-def calc_sliding_window_iterator_index(length: int,
-                                       stride: int = 1,
-                                       src_padding: tuple[int, int] = (0, 1),
-                                       padding: tuple[int, int] = (0, 1)) -> WindowIndex:
+def calc_sliding_window_sequencer_index(length: int,
+                                        stride: int = 1,
+                                        src_padding: tuple[int, int] = (0, 1),
+                                        padding: tuple[int, int] = (0, 1)) -> WindowIndex:
     """
-    Calculate sliding window iterator index.
+    Calculate sliding window sequencer index.
 
     Parameters
     ----------
@@ -342,9 +375,9 @@ def calc_sliding_window_iterator_index(length: int,
     return index
 
 
-def concat_window_iterator_indices(indices: list[WindowIndex]) -> WindowMultiIndex:
+def concat_window_sequencer_indices(indices: list[WindowIndex]) -> WindowMultiIndex:
     """
-    Concatenate window iterator indices.
+    Concatenate window sequencer indices.
 
     Parameters
     ----------
@@ -360,7 +393,7 @@ def concat_window_iterator_indices(indices: list[WindowIndex]) -> WindowMultiInd
     return index
 
 
-class WindowBufferedIterator(BufferedIterator):
+class WindowBufferedSequencer(BufferedSequencer):
     """
     Buffered sequence-like iterator/calculator with window arguments/calculations.
 
@@ -372,10 +405,10 @@ class WindowBufferedIterator(BufferedIterator):
     def __init__(self,
                  window_index: WindowIndex | WindowMultiIndex,
                  **kwargs):
-        super(WindowBufferedIterator, self).__init__(**kwargs)
+        super(WindowBufferedSequencer, self).__init__(**kwargs)
         assert (len(window_index) > 0)
         if isinstance(window_index[0], WindowMap):
-            self.window_index = concat_window_iterator_indices([window_index])
+            self.window_index = concat_window_sequencer_indices([window_index])
         else:
             self.window_index = window_index
 
@@ -440,5 +473,5 @@ class WindowBufferedIterator(BufferedIterator):
         """
         Clear buffer.
         """
-        super(WindowBufferedIterator, self).clear_buffer()
+        super(WindowBufferedSequencer, self).clear_buffer()
         self.window_pos = -1

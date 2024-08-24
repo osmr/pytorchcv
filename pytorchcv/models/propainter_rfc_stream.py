@@ -4,26 +4,26 @@
     https://arxiv.org/pdf/2309.03897.
 """
 
-__all__ = ['ProPainterRFCIterator']
+__all__ = ['ProPainterRFCSequencer']
 
 import torch
 import torch.nn as nn
 from typing import Sequence
-from pytorchcv.models.common.steam import (WindowBufferedIterator, WindowMultiIndex, calc_serial_window_iterator_index,
-                                           concat_window_iterator_indices)
+from pytorchcv.models.common.steam import (WindowBufferedSequencer, WindowMultiIndex, calc_serial_window_sequencer_index,
+                                           concat_window_sequencer_indices)
 from pytorchcv.models.propainter_rfc import propainter_rfc, calc_bidirectional_opt_flow_completion_by_pprfc
 
 
-class ProPainterRFCIterator(WindowBufferedIterator):
+class ProPainterRFCSequencer(WindowBufferedSequencer):
     """
-    Optical flow completion (ProPainter-RFC) window buffered iterator.
+    Optical flow completion (ProPainter-RFC) window buffered sequencer.
 
     Parameters
     ----------
     flows : Sequence
-        Flow iterator (RAFT).
+        Flow sequencer (RAFT).
     masks : sequence
-        Mask iterator.
+        Mask sequencer.
     pprfc_model : nn.Module or str or None, default None
         ProPainter-RFC model or path to ProPainter-RFC model parameters.
     use_cuda : bool, default True
@@ -42,14 +42,14 @@ class ProPainterRFCIterator(WindowBufferedIterator):
                  padding: int = 5,
                  **kwargs):
         assert (len(masks) > 0)
-        super(ProPainterRFCIterator, self).__init__(
+        super(ProPainterRFCSequencer, self).__init__(
             data=[flows, masks],
-            window_index=ProPainterRFCIterator._calc_window_index(
+            window_index=ProPainterRFCSequencer._calc_window_index(
                 video_length=len(masks),
                 window_size=window_size,
                 padding=padding),
             **kwargs)
-        self.net = ProPainterRFCIterator._load_model(
+        self.net = ProPainterRFCSequencer._load_model(
             pprfc_model=pprfc_model,
             use_cuda=use_cuda)
 
@@ -154,17 +154,17 @@ class ProPainterRFCIterator(WindowBufferedIterator):
             Desired window multiindex.
         """
         assert (window_size > 0)
-        pprfc_flows_window_index = calc_serial_window_iterator_index(
+        pprfc_flows_window_index = calc_serial_window_sequencer_index(
             length=video_length - 1,
             window_size=window_size,
             padding=(padding, padding),
             edge_mode="ignore")
-        pprfc_mask_window_index = calc_serial_window_iterator_index(
+        pprfc_mask_window_index = calc_serial_window_sequencer_index(
             length=video_length,
             window_size=window_size,
             padding=(padding, padding + 1),
             edge_mode="ignore")
-        pprfc_window_index = concat_window_iterator_indices([pprfc_flows_window_index, pprfc_mask_window_index])
+        pprfc_window_index = concat_window_sequencer_indices([pprfc_flows_window_index, pprfc_mask_window_index])
         return pprfc_window_index
 
 
@@ -175,7 +175,7 @@ def _test():
     flows = torch.randn(time - 1, 4, height, width).cuda()
     masks = torch.randn(time, 1, height, width).cuda()
 
-    comp_flow_iterator = ProPainterRFCIterator(
+    comp_flow_sequencer = ProPainterRFCSequencer(
         flows=flows,
         masks=masks,
         pprfc_model=None,
@@ -183,12 +183,12 @@ def _test():
 
     video_length = time
     time_step = 10
-    comp_flow_iterator_trim_pad = 2
+    comp_flow_sequencer_trim_pad = 2
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
-        comp_flows_i = comp_flow_iterator[s:e]
+        comp_flows_i = comp_flow_sequencer[s:e]
         assert (comp_flows_i is not None)
-        comp_flow_iterator.trim_buffer_to(max(e - comp_flow_iterator_trim_pad, 0))
+        comp_flow_sequencer.trim_buffer_to(max(e - comp_flow_sequencer_trim_pad, 0))
         torch.cuda.empty_cache()
 
     pass

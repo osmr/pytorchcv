@@ -4,23 +4,23 @@
     https://arxiv.org/pdf/2003.12039.
 """
 
-__all__ = ['RAFTIterator']
+__all__ = ['RAFTSequencer']
 
 import torch
 import torch.nn as nn
 from typing import Sequence
-from pytorchcv.models.common.steam import WindowBufferedIterator, WindowIndex, calc_serial_window_iterator_index
+from pytorchcv.models.common.steam import WindowBufferedSequencer, WindowIndex, calc_serial_window_sequencer_index
 from pytorchcv.models.raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
 
 
-class RAFTIterator(WindowBufferedIterator):
+class RAFTSequencer(WindowBufferedSequencer):
     """
-    Optical flow calculation (RAFT) window buffered iterator.
+    Optical flow calculation (RAFT) window buffered sequencer.
 
     Parameters
     ----------
     frames : sequence
-        Frame iterator.
+        Frame sequencer.
     raft_model : nn.Module or str or None, default None
         RAFT model or path to RAFT model parameters.
     use_cuda : bool, default True
@@ -38,14 +38,14 @@ class RAFTIterator(WindowBufferedIterator):
                  window_size: int | None = None,
                  **kwargs):
         assert (len(frames) > 1)
-        super(RAFTIterator, self).__init__(
+        super(RAFTSequencer, self).__init__(
             data=frames,
-            window_index=RAFTIterator._calc_window_index(
+            window_index=RAFTSequencer._calc_window_index(
                 video_length=len(frames),
                 window_size=window_size,
                 frame_size=frames[0].shape[1:]),
             **kwargs)
-        self.net = RAFTIterator._load_model(
+        self.net = RAFTSequencer._load_model(
             raft_model=raft_model,
             use_cuda=use_cuda,
             raft_iters=raft_iters)
@@ -152,9 +152,9 @@ class RAFTIterator(WindowBufferedIterator):
         WindowIndex
             Desired window index.
         """
-        return calc_serial_window_iterator_index(
+        return calc_serial_window_sequencer_index(
             length=video_length,
-            window_size=RAFTIterator._calc_window_size(
+            window_size=RAFTSequencer._calc_window_size(
                 window_size=window_size,
                 frame_size=frame_size),
             padding=(1, 0),
@@ -205,19 +205,19 @@ def _test():
     width = 432
     frames = torch.randn(time, 3, height, width).cuda()
 
-    flow_iterator = RAFTIterator(
+    flow_sequencer = RAFTSequencer(
         frames=frames,
         raft_model=None,
         use_cuda=True)
 
     video_length = time
     time_step = 10
-    flow_iterator_trim_pad = 2
+    flow_sequencer_trim_pad = 2
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
-        flows_i = flow_iterator[s:e]
+        flows_i = flow_sequencer[s:e]
         assert (flows_i is not None)
-        flow_iterator.trim_buffer_to(max(e - flow_iterator_trim_pad, 0))
+        flow_sequencer.trim_buffer_to(max(e - flow_sequencer_trim_pad, 0))
         torch.cuda.empty_cache()
 
     pass

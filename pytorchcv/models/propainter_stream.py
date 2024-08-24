@@ -4,31 +4,31 @@
     https://arxiv.org/pdf/2309.03897.
 """
 
-__all__ = ['ProPainterITIterator', 'ProPainterIMIterator', 'ProPainterIterator']
+__all__ = ['ProPainterITSequencer', 'ProPainterIMSequencer', 'ProPainterIterator']
 
 import torch
 import torch.nn as nn
 from typing import Sequence
-from pytorchcv.models.common.steam import (BufferedIterator, WindowBufferedIterator, WindowMultiIndex,
-                                           calc_sliding_window_iterator_index, concat_window_iterator_indices)
+from pytorchcv.models.common.steam import (Sequencer, BufferedSequencer, WindowBufferedSequencer, WindowMultiIndex,
+                                           calc_sliding_window_sequencer_index, concat_window_sequencer_indices)
 from pytorchcv.models.propainter import propainter
-from pytorchcv.models.raft_stream import RAFTIterator
-from pytorchcv.models.propainter_rfc_stream import ProPainterRFCIterator
-from pytorchcv.models.propainter_ip_stream import ProPainterIPIterator
+from pytorchcv.models.raft_stream import RAFTSequencer
+from pytorchcv.models.propainter_rfc_stream import ProPainterRFCSequencer
+from pytorchcv.models.propainter_ip_stream import ProPainterIPSequencer
 
 
-class ProPainterITIterator(WindowBufferedIterator):
+class ProPainterITSequencer(WindowBufferedSequencer):
     """
-    Image transform (ProPainter-IT) window buffered iterator.
+    Image transform (ProPainter-IT) window buffered sequencer.
 
     Parameters
     ----------
     prop_framemasks : Sequence
-        Image propagation iterator (ProPainter-IP).
+        Image propagation sequencer (ProPainter-IP).
     masks : sequence
-        Mask iterator.
+        Mask sequencer.
     comp_flows : Sequence
-        Flow completion iterator (ProPainter-RFC).
+        Flow completion sequencer (ProPainter-RFC).
     pp_model : nn.Module or str or None, default None
         ProPainter model or path to ProPainter model parameters.
     use_cuda : bool, default True
@@ -51,14 +51,14 @@ class ProPainterITIterator(WindowBufferedIterator):
                  pp_ref_window_size: int = 80,
                  **kwargs):
         assert (len(masks) > 0)
-        super(ProPainterITIterator, self).__init__(
+        super(ProPainterITSequencer, self).__init__(
             data=[prop_framemasks, masks, comp_flows],
-            window_index=ProPainterITIterator._calc_window_index(
+            window_index=ProPainterITSequencer._calc_window_index(
                 video_length=len(masks),
                 pp_stride=pp_stride,
                 pp_ref_window_size=pp_ref_window_size),
             **kwargs)
-        self.net = ProPainterITIterator._load_model(
+        self.net = ProPainterITSequencer._load_model(
             pp_model=pp_model,
             use_cuda=use_cuda)
         self.stride = pp_stride
@@ -91,11 +91,11 @@ class ProPainterITIterator(WindowBufferedIterator):
         win_pos = self.window_pos + 1
         s_idx = win_pos * self.stride
 
-        neighbor_ids = ProPainterITIterator._calc_image_trans_neighbor_index(
+        neighbor_ids = ProPainterITSequencer._calc_image_trans_neighbor_index(
             mid_neighbor_id=s_idx,
             length=self.length,
             neighbor_stride=self.stride)
-        ref_ids = ProPainterITIterator._calc_image_trans_ref_index(
+        ref_ids = ProPainterITSequencer._calc_image_trans_ref_index(
             mid_neighbor_id=s_idx,
             neighbor_ids=neighbor_ids,
             length=self.length,
@@ -272,43 +272,40 @@ class ProPainterITIterator(WindowBufferedIterator):
             Desired window multiindex.
         """
         assert (pp_ref_window_size % 2 == 0)
-        pp_ref_frames_window_index = calc_sliding_window_iterator_index(
+        pp_ref_frames_window_index = calc_sliding_window_sequencer_index(
             length=video_length,
             stride=pp_stride,
             src_padding=(pp_ref_window_size // 2, pp_ref_window_size // 2 + 1),
             padding=(pp_stride, pp_stride + 1))
-        pp_local_flows_window_index = calc_sliding_window_iterator_index(
+        pp_local_flows_window_index = calc_sliding_window_sequencer_index(
             length=video_length,
             stride=pp_stride,
             src_padding=(pp_stride, pp_stride),
             padding=(pp_stride, pp_stride + 1))
-        pp_window_index = concat_window_iterator_indices([
+        pp_window_index = concat_window_sequencer_indices([
             pp_ref_frames_window_index, pp_ref_frames_window_index, pp_local_flows_window_index])
         return pp_window_index
 
 
-class ProPainterIMIterator(BufferedIterator):
+class ProPainterIMSequencer(Sequencer):
     """
-    Inpaint Masking (ProPainter-IM) buffered iterator.
+    Inpaint Masking (ProPainter-IM) sequencer.
 
     Parameters
     ----------
     trans_frames : Sequence
-        Image transform iterator (ProPainter-IT).
+        Image transform sequencer (ProPainter-IT).
     frames : sequence
-        Frame iterator.
+        Frame sequencer.
     masks : sequence
-        Mask iterator.
+        Mask sequencer.
     """
     def __init__(self,
                  trans_frames: Sequence,
                  frames: Sequence,
-                 masks: Sequence,
-                 **kwargs):
+                 masks: Sequence):
         assert (len(frames) > 0)
-        super(ProPainterIMIterator, self).__init__(
-            data=[trans_frames, frames, masks],
-            **kwargs)
+        super(ProPainterIMSequencer, self).__init__(data=[trans_frames, frames, masks])
 
     def _calc_data_items(self,
                          raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
@@ -335,18 +332,6 @@ class ProPainterIMIterator(BufferedIterator):
 
         return inp_frames
 
-    def _expand_buffer_by(self,
-                          data_chunk: Sequence):
-        """
-        Expand buffer by extra data.
-
-        Parameters
-        ----------
-        data_chunk : sequence
-            Data chunk.
-        """
-        self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
-
 
 class ProPainterIterator:
     """
@@ -354,10 +339,10 @@ class ProPainterIterator:
 
     Parameters
     ----------
-    frames : BufferedIterator
-        Frame iterator.
-    masks : BufferedIterator
-        Mask iterator.
+    frames : BufferedSequencer
+        Frame sequencer.
+    masks : BufferedSequencer
+        Mask sequencer.
     raft_model : nn.Module or str or None, default None
         RAFT model or path to RAFT model parameters.
     pprfc_model : nn.Module or str or None, default None
@@ -367,19 +352,17 @@ class ProPainterIterator:
     use_cuda : bool, default True
         Whether to use CUDA.
     raft_window_size : int or None, default None
-        RAFT Iterator window size.
+        RAFT sequencer window size.
     pp_window_size : int, default 80
         ProPainter's blocks window size.
     pp_stride : int, default 5
         ProPainter's stride value for sliding window.
-    do_masking : bool, default True
-        Whether to do inpaint masking.
     step : int, default 10
         Main iteration window size.
     """
     def __init__(self,
-                 frames: BufferedIterator,
-                 masks: BufferedIterator,
+                 frames: BufferedSequencer,
+                 masks: BufferedSequencer,
                  raft_model: nn.Module | str | None = None,
                  pprfc_model: nn.Module | str | None = None,
                  pp_model: nn.Module | str | None = None,
@@ -387,14 +370,13 @@ class ProPainterIterator:
                  raft_window_size: int | None = None,
                  pp_window_size: int = 80,
                  pp_stride: int = 5,
-                 do_masking: bool = True,
                  step: int = 10):
         super(ProPainterIterator, self).__init__()
         assert (len(frames) > 0)
         assert (len(frames) == len(masks))
         assert (step > 0)
-        assert isinstance(frames, BufferedIterator)
-        assert isinstance(masks, BufferedIterator)
+        assert isinstance(frames, BufferedSequencer)
+        assert isinstance(masks, BufferedSequencer)
 
         self.video_length = len(frames)
         self.step = step
@@ -402,55 +384,50 @@ class ProPainterIterator:
         self.frames = frames
         self.masks = masks
 
-        self.flow_iterator = RAFTIterator(
+        self.flow_sequencer = RAFTSequencer(
             frames=frames,
             raft_model=raft_model,
             use_cuda=use_cuda,
             window_size=raft_window_size)
-        self.comp_flow_iterator = ProPainterRFCIterator(
-            flows=self.flow_iterator,
+        self.comp_flow_sequencer = ProPainterRFCSequencer(
+            flows=self.flow_sequencer,
             masks=masks,
             pprfc_model=pprfc_model,
             use_cuda=use_cuda,
             window_size=pp_window_size)
-        self.prop_framemask_iterator = ProPainterIPIterator(
+        self.prop_framemask_sequencer = ProPainterIPSequencer(
             frames=frames,
             masks=masks,
-            comp_flows=self.comp_flow_iterator,
+            comp_flows=self.comp_flow_sequencer,
             use_cuda=use_cuda,
             window_size=pp_window_size)
-        self.trans_frame_iterator = ProPainterITIterator(
-            prop_framemasks=self.prop_framemask_iterator,
+        self.trans_frame_sequencer = ProPainterITSequencer(
+            prop_framemasks=self.prop_framemask_sequencer,
             masks=masks,
-            comp_flows=self.comp_flow_iterator,
+            comp_flows=self.comp_flow_sequencer,
             pp_model=pp_model,
             use_cuda=use_cuda,
             pp_ref_window_size=pp_window_size)
-        if do_masking:
-            self.inp_frame_iterator = ProPainterIMIterator(
-                trans_frames=self.trans_frame_iterator,
-                frames=frames,
-                masks=masks)
-        else:
-            self.inp_frame_iterator = None
+        self.inp_frame_sequencer = ProPainterIMSequencer(
+            trans_frames=self.trans_frame_sequencer,
+            frames=frames,
+            masks=masks)
+        self.main_sequencer = self.inp_frame_sequencer
 
-        self.inp_frame_iterator_trim_pad = 2
-        self.trans_frame_iterator_trim_pad = 2
-        self.prop_framemask_iterator_trim_pad = pp_window_size // 2 - pp_stride
-        self.comp_flow_iterator_trim_pad = 2
-        self.flow_iterator_trim_pad = 2
-        self.mask_iterator_trim_pad = pp_window_size // 2 - pp_stride
-        self.frame_iterator_trim_pad = 2
+        self.trans_frame_sequencer_trim_pad = 2
+        self.prop_framemask_sequencer_trim_pad = pp_window_size // 2 - pp_stride
+        self.comp_flow_sequencer_trim_pad = 2
+        self.flow_sequencer_trim_pad = 2
+        self.mask_sequencer_trim_pad = pp_window_size // 2 - pp_stride
+        self.frame_sequencer_trim_pad = 2
 
     def __iter__(self):
         self.s = -self.step
 
-        if self.inp_frame_iterator is not None:
-            self.inp_frame_iterator.clear_buffer()
-        self.trans_frame_iterator.clear_buffer()
-        self.prop_framemask_iterator.clear_buffer()
-        self.comp_flow_iterator.clear_buffer()
-        self.flow_iterator.clear_buffer()
+        self.trans_frame_sequencer.clear_buffer()
+        self.prop_framemask_sequencer.clear_buffer()
+        self.comp_flow_sequencer.clear_buffer()
+        self.flow_sequencer.clear_buffer()
         self.masks.clear_buffer()
         self.frames.clear_buffer()
 
@@ -465,19 +442,14 @@ class ProPainterIterator:
         self.s = min(self.s + self.step, self.video_length - 1)
         e = min(self.s + self.step, self.video_length)
 
-        if self.inp_frame_iterator is not None:
-            data = self.inp_frame_iterator[self.s:e]
-        else:
-            data = self.trans_frame_iterator[self.s:e]
+        data = self.main_sequencer[self.s:e]
 
-        if self.inp_frame_iterator is not None:
-            self.inp_frame_iterator.trim_buffer_to(max(e - self.inp_frame_iterator_trim_pad, 0))
-        self.trans_frame_iterator.trim_buffer_to(max(e - self.trans_frame_iterator_trim_pad, 0))
-        self.prop_framemask_iterator.trim_buffer_to(max(e - self.prop_framemask_iterator_trim_pad, 0))
-        self.comp_flow_iterator.trim_buffer_to(max(e - self.comp_flow_iterator_trim_pad, 0))
-        self.flow_iterator.trim_buffer_to(max(e - self.flow_iterator_trim_pad, 0))
-        self.masks.trim_buffer_to(max(e - self.mask_iterator_trim_pad, 0))
-        self.frames.trim_buffer_to(max(e - self.frame_iterator_trim_pad, 0))
+        self.trans_frame_sequencer.trim_buffer_to(max(e - self.trans_frame_sequencer_trim_pad, 0))
+        self.prop_framemask_sequencer.trim_buffer_to(max(e - self.prop_framemask_sequencer_trim_pad, 0))
+        self.comp_flow_sequencer.trim_buffer_to(max(e - self.comp_flow_sequencer_trim_pad, 0))
+        self.flow_sequencer.trim_buffer_to(max(e - self.flow_sequencer_trim_pad, 0))
+        self.masks.trim_buffer_to(max(e - self.mask_sequencer_trim_pad, 0))
+        self.frames.trim_buffer_to(max(e - self.frame_sequencer_trim_pad, 0))
 
         torch.cuda.empty_cache()
 
@@ -487,9 +459,9 @@ class ProPainterIterator:
         return data
 
 
-class TensorIterator(BufferedIterator):
+class TensorSequencer(BufferedSequencer):
     """
-    Tensor buffered iterator.
+    Tensor buffered sequencer.
 
     Parameters
     ----------
@@ -499,7 +471,7 @@ class TensorIterator(BufferedIterator):
     def __init__(self,
                  data: torch.Tensor):
         assert isinstance(data, torch.Tensor)
-        super(TensorIterator, self).__init__(data)
+        super(TensorSequencer, self).__init__(data=data)
 
     def _calc_data_items(self,
                          raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
@@ -541,7 +513,7 @@ def _test():
     comp_flows = torch.randn(time - 1, 4, height, width).cuda()
     frames = torch.randn(time, 3, height, width).cuda()
 
-    trans_frame_iterator = ProPainterITIterator(
+    trans_frame_sequencer = ProPainterITSequencer(
         prop_framemasks=prop_framemasks,
         masks=masks,
         comp_flows=comp_flows,
@@ -550,38 +522,35 @@ def _test():
 
     video_length = time
     time_step = 10
-    trans_frame_iterator_trim_pad = 2
+    trans_frame_sequencer_trim_pad = 2
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
-        trans_frames_i = trans_frame_iterator[s:e]
+        trans_frames_i = trans_frame_sequencer[s:e]
         assert (trans_frames_i is not None)
-        trans_frame_iterator.trim_buffer_to(max(e - trans_frame_iterator_trim_pad, 0))
+        trans_frame_sequencer.trim_buffer_to(max(e - trans_frame_sequencer_trim_pad, 0))
         torch.cuda.empty_cache()
 
-    trans_frame_iterator.clear_buffer()
+    trans_frame_sequencer.clear_buffer()
 
-    inp_frame_iterator = ProPainterIMIterator(
-        trans_frames=trans_frame_iterator,
+    inp_frame_sequencer = ProPainterIMSequencer(
+        trans_frames=trans_frame_sequencer,
         frames=frames,
         masks=masks)
 
-    inp_frame_iterator_trim_pad = 2
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
-        inp_frames_i = inp_frame_iterator[s:e]
+        inp_frames_i = inp_frame_sequencer[s:e]
         assert (inp_frames_i is not None)
-        inp_frame_iterator.trim_buffer_to(max(e - inp_frame_iterator_trim_pad, 0))
-        torch.cuda.empty_cache()
 
-    vi_iterator = ProPainterIterator(
-        frames=TensorIterator(data=frames),
-        masks=TensorIterator(data=masks),
+    vi_sequencer = ProPainterIterator(
+        frames=TensorSequencer(data=frames),
+        masks=TensorSequencer(data=masks),
         raft_model=None,
         pprfc_model=None,
         pp_model=None,
         use_cuda=True)
 
-    for frames_i in vi_iterator:
+    for frames_i in vi_sequencer:
         assert (frames_i is not None)
 
     pass

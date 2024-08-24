@@ -4,28 +4,28 @@
     https://arxiv.org/pdf/2309.03897.
 """
 
-__all__ = ['ProPainterIPIterator']
+__all__ = ['ProPainterIPSequencer']
 
 import torch
 import torch.nn as nn
 from typing import Sequence
-from pytorchcv.models.common.steam import (WindowBufferedIterator, WindowMultiIndex, calc_serial_window_iterator_index,
-                                           concat_window_iterator_indices)
+from pytorchcv.models.common.steam import (WindowBufferedSequencer, WindowMultiIndex, calc_serial_window_sequencer_index,
+                                           concat_window_sequencer_indices)
 from pytorchcv.models.propainter_ip import propainter_ip
 
 
-class ProPainterIPIterator(WindowBufferedIterator):
+class ProPainterIPSequencer(WindowBufferedSequencer):
     """
-    Image propagation (ProPainter-IP) window buffered iterator.
+    Image propagation (ProPainter-IP) window buffered sequencer.
 
     Parameters
     ----------
     frames : sequence
-        Frame iterator.
+        Frame sequencer.
     masks : sequence
-        Mask iterator.
+        Mask sequencer.
     comp_flows : Sequence
-        Flow completion iterator (ProPainter-RFC).
+        Flow completion sequencer (ProPainter-RFC).
     use_cuda : bool, default True
         Whether to use CUDA.
     window_size : int, default 80
@@ -42,14 +42,14 @@ class ProPainterIPIterator(WindowBufferedIterator):
                  padding: int = 10,
                  **kwargs):
         assert (len(frames) > 0)
-        super(ProPainterIPIterator, self).__init__(
+        super(ProPainterIPSequencer, self).__init__(
             data=[frames, masks, comp_flows],
-            window_index=ProPainterIPIterator._calc_window_index(
+            window_index=ProPainterIPSequencer._calc_window_index(
                 video_length=len(masks),
                 window_size=window_size,
                 padding=padding),
             **kwargs)
-        self.net = ProPainterIPIterator._load_model(use_cuda=use_cuda)
+        self.net = ProPainterIPSequencer._load_model(use_cuda=use_cuda)
 
     def _calc_data_items(self,
                          raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
@@ -141,17 +141,17 @@ class ProPainterIPIterator(WindowBufferedIterator):
             Desired window multiindex.
         """
         assert (window_size > 0)
-        ppip_images_window_index = calc_serial_window_iterator_index(
+        ppip_images_window_index = calc_serial_window_sequencer_index(
             length=video_length,
             window_size=window_size,
             padding=(padding, padding),
             edge_mode="ignore")
-        ppip_flows_window_index = calc_serial_window_iterator_index(
+        ppip_flows_window_index = calc_serial_window_sequencer_index(
             length=video_length - 1,
             window_size=window_size,
             padding=(padding, padding - 1),
             edge_mode="ignore")
-        ppip_window_index = concat_window_iterator_indices([
+        ppip_window_index = concat_window_sequencer_indices([
             ppip_images_window_index, ppip_images_window_index, ppip_flows_window_index])
         return ppip_window_index
 
@@ -164,7 +164,7 @@ def _test():
     masks = torch.randn(time, 1, height, width)
     comp_flows = torch.randn(time - 1, 4, height, width)
 
-    prop_framemask_iterator = ProPainterIPIterator(
+    prop_framemask_sequencer = ProPainterIPSequencer(
         frames=frames,
         masks=masks,
         comp_flows=comp_flows,
@@ -172,12 +172,12 @@ def _test():
 
     video_length = time
     time_step = 10
-    prop_framemask_iterator_trim_pad = 2
+    prop_framemask_sequencer_trim_pad = 2
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
-        prop_framemasks_i = prop_framemask_iterator[s:e]
+        prop_framemasks_i = prop_framemask_sequencer[s:e]
         assert (prop_framemasks_i is not None)
-        prop_framemask_iterator.trim_buffer_to(max(e - prop_framemask_iterator_trim_pad, 0))
+        prop_framemask_sequencer.trim_buffer_to(max(e - prop_framemask_sequencer_trim_pad, 0))
         torch.cuda.empty_cache()
 
     pass
