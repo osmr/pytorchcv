@@ -145,9 +145,9 @@ class BufferedIterator(object):
             Start index for saved buffer.
         """
         assert (start >= 0)
-        if not (start < self.end_pos - 1):
+        if not (start < self.end_pos):
             pass
-        assert (start < self.end_pos - 1)
+        assert (start < self.end_pos)
 
         if start > self.start_pos:
             assert (self.buffer is not None)

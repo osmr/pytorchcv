@@ -9,8 +9,8 @@ __all__ = ['RAFTIterator']
 import torch
 import torch.nn as nn
 from typing import Sequence
-from .common.steam import WindowBufferedIterator, WindowIndex, calc_serial_window_iterator_index
-from .raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
+from pytorchcv.models.common.steam import WindowBufferedIterator, WindowIndex, calc_serial_window_iterator_index
+from pytorchcv.models.raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
 
 
 class RAFTIterator(WindowBufferedIterator):
@@ -23,23 +23,31 @@ class RAFTIterator(WindowBufferedIterator):
         Frame iterator.
     raft_model : nn.Module or str or None, default None
         RAFT model or path to RAFT model parameters.
+    use_cuda : bool, default True
+        Whether to use CUDA.
     raft_iters : int, default 20
         Number of iterations in RAFT.
+    window_size : int or None, default None
+        Window size.
     """
     def __init__(self,
                  frames: Sequence,
                  raft_model: nn.Module | str | None = None,
+                 use_cuda: bool = True,
                  raft_iters: int = 20,
+                 window_size: int | None = None,
                  **kwargs):
-        assert (len(frames) > 0)
+        assert (len(frames) > 1)
         super(RAFTIterator, self).__init__(
             data=frames,
             window_index=RAFTIterator._calc_window_index(
                 video_length=len(frames),
+                window_size=window_size,
                 frame_size=frames[0].shape[1:]),
             **kwargs)
         self.net = RAFTIterator._load_model(
             raft_model=raft_model,
+            use_cuda=use_cuda,
             raft_iters=raft_iters)
 
     def _calc_data_items(self,
@@ -82,6 +90,7 @@ class RAFTIterator(WindowBufferedIterator):
 
     @staticmethod
     def _load_model(raft_model: nn.Module | str | None = None,
+                    use_cuda: bool = True,
                     raft_iters: int = 20) -> nn.Module:
         """
         Load RAFT model.
@@ -90,6 +99,8 @@ class RAFTIterator(WindowBufferedIterator):
         ----------
         raft_model : nn.Module or str or None, default None
             RAFT model or path to RAFT model parameters.
+        use_cuda : bool, default True
+            Whether to use CUDA.
         raft_iters : int, default 20
             Number of iterations in RAFT.
 
@@ -116,11 +127,13 @@ class RAFTIterator(WindowBufferedIterator):
             if p.requires_grad:
                 pass
             p.requires_grad = False
-        raft_net = raft_net.cuda()
+        if use_cuda:
+            raft_net = raft_net.cuda()
         return raft_net
 
     @staticmethod
     def _calc_window_index(video_length: int,
+                           window_size: int | None,
                            frame_size: tuple[int, int]) -> WindowIndex:
         """
         Calculate window index.
@@ -129,6 +142,8 @@ class RAFTIterator(WindowBufferedIterator):
         ----------
         video_length : int
             Number of frames.
+        window_size : int or None
+            Window size.
         frame_size : tuple(int, int)
             Frame size.
 
@@ -139,17 +154,23 @@ class RAFTIterator(WindowBufferedIterator):
         """
         return calc_serial_window_iterator_index(
             length=video_length,
-            window_size=RAFTIterator._calc_window_size(frame_size),
+            window_size=RAFTIterator._calc_window_size(
+                window_size=window_size,
+                frame_size=frame_size),
             padding=(1, 0),
             edge_mode="trim")
 
     @staticmethod
-    def _calc_window_size(frame_size: tuple[int, int]) -> int:
+    def _calc_window_size(
+            window_size: int | None,
+            frame_size: tuple[int, int]) -> int:
         """
         Calculate window size.
 
         Parameters
         ----------
+        window_size : int or None
+            Window size.
         frame_size : tuple(int, int)
             Frame size.
 
@@ -158,6 +179,10 @@ class RAFTIterator(WindowBufferedIterator):
         int
             Desired window size.
         """
+        if window_size is not None:
+            assert (window_size > 0)
+            return window_size
+
         assert (frame_size[0] > 0)
         assert (frame_size[1] > 0)
         max_frame_size = max(frame_size[0], frame_size[1])
@@ -175,18 +200,19 @@ class RAFTIterator(WindowBufferedIterator):
 
 
 def _test():
-    time = 140
+    time = 14
     height = 240
     width = 432
-    frames = torch.randn(time, 3, height, width)
+    frames = torch.randn(time, 3, height, width).cuda()
 
     flow_iterator = RAFTIterator(
         frames=frames,
-        raft_model=None)
+        raft_model=None,
+        use_cuda=True)
 
     video_length = time
     time_step = 10
-    flow_iterator_trim_pad = 3
+    flow_iterator_trim_pad = 2
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
         flows_i = flow_iterator[s:e]

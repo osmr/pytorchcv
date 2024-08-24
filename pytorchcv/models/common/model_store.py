@@ -326,7 +326,7 @@ def load_model(net: nn.Module,
     import torch
 
     if ignore_extra:
-        pretrained_state = torch.load(file_path)
+        pretrained_state = torch.load(file_path, weights_only=False)
         model_dict = net.state_dict()
         pretrained_state = {k: v for k, v in pretrained_state.items() if k in model_dict}
         net.load_state_dict(pretrained_state)

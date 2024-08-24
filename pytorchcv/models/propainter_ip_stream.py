@@ -9,9 +9,9 @@ __all__ = ['ProPainterIPIterator']
 import torch
 import torch.nn as nn
 from typing import Sequence
-from .common.steam import (WindowBufferedIterator, WindowMultiIndex, calc_serial_window_iterator_index,
-                           concat_window_iterator_indices)
-from .propainter_ip import propainter_ip
+from pytorchcv.models.common.steam import (WindowBufferedIterator, WindowMultiIndex, calc_serial_window_iterator_index,
+                                           concat_window_iterator_indices)
+from pytorchcv.models.propainter_ip import propainter_ip
 
 
 class ProPainterIPIterator(WindowBufferedIterator):
@@ -26,18 +26,30 @@ class ProPainterIPIterator(WindowBufferedIterator):
         Mask iterator.
     comp_flows : Sequence
         Flow completion iterator (ProPainter-RFC).
+    use_cuda : bool, default True
+        Whether to use CUDA.
+    window_size : int, default 80
+        Window size.
+    padding : int, default 10
+        Padding value.
     """
     def __init__(self,
                  frames: Sequence,
                  masks: Sequence,
                  comp_flows: Sequence,
+                 use_cuda: bool = True,
+                 window_size: int = 80,
+                 padding: int = 10,
                  **kwargs):
         assert (len(frames) > 0)
         super(ProPainterIPIterator, self).__init__(
             data=[frames, masks, comp_flows],
-            window_index=ProPainterIPIterator._calc_window_index(video_length=len(masks)),
+            window_index=ProPainterIPIterator._calc_window_index(
+                video_length=len(masks),
+                window_size=window_size,
+                padding=padding),
             **kwargs)
-        self.net = ProPainterIPIterator._load_model()
+        self.net = ProPainterIPIterator._load_model(use_cuda=use_cuda)
 
     def _calc_data_items(self,
                          raw_data_chunk_list: tuple[Sequence, ...] | list[Sequence] | Sequence) -> Sequence:
@@ -87,9 +99,14 @@ class ProPainterIPIterator(WindowBufferedIterator):
         self.buffer = torch.cat([self.buffer, data_chunk], dim=0)
 
     @staticmethod
-    def _load_model() -> nn.Module:
+    def _load_model(use_cuda: bool = True) -> nn.Module:
         """
         Load ProPainter-IP model.
+
+        Parameters
+        ----------
+        use_cuda : bool, default True
+            Whether to use CUDA.
 
         Returns
         -------
@@ -98,11 +115,14 @@ class ProPainterIPIterator(WindowBufferedIterator):
         """
         ppip_net = propainter_ip()
         ppip_net.eval()
-        ppip_net = ppip_net.cuda()
+        if use_cuda:
+            ppip_net = ppip_net.cuda()
         return ppip_net
 
     @staticmethod
-    def _calc_window_index(video_length: int) -> WindowMultiIndex:
+    def _calc_window_index(video_length: int,
+                           window_size: int,
+                           padding: int) -> WindowMultiIndex:
         """
         Calculate window index.
 
@@ -110,21 +130,26 @@ class ProPainterIPIterator(WindowBufferedIterator):
         ----------
         video_length : int
             Number of frames.
+        window_size : int
+            Window size.
+        padding : int
+            Padding value.
 
         Returns
         -------
         WindowMultiIndex
             Desired window multiindex.
         """
+        assert (window_size > 0)
         ppip_images_window_index = calc_serial_window_iterator_index(
             length=video_length,
-            window_size=80,
-            padding=(10, 10),
+            window_size=window_size,
+            padding=(padding, padding),
             edge_mode="ignore")
         ppip_flows_window_index = calc_serial_window_iterator_index(
             length=video_length - 1,
-            window_size=80,
-            padding=(10, 9),
+            window_size=window_size,
+            padding=(padding, padding - 1),
             edge_mode="ignore")
         ppip_window_index = concat_window_iterator_indices([
             ppip_images_window_index, ppip_images_window_index, ppip_flows_window_index])
@@ -136,17 +161,18 @@ def _test():
     height = 240
     width = 432
     frames = torch.randn(time, 3, height, width)
-    masks = torch.randn(time, 2, height, width)
+    masks = torch.randn(time, 1, height, width)
     comp_flows = torch.randn(time - 1, 4, height, width)
 
     prop_framemask_iterator = ProPainterIPIterator(
         frames=frames,
         masks=masks,
-        comp_flows=comp_flows)
+        comp_flows=comp_flows,
+        use_cuda=True)
 
     video_length = time
     time_step = 10
-    prop_framemask_iterator_trim_pad = 35
+    prop_framemask_iterator_trim_pad = 2
     for s in range(0, video_length, time_step):
         e = min(s + time_step, video_length)
         prop_framemasks_i = prop_framemask_iterator[s:e]
