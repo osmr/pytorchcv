@@ -285,6 +285,7 @@ WindowMultiIndex = list[WindowMultiMap]
 
 
 def calc_serial_window_sequencer_index(length: int,
+                                       target_length: int | None = None,
                                        window_size: int = 1,
                                        padding: tuple[int, int] = (0, 0),
                                        edge_mode: str = "ignore") -> WindowIndex:
@@ -295,6 +296,8 @@ def calc_serial_window_sequencer_index(length: int,
     ----------
     length : int
         Data length.
+    target_length : int or None, default None
+        Target data length.
     window_size : int, default 1
         Calculation window size.
     padding : tuple(int, int), default (0, 0)
@@ -314,13 +317,15 @@ def calc_serial_window_sequencer_index(length: int,
     assert (padding[0] >= 0) and (padding[1] >= 0)
     assert (edge_mode in ("ignore", "trim"))
 
+    target_length = target_length if (target_length is not None) else length
+
     trim_values = padding if edge_mode == "trim" else (0, 0)
     index = []
-    for i in range(0, length, window_size):
+    for i in range(0, target_length, window_size):
         src_s = max(i - padding[0], 0)
         src_e = min(i + window_size + padding[1], length)
         s = max(i - trim_values[0], 0)
-        e = min(i - trim_values[0] + window_size, length - trim_values[0] - trim_values[1])
+        e = min(i - trim_values[0] + window_size, target_length - trim_values[0] - trim_values[1])
         target_start = 0 if edge_mode == "trim" else (i if i - padding[0] < 0 else padding[0])
         assert (e > s)
         index.append(WindowMap(

@@ -156,11 +156,13 @@ class ProPainterRFCSequencer(WindowBufferedSequencer):
         assert (window_size > 0)
         pprfc_flows_window_index = calc_serial_window_sequencer_index(
             length=video_length - 1,
+            target_length=video_length,
             window_size=window_size,
             padding=(padding, padding),
             edge_mode="ignore")
         pprfc_mask_window_index = calc_serial_window_sequencer_index(
             length=video_length,
+            target_length=video_length,
             window_size=window_size,
             padding=(padding, padding + 1),
             edge_mode="ignore")

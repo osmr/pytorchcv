@@ -154,6 +154,7 @@ class RAFTSequencer(WindowBufferedSequencer):
         """
         return calc_serial_window_sequencer_index(
             length=video_length,
+            target_length=video_length,
             window_size=RAFTSequencer._calc_window_size(
                 window_size=window_size,
                 frame_size=frame_size),
