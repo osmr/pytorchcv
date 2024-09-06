@@ -130,11 +130,12 @@ models are in the [`imgclsmob`](https://github.com/osmr/imgclsmob) repo.
 
 ## Installation
 
-To use the models in your project, simply install the `pytorchcv` package with `torch` (>=0.4.1 is recommended):
+To use the models in your project, simply install the `pytorchcv`:
 ```
-pip install pytorchcv torch>=0.4.0
+pip install pytorchcv
 ```
 To enable/disable different hardware supports such as GPUs, check out PyTorch installation [instructions](https://pytorch.org).
+Some models require additional specific packages to work. For example, ASR models require the `librosa` package.
 
 ## Usage
 

@@ -2,7 +2,7 @@ from pytorchcv.model_provider import get_model as ptcv_get_model
 from pytorchcv.models.common.model_store import get_model_metainfo_dict, calc_net_weight_count
 
 
-def test_model_weight_counts(pretrained: bool = False):
+def test_model_weight_counts(pretrained: bool = True):
     model_metainfo_dict = get_model_metainfo_dict()
     for model_name, model_metainfo in model_metainfo_dict.items():
         print("model: {} -- ".format(model_name), end="")

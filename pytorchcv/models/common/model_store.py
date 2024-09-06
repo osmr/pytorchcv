@@ -2,7 +2,8 @@
     Model store which provides pretrained models.
 """
 
-__all__ = ['get_model_file', 'load_model', 'download_model', 'calc_net_weight_count', 'get_model_weight_count']
+__all__ = ['get_model_metainfo_dict', 'get_model_file', 'load_model', 'download_model', 'calc_net_weight_count',
+           'get_model_weight_count']
 
 import os
 import zipfile
@@ -75,6 +76,7 @@ def get_model_metainfo_dict() -> dict[str, tuple[int, str, str, str]]:
     model_metainfos_file_path = get_model_metainfos_file_path()
     model_metainfos_list = load_csv(model_metainfos_file_path)
     assert all([len(x) == 12 for x in model_metainfos_list])
+    assert all([x[2] == "NA" or len(x[2]) == 4 for x in model_metainfos_list[1:]])
     model_metainfo_dict = {x[0]: (conv_str_to_int(x[1]), x[2], x[3], x[4]) for x in model_metainfos_list[1:]}
     return model_metainfo_dict
 
