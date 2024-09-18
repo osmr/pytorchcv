@@ -126,7 +126,7 @@ models are in the [`imgclsmob`](https://github.com/osmr/imgclsmob) repo.
 - Jasper/JasperDR (['Jasper: An End-to-End Convolutional Neural Acoustic Model'](https://arxiv.org/abs/1904.03288))
 - QuartzNet (['QuartzNet: Deep Automatic Speech Recognition with 1D Time-Channel Separable Convolutions'](https://arxiv.org/abs/1910.10261))
 - RAFT (['RAFT: Recurrent All-Pairs Field Transforms for Optical Flow'](https://arxiv.org/pdf/2003.12039))
-- ProPainter (['ProPainter: Improving Propagation and Transformer for Video Inpainting'](https://arxiv.org/pdf/2309.03897))
+- ProPainter (['ProPainter: Improving Propagation and Transformer for Video Inpainting'](https://arxiv.org/pdf/2309.03897)) ([LICENSE](https://github.com/sczhou/ProPainter/blob/main/LICENSE))
 
 ## Installation
 
