@@ -9,8 +9,8 @@ __all__ = ['ProPainterIPSequencer']
 import torch
 import torch.nn as nn
 from typing import Sequence
-from pytorchcv.models.common.stream import (WindowBufferedSequencer, WindowMultiIndex, calc_serial_window_sequencer_index,
-                                            concat_window_sequencer_indices)
+from pytorchcv.models.common.stream import (WindowBufferedSequencer, WindowMultiIndex,
+                                            calc_serial_window_sequencer_index, concat_window_sequencer_indices)
 from pytorchcv.models.propainter_ip import propainter_ip
 
 
