@@ -9,8 +9,8 @@ __all__ = ['ProPainterITSequencer', 'ProPainterIMSequencer', 'ProPainterIterator
 import torch
 import torch.nn as nn
 from typing import Sequence
-from pytorchcv.models.common.steam import (Sequencer, BufferedSequencer, WindowBufferedSequencer, WindowMultiIndex,
-                                           calc_sliding_window_sequencer_index, concat_window_sequencer_indices)
+from pytorchcv.models.common.stream import (Sequencer, BufferedSequencer, WindowBufferedSequencer, WindowMultiIndex,
+                                            calc_sliding_window_sequencer_index, concat_window_sequencer_indices)
 from pytorchcv.models.propainter import propainter
 from pytorchcv.models.raft_stream import RAFTSequencer
 from pytorchcv.models.propainter_rfc_stream import ProPainterRFCSequencer

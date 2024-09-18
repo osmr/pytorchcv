@@ -9,7 +9,7 @@ __all__ = ['RAFTSequencer']
 import torch
 import torch.nn as nn
 from typing import Sequence
-from pytorchcv.models.common.steam import WindowBufferedSequencer, WindowIndex, calc_serial_window_sequencer_index
+from pytorchcv.models.common.stream import WindowBufferedSequencer, WindowIndex, calc_serial_window_sequencer_index
 from pytorchcv.models.raft import raft_things, calc_bidirectional_optical_flow_on_video_by_raft
 
 
