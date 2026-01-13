@@ -42,7 +42,7 @@ def load_csv(csv_file_path: str) -> list[list[str]]:
         CSV data.
     """
     from csv import reader
-    with open(csv_file_path, "r") as file:
+    with open(csv_file_path, mode="r", encoding="utf-8") as file:
         data = list(reader(file))
     return data
 
